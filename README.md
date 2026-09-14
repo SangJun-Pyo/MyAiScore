@@ -74,6 +74,7 @@ npm run collect:local -- --project . --session fixtures/local-collection/basic-s
 [GitHub 이슈](https://github.com/SangJun-Pyo/MyAiScore/issues)로 범위를 정하고 `codex/` 브랜치와 독립 worktree에서 구현·검토합니다. Astra가 통합을 담당하며 필요한 작업과 독립 검토는 서브에이전트에 맡깁니다.
 
 - [현재 진행 상태](docs/Development/ROADMAP.md)
+- [설계 결정 기록 ADR](docs/Architecture/ADR/README.md)
 - [통합 구현 세션](docs/Development/Sessions/Phase-04-Web-MVP.md)
 - [개발 기록](docs/Development/Sessions/README.md), [결함](docs/Development/BUGS.md), [제품 정본](docs/00_MASTER_PLAN.md)
 - 과거 문서와 프롬프트는 이력 자료이며 현재 실행 지시가 아닙니다.

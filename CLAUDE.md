@@ -18,4 +18,6 @@
 
 [AGENT_WORKFLOW](docs/Development/AGENT_WORKFLOW.md)에 따라 구현 → 테스트 → 해당 Phase 세션 기록 → CHANGELOG/ROADMAP/BUGS/DECISIONS 동기화 → 본인 변경만 Git commit한다.
 
+주요 구조·계약·신뢰 경계·의존성 결정은 [ADR](docs/Architecture/ADR/README.md)에 배경·대안·결과를 남긴다. 새 결정으로 바꿀 때는 이전 ADR을 덮어쓰지 않고 대체 관계를 기록한다. DECISIONS에는 요약과 ADR 링크만 두고, 세션에는 실제 실행·검증을 남긴다.
+
 보고서·검토서는 Sessions의 해당 Phase에 작성한다. Development 최상위에 PHASE*_REPORT.md 같은 새 파일을 만들지 않는다. 코드 작성만 끝내고 세션 기록을 생략하지 않는다. 과거 입력 프롬프트의 출력 경로와 충돌하면 현재 ROADMAP의 세션 경로로 인계한다. 구현 범위 자체는 바꾸지 않는다.

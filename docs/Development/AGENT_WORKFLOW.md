@@ -22,7 +22,8 @@
 | 도메인 정본 | 현재 유효한 요구·행동·계약 |
 | ROADMAP | 현재 단계, 상태, 다음 조건, 현재 지시 링크 |
 | IMPLEMENTATION_TASKS | Task별 범위·입출력·완료/검증 조건 |
-| DECISIONS | 채택/폐기한 설계와 이유·세션 근거 |
+| Architecture/ADR | 중요한 결정별 배경·선택·대안·결과·상태와 대체 관계 |
+| DECISIONS | 과거 결정 요약과 ADR 진입 링크. 새 상세 이유는 ADR에 기록 |
 | BUGS | 열린 결함·해결 검증 상태 |
 | CHANGELOG | 작업별 변경 요약과 세션 링크 |
 | Sessions/Phase-*.md | 목표, 실제 변경, 실행 결과, 검토, 미해결, 인계, 실제 commit |
@@ -34,6 +35,7 @@ REPORT/REVIEW/FOLLOWUP 문서를 Development 최상위에 추가하지 않는다
 
 - 코드를 바꿨으면 관련 테스트를 실제 실행하고 실패/미실행을 구분한다.
 - 세션에 실제 변경과 검증을 기록하고 CHANGELOG에 요약한다. 결정/결함/현황이 바뀌면 각각 DECISIONS/BUGS/ROADMAP도 갱신한다.
+- 주요 설계 결정을 추가/변경했다면 [ADR 작성 규칙](../Architecture/ADR/README.md)에 따라 ADR·인덱스·관련 정본을 연결한다. 단순 버그/문구 수정은 세션만 남겨도 된다. 사후 복원은 기록일·근거를 밝히고 사용자 개별 승인이나 실험 수행을 꾸미지 않는다.
 - `node scripts/checkDocs.mjs`로 문서 링크와 배치를 확인한다.
 - `git diff --check`와 diff를 검토하고 본인이 담당한 경로만 stage/commit한다. 다른 작업자의 진행 중 변경을 같이 commit하거나 되돌리지 않는다.
 - 시작/구현/검토 commit은 실제 해시만 기록한다. 초기 기준점 이전의 작업별 Git 이력은 존재하지 않으므로 사후 생성·backdate하지 않는다. 자기 문서의 최종 commit은 `git log --follow -- <path>`로 확인 가능하다.

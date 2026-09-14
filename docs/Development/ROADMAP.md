@@ -7,6 +7,7 @@
 **웹 MVP와 다크 UI/Three.js 구현·통합 검증 완료. 실제 모델 교정과 계정 배포 준비 단계.**
 
 - 실행: [README](../../README.md), 기록: [Phase 4](Sessions/Phase-04-Web-MVP.md).
+- 설계 결정: [ADR](../Architecture/ADR/README.md). Phase 4의 독립 ADR 누락은 [#7](https://github.com/SangJun-Pyo/MyAiScore/issues/7)에서 사후 기록·작업 규칙 보완으로 처리한다.
 - 현재 시각 작업: [#5 Linear 다크 UI·Three.js](https://github.com/SangJun-Pyo/MyAiScore/issues/5).
 - GitHub 작업: [#1 평가 경계](https://github.com/SangJun-Pyo/MyAiScore/issues/1), [#2 서비스](https://github.com/SangJun-Pyo/MyAiScore/issues/2), [#3 웹](https://github.com/SangJun-Pyo/MyAiScore/issues/3), [#4 실제 실험·배포](https://github.com/SangJun-Pyo/MyAiScore/issues/4).
 - Astra가 구현·통합을 맡고 서브에이전트가 독립 작업·핵심 검토를 수행한다. Claude 별도 세션 간 수동 전달은 기본 절차가 아니다.

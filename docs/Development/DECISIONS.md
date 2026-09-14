@@ -1,4 +1,6 @@
-# Decisions — v0.3.1 Astra 검토 반영
+# Decisions — 과거 결정 요약과 ADR 안내
+
+새 주요 설계 결정의 상세 기록은 [Architecture/ADR](../Architecture/ADR/README.md)에 둔다. 아래 1~7절의 과거 이력은 유지하며, 8~9절의 Phase 4 결정은 ADR-0001~0006으로 정리했다. 세션은 실행 이력, ADR은 선택 이유와 결과를 담당한다.
 
 정본: [마스터 플랜](../00_MASTER_PLAN.md). 과거 참고: [v0.2 원본 마스터](../../_archive/v0.2/00_MASTER_PLAN.original.md). v0.3 초안은 _archive/v0.3.1의 수정 전 ZIP에 보존돼 있다. 2026-09-14 확인 시 루트 v0.2 ZIP은 없어 현재 존재하는 원본 링크로 교체했다.
 
@@ -66,16 +68,18 @@
 
 사용자 지시에 따라 Astra가 구현/통합까지 담당하고 GitHub 이슈와 독립 worktree를 사용한다. 일반 변경은 자체 검토, 원문/권한/점수 경계는 독립 서브에이전트 검토를 한다. 기존 Claude 프롬프트 전달 절차를 필수로 두지 않는다.
 
-실제 모델 API 미정과 웹 구현을 분리한다. Anthropic adapter는 명시적 서버 설정 뒤에만 동작하며 기본 mock 대체를 금지한다. 합성 예시는 제품 탐색용으로 명확히 표시한다. 가중치/실제 판단 교정과 계정 배포는 별도 미완료 이슈다.
+세부 선택·대안·한계는 다음 ADR에서 관리한다.
 
-웹의 선택 발췌 입력을 구현하되 로컬 CLI의 원본 이벤트 자동 업로드는 포함하지 않는다. 사용자 제공 자료는 출처 확인과 분리한다.
+- [0001 — 실제 모델 opt-in과 예시 분리](../Architecture/ADR/0001-opt-in-live-evaluation.md)
+- [0002 — 요청 단위 단계 실행](../Architecture/ADR/0002-request-bound-stages.md)
+- [0003 — 소유 권한과 공개 결과 경계](../Architecture/ADR/0003-owner-and-public-boundaries.md)
+- [0004 — FileStore/Supabase CAS](../Architecture/ADR/0004-mvp-persistence.md)
+- [0005 — 보수적인 결과 비교](../Architecture/ADR/0005-conservative-comparison.md)
 
-운영 저장은 소규모 구현의 단일 JSON state CAS와 RLS 서버 전용 접근으로 시작한다. 운영 데이터 증가 시 정규화 테이블로 옮겨야 한다. 개발 FileStore는 프로세스 간 경쟁을 처리하지 않으므로 운영 fallback을 명시적 opt-in으로 제한한다.
-
-공개 결과에는 모델 자유 서술을 넣지 않는다. 프롬프트 인젝션이나 모델 재인용이 개인 기록을 공개할 수 있으므로 공개용 축별 요약과 일반 행동 안내만 만든다. 숫자 변화와 행동 개선은 구분한다.
+웹 선택 발췌 입력은 구현했지만 로컬 CLI 원본 이벤트 자동 업로드는 포함하지 않는다. 기존 Local Mode 범위는 7절과 MVP_SCOPE를 따른다.
 
 구현/검증 근거: [Phase 4](Sessions/Phase-04-Web-MVP.md).
 
 ## 9. 다크 디자인과 Three.js (2026-09-14)
 
-사용자가 Linear/Tokscale 계열의 다크 UI, 네온 glow와 3D 효과로 재설계하도록 지시했다. 시각 방향은 [USER_FLOW](../UI/USER_FLOW.md)에 기록한다. Three.js 0.186을 지연 로딩하는 React 컴포넌트로 구현한다. 현재 React 19.3은 R3F 9.7의 peer 범위 밖이므로 강제 설치나 React 버전 변경 대신 Three.js를 직접 사용한다. 배경 장면은 장식이며 평가 근거/판정으로 취급하지 않는다. 운영 배포·실제 모델 교정 조건은 이 변경과 별개다.
+시각 방향은 [USER_FLOW](../UI/USER_FLOW.md), 의존성 선택·3D 수명 관리·정적 대체 결정은 [ADR-0006](../Architecture/ADR/0006-decorative-threejs.md)을 따른다.
