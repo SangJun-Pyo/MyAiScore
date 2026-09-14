@@ -183,10 +183,32 @@ export function buildImprovementTask(criteria: CriterionResult[]): ImprovementTa
 /** Static walkthrough: all data and scores are synthetic, no repository/API access. */
 export function syntheticExample(): AssessmentResult {
   const assessmentId = 'synthetic-example';
-  const evidence: Evidence[] = [{ evidenceId: 'example-verification', assessmentId, sourceType: 'user_provided_excerpt', collectionMethod: 'synthetic_fixture', summary: '합성 예시: 입력 검증 실패를 재현하고 수정 후 확인한 기록', contentSha256: hash('synthetic-example-v1'), collectedAt: '2026-09-14T00:00:00.000Z', repo: null, commitSha: null, path: null, locator: null, eventTime: null, verificationNote: '실제 사용자의 자료가 아닌 화면 설명용 합성 데이터입니다.' }];
-  const criteria: CriterionResult[] = (['A', 'B', 'C', 'D', 'E'] as const).map((code, i) => ({ criterionResultId: `example-${code}`, assessmentId, criterionCode: code, status: 'observed', level: [3, 3, 2, 3, 3][i]!, dimensionScore: [75, 75, 50, 75, 75][i]!, supportingEvidenceIds: ['example-verification'], contraryEvidenceIds: [], rationale: '화면 설명을 위한 합성 판정입니다. 실제 프로젝트 평가가 아닙니다.', missingEvidence: '다음 작업에서 선택 이유와 실제 결과를 연결해 보세요.', blockingConflict: false }));
-  const confidence: ConfidenceSummary = { evidenceScope: { readFiles: 0, candidateFiles: 0, selectionLimited: false }, sourceVerification: 'failed', processEvidence: 'none', remainingUncertainty: ['합성 예시입니다. GitHub 수집과 실제 LLM 호출을 수행하지 않았습니다.'] };
-  const base = buildManifest({ mode: 'mock', providerId: 'synthetic-example', versions: { rubricVersion: 'scoring-rubric-v0.3.1', pipelineVersion: 'synthetic-example-v1', questionPromptVersion: QUESTION_PROMPT_VERSION, evaluatorPromptVersion: JUDGE_PROMPT_VERSION, inferenceConfigVersion: 'not-applicable' }, bundleTextHash: '', modelInputHash: '', warnings: confidence.remainingUncertainty });
-  return { assessmentId, mode: 'mock', source: 'synthetic', repo: '합성 예시 프로젝트', commitSha: null, criteria,
+  const samples: { id: string; type: Evidence['sourceType']; summary: string; path?: string; start?: number; end?: number }[] = [
+    { id: 'example-goal', type: 'repo_static', path: 'docs/reservation-goal.md', start: 3, end: 12,
+      summary: '합성 문서: 예약 인원은 1~8명, 빈 입력과 범위 밖 입력은 저장 전에 거부한다는 완료 조건을 정의했습니다.' },
+    { id: 'example-context', type: 'user_provided_excerpt',
+      summary: '합성 대화: 예약 폼과 서버 검증 파일을 지정해 AI에게 수정을 맡겼습니다. 정규식 검증 제안은 채택했지만 다른 접근과 비교한 기록은 없습니다.' },
+    { id: 'example-code', type: 'repo_static', path: 'src/reservations/validate.ts', start: 8, end: 24,
+      summary: '합성 코드: 서버 경계에서 예약 인원의 정수 여부와 1~8 범위를 확인합니다. 코드의 존재만으로 실행 성공을 증명하지는 않습니다.' },
+    { id: 'example-verification', type: 'user_provided_excerpt',
+      summary: '합성 검증 기록: 0명 입력이 허용되는 실패 사례를 먼저 기록하고, 수정 후 0명·9명 거부와 1명·8명 허용 결과를 연결했습니다. 실제 테스트를 실행한 기록은 아닙니다.' },
+    { id: 'example-decision', type: 'user_provided_excerpt',
+      summary: '합성 판단 기록: 브라우저 검사만 추가하자는 AI 제안을 수정해 서버 검증도 요청했습니다. API 직접 요청으로 우회할 수 있다는 이유와 수정된 함수를 연결했습니다.' },
+  ];
+  const evidence: Evidence[] = samples.map(s => ({ evidenceId: s.id, assessmentId, sourceType: s.type, collectionMethod: 'synthetic_fixture',
+    summary: s.summary, contentSha256: hash(s.summary), collectedAt: '2026-09-14T00:00:00.000Z', repo: null, commitSha: null,
+    path: s.path ?? null, locator: s.path ? { startLine: s.start!, endLine: s.end! } : null, eventTime: null,
+    verificationNote: '가상의 예약 폼 사례입니다. 파일 경로·대화·실행 결과는 모두 설명용 합성 자료이며 실제 저장소에서 수집하지 않았습니다.' }));
+  const dimensions: { code: CriterionCode; level: number; refs: string[]; rationale: string; missing: string }[] = [
+    { code: 'A', level: 3, refs: ['example-goal'], rationale: '합성 사례에서는 예약 인원의 허용 범위와 거부 조건을 구현 전에 정했습니다. 무엇을 확인하면 완료인지 구체적입니다.', missing: '중복 예약이나 동시 요청처럼 이번 범위 밖의 조건을 어떻게 정했는지는 나타나지 않습니다.' },
+    { code: 'B', level: 3, refs: ['example-context', 'example-code'], rationale: '합성 대화에서 관련 폼·서버 파일과 수정 범위를 지정해 위임했습니다. 구현 결과도 지정한 검증 경계와 연결됩니다.', missing: 'AI가 맥락을 잘못 이해했을 때 확인하고 교정한 과정은 더 필요합니다.' },
+    { code: 'C', level: 2, refs: ['example-context', 'example-code'], rationale: '정규식 검증을 사용한 목적은 확인되지만 스키마 검증 같은 대안과 유지보수 비용을 비교한 근거가 없습니다.', missing: '정규식과 스키마 검증 중 이 예약 폼에 더 적합한 방법을 선택한 이유와 한계가 필요합니다.' },
+    { code: 'D', level: 3, refs: ['example-verification', 'example-code'], rationale: '합성 검증 기록은 수정 전 0명 입력 실패와 수정 후 경계값 결과를 연결합니다. 명령의 존재만으로 성공을 추정한 판정은 아닙니다.', missing: '예상하지 못한 입력 형식과 회귀 위험까지 확인한 기록은 없습니다. 여기에 표시된 실행 결과 자체는 합성 예시입니다.' },
+    { code: 'E', level: 3, refs: ['example-decision', 'example-code'], rationale: '브라우저 검사만으로는 우회가 가능하다는 이유로 AI 제안을 수정하고 서버 검증을 추가한 판단이 합성 자료에 연결돼 있습니다.', missing: '수정 이후 다른 기능에 미친 영향과 남은 제약을 검토한 자료는 더 필요합니다.' },
+  ];
+  const criteria: CriterionResult[] = dimensions.map(d => ({ criterionResultId: `example-${d.code}`, assessmentId, criterionCode: d.code, status: 'observed', level: d.level, dimensionScore: d.level * 25, supportingEvidenceIds: d.refs, contraryEvidenceIds: [], rationale: d.rationale, missingEvidence: d.missing, blockingConflict: false }));
+  const confidence: ConfidenceSummary = { evidenceScope: { readFiles: 2, candidateFiles: 2, selectionLimited: false }, sourceVerification: 'complete', processEvidence: 'statements_only', remainingUncertainty: ['합성 예시입니다. 파일 2개와 협업 발췌 3개를 가정한 화면이며 GitHub 수집·테스트 실행·실제 LLM 호출은 수행하지 않았습니다.', '수집 완료와 근거 수는 이 합성 사례 내부의 범위를 표시합니다. 실제 출처 검증이나 개인의 능력 인증을 뜻하지 않습니다.'] };
+  const base = buildManifest({ mode: 'mock', providerId: 'synthetic-example', versions: { rubricVersion: 'scoring-rubric-v0.3.1', pipelineVersion: 'synthetic-example-v2', questionPromptVersion: QUESTION_PROMPT_VERSION, evaluatorPromptVersion: JUDGE_PROMPT_VERSION, inferenceConfigVersion: 'not-applicable' }, bundleTextHash: '', modelInputHash: '', warnings: confidence.remainingUncertainty });
+  return { assessmentId, mode: 'mock', source: 'synthetic', repo: '합성 예시 · 예약 폼', commitSha: null, criteria,
     score: computeMyAiScore({ criterionResults: criteria, ingestionStatus: 'complete', validEvidenceIds: new Set(evidence.map(e => e.evidenceId)) }), confidence, improvementTask: buildImprovementTask(criteria), manifest: { ...base, evaluatorModelId: null, stageRequestHashes: { questions: null, judgement: null }, wireRequestHashes: [] }, evidence };
 }

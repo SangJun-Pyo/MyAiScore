@@ -74,6 +74,20 @@ test('demo is deterministic, entirely synthetic, no API configuration required',
   assert.deepEqual(syntheticExample(), syntheticExample());
   assert.equal(syntheticExample().source, 'synthetic'); assert.equal(syntheticExample().manifest.tokensUsed, null);
 });
+test('demo ties tailored diagnoses and computed score to explicit synthetic evidence', () => {
+  const example = syntheticExample(), ids = new Set(example.evidence.map(e => e.evidenceId));
+  assert.equal(example.evidence.length, 5);
+  assert.ok(example.evidence.every(e => e.collectionMethod === 'synthetic_fixture'));
+  assert.ok(example.criteria.every(c => c.supportingEvidenceIds.length > 0 && c.supportingEvidenceIds.every(id => ids.has(id))));
+  assert.equal(new Set(example.criteria.map(c => c.rationale)).size, 5);
+  assert.equal(example.confidence.evidenceScope.readFiles, example.evidence.filter(e => e.sourceType === 'repo_static').length);
+  assert.ok(example.evidence.filter(e => e.sourceType === 'repo_static').every(e => e.path && e.locator));
+  const weighted = example.criteria.reduce((sum, c, i) => sum + c.level! * 25 * [15,20,15,30,20][i]!, 0);
+  assert.equal(example.score.value, Math.floor((weighted + 50) / 100));
+  assert.equal(example.score.value, 71); assert.equal(example.improvementTask.criterionCode, 'C');
+  assert.match(example.improvementTask.why, /정규식/);
+  assert.equal(example.manifest.executedAt, null); assert.equal(example.manifest.costUsd, null);
+});
 test('changed evaluator model between question and judgement stages fails before provider invocation', async () => {
   const model = provider(); const p = await generateAssessmentQuestions(await prep(), model);
   const changed = { ...model, mode: 'live' as const, evaluatorModelId: 'different-model' };
