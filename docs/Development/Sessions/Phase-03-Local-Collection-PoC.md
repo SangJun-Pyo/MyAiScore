@@ -302,4 +302,4 @@ npm test             # 170 pass, 0 fail (기존 166 + 신규 4)
 
 ### 변경·커밋 기록 (이번 절)
 
-- `<commit-hash>` — `fix: MAS-006 -- collect-local-session CLI leaks unmasked session text via --json`(아래 "완료 보고" 참고, 실제 해시는 커밋 직후 이 문서에 채운다).
+- `187cf52` — `fix: MAS-006 -- collect-local-session CLI leaks unmasked session text via --json` (브랜치 `claude/local-collection-poc`, 독립 검토 commit `0e7259e` 바로 위). 이 절에 기록한 재현·수정·artifact 재생성·회귀 테스트 전부 포함.
