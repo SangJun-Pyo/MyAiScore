@@ -1,0 +1,3 @@
+{
+  "ev_fixture_case02_test": { "kind": "repo_static", "path": "src/lib/validateOrderTotal.test.ts" }
+}

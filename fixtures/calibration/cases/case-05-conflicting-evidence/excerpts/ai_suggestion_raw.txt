@@ -1,0 +1,15 @@
+[사용자가 제출한 발췌 -- AI가 처음 제안했다고 주장하는 원본 코드]
+
+export function createOrder(input) {
+  const serverTotalCents = input.items.reduce(
+    (sum, item) => sum + item.unitPriceCents * item.quantity,
+    0,
+  );
+  if (serverTotalCents !== input.clientTotalCents) {
+    return { ok: false, serverTotalCents, reason: "total_mismatch" };
+  }
+  if (serverTotalCents < 0) {
+    return { ok: false, serverTotalCents, reason: "negative_total" };
+  }
+  return { ok: true, serverTotalCents };
+}

@@ -1,0 +1,10 @@
+{
+  "fixtureId": "case-08-before-after/subvariant-c-files-only",
+  "synthetic": true,
+  "sourceDescription": "shared/repos/before-after의 v1-baseline/v2-files-only 재사용. v2-files-only는 원래 버그를 고치지 않은 채 무관한 테스트 파일만 추가한 상태를 나타냄.",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전.",
+  "relatedVariants": ["case-08-before-after/subvariant-a-late-log", "case-08-before-after/subvariant-b-real-improvement"]
+}

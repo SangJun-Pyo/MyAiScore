@@ -1,0 +1,9 @@
+{
+  "fixtureId": "case-02-simple-tool-strong-verification",
+  "synthetic": true,
+  "sourceDescription": "Claude Code가 CALIBRATION_PLAN.md case 2 설명에 맞춰 작성한 가상 저장소/사례.",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전. 이 fixture는 또한 tests/calibration에서 실제 ingestRepository()를 통해 오프라인으로 수집돼 IngestionSnapshot으로 변환되는 유일한 케이스입니다(Task 0-Task 1 연결 검증용)."
+}

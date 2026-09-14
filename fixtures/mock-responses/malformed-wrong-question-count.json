@@ -1,0 +1,14 @@
+{
+  "_comment": "Deliberately malformed: only 2 questions instead of the required 3. Used to demonstrate that the offline CLI surfaces this as an explicit ok:false failure rather than crashing or padding to 3.",
+  "questions": {
+    "raw": {
+      "questions": [
+        { "text": "Q1?", "grounding_evidence_ids": ["ev_fixture_case02_test"], "target_criteria": ["D"] },
+        { "text": "Q2?", "grounding_evidence_ids": ["ev_fixture_case02_test"], "target_criteria": ["E"] }
+      ]
+    }
+  },
+  "judgement": {
+    "raw": { "criteria": [] }
+  }
+}

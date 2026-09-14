@@ -1,0 +1,48 @@
+{
+  "fixtureId": "case-04-same-code-different-process/variant-a",
+  "calibrationCaseIndex": 4,
+  "description": "base-shop 코드에 구체적이고 근거가 연결된 협업 사례 서술이 붙은 variant. variant-b(같은 코드, 얕은 서술)와 대조해 평가한다. Astra Phase 1 후속 검토(docs/Development/ASTRA_PHASE1_REVIEW.md 2절)에 따라, '코드가 같으니 C/D를 자동으로 높게 준다'는 이전 초안의 전제를 제거하고 다섯 축을 각각 독립적으로 재검토했다.",
+  "criteria": [
+    {
+      "criterionCode": "A",
+      "expectedStatus": "observed",
+      "expectedLevelRange": [2, 2],
+      "rationale": "problem/constraints/done_criteria가 구체적이고 서로 대응한다(SCORING_RUBRIC A-2: 목표·입출력 지정과 기본 완료 확인). 다만 핵심 가정 재검토나 성공/실패 사례로 목표 달성을 직접 확인한 근거는 제출 범위에 없어 level 3 이상은 확정하지 않는다",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "긴 서술이나 코드와의 단순 일치만으로 level 3~4를 확정하면 ASTRA_PHASE1_REVIEW.md 2절 4항('긴 서술, 코드와의 단순 일치만으로 3~4가 확정되지는 않는다') 위반"
+    },
+    {
+      "criterionCode": "B",
+      "expectedStatus": "insufficient_evidence",
+      "rationale": "AI 제안에 음수 총액 처리가 누락됐다는 사실을 사용자가 알아챘다는 서술은 있지만, 이것이 실제로 AI에게 맥락·제약·작업 범위를 전달했다는 근거는 아니다(ASTRA_PHASE1_REVIEW.md 2절 1항). 관련 서술은 있으나 B가 요구하는 '맥락 전달·위임 범위' 자체를 확인할 자료가 부족하다",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "AI 제안의 결함을 알아챘다는 사실만으로 B를 observed level 3으로 확정하면 위 근거 부족을 무시하는 것"
+    },
+    {
+      "criterionCode": "C",
+      "expectedStatus": "not_observed",
+      "rationale": "이 사례 서술 어디에도 도구·접근 방식의 제약·대안·부담을 검토한 내용이 없다. 코드나 테스트 파일의 존재만으로 도구 선택 근거를 추론하지 않는다(ASTRA_PHASE1_REVIEW.md 2절 2항)",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "동일 코드(base-shop)를 근거로 C를 observed level 3~4로 판정하면 '동일 코드나 테스트만으로 도구 선택의 제약·대안·부담 검토를 추론하지 않는다'는 명시적 금지 위반"
+    },
+    {
+      "criterionCode": "D",
+      "expectedStatus": "observed",
+      "expectedLevelRange": [2, 3],
+      "rationale": "verification_summary가 명시한 '정상/조작/음수 결제 세 가지 케이스'는 createOrder.test.ts의 실제 테스트 케이스 구성과 구체적으로 대응한다. 다만 실제 실행 결과나 통과 여부에 대한 독립적 확인(로그 등)이 없어 level 4는 배제하고, level 3도 확정하지 않는다(ASTRA_PHASE1_REVIEW.md 2절 3항: '실제 사용·결과 해석·회귀 검증을 단독 입증하지 않으므로 D=3~4라는 제안을 거부한다')",
+      "requiredEvidenceRefs": ["src/server/actions/createOrder.test.ts"],
+      "failureCondition": "파일에 세 케이스 테스트가 있다는 사실만으로 곧바로 D=3~4를 확정하면 실제 실행·결과 해석의 부재를 무시하는 것"
+    },
+    {
+      "criterionCode": "E",
+      "expectedStatus": "observed",
+      "expectedLevelRange": [2, 2],
+      "rationale": "AI 초안의 구체적 결함(음수 총액 누락)을 인지하고, 직접 수정하고, 이유를 남겼다는 것은 '검토해 채택·수정하고 간단한 이유를 제시함'(SCORING_RUBRIC E-2)에 해당하는 구체적 서술이다. 다만 '커밋 메시지에 이유를 남김'이라는 주장과 실제 수집된 커밋 기록은 다르므로(ASTRA_PHASE1_REVIEW.md 2절 4항), 이 주장 자체가 독립적으로 검증된 것처럼 level 3 이상을 주지 않는다",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "커밋 메시지에 이유를 남겼다는 자기진술을 실제 커밋 기록 확인과 동일시해 level 3~4를 주면 자기진술과 실제 수집 자료를 혼동하는 것"
+    }
+  ],
+  "expectedMyAiScoreStatus": "not_determinable_without_model",
+  "notes": "이 fixture는 정확한 레벨보다 '무엇이 관찰 가능한지'를 규정하는 데 목적이 있다. Astra Phase 1 후속 검토 이전 초안은 C/D를 코드 동일성만으로 최고 단계 확정 가능하다고 봤으나, 이는 채택되지 않았다(ASTRA_PHASE1_REVIEW.md 2절). variant-b와 비교했을 때 A/D/E는 이쪽이 더 높은 확신 구간을 갖지만, 정확한 레벨은 실제 모델 평가 전까지 미확정이다.",
+  "relatedFixtureIds": ["case-04-same-code-different-process/variant-b", "case-03-good-code-no-process"]
+}

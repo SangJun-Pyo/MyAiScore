@@ -1,0 +1,19 @@
+{
+  "invalidQuestionsThenScore": {
+    "questionsOk": false,
+    "judgementOk": true,
+    "score": {
+      "status": "issued",
+      "value": 100,
+      "reasons": [],
+      "observedDimensions": 5,
+      "totalDimensions": 5
+    }
+  },
+  "foreignAssessmentEvidenceAccepted": true,
+  "nullEntryBehavior": {
+    "questions": "TypeError",
+    "criteria": "TypeError"
+  },
+  "excerptBodyRetained": false
+}

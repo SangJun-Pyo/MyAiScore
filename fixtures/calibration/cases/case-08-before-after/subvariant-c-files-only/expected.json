@@ -1,0 +1,44 @@
+{
+  "fixtureId": "case-08-before-after/subvariant-c-files-only",
+  "calibrationCaseIndex": 8,
+  "description": "before: 검증 근거 없음. after: validateOrderTotal.trivial.test.ts라는 새 테스트 파일이 생겼지만, 그 파일은 실제 함수를 import하거나 실패 케이스(음수 총액 등)를 전혀 검증하지 않는 자리 채우기 테스트다. 원래 있던 버그(음수 총액 미거부)도 그대로 남아 있다.",
+  "criteria": [
+    {
+      "criterionCode": "D",
+      "expectedStatus": "not_observed",
+      "rationale": "테스트 파일 개수가 늘었을 뿐, 실제로 검증된 실패 케이스가 없다. 원래 버그도 수정되지 않았다",
+      "requiredEvidenceRefs": ["src/lib/validateOrderTotal.trivial.test.ts", "src/lib/validateOrderTotal.ts"],
+      "failureCondition": "테스트 파일이 새로 생겼다는 사실만으로 D를 observed나 높은 레벨로 올리면 SCORING_RUBRIC.md D-4 반례('테스트 수·커버리지 숫자·CI 파일 존재만으로 최고 단계가 아님')와 IMPROVEMENT_TASK_TEMPLATE.md의 '점수 올리기용 문서/테스트 추가를 보상하지 않는다' 원칙을 정면으로 위반하는 것 -- 이 fixture가 가장 직접적으로 겨냥하는 실패 조건이다."
+    },
+    {
+      "criterionCode": "A",
+      "expectedStatus": "observed",
+      "expectedLevelRange": [1, 1],
+      "rationale": "done_criteria(\"테스트 파일이 있으면 됨\")는 파일 존재 자체를 완료 조건으로 삼고 있어, 실질적인 목표 달성 여부(버그 수정 여부)와 무관하다. SCORING_RUBRIC A-1의 '목적·완료조건이 모호했고... 확인하지 않은 행동'과 같은 패턴이 서술 자체에서 직접 드러난다",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "problem/done_criteria 필드가 채워져 있다는 사실만으로 A를 observed level 2 이상으로 올리면, 그 완료조건이 실질적인 목표(버그 수정)와 무관하다는 점을 무시하는 것"
+    },
+    {
+      "criterionCode": "E",
+      "expectedStatus": "observed",
+      "expectedLevelRange": [1, 1],
+      "rationale": "\"AI가 만들어준 테스트 파일을 그대로 추가함\"이라는 서술과, 그 파일이 실제로 아무것도 검증하지 않으며 원래 버그가 남아 있다는 코드 사실이 함께 있다. 이는 제안의 효과를 확인하지 않고 수용한 과정이 구체적 자료(무의미한 테스트 파일 + 미해결 버그)로 뒷받침되는 경우로, SCORING_RUBRIC E-1 반례('수정 커밋이 없다는 이유만으로 무비판 수용으로 판정하지 않음')가 우려하는 '근거 없는 추정'과 다르다 -- 여기서는 실제 코드가 그 무비판성을 보여준다",
+      "requiredEvidenceRefs": ["src/lib/validateOrderTotal.trivial.test.ts", "src/lib/validateOrderTotal.ts"],
+      "failureCondition": "테스트 파일이 추가됐다는 사실만으로 E를 관대하게 판정(insufficient_evidence 이상)하면, 그 파일이 실제로는 아무 효과도 검증하지 않는다는 구체적 반증을 무시하는 것. 반대로 '수정 커밋이 없다'는 이유만으로 근거 없이 E=1을 단정하는 것도 반례 위반이므로, 여기서는 '효과 없는 파일 + 미해결 버그'라는 구체적 근거가 있어야만 E=1이 성립한다는 점을 rationale에 명시한다"
+    }
+  ],
+  "expectedComparisons": [
+    {
+      "criterionCode": "D",
+      "previousStatus": "not_observed",
+      "currentStatusOptions": ["not_observed"],
+      "expectedEvidenceChange": "added",
+      "expectedBehaviorChange": "not_established",
+      "rationale": "파일은 추가됐지만(evidence_change=added) 실제 검증 행동이나 결과 개선은 없다(behavior_change=not_established). 상태 자체도 not_observed에서 변하지 않아야 한다."
+    }
+  ],
+  "expectedMyAiScoreStatus": "withheld",
+  "expectedWithheldReasons": ["insufficient_dimensions"],
+  "notes": "이 fixture는 CALIBRATION_PLAN.md 필수 사례 8의 '(c) 파일 수만 증가'를 직접 구현한 것이며, IMPROVEMENT_TASK_TEMPLATE.md가 명시한 반패턴('점수 올리기용 문서/테스트 추가')의 코드 버전이다. Phase 2에서 A/E 축을 추가했다(ASTRA_PHASE1_REVIEW.md 3절: '버그가 남음'이 모든 축의 무변화를 뜻하지는 않는다 -- 코드가 같다는 이유로 A/B를 자동 unchanged로 채우지 않는다'). D가 not_observed이므로 이 fixture 단독으로는 총점이 withheld일 것으로 기대한다.",
+  "relatedFixtureIds": ["case-08-before-after/subvariant-a-late-log", "case-08-before-after/subvariant-b-real-improvement"]
+}

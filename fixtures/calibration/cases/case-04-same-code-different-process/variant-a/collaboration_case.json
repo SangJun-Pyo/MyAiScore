@@ -1,0 +1,12 @@
+{
+  "case_id": "cc_fixture_case04_a",
+  "problem": "클라이언트가 보낸 결제 총액을 그대로 신뢰하면 조작될 수 있음",
+  "constraints": "기존 주문 API 응답 형태를 유지해야 함",
+  "done_criteria": "조작되거나 음수인 총액은 거부되고, 정상 총액은 그대로 통과해야 함",
+  "ai_suggestion_summary": "AI가 서버 측 재계산 로직 초안을 제안. 처음 제안은 음수 총액 처리를 누락함",
+  "user_action": "modified",
+  "user_action_detail": "음수 총액 거부 분기를 직접 추가하고, 커밋 메시지에 이유를 남김",
+  "verification_summary": "정상 결제, 조작된 결제, 음수 결제 세 가지 케이스를 테스트로 확인함 (createOrder.test.ts)",
+  "linked_evidence_ids": ["ev_fixture_case04_test"],
+  "submitted_at": "2026-09-10T00:00:00Z"
+}

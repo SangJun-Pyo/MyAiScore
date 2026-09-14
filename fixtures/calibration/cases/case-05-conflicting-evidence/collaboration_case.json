@@ -1,0 +1,13 @@
+{
+  "case_id": "cc_fixture_case05",
+  "problem": "클라이언트가 보낸 결제 총액을 그대로 신뢰하면 조작될 수 있음",
+  "constraints": "기존 응답 형태 유지",
+  "done_criteria": "조작되거나 음수인 총액은 거부되어야 함",
+  "ai_suggestion_summary": "AI가 매우 기본적인 초안만 제안했고, 실제 로직은 AI 제안을 거의 참고하지 않고 처음부터 직접 다시 작성함",
+  "user_action": "rejected",
+  "user_action_detail": "AI 제안을 거절하고 완전히 새로 작성했습니다",
+  "verification_summary": "테스트로 확인했습니다",
+  "linked_evidence_ids": [],
+  "external_excerpts": ["excerpts/ai_suggestion_raw.txt"],
+  "submitted_at": "2026-09-10T00:00:00Z"
+}

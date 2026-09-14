@@ -1,0 +1,9 @@
+{
+  "fixtureId": "case-01-tools-rich-no-verification",
+  "synthetic": true,
+  "sourceDescription": "Claude Code가 이번 Phase 1 작업에서 CALIBRATION_PLAN.md case 1 설명에 맞춰 처음부터 작성한 가상 저장소/사례. 실제 사용자나 실제 저장소가 아님.",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "Claude Code가 자체 점검했을 뿐, 사람(상준님/Astra) 검토는 아직 이뤄지지 않았습니다."
+}

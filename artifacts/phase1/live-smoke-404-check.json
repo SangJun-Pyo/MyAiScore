@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "ingestion-snapshot-v0.3.1",
+  "repo": "octocat/this-repo-should-not-exist-myaiscore-poc",
+  "commitSha": null,
+  "collectorVersion": "ingestion-poc-0.1.0",
+  "selectionDigest": "",
+  "ingestionStatus": "failed",
+  "supportStatus": "unknown",
+  "collectedAt": "2026-09-10T08:55:48.808Z",
+  "files": [],
+  "staticSignals": {
+    "basis": "selected_files",
+    "languageFileCounts": {},
+    "dependencies": [],
+    "testPaths": [],
+    "ciPaths": [],
+    "aiConfigPaths": []
+  },
+  "evidenceCandidates": [],
+  "coverage": {
+    "treeTruncated": false,
+    "candidateFiles": null,
+    "selectedFiles": 0,
+    "readFiles": 0,
+    "selectionLimited": false
+  },
+  "skippedFiles": [],
+  "warnings": [],
+  "failure": {
+    "code": "repo_not_found_or_private",
+    "message": "저장소를 찾을 수 없거나 비공개 저장소입니다.",
+    "retryable": false
+  },
+  "metrics": {
+    "durationMs": 296,
+    "httpRequests": 1,
+    "fetchedBytes": 0,
+    "cacheHits": 0
+  }
+}

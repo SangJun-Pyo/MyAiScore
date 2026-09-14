@@ -1,0 +1,9 @@
+{
+  "fixtureId": "case-07-repeat-fixed-input",
+  "calibrationCaseIndex": 7,
+  "description": "case-02와 완전히 동일한 repo_ref/collaboration_case를 고정 입력으로 재사용한다. 목적은 '같은 입력·같은 버전'을 반복 평가했을 때 결과가 안정적인지 확인하기 위한 재료를 준비하는 것이다.",
+  "criteria": [],
+  "expectedMyAiScoreStatus": "not_determinable_without_model",
+  "notes": "CALIBRATION_PLAN.md 4절: 이 fixture로 실제 반복 평가(최소 5회)를 수행하는 것은 Task 2(LLM 평가 PoC) 이후의 일이다. 이번 Phase 1에서는 '고정 입력' 자체만 준비했고, 실제 반복 실행·분산 측정은 수행하지 않았다. executedAt=null과 humanReviewed=false로 이 사실을 명시한다.",
+  "relatedFixtureIds": ["case-02-simple-tool-strong-verification"]
+}

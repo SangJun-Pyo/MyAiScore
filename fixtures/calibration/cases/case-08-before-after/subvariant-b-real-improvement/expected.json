@@ -1,0 +1,44 @@
+{
+  "fixtureId": "case-08-before-after/subvariant-b-real-improvement",
+  "calibrationCaseIndex": 8,
+  "description": "before: 음수 총액을 거부하지 않는 실제 버그가 있고 검증 근거도 없음(D=not_observed). after: 버그가 실제로 수정됐고, 수정 전 실패 재현 + 수정 후 통과를 사용자가 시간 순서와 함께 제출함.",
+  "criteria": [
+    {
+      "criterionCode": "D",
+      "expectedStatus": "observed",
+      "expectedLevelRange": [3, 4],
+      "rationale": "실패를 먼저 재현하고, 수정 후 재검증했다는 시간 순서가 있는 구체적 근거가 있음",
+      "requiredEvidenceRefs": ["src/lib/validateOrderTotal.test.ts", "excerpts/execution_log.txt"],
+      "failureCondition": "실행 로그가 사용자 제출 자료(서비스가 직접 실행한 것이 아님)라는 한계를 무시하고 절대적 사실처럼 취급하면 CONFIDENCE_MODEL.md/EVIDENCE_SCHEMA.md의 source_type 구분 위반. 다만 이 fixture 안에서는 시간 순서가 있는 구체적 근거이므로 observed로 판정하는 것이 기대값이다."
+    },
+    {
+      "criterionCode": "A",
+      "expectedStatus": "observed",
+      "expectedLevelRange": [2, 2],
+      "rationale": "problem(\"음수 총액을 거부하지 못하는 버그 발견\")과 done_criteria(\"음수 총액은 반드시 거부돼야 함\")가 구체적이고, D축 근거(execution_log.txt)로 그 조건이 실제로 충족됐음이 뒷받침된다. 다만 이는 D 판정으로부터 자동 상속한 것이 아니라 A 자체의 목표·완료조건 구체성을 독립적으로 평가한 결과다(ASTRA_PHASE1_REVIEW.md 3절: 'D와 E를 각각 그 기준으로 검토한다... B의 좋은 맥락 위임이나 A의 레벨 상승을 자동 추론하지 않는다')",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "D가 observed level 3~4라는 이유만으로 A도 자동으로 같은 수준까지 올리면 축 간 자동 추론 금지 위반. 반대로 D와 근거가 겹친다는 이유로 A를 완전히 무시하는 것도 부정확하다 -- A 자체의 목표/완료조건 구체성은 독립적으로 관찰 가능하다"
+    },
+    {
+      "criterionCode": "E",
+      "expectedStatus": "observed",
+      "expectedLevelRange": [3, 3],
+      "rationale": "AI가 제안한 한 줄 조건을 수용하기 전/후로 실패 재현과 통과를 직접 확인했다는 시간 순서가 있는 근거가 있다(SCORING_RUBRIC E-3: '대안·제약·검증 결과에 따라 수용 여부를 결정하고 그 효과를 확인함'). '그대로 추가함'이라는 표현만 보면 무비판 수용처럼 보이지만, 수용 전후의 효과를 실제로 확인했다는 점이 E-1의 무비판 수용과 구분된다",
+      "requiredEvidenceRefs": ["excerpts/execution_log.txt"],
+      "failureCondition": "'AI가 제안한 한 줄을 그대로 추가함'이라는 문구만 보고 자동으로 E=1(무비판 수용)로 판정하면 실제로 전후 효과를 확인한 근거(execution_log.txt)를 무시하는 것"
+    }
+  ],
+  "expectedComparisons": [
+    {
+      "criterionCode": "D",
+      "previousStatus": "not_observed",
+      "currentStatusOptions": ["observed"],
+      "expectedEvidenceChange": "added",
+      "expectedBehaviorChange": "supported_improvement",
+      "rationale": "코드 변경(버그 수정) + 시간이 명시된 전후 실행 결과가 함께 있어 '실제 행동이 개선됐다'고 판단할 근거가 있다. EVIDENCE_SCHEMA.md 8절의 supported_* 조건('전후 행동·결과 및 시간/변경의 연결 근거')을 충족하는 사례로 설계함."
+    }
+  ],
+  "expectedMyAiScoreStatus": "not_determinable_without_model",
+  "notes": "subvariant-a(과거 로그 뒤늦게 제출)와 대조되는 사례. 여기서는 실행 시점이 명확하고 전/후가 실제 코드 변경과 연결돼 있다는 점이 다르다. Phase 2에서 이전 초안의 단일 expectedComparison 객체를 배열(expectedComparisons)로 바꾸고, A/E 축을 추가했다(ASTRA_PHASE1_REVIEW.md 3절: 'D와 E를 각각 그 기준으로 검토한다').",
+  "relatedFixtureIds": ["case-08-before-after/subvariant-a-late-log", "case-08-before-after/subvariant-c-files-only"]
+}

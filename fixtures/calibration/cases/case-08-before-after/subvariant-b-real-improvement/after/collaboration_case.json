@@ -1,0 +1,13 @@
+{
+  "case_id": "cc_fixture_case08b_after",
+  "problem": "validateOrderTotal이 음수 총액을 거부하지 못하는 버그 발견",
+  "constraints": "기존 함수 시그니처 유지",
+  "done_criteria": "음수 총액은 반드시 거부돼야 함",
+  "ai_suggestion_summary": "AI에게 음수 총액을 거부하는 조건을 추가해달라고 요청",
+  "user_action": "accepted",
+  "user_action_detail": "AI가 제안한 한 줄 조건을 그대로 추가함",
+  "verification_summary": "수정 전에는 버그를 재현하는 스크립트로 실패를 확인했고, 수정 후 실패 케이스 테스트가 통과하는 것을 확인함. 로그를 첨부함",
+  "linked_evidence_ids": ["ev_fixture_case08b_test"],
+  "external_excerpts": ["after/excerpts/execution_log.txt"],
+  "submitted_at": "2026-09-09T14:25:00Z"
+}

@@ -1,0 +1,5 @@
+{
+  "baseRepoPath": "../../shared/repos/simple-tool-verified",
+  "overlayFiles": { "README.md": "repo-overlay-after/README.md" },
+  "note": "'after' repo = base repo files, with README.md replaced by the overlay file above (adds an injected instruction comment). Every other file is byte-identical to shared/repos/simple-tool-verified."
+}

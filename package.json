@@ -1,0 +1,19 @@
+{
+  "name": "myaiscore-phase1",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MyAiScore Phase 1 PoC: calibration fixtures + read-only GitHub ingestion. Not a deployed service.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/**/*.test.ts",
+    "ingest": "tsx scripts/ingest.ts",
+    "smoke:live": "tsx scripts/ingest.ts --repo https://github.com/octocat/Hello-World",
+    "evaluate:offline": "tsx scripts/evaluateOffline.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

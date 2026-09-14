@@ -1,0 +1,10 @@
+{
+  "fixtureId": "case-08-before-after/subvariant-b-real-improvement",
+  "synthetic": true,
+  "sourceDescription": "shared/repos/before-after의 v1-baseline(버그 있음)/v2-real-improvement(버그 수정+테스트 추가) 재사용. execution_log.txt는 synthetic 사용자 제출 로그이며 실제로 실행된 적은 없음(가상의 타임스탬프).",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전. execution_log.txt의 타임스탬프와 내용은 fixture 작성을 위해 만든 가상 값이며, 실제로 그 시각에 그 명령이 실행된 사실이 아님을 명시한다.",
+  "relatedVariants": ["case-08-before-after/subvariant-a-late-log", "case-08-before-after/subvariant-c-files-only"]
+}

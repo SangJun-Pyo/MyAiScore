@@ -1,0 +1,80 @@
+{
+  "_comment": "A hand-written, structurally-valid canned provider response for demonstrating the offline (mock) pipeline against case-02. This is NOT derived from case-02/expected.json's ground-truth expectations -- it is a plausible-shaped example response used to exercise the question/judgement validators end to end. Do not treat its status/level values as a real evaluation result.",
+  "questions": {
+    "raw": {
+      "questions": [
+        {
+          "text": "제출된 검증 테스트는 어떤 실패 조건을 재현합니까?",
+          "grounding_evidence_ids": ["ev_fixture_case02_test"],
+          "target_criteria": ["D"]
+        },
+        {
+          "text": "AI 제안에서 누락된 부분을 어떻게 알아챘습니까?",
+          "grounding_evidence_ids": ["ev_fixture_case02_test"],
+          "target_criteria": ["E"]
+        },
+        {
+          "text": "이 저장소의 지원 스택은 무엇으로 판정됐습니까?",
+          "grounding_evidence_ids": ["ev_fixture_case02_test"],
+          "target_criteria": ["C"]
+        }
+      ]
+    }
+  },
+  "judgement": {
+    "raw": {
+      "criteria": [
+        {
+          "criterion_code": "A",
+          "status": "not_observed",
+          "level": null,
+          "supporting_evidence_ids": [],
+          "contrary_evidence_ids": [],
+          "rationale": "mock 데모 응답 -- 실제 판정 아님",
+          "missing_evidence": "목표 달성 확인 근거 없음(mock)",
+          "blocking_conflict": false
+        },
+        {
+          "criterion_code": "B",
+          "status": "not_observed",
+          "level": null,
+          "supporting_evidence_ids": [],
+          "contrary_evidence_ids": [],
+          "rationale": "mock 데모 응답 -- 실제 판정 아님",
+          "missing_evidence": "맥락 전달 근거 없음(mock)",
+          "blocking_conflict": false
+        },
+        {
+          "criterion_code": "C",
+          "status": "not_observed",
+          "level": null,
+          "supporting_evidence_ids": [],
+          "contrary_evidence_ids": [],
+          "rationale": "mock 데모 응답 -- 실제 판정 아님",
+          "missing_evidence": "도구 선택 근거 없음(mock)",
+          "blocking_conflict": false
+        },
+        {
+          "criterion_code": "D",
+          "status": "observed",
+          "level": 3,
+          "supporting_evidence_ids": ["ev_fixture_case02_test"],
+          "contrary_evidence_ids": [],
+          "rationale": "mock 데모 응답 -- 실제 판정 아님. 실제 테스트 파일 존재를 근거로 인용했을 뿐이다",
+          "missing_evidence": "",
+          "blocking_conflict": false
+        },
+        {
+          "criterion_code": "E",
+          "status": "not_observed",
+          "level": null,
+          "supporting_evidence_ids": [],
+          "contrary_evidence_ids": [],
+          "rationale": "mock 데모 응답 -- 실제 판정 아님",
+          "missing_evidence": "판단 근거 없음(mock)",
+          "blocking_conflict": false
+        }
+      ]
+    }
+  }
+}

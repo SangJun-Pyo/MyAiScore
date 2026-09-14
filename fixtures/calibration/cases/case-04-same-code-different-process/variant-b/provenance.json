@@ -1,0 +1,10 @@
+{
+  "fixtureId": "case-04-same-code-different-process/variant-b",
+  "synthetic": true,
+  "sourceDescription": "shared/repos/base-shop 재사용(variant-a와 완전히 동일한 코드). Phase 2에서 case-04 level의 expected.json/provenance.json을 variant별로 분리했다.",
+  "createdAt": "2026-09-14T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전. Astra(AI) 설계 검토만 반영했다 -- Astra는 사람이 아니다.",
+  "relatedVariants": ["case-04-same-code-different-process/variant-a", "case-03-good-code-no-process"]
+}

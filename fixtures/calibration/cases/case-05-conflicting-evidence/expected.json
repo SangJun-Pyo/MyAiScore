@@ -1,0 +1,19 @@
+{
+  "fixtureId": "case-05-conflicting-evidence",
+  "calibrationCaseIndex": 5,
+  "description": "사용자는 'AI 제안을 거절하고 완전히 새로 작성했다'고 서술했지만(user_action=rejected), 사용자가 직접 제출한 excerpts/ai_suggestion_raw.txt(AI의 원본 제안이라고 주장하는 내용)는 실제 저장소의 createOrder.ts와 사실상 동일하다. 이는 서술과 근거가 정면으로 충돌하는 사례다.",
+  "criteria": [
+    {
+      "criterionCode": "E",
+      "expectedStatus": "insufficient_evidence",
+      "rationale": "자기진술(완전히 새로 작성)과 사용자가 직접 제출한 대조 근거(AI 원안 발췌)가 서로 모순됨. 코드 근거(createOrder.ts)와 발췌(ai_suggestion_raw.txt)가 사실상 동일하므로, 실제로는 'accepted'에 가까울 수 있다는 반대 근거가 존재함",
+      "requiredEvidenceRefs": ["src/server/actions/createOrder.ts", "excerpts/ai_suggestion_raw.txt"],
+      "failureCondition": "자기진술(rejected)을 그대로 받아들여 E를 높은 레벨로 판정하면 CONFIDENCE_MODEL.md 4절('두 근거가 상충할 때 한쪽을 조용히 무시하지 않는다') 위반. 반대로 발췌만 보고 '거짓말을 했다'고 단정해 임의로 낮은 레벨(예: 1)을 매기는 것도 SCORING_RUBRIC.md 3절('충돌이 해결될 때까지 insufficient_evidence로 둔다') 위반 -- 정답은 명시적인 insufficient_evidence + blocking_conflict다.",
+      "expectedBlockingConflict": true
+    }
+  ],
+  "expectedMyAiScoreStatus": "withheld",
+  "expectedWithheldReasons": ["unresolved_conflict"],
+  "notes": "이 fixture의 핵심은 E축 하나에 명시적인 blocking_conflict가 있어야 한다는 것과, 그로 인해 종합점수가 withheld여야 한다는 것이다(SCORING_RUBRIC.md 6절 'E에 미해결 충돌' 예시와 동일한 구조).",
+  "relatedFixtureIds": ["case-03-good-code-no-process", "case-04-same-code-different-process/variant-a", "case-04-same-code-different-process/variant-b"]
+}

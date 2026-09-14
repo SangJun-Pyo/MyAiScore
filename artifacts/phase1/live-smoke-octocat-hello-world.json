@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "ingestion-snapshot-v0.3.1",
+  "repo": "octocat/Hello-World",
+  "commitSha": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+  "collectorVersion": "ingestion-poc-0.1.0",
+  "selectionDigest": "2b7814d3fca2e99e56c51b6ff2aa313ea6e9da6424804240aa8ad891fdfe0900",
+  "ingestionStatus": "complete",
+  "supportStatus": "other",
+  "collectedAt": "2026-09-10T08:56:09.191Z",
+  "files": [
+    {
+      "path": "README",
+      "blobSha": "980a0d5f19a64b4b30a87d4206aade58726b60e3",
+      "byteSize": 13,
+      "contentSha256": "03ba204e50d126e4674c005e04d82e84c21366780af1f43bd54a37816b6ab340",
+      "lineCount": 2,
+      "redactedContent": "Hello World!\n",
+      "secretPatternMasked": false
+    }
+  ],
+  "staticSignals": {
+    "basis": "selected_files",
+    "languageFileCounts": {
+      "README": 1
+    },
+    "dependencies": [],
+    "testPaths": [],
+    "ciPaths": [],
+    "aiConfigPaths": []
+  },
+  "evidenceCandidates": [
+    {
+      "assessmentId": null,
+      "sourceType": "repo_static",
+      "collectionMethod": "github_api",
+      "summary": "README (2 lines) collected from octocat/Hello-World@7fd1a60b01f9",
+      "contentSha256": "03ba204e50d126e4674c005e04d82e84c21366780af1f43bd54a37816b6ab340",
+      "collectedAt": "2026-09-10T08:56:09.190Z",
+      "repo": "octocat/Hello-World",
+      "commitSha": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+      "path": "README",
+      "locator": {
+        "startLine": 1,
+        "endLine": 2
+      },
+      "eventTime": null,
+      "verificationNote": "정적 존재 확인. 런타임 동작, 실행 성공, AI 사용 과정은 확인되지 않음."
+    }
+  ],
+  "coverage": {
+    "treeTruncated": false,
+    "candidateFiles": 1,
+    "selectedFiles": 1,
+    "readFiles": 1,
+    "selectionLimited": false
+  },
+  "skippedFiles": [],
+  "warnings": [],
+  "failure": null,
+  "metrics": {
+    "durationMs": 1107,
+    "httpRequests": 4,
+    "fetchedBytes": 9975,
+    "cacheHits": 0
+  }
+}

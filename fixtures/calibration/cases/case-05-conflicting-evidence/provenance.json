@@ -1,0 +1,9 @@
+{
+  "fixtureId": "case-05-conflicting-evidence",
+  "synthetic": true,
+  "sourceDescription": "shared/repos/base-shop 재사용. excerpts/ai_suggestion_raw.txt는 실제 createOrder.ts와 거의 동일하게 만들어 의도적인 충돌을 생성함.",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전."
+}

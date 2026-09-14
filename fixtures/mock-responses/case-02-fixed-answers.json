@@ -1,0 +1,5 @@
+[
+  { "text": "정상/조작/음수 총액 세 케이스가 모두 실패 조건을 재현하고 통과를 확인합니다.", "linkedEvidenceIds": [] },
+  { "text": "AI 초안을 검토하다가 음수 총액 케이스가 빠져 있음을 발견해 직접 추가했습니다.", "linkedEvidenceIds": [] },
+  { "text": "package.json과 .ts 파일 구성을 근거로 nextjs_typescript로 판정됐습니다.", "linkedEvidenceIds": [] }
+]

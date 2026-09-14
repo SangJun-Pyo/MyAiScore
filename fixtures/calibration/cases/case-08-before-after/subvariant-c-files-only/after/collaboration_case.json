@@ -1,0 +1,12 @@
+{
+  "case_id": "cc_fixture_case08c_after",
+  "problem": "테스트가 부족하다는 지적을 받아 테스트를 추가함",
+  "constraints": "특별히 없음",
+  "done_criteria": "테스트 파일이 있으면 됨",
+  "ai_suggestion_summary": "AI에게 테스트를 추가해달라고 요청",
+  "user_action": "accepted",
+  "user_action_detail": "AI가 만들어준 테스트 파일을 그대로 추가함",
+  "verification_summary": "테스트 파일을 추가했습니다",
+  "linked_evidence_ids": [],
+  "submitted_at": "2026-09-10T00:15:00Z"
+}

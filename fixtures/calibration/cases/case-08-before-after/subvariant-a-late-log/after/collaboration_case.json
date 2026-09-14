@@ -1,0 +1,12 @@
+{
+  "case_id": "cc_fixture_case08a_after",
+  "problem": "총액 검증 로직이 실제로 검증됐는지 이번에 다시 확인해달라는 요청",
+  "constraints": "코드는 변경하지 않음",
+  "done_criteria": "이전에 이미 확인했던 검증 결과를 제출",
+  "ai_suggestion_summary": "해당 없음 -- 이번 제출은 새 코드 변경이 아니라 과거 기록 제출임",
+  "user_action": "accepted",
+  "user_action_detail": "예전에 로컬에서 실행했던 테스트 로그를 뒤늦게 제출함",
+  "verification_summary": "몇 주 전에 로컬에서 실행했던 테스트 로그입니다 (당시에는 제출하지 않았음)",
+  "linked_evidence_ids": ["ev_fixture_case08a_old_log"],
+  "submitted_at": "2026-09-10T00:10:00Z"
+}

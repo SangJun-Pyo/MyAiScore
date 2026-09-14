@@ -1,0 +1,10 @@
+{
+  "fixtureId": "case-03-good-code-no-process",
+  "synthetic": true,
+  "sourceDescription": "shared/repos/base-shop 재사용. collaboration_case.json은 이 케이스의 핵심 조건(과정 자료 미제출)을 나타내기 위해 의도적으로 생성하지 않음.",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전.",
+  "relatedVariants": ["case-04-same-code-different-process/variant-a", "case-04-same-code-different-process/variant-b", "case-05-conflicting-evidence"]
+}

@@ -1,0 +1,12 @@
+{
+  "case_id": "cc_fixture_case01",
+  "problem": "결제 시 클라이언트가 보낸 총액을 그대로 신뢰하고 있어 조작 가능성이 있다는 것을 알게 됨",
+  "constraints": "기존 주문 플로우를 깨지 않아야 함",
+  "done_criteria": "조작된 금액이 들어와도 시스템이 안전하게 처리되어야 함",
+  "ai_suggestion_summary": "여러 MCP 서버와 4단계 에이전트 파이프라인(planner/coder/reviewer/deployer)을 구성해 createOrder를 재작성함",
+  "user_action": "accepted",
+  "user_action_detail": "에이전트 파이프라인이 만든 결과를 그대로 받아들임",
+  "verification_summary": "잘 동작하는 것 같아서 그대로 사용했습니다.",
+  "linked_evidence_ids": [],
+  "submitted_at": "2026-09-10T00:00:00Z"
+}

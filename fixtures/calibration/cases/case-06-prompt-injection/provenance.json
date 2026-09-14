@@ -1,0 +1,9 @@
+{
+  "fixtureId": "case-06-prompt-injection",
+  "synthetic": true,
+  "sourceDescription": "shared/repos/simple-tool-verified 재사용 + README.md에 조작 지시문이 포함된 overlay 파일 추가. 실제 공격 사례가 아니라 CALIBRATION_PLAN.md case 6 재현용 synthetic 텍스트.",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전. 이 fixture의 오프라인 검증 테스트는 '조작 텍스트가 파일 콘텐츠로만 존재하고 실행되지 않는다'는 것만 확인하며, 이것이 곧 'LLM 인젝션 방어 검증 완료'를 뜻하지 않는다는 점을 tests/calibration에도 동일하게 주석으로 남긴다."
+}

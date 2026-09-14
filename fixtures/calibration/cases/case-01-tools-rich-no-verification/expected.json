@@ -1,0 +1,46 @@
+{
+  "fixtureId": "case-01-tools-rich-no-verification",
+  "calibrationCaseIndex": 1,
+  "description": "많은 MCP 서버·에이전트 역할 설정(.mcp.json, CLAUDE.md, AGENTS.md)이 있지만, 저장소에도 협업 사례 서술에도 검증 근거가 전혀 없다. createOrder 구현 자체도 금액 불일치를 거부하지 않는다(실제 결함).",
+  "criteria": [
+    {
+      "criterionCode": "A",
+      "expectedStatus": "insufficient_evidence",
+      "rationale": "문제 정의(problem/done_criteria)는 있지만 완료 조건을 실제로 확인한 근거가 없음",
+      "requiredEvidenceRefs": ["src/server/actions/createOrder.ts"],
+      "failureCondition": "problem/done_criteria 필드가 채워져 있다는 이유만으로 observed 처리하면 안 됨 -- 목표 달성 여부 확인이 없음"
+    },
+    {
+      "criterionCode": "B",
+      "expectedStatus": "not_observed",
+      "rationale": "AI에게 어떤 맥락을 전달했는지에 대한 구체적 서술이 없음",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "AGENTS.md/CLAUDE.md 파일이 존재한다는 사실만으로 맥락 전달을 observed 처리하면 안 됨"
+    },
+    {
+      "criterionCode": "C",
+      "expectedStatus": "insufficient_evidence",
+      "rationale": "MCP 서버 3개 + 에이전트 4역할이라는 설정 자체는 관찰되지만, 이 문제(간단한 금액 검증)에 그 정도 구조가 필요했는지 근거가 없고 오히려 과도할 수 있음",
+      "requiredEvidenceRefs": [".mcp.json", "CLAUDE.md", "AGENTS.md"],
+      "failureCondition": "도구/설정 개수가 많다는 이유로 C를 높은 레벨(3~4)로 판정하면 SCORING_RUBRIC.md 1절 위반. 반대로 도구 개수만으로 감점하는 것도 금지."
+    },
+    {
+      "criterionCode": "D",
+      "expectedStatus": "not_observed",
+      "rationale": "테스트 파일 없음, CI 없음, 사용자 검증 서술도 '잘 되는 것 같다'는 자기진술뿐. 실제 코드는 금액 불일치를 거부하지 않는 결함을 갖고 있어 검증이 이뤄지지 않았음을 뒷받침함",
+      "requiredEvidenceRefs": ["src/server/actions/createOrder.ts"],
+      "failureCondition": "검증 기록이 없다는 이유만으로 곧바로 '레벨 1'로 확정하면 안 됨(SCORING_RUBRIC.md 3절) -- 이 경우는 not_observed가 맞다. 다만 코드에 남은 결함(금액 불일치 미거부)이 검증 생략을 뒷받침하는 정황 근거로 쓰일 수 있음을 반영해도 됨."
+    },
+    {
+      "criterionCode": "E",
+      "expectedStatus": "not_observed",
+      "rationale": "user_action=accepted이고 채택 이유나 대안 검토 서술이 없음",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "user_action 필드에 'accepted' 값이 있다는 사실만으로 아무 레벨이나 부여하면 안 됨"
+    }
+  ],
+  "expectedMyAiScoreStatus": "withheld",
+  "expectedWithheldReasons": ["insufficient_dimensions"],
+  "notes": "이 fixture는 '도구 개수가 능력의 가산점이 아니다'라는 원칙을 직접 검증하기 위한 것. 5축 중 다수가 not_observed/insufficient_evidence이므로 총점은 무조건 보류돼야 한다.",
+  "relatedFixtureIds": ["case-02-simple-tool-strong-verification"]
+}

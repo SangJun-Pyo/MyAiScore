@@ -1,0 +1,10 @@
+{
+  "fixtureId": "case-07-repeat-fixed-input",
+  "synthetic": true,
+  "sourceDescription": "case-02-simple-tool-strong-verification의 repo_ref/collaboration_case를 그대로 복제한 고정 입력. 반복 실행 실험은 아직 수행하지 않음.",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전. 반복 평가(5회) 자체가 아직 실행되지 않았음.",
+  "relatedVariants": ["case-02-simple-tool-strong-verification"]
+}

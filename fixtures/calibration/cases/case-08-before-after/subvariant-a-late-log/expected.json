@@ -1,0 +1,27 @@
+{
+  "fixtureId": "case-08-before-after/subvariant-a-late-log",
+  "calibrationCaseIndex": 8,
+  "description": "before: 검증 근거 없음(D=not_observed). after: 코드는 동일(v1-baseline과 v2-late-log는 바이트 단위로 같음)하지만, '몇 주 전에 실행했던' 과거 로그를 이번에 처음 제출함 -- 다만 그 로그의 실제 발췌 파일은 이 fixture에 존재하지 않는다(evidence_map.json 참고).",
+  "criteria": [
+    {
+      "criterionCode": "D",
+      "expectedStatus": "insufficient_evidence",
+      "rationale": "collaboration_case.json은 과거 로그를 제출했다고 서술하지만, linked_evidence_ids(\"ev_fixture_case08a_old_log\")가 실제로는 어떤 발췌 파일에도 연결되지 않는다(evidence_map.json: kind=unresolved). 즉 이 fixture는 '지연 제출이라서 신뢰도가 낮다'는 상황이 아니라 '주장을 뒷받침할 실제 자료 자체가 없다'는 상황이다. 두 경우를 구분해야 하며(ASTRA_PHASE1_REVIEW.md 3절), 이 fixture는 후자이므로 근거 부족으로 insufficient_evidence다",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "실제로 존재하지 않는 로그 파일을 evidence로 취급해 D를 observed로 올리면 근거를 꾸며내는 것(로그 내용을 만들어내지 않는다는 원칙 위반). 반대로 '지연 제출'이라는 이유만으로 자동 거부해 not_observed로 처리하는 것도 부정확하다 -- 사용자는 실제로 어떤 자료(그 내용이 무엇인지는 확인 불가)를 제출했다고 주장했으므로 완전한 무자료(not_observed)와도 다르다"
+    }
+  ],
+  "expectedComparisons": [
+    {
+      "criterionCode": "D",
+      "previousStatus": "not_observed",
+      "currentStatusOptions": ["insufficient_evidence", "observed"],
+      "expectedEvidenceChange": "added",
+      "expectedBehaviorChange": "not_established",
+      "rationale": "EVIDENCE_SCHEMA.md 8절: '이전 로그를 뒤늦게 제출해 not_observed -> observed가 되어도 evidence_change=added, behavior_change=not_established가 기본이다.' ASTRA_PHASE1_REVIEW.md 3절은 과거 자료 추가로 레벨/상태가 실제로 올라갈 수 있다는 점을 확인했으므로(behavior_change와 evidence_change/status 변화는 독립적인 축), 이 fixture는 currentStatus를 하나로 강제하지 않고 insufficient_evidence(이 fixture에서는 참조가 끊겨 있으므로 더 유력)와 observed(만약 실제 evaluator가 자기진술만으로도 근거로 인정한다면) 모두를 허용 범위로 남긴다. 어느 쪽이든 behavior_change=not_established는 고정이다 -- 이번 제출이 코드 변경이나 새로운 행동을 증명하지 않기 때문"
+    }
+  ],
+  "expectedMyAiScoreStatus": "not_determinable_without_model",
+  "notes": "Phase 2에서 이전 초안의 currentStatus 필드에 있던 'insufficient_evidence_or_observed_with_caveat'라는 제품에 없는 혼합 문자열을 제거했다(ASTRA_PHASE1_REVIEW.md 3절). 대신 expectedComparisons.currentStatusOptions로 '이 fixture만으로는 정확한 사후 상태를 하나로 확정할 수 없다'는 사실을 제품 열거형 값들의 배열로 표현한다. evidence_map.json이 명시하듯, 이 subvariant에는 실제 로그 발췌 파일이 없다 -- subvariant-b(실제 execution_log.txt 존재)와 정확히 대조되는 지점이다.",
+  "relatedFixtureIds": ["case-08-before-after/subvariant-b-real-improvement", "case-08-before-after/subvariant-c-files-only"]
+}

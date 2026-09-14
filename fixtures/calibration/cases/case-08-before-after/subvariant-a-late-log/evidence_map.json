@@ -1,0 +1,6 @@
+{
+  "ev_fixture_case08a_old_log": {
+    "kind": "unresolved",
+    "reason": "collaboration_case.json은 '몇 주 전에 실행했던 로그를 뒤늦게 제출함'이라고 서술하지만, 이 fixture에는 그 로그의 실제 발췌 파일이 존재하지 않는다 (subvariant-b의 after/excerpts/execution_log.txt와 달리 이 subvariant는 excerpts/ 디렉터리 자체가 없음). ASTRA_PHASE1_REVIEW.md 3절: '지연 제출라서 거부'와 '실제 자료가 없어서 부족'을 구분해야 하며, 이 fixture는 후자다 -- 로그 내용을 꾸며내지 않고 명시적인 미연결 주장으로 남긴다."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "fixtureId": "case-08-before-after/subvariant-a-late-log",
+  "synthetic": true,
+  "sourceDescription": "shared/repos/before-after의 v1-baseline/v2-late-log 재사용 (두 저장소는 파일 내용이 동일함). after의 협업 사례가 '과거 로그를 뒤늦게 제출'하는 상황을 나타냄.",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "executedAt": null,
+  "humanReviewed": false,
+  "humanReviewNote": "사람 검토 전.",
+  "relatedVariants": ["case-08-before-after/subvariant-b-real-improvement", "case-08-before-after/subvariant-c-files-only"]
+}
