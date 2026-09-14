@@ -10,6 +10,7 @@
  * request this codebase authored and controls; `untrusted` carries
  * repo/case/excerpt/answer content verbatim, however it reads.
  */
+import { hashPromptText } from "./inputAssembly.js";
 import type { CriterionDefinition } from "./rubricCriteria.js";
 import type { Answer, CollaborationCase, Evidence, Question } from "../../shared/contracts/evaluation.js";
 
@@ -47,4 +48,30 @@ export interface JudgementRequest {
   untrusted: UntrustedContext & { questions: Question[]; answers: Answer[] };
   inferenceConfigVersion: string;
   timeoutMs: number;
+}
+
+/** Exact JSON bytes at the provider interface; preserve event times, IDs and references. */
+export function hashProviderRequest(request: QuestionGenerationRequest | JudgementRequest): string {
+  return hashPromptText(JSON.stringify(request));
+}
+
+/**
+ * Freeze one JSON payload for both dispatch and audit. A repeat experiment
+ * reuses this payload (not a previous evaluator response) for each invocation.
+ * Provider adapters must serialize this payload unchanged; SDK envelope/model
+ * settings must also be recorded by the adapter at its transport boundary.
+ */
+export function prepareProviderRequest<T extends QuestionGenerationRequest | JudgementRequest>(request: T): {
+  payload: T; serialized: string; hash: string;
+} {
+  const serialized = JSON.stringify(request);
+  const payload = JSON.parse(serialized) as T;
+  const freeze = (value: unknown): void => {
+    if (value !== null && typeof value === "object") {
+      for (const child of Object.values(value)) freeze(child);
+      Object.freeze(value);
+    }
+  };
+  freeze(payload);
+  return { payload, serialized, hash: hashPromptText(serialized) };
 }

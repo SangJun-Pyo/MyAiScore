@@ -170,14 +170,12 @@ export interface EvaluationManifest {
   versions: EvaluationVersions;
   /** Full-fidelity audit fingerprint of the final (post-answers) bundle, including random IDs/timestamps -- traces one specific run, not expected to match across repeats. */
   bundleTextHash: string;
-  /**
-   * Fingerprint of only the content a model actually reads (volatile IDs/
-   * timestamps stripped) -- this is what a repeat experiment (same fixture,
-   * same canned/real responses) compares to confirm two runs really saw the
-   * same input. See inputAssembly.ts computeModelInputHash for what is and
-   * isn't included.
-   */
+  /** Legacy aggregate of stageRequestHashes (phase2-fix-v2+); not a semantic similarity hash. */
   modelInputHash: string;
+  /** Exact JSON request hashes at the provider interface; null means the stage was not attempted.
+   * Optional only to read historical manifests created before phase2-fix-v2.
+   */
+  stageRequestHashes?: { questions: string | null; judgement: string | null };
   questionPromptTextHash: string;
   judgePromptTextHash: string;
   rubricCriteriaVersion: string;
