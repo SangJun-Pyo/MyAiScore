@@ -4,12 +4,22 @@
 
 ## 현재 작업
 
-**Phase 2 Fixes — Astra 재검토 완료. MAS-001/003은 해결 확인, MAS-002/004의 잔여 경로와 MAS-005를 보정한다.**
+두 작업이 **서로 독립적으로** 진행 중이다. 하나가 다른 하나를 막지 않는다.
+
+**1) Phase 2 Fixes — Astra 재검토 완료. MAS-001/003은 해결 확인, MAS-002/004의 잔여 경로와 MAS-005를 보정한다.**
 
 - 현재 잔여 수정 지시: [CLAUDE_PHASE2_FIX_PROMPT](../../CLAUDE_PHASE2_FIX_PROMPT.md)
 - 기록할 세션: [Phase-02-Fixes](Sessions/Phase-02-Fixes.md)
 - 수정할 결함: [BUGS](BUGS.md)의 MAS-002/004/005
-- 서비스 LLM API/예산: 사용자 답변 **미정**. 실제 API 호출·DB·UI·배포는 이번 범위에 없다.
+
+**2) Phase 3 — 로컬 협업 기록 수집 PoC (제한적 실험, 정식 MVP 편입 아님).**
+
+- `MVP_SCOPE.md`가 보류한 Local Evidence Mode를 이 PoC 1건에 한정해 재검토한다. 근거: [DECISIONS](DECISIONS.md) §7.
+- 기록할 세션: [Phase-03-Local-Collection-PoC](Sessions/Phase-03-Local-Collection-PoC.md)
+- 브랜치: `claude/local-collection-poc`(base: `codex/document-governance`). MAS-002/004/005와 코드 경로가 겹치지 않는다 — 이 PoC는 `assembleEvaluationInput`/provider/scoring을 호출하지 않고 Evidence 생성까지만 다룬다.
+- 이 실험 완료가 Phase 2 Fixes를 대체하거나 MAS-002/004/005를 닫지 않는다.
+
+서비스 LLM API/예산: 사용자 답변 **미정**. 실제 API 호출·DB·UI·배포는 두 작업 모두 이번 범위에 없다.
 
 ## 단계별 상태
 
@@ -19,6 +29,7 @@
 | Phase 1 Task 0·1 | 구현/기초 검증 기록 확보 | [기록](Sessions/Phase-01-Fixtures-And-Ingestion.md) |
 | Phase 2 Task 2a·3 | 구현 보고 후 수용 보류 | [검토](Sessions/Phase-02-Offline-Evaluation.md#astra-review) |
 | Phase 2 Fixes | 재검토 후 잔여 3항목 보정 | [현재 세션](Sessions/Phase-02-Fixes.md) |
+| Phase 3 로컬 수집 PoC | 구현·오프라인 검증 완료, Astra 검토 대기. 정식 MVP 편입 아님, Task 순서에 삽입되지 않음 | [현재 세션](Sessions/Phase-03-Local-Collection-PoC.md) |
 | Task 2b 실제 모델 실험 | 미착수 | 코드 검토 통과 + 모델/접속/예산 확정 |
 | Task 4 개선 작업서·비교 | 미착수 | Task 2·3 검토 |
 | Task 5 API·저장 | 미착수 | 데이터 계약·환경 확정 |

@@ -1,0 +1,24 @@
+
+=== 로컬 협업 기록 수집 미리보기 (mode=local-collection-poc) ===
+프로젝트: C:/Users/sangj/AppData/Local/Temp/myaiscore-demo-project
+세션 파일: fixtures/local-collection/corrupted-session.jsonl
+
+-- 레코드 유형 개수 --
+  user: 1
+  assistant: 1
+
+-- 손상된 줄 (건너뜀, 총 2개) --
+  line 2: invalid JSON: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+  line 3: line is not a JSON object with a string 'type' field
+
+-- 파일 경로 연결 (0개) --
+
+-- 포함된 근거 (2개) --
+  [local_c8ea67db-62b5-4de7-820a-8fe562e4b5a8] 로컬 세션 사용자 메시지(원문 미검증 자기 자료): 정상 메시지입니다.
+    path=null eventTime=2026-09-20T05:00:00.000Z
+    검증 메모: 로컬 Claude Code 세션 로그에서 추출한 사용자 발화. 서비스가 독립적으로 확인한 사실이 아니며, GitHub에서 확인한 근거와 구분한다.
+  [local_fc28159a-0bb7-4fd3-a866-66ceff696412] 로컬 세션 AI 응답(원문 미검증 자기 자료): 응답입니다.
+    path=null eventTime=2026-09-20T05:00:05.000Z
+    검증 메모: 로컬 Claude Code 세션 로그에서 추출한 AI 응답 텍스트. 실제로 그 제안이 반영·검증됐는지는 별도 확인이 필요하다.
+
+(원문 발췌는 이 화면과 analysisContext에만 존재하며, 외부로 전송되지 않았다.)

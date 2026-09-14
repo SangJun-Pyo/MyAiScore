@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-20 — Phase 3 로컬 협업 기록 수집 PoC
+
+- 사용자·Astra 합의로 `MVP_SCOPE.md`의 Local Evidence Mode 보류를 이 PoC 1건에 한정해 재검토([DECISIONS](DECISIONS.md#7-정식-mvp-편입-전의-제한된-로컬-수집-실험-2026-09-20)). Claude Code 세션 JSONL(실제 프로젝트 파일로 구조 확인) 1개를 읽어 요청/제안/도구 호출·결과를 구조적으로 추출하고, 기존 Evidence 계약(`sourceType:"user_provided_excerpt"`)에 계약 확장 없이 연결하는 로컬 수집기·CLI·synthetic fixture 7종·테스트 24개를 구현했다.
+- `npm run typecheck` 통과, `npm test` 166 pass(기존 142 + 신규 24). CLI를 정상/손상/미지원 형식 세 경로로 실제 실행해 exit code(0/0/1)를 확인.
+- MAS-002/004/005는 이 작업과 무관하게 미해결로 유지. 상세: [Phase 3](Sessions/Phase-03-Local-Collection-PoC.md).
+
 ## 2026-09-14 — Phase 2 Fixes 구현 보고와 실행 확인
 
 - 후속 Astra 재검토: typecheck·142 pass 확인. MAS-001/003은 오프라인 범위 해결 확인, MAS-002/004 잔여 경로와 MAS-005 입력 hash 문제를 재현해 수정 지시를 갱신했다. [검토 기록](Sessions/Phase-02-Fixes.md#astra-rereview-20260914).

@@ -49,3 +49,15 @@
 ## 6. Phase 2 재검토 — 반복 실험 입력 계약
 
 2026-09-14: 반복 실험의 동일성은 실제 모델에 전달할 단계별 payload와 그 hash로 확인한다. 임의 필드를 hash에서만 제거한 논리 내용 비교를 동일 입력 실험으로 표현하지 않는다. 감사용 hash와 모델 payload hash를 분리한다. 구현 잔여 범위는 MAS-002/004/005로 한정한다. [근거](Sessions/Phase-02-Fixes.md#astra-rereview-20260914).
+
+## 7. 정식 MVP 편입 전의 제한된 로컬 수집 실험 (2026-09-20)
+
+`MVP_SCOPE.md`의 보류 항목("Local Evidence Mode, CLI, IDE 플러그인 — 조작 가능성이 높고 검증 인프라가 없음")은 **폐기하지 않는다.** 대신 사용자·Astra 합의로 아래 조건 하나에 한정해 재검토를 허용한다:
+
+- 대상은 **로컬 협업 기록 수집 PoC 1건**([Phase-03-Local-Collection-PoC](Sessions/Phase-03-Local-Collection-PoC.md))뿐이다. 이 결정은 MVP 범위를 CLI 제품으로 바꾸거나 Local Evidence Mode 전체를 승인하는 것이 아니다.
+- 이 PoC가 다루는 것은 사용자가 **명시적으로 지정한** 프로젝트 경로 1개 + 세션 파일 1개뿐이다. 홈 디렉터리 자동 탐색, 여러 세션 통합, 실제 평가 파이프라인(질문 생성·판정·점수) 연결은 이번 결정에 포함되지 않는다.
+- 로컬 세션 기록은 GitHub 수집 근거(`repo_static`/`repo_history`, 제3자가 커밋 SHA로 검증 가능)와 신뢰 수준이 다르다 — 항상 `user_provided_excerpt`(사용자 제공, 미검증 자기 자료)로만 표기하고, 이 구분을 코드 타입 수준에서 강제한다.
+- 기존 점수 발급 조건(5축 모두 판정 가능할 때만 총점)과 `humanReviewed` 표기 규칙은 이 실험으로 완화하지 않는다.
+- 이 PoC의 결과가 긍정적이어도, Local Evidence Mode를 정식 MVP 기능으로 편입하려면 별도의 명시적 사용자·Astra 승인과 MVP_SCOPE.md 갱신이 필요하다 — 이 항목 하나의 구현으로 자동 편입되지 않는다.
+
+근거·구현 상세는 [Phase-03-Local-Collection-PoC](Sessions/Phase-03-Local-Collection-PoC.md)에 있다.
