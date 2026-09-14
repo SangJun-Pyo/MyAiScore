@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-14 — 에이전트 공통 지침 통합
+
+- AGENTS를 공통 작업 규칙 정본으로 명시하고 기존 CLAUDE의 구현 원칙을 옮겼다. CLAUDE는 AGENTS/ROADMAP import 진입점으로 간소화했다.
+- 현재 작업은 ROADMAP에서 읽고, 기존 세션 재읽기와 checkout 기준을 명시했다. 전역 도구 설정이나 실행 중인 Claude 세션은 변경하지 않았다.
+- 관련 [#11](https://github.com/SangJun-Pyo/MyAiScore/issues/11), [Phase 4](Sessions/Phase-04-Web-MVP.md).
+
 ## 2026-09-14 — 공용 프로젝트 인계 경로 복원
 
 - worktree/원격만 최신이고 원래 checkout은 과거 브랜치에 남아 있던 누락을 확인했다. `C:/Users/sangj/MyAiScore/docs`를 공용 문서 진입점으로 명시하고 코드와 함께 Git으로 동기화하는 종료 절차를 추가했다.
