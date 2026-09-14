@@ -58,4 +58,6 @@ Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했�
 
 ## 인계
 
+통합 변경은 [PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6)으로 올렸다. 로컬 검증은 위와 같으며 원격 Linux CI의 최신 결과는 PR의 Checks에서 확인한다. 배포와 실제 모델 교정은 [#4](https://github.com/SangJun-Pyo/MyAiScore/issues/4)에 남긴다.
+
 현재 소스와 실행 방법은 [README](../../../README.md), wire 형태는 [API 계약](../../Architecture/API_DATA_CONTRACTS.md), 상태는 [ROADMAP](../ROADMAP.md), 남은 출시 조건은 GitHub #4에서 관리한다. 과거 Claude 프롬프트를 재실행하지 않는다. 이번 세션의 최종 commit은 `git log --follow -- docs/Development/Sessions/Phase-04-Web-MVP.md`로 확인한다.

@@ -25,7 +25,7 @@
 | 질문/판정/점수/작업서 | 서비스·CLI·웹 통합, mock 흐름 테스트 | 실제 판단 정확성·인젝션 실험 |
 | API/소유권/저장 | file + Supabase CAS adapter, 소유/공개/재시도/삭제 검사 | 실제 Supabase migration·RLS 실증 |
 | 웹/공유/비교 | 반응형 화면 및 브라우저 테스트 | 실제 사용자 피드백 |
-| CI/배포 준비 | GitHub Actions, Docker/Railway 설정 | CI 원격 결과·실제 계정 배포는 세션 후속에서 확인 |
+| CI/배포 준비 | GitHub Actions, Docker/Railway 설정, [통합 PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6) | 원격 CI 결과는 PR Checks, 실제 계정 배포는 #4에서 확인 |
 
 ## 다음 작업
 

@@ -2,6 +2,8 @@
 
 공개 GitHub 프로젝트와 AI 협업 근거를 읽고, 다섯 축의 진단과 다음 개선 행동을 제공합니다. 코드 품질이나 토큰 사용량으로 개인의 AI 실력을 인증하지 않습니다.
 
+![MyAiScore 다크 UI와 Three.js 근거 연결망](artifacts/web-mvp/desktop.png)
+
 ## 지금 실행하기
 
 Node.js 22 이상이 필요합니다.
