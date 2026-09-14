@@ -18,6 +18,7 @@ import { parseClaudeCodeSessionFile, type ParsedSession, type MalformedLine } fr
 import { extractCollaborationEvents, type CollaborationEvent } from "./extractCollaborationEvents.js";
 import { connectFileTouchesToProject, type FileConnection } from "./connectToRepoEvidence.js";
 import { convertEventsToEvidence, type EvidenceConversionResult, type ExcludedItem } from "./toEvidence.js";
+import { redactSecrets } from "../ingestion/redact.js";
 import type { Evidence } from "../../shared/contracts/evaluation.js";
 
 export class LocalCollectionError extends Error {
@@ -98,15 +99,31 @@ export interface LocalCollectionPublicView {
   maskedEvidenceIds: string[];
 }
 
+/** This masks recognized secret patterns, not every possible personal datum. */
+function previewText(text: string, max = 2000): string {
+  return redactSecrets(text).redacted.slice(0, max);
+}
+
+function previewEventTime(value: unknown): string | null {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return null;
+  return Number.isFinite(Date.parse(value)) ? value : null;
+}
+
 export function buildLocalCollectionPublicView(result: LocalCollectionResult): LocalCollectionPublicView {
   return {
-    projectRoot: result.projectRoot,
-    sessionFilePath: result.sessionFilePath,
+    projectRoot: previewText(result.projectRoot),
+    sessionFilePath: previewText(result.sessionFilePath),
     recordTypeCounts: result.parsed.typeCounts,
-    malformedLines: result.parsed.malformedLines,
-    fileConnections: result.fileConnections,
-    evidence: result.conversion.evidence,
-    excluded: result.conversion.excluded,
+    malformedLines: result.parsed.malformedLines.map(line => ({ ...line, reason: previewText(line.reason) })),
+    fileConnections: result.fileConnections.map(connection => ({ ...connection, path: previewText(connection.path), note: previewText(connection.note) })),
+    evidence: result.conversion.evidence.map(evidence => ({
+      ...evidence,
+      summary: previewText(evidence.summary, 120),
+      path: evidence.path === null ? null : previewText(evidence.path),
+      eventTime: previewEventTime(evidence.eventTime),
+      verificationNote: previewText(evidence.verificationNote),
+    })),
+    excluded: result.conversion.excluded.map(item => ({ ...item, detail: previewText(item.detail) })),
     maskedEvidenceIds: result.conversion.maskedEvidenceIds,
   };
 }

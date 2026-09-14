@@ -130,3 +130,31 @@ test("MAS-006 diagnostics do not echo malformed JSON or unknown record type text
     rmSync(projectRoot, { recursive: true, force: true });
   }
 });
+
+
+test("public preview masks secret-bearing metadata and rejects non-date eventTime", () => {
+  const projectRoot = mkdtempSync(join(tmpdir(), "myaiscore-mas006-metadata-"));
+  const path = join(projectRoot, "synthetic.jsonl");
+  try {
+    writeFileSync(path, [
+      JSON.stringify({ type: "assistant", uuid: "synthetic", timestamp: SECRET, message: { content: [
+        { type: "tool_use", id: "tool1", name: SECRET, input: {} },
+      ] } }),
+      JSON.stringify({ type: "file-history-delta", timestamp: "2026-09-14T00:00:00Z", trackingPath: `${SECRET}.ts` }),
+    ].join("\n"));
+    for (const mode of [[], ["--json"]]) {
+      const result = runCli(["--project", projectRoot, "--session", path, ...mode]);
+      assert.equal(result.status, 0);
+      assert.ok(!result.stdout.includes(SECRET), "secret-bearing tool name/path/date must not bypass masking");
+      assert.ok(!result.stderr.includes(SECRET));
+      if (mode.length) {
+        const view = JSON.parse(result.stdout);
+        assert.equal(view.evidence[0].eventTime, null);
+        assert.equal(view.evidence[1].eventTime, "2026-09-14T00:00:00Z");
+        assert.ok(view.fileConnections.length === 1);
+      }
+    }
+  } finally {
+    rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
