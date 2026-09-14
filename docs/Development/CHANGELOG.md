@@ -6,7 +6,8 @@
 - MAS-002/004/005 보정, MAS-006 JSON 파싱 오류/metadata 잔여 노출 경로 추가 수정.
 - 실제 GitHub 수집·서버 모델 adapter·질문/판정/계산·개선 작업서·보수적 비교, 웹 UI 및 인증 API 통합.
 - File/Supabase CAS 저장, 공개 요약 분리·철회·삭제·재시도·예산 제한, CI/Docker/Railway 설정.
-- typecheck, 222개 테스트, production build, 데스크톱/모바일 브라우저 8건 통과. 실제 모델/DB/배포는 미수행.
+- #5 후속 디자인: 전체 다크 팔레트, 보라·시안 강조, hover/focus, 실제 Three.js 장면과 정적 대체. 데스크톱·모바일 캡처 확인.
+- typecheck, 224개 테스트, production build, 데스크톱/모바일 브라우저 12건 통과. 실제 모델/DB/배포는 미수행.
 - 상세: [Phase 4](Sessions/Phase-04-Web-MVP.md). 과거 보고 날짜는 원문을 보존하며 현재 상태는 ROADMAP을 따른다.
 
 ## 2026-09-20 — MAS-006 수정 (로컬 수집 PoC CLI 원문 노출)

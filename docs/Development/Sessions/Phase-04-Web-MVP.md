@@ -10,6 +10,7 @@
 | 수집·질문·판정·작업서·모델 adapter | [#2](https://github.com/SangJun-Pyo/MyAiScore/issues/2) | codex/assessment-service |
 | 한국어 웹·결과·비교 | [#3](https://github.com/SangJun-Pyo/MyAiScore/issues/3) | codex/web-experience |
 | 통합·저장·CI·배포 준비·남은 실험 | [#4](https://github.com/SangJun-Pyo/MyAiScore/issues/4) | codex/web-mvp |
+| Linear 다크 UI·Three.js 히어로 | [#5](https://github.com/SangJun-Pyo/MyAiScore/issues/5) | codex/web-experience + codex/evaluation-boundaries → codex/web-mvp |
 
 Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했다. 각 서브에이전트는 담당 경로만 commit했고, root가 해당 commit을 통합했다. 핵심 경계는 별도 에이전트가 읽고 실패 사례를 재현했다. AI 검토이며 사람 fixture 검토가 아니다.
 
@@ -29,16 +30,23 @@ Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했�
 - MAS-006: 기존 events 제거만으로는 부족했다. JSON.parse 오류 메시지가 원문을 인용하는 경로를 synthetic 입력으로 독립 재현하고 고정 진단 문구로 변경했다. unknown record type 집계와 tool/path/timestamp metadata도 제한·마스킹했다. 통합 `c1209c9`, `38b297a`. 모든 개인정보 마스킹의 완전성을 인증한 것은 아니다.
 - root API 초안에서 분석 중 DELETE가 막히는 문제, 인증 후 create의 idempotency 누락을 보정하고 회귀 테스트를 추가했다.
 - 서비스의 provider 오류 코드가 재시도 가능성을 잃는 문제를 수정했다. 질문과 판정 사이 모델 변경도 거부한다.
+- 실행 도구 독립 검토에서 `.env.local` 시작법, 최소 Docker 이미지에 없는 정리 CLI의 실행 위치를 문서에 보정했다. 평가 CLI는 출력 파일 존재·부모 경로·쓰기 권한을 유료 작업 전에 검사하도록 수정했다. 마지막 배타적 파일 생성도 유지한다.
 - 소유 인증, 공개 요약, 실행 attempt fencing, Supabase CAS의 코드 경계를 별도 에이전트가 확인했다. 실제 서비스키·배포 계정은 사용하지 않았다.
 
 ## 실제 실행한 검증
 
 - `npm run typecheck`: 통과.
-- `npm test`: 통합 222 pass / 0 fail. 실제 모델 전역 예산 초과 시 호출 전에 차단되는 회귀까지 포함한다.
+- `npm test`: 통합 224 pass / 0 fail. 실제 모델 전역 예산 초과 시 호출 전에 차단되는 회귀까지 포함한다.
 - `npm run build`: Next production build 통과.
-- Playwright Chromium 데스크톱·모바일: 합성 예시, 접근 토큰 없음, 공유 결과 없음, synthetic API fixture를 사용한 입력→질문→결과 흐름 총 8건 통과. 브라우저의 전체 흐름은 합성 응답임을 명시하고, 서버 파이프라인은 별도 테스트로 검증했다. 초기 환경 실패는 해당 Playwright 버전의 브라우저 설치 후 해결했고, Next route announcer와 겹친 테스트 selector를 main 영역으로 한정했다.
+- Playwright Chromium 데스크톱·모바일: 합성 예시, 접근 토큰 없음, 공유 결과 없음, synthetic API fixture를 사용한 입력→질문→결과 흐름 총 12건 통과. 브라우저의 전체 흐름은 합성 응답임을 명시하고, 서버 파이프라인은 별도 테스트로 검증했다. 초기 환경 실패는 해당 Playwright 버전의 브라우저 설치 후 해결했고, Next route announcer와 겹친 테스트 selector를 main 영역으로 한정했다.
 - 실제 공개 `SangJun-Pyo/MyAiScore@c7b3a2e2c0bb1f78fb7602d251d42a60ba32d65d` 읽기 전용 수집: complete, 읽은 파일 40, Evidence 40, 모델 호출 0. 저장소 코드는 실행하지 않았다.
 - 서비스/Anthropic transport 검증은 주입한 synthetic 응답으로 수행했다. 실제 외부 모델의 판정이나 비용 실측이 아니다.
+
+## 다크 디자인과 3D 후속
+
+사용자 후속 디자인 요청에 따라 Linear/Tokscale 계열의 다크 UI와 Three.js 장면을 추가했다. UI와 3D 컴포넌트는 별도 담당으로 나누었다. 3D는 자체 제작한 근거 연결망 장식이며 실제 분석 진행 표시가 아니다. 정적 SVG 대체, 모션 감소 설정, 화면 밖/탭 비활성 정지와 자원 정리를 포함한다. React 19.3과 R3F 9.7 peer 불일치 때문에 Three.js 0.186을 직접 지연 로딩한다. 기능/API 흐름은 유지한다.
+
+통합 commit: Three.js `cd32573`, 다크 UI `6170bbf`. production build 통과 후 Chromium에서 실제 `data-renderer=webgl`을 확인했다. 기존 8개 브라우저 흐름에 모바일/데스크톱 모션 감소 및 WebGL 미지원 검사 4건을 더해 총 12건 통과했다. 최종 [데스크톱](../../../artifacts/web-mvp/desktop.png), [모바일](../../../artifacts/web-mvp/mobile.png), [합성 결과](../../../artifacts/web-mvp/example.png) 캡처를 직접 확인했다. 실제 모델 호출 없이 수행했다.
 
 ## 미실행과 다음 조건
 

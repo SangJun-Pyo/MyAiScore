@@ -4,7 +4,7 @@
 
 ## 현재 상태
 
-**웹 MVP 구현·통합 후 다크 UI/Three.js 재설계 진행. 실제 모델 교정과 계정 배포는 별도 준비 단계.**
+**웹 MVP와 다크 UI/Three.js 구현·통합 검증 완료. 실제 모델 교정과 계정 배포 준비 단계.**
 
 - 실행: [README](../../README.md), 기록: [Phase 4](Sessions/Phase-04-Web-MVP.md).
 - 현재 시각 작업: [#5 Linear 다크 UI·Three.js](https://github.com/SangJun-Pyo/MyAiScore/issues/5).

@@ -1,4 +1,28 @@
 import { test, expect } from '@playwright/test';
+test('reduced motion keeps the decorative hero static and the form usable', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-renderer', 'static');
+  await expect(page.getByTestId('hero-scene').locator('canvas')).toHaveCount(0);
+  await expect(page.getByLabel(/공개 GitHub 저장소/)).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+});
+test('unavailable WebGL falls back without blocking navigation', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, kind: string, ...args: unknown[]) {
+      if (kind === 'webgl' || kind === 'webgl2' || kind === 'experimental-webgl') return null;
+      return Reflect.apply(original, this, [kind, ...args]);
+    } as typeof original;
+  });
+  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-renderer', 'static');
+  await page.getByRole('button', { name: /결과 먼저 살펴보기/ }).click();
+  await expect(page.locator('#example')).toContainText('가상');
+  expect(errors).toEqual([]);
+});
 test('landing and real synthetic example render without a model key', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
