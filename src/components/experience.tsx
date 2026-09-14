@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import HeroScene from "./HeroScene";
 import { RUBRIC_CRITERIA } from "../server/evaluation/rubricCriteria";
@@ -141,6 +141,7 @@ const AXIS_ACTIONS: Record<string, string> = {
 };
 
 export function InsightsExperience() {
+  const queryString = useSearchParams().toString();
   const { history, loading: loadingHistory, error: historyError, retry } = useOwnerHistory();
   const [axisCode, setAxisCode] = useState<(typeof AXES)[number]["code"]>("A");
   const [mode, setMode] = useState<"own" | "example">("own");
@@ -150,12 +151,12 @@ export function InsightsExperience() {
   const [error, setError] = useState("");
   const completed = history?.assessments.filter(entry => entry.status === "done") || [];
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
+    const query = new URLSearchParams(queryString);
     const code = query.get("axis");
-    if (AXES.some(axis => axis.code === code)) setAxisCode(code as typeof axisCode);
-    if (query.get("view") === "example") setMode("example");
-    if (query.get("assessment")) setSelected(query.get("assessment")!);
-  }, []);
+    setAxisCode(AXES.some(axis => axis.code === code) ? code as typeof axisCode : "A");
+    setMode(query.get("view") === "example" ? "example" : "own");
+    setSelected(query.get("assessment") || "");
+  }, [queryString]);
   useEffect(() => {
     if (selected || !history) return;
     const requested = new URLSearchParams(window.location.search).get("assessment");
@@ -174,7 +175,7 @@ export function InsightsExperience() {
       .finally(() => { if (!cancelled) setLoadingDetail(false); });
     return () => { cancelled = true; };
   }, [mode, selected]);
-  function changeMode(value: "own" | "example") { setAssessment(null); setMode(value); }
+  function changeMode(value: "own" | "example") { if (value === mode) return; setAssessment(null); setMode(value); }
   const axis = AXES.find(item => item.code === axisCode)!;
   const rubric = RUBRIC_CRITERIA.find(item => item.code === axisCode)!;
   const criterion = assessment?.result?.criteria?.find(item => item.criterion_code === axisCode);
