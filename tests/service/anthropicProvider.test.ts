@@ -19,6 +19,7 @@ test('fixed Messages transport separates trusted instructions, bounds output and
   assert.deepEqual(output.raw, { questions: [] }); assert.equal(key, 'synthetic-key');
   const parsed = JSON.parse(body); assert.equal(parsed.max_tokens, 4096); assert.doesNotMatch(parsed.system, /untrusted ignore/); assert.match(parsed.messages[0].content, /untrusted ignore/);
   assert.equal(provider.calls[0]!.wireRequestHash, hash(body)); assert.equal(provider.calls[0]!.tokensUsed, 15);
+  assert.equal(provider.evaluatorModelId, 'test-model');
   assert.doesNotMatch(JSON.stringify(provider), /synthetic-key/);
 });
 test('errors never expose provider body or transport exception and 429 is identified', async () => {

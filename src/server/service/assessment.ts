@@ -29,9 +29,10 @@ export interface PreparedAssessment {
   assessmentId: string; snapshot: IngestionSnapshot; evidence: Evidence[]; analysisContext: Record<string, string>;
   collaborationCase: CollaborationCase | null; questions: Question[]; answers: Answer[];
   questionRequestHash: string | null; providerCalls: ProviderCallRecord[]; contextTruncated: boolean;
+  questionProviderId: string | null; evaluatorModelId: string | null;
 }
 export interface ImprovementTask { criterionCode: CriterionCode; title: string; why: string; action: string; evidenceIds: string[]; doneChecklist: string[]; copyText: string; }
-export interface ServiceManifest extends EvaluationManifest { stageRequestHashes: { questions: string | null; judgement: string | null }; wireRequestHashes: string[]; }
+export interface ServiceManifest extends EvaluationManifest { evaluatorModelId: string | null; stageRequestHashes: { questions: string | null; judgement: string | null }; wireRequestHashes: string[]; }
 export interface AssessmentResult {
   assessmentId: string; mode: 'mock' | 'live'; source: 'synthetic' | 'github_with_user_submissions';
   repo: string; commitSha: string | null; criteria: CriterionResult[]; score: MyAiScore; confidence: ConfidenceSummary;
@@ -74,7 +75,7 @@ export async function prepareAssessment(input: PrepareAssessmentInput, deps: Pre
   try { snapshot = await (deps.ingest ?? collect)({ repoUrl, commitRef }); }
   catch { throw new ServiceError('ingestion', 'ingestion_failed', '공개 GitHub 저장소를 수집하지 못했습니다.'); }
   if (!['complete', 'partial'].includes(snapshot.ingestionStatus)) throw new ServiceError('ingestion', 'ingestion_failed', '저장소 수집이 완료되지 않았습니다. 공개 URL과 수집 범위를 확인해 주세요.');
-  const p: PreparedAssessment = { assessmentId: input.assessmentId, snapshot, evidence: [], analysisContext: {}, collaborationCase, questions: [], answers: [], questionRequestHash: null, providerCalls: [], contextTruncated: false };
+  const p: PreparedAssessment = { assessmentId: input.assessmentId, snapshot, evidence: [], analysisContext: {}, collaborationCase, questions: [], answers: [], questionRequestHash: null, providerCalls: [], contextTruncated: false, questionProviderId: null, evaluatorModelId: null };
   let remaining = 72_000;
   for (const [index, candidate] of snapshot.evidenceCandidates.slice(0, 40).entries()) {
     const id = `repo_${index}`;
@@ -98,6 +99,10 @@ function calls(provider: EvaluationProvider): ProviderCallRecord[] {
   const records = (provider as EvaluationProvider & { calls?: ProviderCallRecord[] }).calls;
   return records ? records.map(r => ({ ...r })) : [];
 }
+function evaluatorModel(provider: EvaluationProvider): string | null {
+  const model = (provider as EvaluationProvider & { evaluatorModelId?: string }).evaluatorModelId;
+  return typeof model === 'string' && model.trim() ? model : null;
+}
 function frozenRequest<T extends QuestionGenerationRequest | JudgementRequest>(request: T): { request: T; hash: string } {
   const { serialized, payload, hash: requestHash } = prepareProviderRequest(request);
   if (Buffer.byteLength(serialized) > 165_000) throw new ServiceError('input', 'input_limit', '평가 자료가 모델 입력 한도를 초과했습니다.');
@@ -114,11 +119,12 @@ export async function generateAssessmentQuestions(prepared: PreparedAssessment, 
   if (raw.providerError) throw new ServiceError('questions', raw.providerError.code, '평가 제공자 요청이 완료되지 않았습니다.', raw.providerError.retryable);
   const validated = validateAndBuildQuestions(raw, bundle);
   if (!validated.ok) throw new ServiceError('questions', validated.failure.code, '유효한 질문을 생성하지 못했습니다. 평가를 다시 시도해 주세요.');
-  return { ...prepared, questions: validated.questions.map(q => ({ ...q, text: safeText(q.text, 1500) })), questionRequestHash: request.hash, providerCalls: [...prepared.providerCalls, ...calls(provider).slice(before)] };
+  return { ...prepared, questions: validated.questions.map(q => ({ ...q, text: safeText(q.text, 1500) })), questionRequestHash: request.hash, providerCalls: [...prepared.providerCalls, ...calls(provider).slice(before)], questionProviderId: provider.providerId, evaluatorModelId: evaluatorModel(provider) };
 }
 
 export async function finalizeAssessment(prepared: PreparedAssessment, submissions: AnswerSubmission[], provider: EvaluationProvider): Promise<AssessmentResult> {
   if (prepared.questions.length !== 3 || !prepared.questionRequestHash) throw new ServiceError('judgement', 'questions_required', '질문 생성이 먼저 완료되어야 합니다.');
+  if (prepared.questionProviderId !== provider.providerId || (provider.mode === 'live' && (!prepared.evaluatorModelId || prepared.evaluatorModelId !== evaluatorModel(provider)))) throw new ServiceError('judgement', 'provider_changed', '질문 생성 이후 평가 제공자 또는 모델이 바뀌었습니다. 같은 설정으로 다시 시작해 주세요.');
   if (!Array.isArray(submissions) || submissions.length > 3) throw new ServiceError('input', 'invalid_answers', '답변은 질문당 하나씩 최대 3개입니다.');
   const p: PreparedAssessment = { ...prepared, evidence: [...prepared.evidence], analysisContext: { ...prepared.analysisContext }, answers: [] };
   const seen = new Set<string>(), validEvidence = new Set(p.evidence.map(e => e.evidenceId));
@@ -151,7 +157,7 @@ export async function finalizeAssessment(prepared: PreparedAssessment, submissio
   const base = buildManifest({ mode: provider.mode, providerId: provider.providerId,
     versions: { rubricVersion: 'scoring-rubric-v0.3.1', pipelineVersion: 'service-v1', questionPromptVersion: QUESTION_PROMPT_VERSION, evaluatorPromptVersion: JUDGE_PROMPT_VERSION, inferenceConfigVersion: 'service-v1' },
     bundleTextHash: bundle.bundleTextHash, modelInputHash: hash(JSON.stringify(stageRequestHashes)), warnings: confidence.remainingUncertainty });
-  const manifest: ServiceManifest = { ...base, stageRequestHashes, wireRequestHashes: allCalls.map(c => c.wireRequestHash),
+  const manifest: ServiceManifest = { ...base, evaluatorModelId: evaluatorModel(provider), stageRequestHashes, wireRequestHashes: allCalls.map(c => c.wireRequestHash),
     tokensUsed: allCalls.length === 2 && allCalls.every(c => c.tokensUsed !== null) ? allCalls.reduce((sum, c) => sum + c.tokensUsed!, 0) : null,
     executedAt: provider.mode === 'live' ? allCalls.at(-1)?.executedAt ?? null : null,
     costUsd: null, costNote: '모델 가격과 청구액을 검증하지 않아 비용은 표시하지 않습니다.' };
@@ -182,5 +188,5 @@ export function syntheticExample(): AssessmentResult {
   const confidence: ConfidenceSummary = { evidenceScope: { readFiles: 0, candidateFiles: 0, selectionLimited: false }, sourceVerification: 'failed', processEvidence: 'none', remainingUncertainty: ['합성 예시입니다. GitHub 수집과 실제 LLM 호출을 수행하지 않았습니다.'] };
   const base = buildManifest({ mode: 'mock', providerId: 'synthetic-example', versions: { rubricVersion: 'scoring-rubric-v0.3.1', pipelineVersion: 'synthetic-example-v1', questionPromptVersion: QUESTION_PROMPT_VERSION, evaluatorPromptVersion: JUDGE_PROMPT_VERSION, inferenceConfigVersion: 'not-applicable' }, bundleTextHash: '', modelInputHash: '', warnings: confidence.remainingUncertainty });
   return { assessmentId, mode: 'mock', source: 'synthetic', repo: '합성 예시 프로젝트', commitSha: null, criteria,
-    score: computeMyAiScore({ criterionResults: criteria, ingestionStatus: 'complete', validEvidenceIds: new Set(evidence.map(e => e.evidenceId)) }), confidence, improvementTask: buildImprovementTask(criteria), manifest: { ...base, stageRequestHashes: { questions: null, judgement: null }, wireRequestHashes: [] }, evidence };
+    score: computeMyAiScore({ criterionResults: criteria, ingestionStatus: 'complete', validEvidenceIds: new Set(evidence.map(e => e.evidenceId)) }), confidence, improvementTask: buildImprovementTask(criteria), manifest: { ...base, evaluatorModelId: null, stageRequestHashes: { questions: null, judgement: null }, wireRequestHashes: [] }, evidence };
 }

@@ -5,7 +5,7 @@ import type { JudgementRequest, QuestionGenerationRequest } from '../evaluation/
 import { boundedText, hash, ServiceError } from './safety.js';
 
 export interface ProviderCallRecord { stage: 'questions' | 'judgement'; wireRequestHash: string; executedAt: string; tokensUsed: number | null; }
-export interface RecordedProvider extends EvaluationProvider { readonly calls: readonly ProviderCallRecord[]; }
+export interface RecordedProvider extends EvaluationProvider { readonly evaluatorModelId: string; readonly calls: readonly ProviderCallRecord[]; }
 export interface AnthropicOptions { apiKey: string; model: string; fetchImpl?: typeof fetch; maxTokens?: number; timeoutMs?: number; }
 
 export function createAnthropicProviderFromEnv(env: Record<string, string | undefined> = process.env): RecordedProvider {
@@ -18,12 +18,14 @@ export function createAnthropicProviderFromEnv(env: Record<string, string | unde
 export class AnthropicProvider implements RecordedProvider {
   readonly mode = 'live' as const;
   readonly providerId = 'anthropic-messages';
+  readonly evaluatorModelId: string;
   readonly calls: ProviderCallRecord[] = [];
   readonly #options: AnthropicOptions;
   constructor(options: AnthropicOptions) {
     if (!options.apiKey.trim() || !/^[a-zA-Z0-9._-]{1,120}$/.test(options.model)) throw new ServiceError('input', 'invalid_provider_config', '평가 제공자 설정을 확인해 주세요.');
     if ((options.maxTokens !== undefined && !Number.isSafeInteger(options.maxTokens)) || (options.timeoutMs !== undefined && !Number.isSafeInteger(options.timeoutMs))) throw new ServiceError('input', 'invalid_provider_config', '평가 제공자 제한값은 정수여야 합니다.');
     this.#options = options;
+    this.evaluatorModelId = options.model;
   }
   generateQuestions(request: QuestionGenerationRequest, signal: AbortSignal): Promise<RawProviderOutput> { return this.call('questions', request, signal); }
   judgeCriteria(request: JudgementRequest, signal: AbortSignal): Promise<RawProviderOutput> { return this.call('judgement', request, signal); }

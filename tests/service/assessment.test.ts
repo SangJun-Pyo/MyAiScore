@@ -74,3 +74,9 @@ test('demo is deterministic, entirely synthetic, no API configuration required',
   assert.deepEqual(syntheticExample(), syntheticExample());
   assert.equal(syntheticExample().source, 'synthetic'); assert.equal(syntheticExample().manifest.tokensUsed, null);
 });
+test('changed evaluator model between question and judgement stages fails before provider invocation', async () => {
+  const model = provider(); const p = await generateAssessmentQuestions(await prep(), model);
+  const changed = { ...model, mode: 'live' as const, evaluatorModelId: 'different-model' };
+  await assert.rejects(finalizeAssessment({ ...p, evaluatorModelId: 'original-model' }, [], changed), (e: unknown) => e instanceof ServiceError && e.code === 'provider_changed');
+  assert.equal(changed.last, undefined);
+});
