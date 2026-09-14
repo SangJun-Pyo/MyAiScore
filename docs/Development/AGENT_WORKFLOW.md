@@ -1,59 +1,44 @@
-# Agent Workflow v0.3.1
+# Agent Workflow — 구현·검토·문서·Git
 
-정본 허브: [`../00_MASTER_PLAN.md`](../00_MASTER_PLAN.md). 최소 공유 규칙은 루트 [`../../AGENTS.md`](../../AGENTS.md). 이 문서는 그 규칙의 상세 계약이다.
+역할: 상준님은 제품/수용 판단, Astra는 설계·검토, Claude Code는 구현·실행 보고를 맡는다. AI 검토를 사람 검토로 기록하지 않는다.
 
-## 1. 역할
+## 세션 시작
 
-| 역할 | 담당 |
+1. 루트 AGENTS.md / CLAUDE.md, [마스터](../00_MASTER_PLAN.md)를 읽는다.
+2. [ROADMAP](ROADMAP.md)의 현재 Phase와 지시문을 확인한다.
+3. 해당 [Sessions](Sessions/README.md) 기록, [BUGS](BUGS.md), 관련 도메인 계약을 읽는다.
+4. `git status --short`, `git log -5 --oneline`으로 실제 변경과 기준점을 확인한다. 채팅 기억이나 오래된 보고만으로 현재 상태를 판단하지 않는다.
+
+## 작업 흐름
+
+문서·코드 확인 → 범위/입출력 확인 → 구현 → 관련 테스트 → 결함 수정 → 세션 기록 → 정본/변경 이력 갱신 → 변경 검토 → 작업별 Git commit.
+
+이미 승인된 작업은 반복 확인을 요구하지 않는다. 공통 데이터/평가/API 계약 변경은 Astra 판단과 근거를 남기고 한 담당자가 반영한다. 독립 작업을 분리할 때는 별도 브랜치/worktree와 파일 담당 범위를 정한다.
+
+## 문서별 역할
+
+| 위치 | 기록할 내용 |
 |---|---|
-| **상준님** | 사용자 문제, 제품 방향, 우선순위, 결과 수용 여부 판단 |
-| **Astra** | 제품 범위·평가 기준·설계 판단, 작업 분해, 결과와 코드 검토, 통합 판단 |
-| **Claude Code** | 구현 가능한 상세화와 작업별 구현. 설계 문제가 있으면 근거와 대안을 제안 |
+| 도메인 정본 | 현재 유효한 요구·행동·계약 |
+| ROADMAP | 현재 단계, 상태, 다음 조건, 현재 지시 링크 |
+| IMPLEMENTATION_TASKS | Task별 범위·입출력·완료/검증 조건 |
+| DECISIONS | 채택/폐기한 설계와 이유·세션 근거 |
+| BUGS | 열린 결함·해결 검증 상태 |
+| CHANGELOG | 작업별 변경 요약과 세션 링크 |
+| Sessions/Phase-*.md | 목표, 실제 변경, 실행 결과, 검토, 미해결, 인계, 실제 commit |
+| Sessions/Prompts | 완료된 지시문 원문 |
 
-## 2. 공통 계약 우선
+REPORT/REVIEW/FOLLOWUP 문서를 Development 최상위에 추가하지 않는다. 같은 Phase의 구현 보고와 후속 검토를 해당 세션에 날짜·작성자와 함께 이어 쓴다. 큰 독립 Phase만 새 세션을 만든다. 정본에 과거 '현재 작업' 배너를 계속 쌓지 않는다.
 
-구현을 시작하기 전에 아래 공통 계약을 먼저 정리하고, 이후 작업은 이 계약을 기준으로 분리한다.
+## 종료 조건
 
-1. [`../Assessment/EVIDENCE_SCHEMA.md`](../Assessment/EVIDENCE_SCHEMA.md) — 데이터 필드 정본
-2. [`../Architecture/API_DATA_CONTRACTS.md`](../Architecture/API_DATA_CONTRACTS.md) — 요청/응답/상태 정본
-3. [`../Assessment/SCORING_RUBRIC.md`](../Assessment/SCORING_RUBRIC.md) — 계산 공식 정본
+- 코드를 바꿨으면 관련 테스트를 실제 실행하고 실패/미실행을 구분한다.
+- 세션에 실제 변경과 검증을 기록하고 CHANGELOG에 요약한다. 결정/결함/현황이 바뀌면 각각 DECISIONS/BUGS/ROADMAP도 갱신한다.
+- `node scripts/checkDocs.mjs`로 문서 링크와 배치를 확인한다.
+- `git diff --check`와 diff를 검토하고 본인이 담당한 경로만 stage/commit한다. 다른 작업자의 진행 중 변경을 같이 commit하거나 되돌리지 않는다.
+- 시작/구현/검토 commit은 실제 해시만 기록한다. 초기 기준점 이전의 작업별 Git 이력은 존재하지 않으므로 사후 생성·backdate하지 않는다. 자기 문서의 최종 commit은 `git log --follow -- <path>`로 확인 가능하다.
+- 실패·검토 보류 작업도 명시적인 WIP/checkpoint로 보존할 수 있다. commit이 있다는 사실은 승인·출시 완료가 아니다. 원격 생성/push/배포는 별도 실제 지시에 따른다.
 
-이 세 문서를 여러 에이전트가 **동시에 임의 수정하지 않는다.** 변경이 필요하면 Astra에게 먼저 제안하고, 합의 후 한 명이 반영한다.
+## 참고 방식
 
-## 3. 작업 분리 (제안 구성)
-
-공통 계약 확정 후 다음처럼 시작한다.
-
-- **Claude Code A — 수집·평가 처리**: [`../Architecture/GITHUB_INGESTION.md`](../Architecture/GITHUB_INGESTION.md), 축 판정(Criterion Evaluator), Scoring/Confidence Engine, Improvement Task Builder.
-- **Claude Code B — 사용자 화면**: [`../UI/USER_FLOW.md`](../UI/USER_FLOW.md) 구현, API 호출 클라이언트, 진행/상태 UI, 결과·개선 작업서 화면.
-
-독립적으로 진행 가능한 작업은 별도 브랜치/worktree와 파일 담당 범위를 둔다(예: A는 `src/server/**`와 `src/app/api/**`, B는 API 폴더를 제외한 화면과 `src/components/**`). 두 작업 모두 공통 계약(2절)의 타입/스키마를 import해서 쓰고, 계약 자체를 각자 임의로 바꾸지 않는다.
-
-## 4. 작업 지시 형식
-
-각 작업 지시는 아래 항목을 모두 포함한다. 예시는 [`IMPLEMENTATION_TASKS.md`](IMPLEMENTATION_TASKS.md).
-
-1. **목표** — 이 작업이 끝나면 무엇이 가능해지는가
-2. **읽을 문서** — 선행 정본 목록
-3. **선행 작업** — 이 작업 전에 끝나 있어야 하는 것
-4. **입출력 계약** — 정확한 함수 시그니처/API 계약/데이터 형태
-5. **수정 범위** — 건드릴 파일/디렉터리 범위(다른 담당자 영역 침범 금지)
-6. **완료 조건** — 관찰 가능한 통과 기준
-7. **검증 방법** — 어떻게 확인하는가(수동 테스트, 스크립트, 사람 검토)
-8. **제출할 것** — 변경 내역, 결과(로그/스크린샷/JSON), 미해결 사항
-
-## 5. 검토·통합
-
-- 작성자의 완료 보고만으로 통과시키지 않는다. Astra(또는 지정 검토자)가 실제 결과와 근거를 확인한 뒤 통합한다.
-- 공통 계약을 건드린 변경은 반드시 검토를 거친 뒤 병합한다.
-- 연결되지 않았거나 실행 중이 아닌 에이전트가 작업 중이라고 서술하지 않는다. 진행 상황은 실제 산출물(커밋, 파일, 로그)로만 보고한다.
-
-## 6. 이견·변경 보고
-
-- 합의된 MVP 범위([`../Product/MVP_SCOPE.md`](../Product/MVP_SCOPE.md))를 벗어나는 제안은 즉시 구현하지 않고 [`DECISIONS.md`](DECISIONS.md)에 근거·대안과 함께 기록한 뒤 상준님·Astra의 승인을 받는다.
-- 승인 전까지는 현재 범위의 작업을 계속 진행한다(작업을 멈추고 기다리지 않는다).
-- 설계 문제를 발견한 Claude Code는 조용히 우회하지 않고, 문제와 대안을 [`DECISIONS.md`](DECISIONS.md) 또는 작업 보고에 명시한다.
-
-## 현재 첫 작업
-
-[CLAUDE_PHASE1_PROMPT](../../CLAUDE_PHASE1_PROMPT.md)의 Task 0·1만 다음 지시 범위다. 아직 연결되지 않은 Claude 작업자를 실행 중으로 표시하지 않는다.
+RobloxLab.zip의 HackTheTower/StealASlime에서 Phase 세션·Changelog·Roadmap·Bugs와 새 세션 복구 방식을 참고했다. Roblox/Studio/Rojo 전용 지시, 게임 정책, 다른 프로젝트의 승인 요구·원격 저장소는 MyAiScore에 적용하지 않는다.

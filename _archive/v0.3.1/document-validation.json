@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "checked_at": "2026-09-10T08:32:40.549665+00:00",
+  "scope": "documentation and preserved archives; not application or LLM validation",
+  "active_markdown_files": 23,
+  "relative_links_checked": 137,
+  "json_blocks_parsed": 9,
+  "axis_level_rows": 20,
+  "weights": {
+    "A": 15,
+    "B": 20,
+    "C": 15,
+    "D": 30,
+    "E": 20
+  },
+  "score_examples_recomputed": [
+    {
+      "example": "완전 관찰",
+      "recomputed": 73
+    },
+    {
+      "example": "전부 최고, 수집 complete",
+      "recomputed": 100
+    },
+    {
+      "example": "전부 최저 수행 관찰, 수집 complete",
+      "recomputed": 25
+    }
+  ],
+  "withheld_examples_checked": 4,
+  "lifecycle_states": [
+    "awaiting_answers",
+    "done",
+    "draft",
+    "failed",
+    "generating_questions",
+    "ingesting",
+    "scoring"
+  ],
+  "preserved_v02_files_verified": 18,
+  "cleanup_method": "archived; permanent deletion was blocked by automatic approval policy",
+  "errors": []
+}

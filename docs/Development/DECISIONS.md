@@ -1,9 +1,5 @@
 # Decisions — v0.3.1 Astra 검토 반영
 
-> Phase 2 코드 검토 결정: [ASTRA_PHASE2_REVIEW](ASTRA_PHASE2_REVIEW.md)의 R1~R4를 수정한 뒤 Task 2a/3을 다시 검토한다. 현재 지시는 [CLAUDE_PHASE2_FIX_PROMPT](../../CLAUDE_PHASE2_FIX_PROMPT.md)다. 108개 기존 테스트 통과를 실제 입력/단계 경계 완료로 간주하지 않는다.
-
-> 2026-09-14 추가 결정: [ASTRA_PHASE1_REVIEW](ASTRA_PHASE1_REVIEW.md). 내부 camelCase/외부 명시적 snake_case DTO, case-04/08 기대와 인젝션 실험 기준 보정, Task 2a·2b 분리를 채택했다. 사용자 API·예산 답변은 '미정'이다. 다음 지시는 [Phase 2 오프라인](../../CLAUDE_PHASE2_OFFLINE_PROMPT.md)이며 아래 §5는 이전 Phase 1 착수 기록이다. 가중치·발급 공식은 유지한다.
-
 정본: [마스터 플랜](../00_MASTER_PLAN.md). 과거 참고: [v0.2 원본 마스터](../../_archive/v0.2/00_MASTER_PLAN.original.md). v0.3 초안은 _archive/v0.3.1의 수정 전 ZIP에 보존돼 있다. 2026-09-14 확인 시 루트 v0.2 ZIP은 없어 현재 존재하는 원본 링크로 교체했다.
 
 ## 1. 유지한 방향
@@ -41,6 +37,11 @@
 
 현재 기획 정본은 docs/00_MASTER_PLAN.md 하나다. 이전 자료는 이번 구현의 명령으로 읽지 않는다.
 
-## 5. 다음 작업
+## 5. 실행·문서 관리 결정 (2026-09-14)
 
-[CLAUDE_PHASE1_PROMPT](../../CLAUDE_PHASE1_PROMPT.md)로 Task 0·1을 실행한다. 결과를 검토한 뒤 모델 평가·점수 엔진·서비스 API·UI 순서를 이어간다. 승인되지 않은 범위 확대나 수행하지 않은 검증을 완료로 기록하지 않는다.
+- Phase 1 후속 설계 보정: [기록](Sessions/Phase-01-Fixtures-And-Ingestion.md#astra-review).
+- Phase 2 검토에서 MAS-001~004 수정 후 재검토 결정: [기록](Sessions/Phase-02-Offline-Evaluation.md#astra-review).
+- 현재 상태/지시를 ROADMAP으로 통일하고, Phase별 구현·검토는 Sessions, 변경 요약은 CHANGELOG, 열린 결함은 BUGS로 분리한다.
+- Git에 현재 WIP 기준점을 만든 뒤 작업별 commit을 남긴다. 오늘 이전의 세션별 Git 이력은 만들지 않는다. 구현자의 동시 변경은 문서 정리 commit에 포함하지 않는다.
+- RobloxLab.zip은 문서/세션 운영 방식 참고 자료다. 타 프로젝트의 실행 규칙이나 원격 저장소 설정은 적용하지 않는다.
+- 이번 구조 정리 근거: [세션](Sessions/Session-2026-09-14-Documentation-And-Git.md).

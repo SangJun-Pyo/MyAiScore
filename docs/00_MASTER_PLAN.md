@@ -1,10 +1,8 @@
 # MyAiScore — 마스터 플랜 v0.3.1
 
-> 현재 진행: Phase 2 오프라인 구현과 108개 테스트 통과를 확인했지만 [Astra 코드 검토](Development/ASTRA_PHASE2_REVIEW.md)에서 단계 실패·입력 전달·소속 검증 결함을 발견했다. 다음 작업은 [Phase 2 수정](../CLAUDE_PHASE2_FIX_PROMPT.md)이며 실제 모델 연결 전 재검토한다.
-
 > 실제 프로젝트와 AI 협업 과정의 근거로, 이번 프로젝트에서 확인된 활용 방식을 진단하고 가장 중요한 다음 개선 행동을 제안한다.
 
-2026-09-10 설계 보정 후 Task 0·1 구현 보고를 받았다. 2026-09-14 [Astra 후속 검토](Development/ASTRA_PHASE1_REVIEW.md)에 따라 fixture 보정·Task 2a 오프라인 평가 구조·Task 3 점수 엔진을 진행한다. 실제 LLM 교정·앱·외부 사용자 검증은 미완료다.
+현재 진행 상태와 실행 지시는 [ROADMAP](Development/ROADMAP.md), 실제 작업·검토 이력은 [Sessions](Development/Sessions/README.md)를 따른다. 이 문서는 제품/평가 원칙의 정본이다.
 
 ## 1. 제품과 사용자
 
@@ -66,7 +64,7 @@
 
 ## 8. 실행 순서와 일정
 
-현재 다음 작업은 [Claude Phase 2 오프라인 프롬프트](../CLAUDE_PHASE2_OFFLINE_PROMPT.md)의 fixture 보정·Task 2a·Task 3이다. 사용자는 서비스 API·예산을 미정으로 답했다. 실제 모델 실험은 Task 2b로 분리하고, 이번 단계에는 실제 LLM 호출·DB·웹 UI·배포가 없다.
+구현 순서는 fixture·수집 → 오프라인 평가·계산 → 실제 모델 실험 → 개선/비교 → API·UI다. 단계별 현재 상태는 [ROADMAP](Development/ROADMAP.md)에서 관리한다. API·예산 미정이며 실제 모델 실험 전 확정한다.
 
 이후 평가 PoC → API 단계 실행 → 최소 UI → 외부 사용자 확인 → 제출 준비 순으로 진행한다. 협업 역할: 상준님은 제품과 수용 판단, Astra는 설계·작업 분해·검토, Claude Code는 구현과 근거 있는 결과 보고.
 
@@ -82,7 +80,7 @@
 | 평가 | [SCORING_RUBRIC](Assessment/SCORING_RUBRIC.md), [EVIDENCE_SCHEMA](Assessment/EVIDENCE_SCHEMA.md), [CONFIDENCE_MODEL](Assessment/CONFIDENCE_MODEL.md), [CALIBRATION_PLAN](Assessment/CALIBRATION_PLAN.md) |
 | 설계 | [SYSTEM_ARCHITECTURE](Architecture/SYSTEM_ARCHITECTURE.md), [GITHUB_INGESTION](Architecture/GITHUB_INGESTION.md), [API_DATA_CONTRACTS](Architecture/API_DATA_CONTRACTS.md) |
 | 보안·화면 | [PRIVACY_SECURITY](Security/PRIVACY_SECURITY.md), [USER_FLOW](UI/USER_FLOW.md), [IMPROVEMENT_TASK_TEMPLATE](Knowledge/IMPROVEMENT_TASK_TEMPLATE.md) |
-| 개발 | [ROADMAP](Development/ROADMAP.md), [AGENT_WORKFLOW](Development/AGENT_WORKFLOW.md), [IMPLEMENTATION_TASKS](Development/IMPLEMENTATION_TASKS.md), [DECISIONS](Development/DECISIONS.md), [CHANGELOG](Development/CHANGELOG.md), [ASTRA_REVIEW_BRIEF](Development/ASTRA_REVIEW_BRIEF.md) |
+| 개발 | [ROADMAP](Development/ROADMAP.md), [AGENT_WORKFLOW](Development/AGENT_WORKFLOW.md), [IMPLEMENTATION_TASKS](Development/IMPLEMENTATION_TASKS.md), [DECISIONS](Development/DECISIONS.md), [CHANGELOG](Development/CHANGELOG.md), [ASTRA_REVIEW_BRIEF](Development/Sessions/Phase-00-Planning.md#planning-review) |
 
 ## 10. 검증 상태
 

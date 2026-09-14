@@ -10,7 +10,7 @@ Task 2를 Task 2a(오프라인 구현)와 Task 2b(실제 모델 실험)로 분�
 
 읽기 순서:
 1. docs/00_MASTER_PLAN.md, AGENTS.md, CLAUDE.md
-2. docs/Development/ASTRA_PHASE1_REVIEW.md — 이번 설계 판단
+2. docs/Development/Sessions/Phase-01-Fixtures-And-Ingestion.md — 이번 설계 판단
 3. docs/Assessment/{SCORING_RUBRIC,EVIDENCE_SCHEMA,CONFIDENCE_MODEL,CALIBRATION_PLAN}.md
 4. docs/Development/{DECISIONS,IMPLEMENTATION_TASKS}.md
 5. 실제 fixtures, 기존 contracts 및 수집 코드
@@ -58,7 +58,7 @@ src/server/{questions,evaluation,scoring}, src/shared/contracts의 필요한 타
 1. npm run typecheck, npm test와 새 offline CLI를 실제 실행한다.
 2. case-04/08 기대값을 어떻게 보정했고 어떤 근거는 여전히 없는지 기록한다.
 3. Mock 테스트에서 확인한 계약과 실제 모델에서 미검증인 의미 판단/인젝션 방어를 구분한다. 53개 기존 테스트가 통과한 것만으로 새 기능 완료를 보고하지 않는다.
-4. docs/Development/PHASE2_OFFLINE_REPORT.md에 파일 목록, 실행 명령/결과, 모의 JSON 산출물 위치, 미해결 항목을 기록한다. 실행 산출물은 artifacts/phase2-offline/에 둔다.
+4. docs/Development/Sessions/Phase-02-Offline-Evaluation.md에 파일 목록, 실행 명령/결과, 모의 JSON 산출물 위치, 미해결 항목을 기록한다. 실행 산출물은 artifacts/phase2-offline/에 둔다.
 5. Task 2b의 실행 계획을 준비한다: 모든 실제 입력 변형 목록, 일반 사례 초기 1회, case-07 동일 입력 5회, case-06 판정 before/after 각 5회와 별도 질문 생성 검사. 중복 실행은 식별하고 총 호출 수를 단계별로 산출한다. 가격·모델 미정이면 비용은 미산정으로 남긴다.
 6. 프롬프트·설정·입력이 바뀐 실행을 같은 반복 실험으로 합치지 않는다. 비용 승인 후에도 재시도/최대 2회 보정이 동일 총예산에 들어가도록 계획한다.
 

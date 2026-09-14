@@ -10,12 +10,12 @@
 
 ## 먼저 읽을 문서
 
-1. [AGENTS](AGENTS.md), [CLAUDE](CLAUDE.md)
-2. [마스터 플랜](docs/00_MASTER_PLAN.md), [Astra 검토 결과](docs/Development/ASTRA_REVIEW_BRIEF.md)
-3. [작업 목록](docs/Development/IMPLEMENTATION_TASKS.md)의 Task 0·1
-4. [평가 기준](docs/Assessment/SCORING_RUBRIC.md), [데이터 계약](docs/Assessment/EVIDENCE_SCHEMA.md)
-5. [교정 계획](docs/Assessment/CALIBRATION_PLAN.md), [GitHub 수집](docs/Architecture/GITHUB_INGESTION.md)
-6. [보안](docs/Security/PRIVACY_SECURITY.md), [API 상태·권한](docs/Architecture/API_DATA_CONTRACTS.md)
+1. [AGENTS](../../../../AGENTS.md), [CLAUDE](../../../../CLAUDE.md)
+2. [마스터 플랜](../../../00_MASTER_PLAN.md), [Astra 검토 결과](../Phase-00-Planning.md#planning-review)
+3. [작업 목록](../../IMPLEMENTATION_TASKS.md)의 Task 0·1
+4. [평가 기준](../../../Assessment/SCORING_RUBRIC.md), [데이터 계약](../../../Assessment/EVIDENCE_SCHEMA.md)
+5. [교정 계획](../../../Assessment/CALIBRATION_PLAN.md), [GitHub 수집](../../../Architecture/GITHUB_INGESTION.md)
+6. [보안](../../../Security/PRIVACY_SECURITY.md), [API 상태·권한](../../../Architecture/API_DATA_CONTRACTS.md)
 
 _archive 및 v0.2 ZIP은 과거 자료다. 루트에서 정리한 마스터 안내 파일이나 과거 문서 재작성 지시를 복원하지 말라. 현재 파일을 먼저 확인하고 기존 사용자 변경을 덮어쓰지 말라.
 
@@ -43,7 +43,7 @@ scripts/ingest.ts
 fixtures/calibration/
 tests/ingestion/
 artifacts/phase1/
-docs/Development/PHASE1_REPORT.md
+docs/Development/Sessions/Phase-01-Fixtures-And-Ingestion.md
 ~~~
 
 이 구조의 작은 조정은 이유를 기록하고 진행해도 된다. 기존 환경/패키지를 먼저 확인하고 이미 있는 도구를 재사용하라. 핵심 의존성의 설치·사용 방법은 공식 문서를 확인한다. 필요한 최소 개발 의존성 설치는 이번 구현 범위에 포함한다.
@@ -114,7 +114,7 @@ CLI는 성공/부분 결과를 stdout의 유효한 JSON 한 개로 출력하고 
 - 실제 코드·fixture·검증 결과를 작업 폴더에 남긴다.
 - artifacts/phase1에는 수집 JSON, 실제 측정값, 테스트 결과 요약을 보관한다. 원문성 자료는 필요한 범위로 제한하고 비밀을 포함하지 않는다.
 - README에는 실제로 실행해 확인한 PoC 명령만 추가한다. 서비스가 배포됐다고 쓰지 않는다.
-- docs/Development/PHASE1_REPORT.md에 구현 파일, fixture 목록, 실행 명령, 테스트 결과, live repo/full SHA/시각, 측정값, 실패·한계, 계약 변경 여부, 다음 Astra 검토 지점을 기록한다.
+- docs/Development/Sessions/Phase-01-Fixtures-And-Ingestion.md에 구현 파일, fixture 목록, 실행 명령, 테스트 결과, live repo/full SHA/시각, 측정값, 실패·한계, 계약 변경 여부, 다음 Astra 검토 지점을 기록한다.
 - docs/Development/CHANGELOG.md에는 실제 수행 사실만 추가한다.
 - 세부 계약 변경이 필요하면 이유와 변경을 명시하고 관련 문서와 타입을 일치시킨다. scoring/MVP 원칙을 임의 변경하지 않는다.
 - 작은 구현 선택마다 확인을 요구하지 말고 합리적으로 진행한다. 진짜 외부 장애가 있어도 독립적으로 가능한 fixture·offline 검증을 끝낸다.

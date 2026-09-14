@@ -1,8 +1,10 @@
 # Claude Phase 2 수정 지시
 
+> 문서 인계 경로 갱신: 결과와 후속 검토는 docs/Development/Sessions/Phase-02-Fixes.md에 날짜별로 이어 쓰고 CHANGELOG/BUGS/ROADMAP을 동기화한다. 구현 범위는 그대로다. Development 최상위에 별도 보고서를 생성하지 않는다.
+
 루트: C:/Users/sangj/MyAiScore. 이번 지시는 Phase 2 오프라인 구현 보고 이후 Astra 코드 검토에서 발견된 결함을 수정하는 작업이다.
 
-먼저 AGENTS.md, CLAUDE.md, docs/00_MASTER_PLAN.md, docs/Development/ASTRA_PHASE2_REVIEW.md를 읽는다. 이후 해당 평가/신뢰/데이터 정본과 실제 코드를 읽는다. 이전 ASTRA_PHASE1_REVIEW의 원칙도 유지한다.
+먼저 AGENTS.md, CLAUDE.md, docs/00_MASTER_PLAN.md, docs/Development/Sessions/Phase-02-Offline-Evaluation.md를 읽는다. 이후 해당 평가/신뢰/데이터 정본과 실제 코드를 읽는다. 이전 ASTRA_PHASE1_REVIEW의 원칙도 유지한다.
 
 ## 목표
 
@@ -24,5 +26,5 @@ ASTRA_PHASE2_REVIEW의 R1~R4를 실제 코드에서 고치고, 함께 지적한 
 - 우선 Astra 재현을 읽고 버그를 재현하는 회귀 테스트를 작성한다. 수정 후 새 테스트와 기존 테스트·typecheck를 실제 실행한다.
 - 기존 synthetic 재현 스크립트는 이전 인터페이스로 된 관찰 기록이다. 회귀 테스트는 수정된 인터페이스에 맞게 작성하고 기대 상태를 assert한다. 스크립트가 중단된 것만으로 수정 성공이라 하지 않는다.
 - CLI 정상/정상 withheld/실패의 JSON과 exit code를 실제 실행해 확인한다. 테스트 수를 기존 수에 억지로 맞추지 않고 수정·추가·제거 이유와 실제 개수를 보고한다.
-- docs/Development/PHASE2_FIX_REPORT.md에 R1~R4별 원인·수정 파일·회귀 테스트 이름·실행 결과를 기록한다. 산출물은 artifacts/phase2-fix/에 두고 mode=mock 표시를 유지한다.
+- docs/Development/Sessions/Phase-02-Fixes.md에 R1~R4별 원인·수정 파일·회귀 테스트 이름·실행 결과를 기록한다. 산출물은 artifacts/phase2-fix/에 두고 mode=mock 표시를 유지한다.
 - 실제 질문 품질·판정 타당성·인젝션 방어가 검증됐다고 주장하지 않는다. 실제 API 호출 없이 위 수정과 검증을 끝낸 뒤 Astra 재검토용으로 보고한다.

@@ -1,10 +1,6 @@
 # Implementation Tasks v0.3.1
 
-> 현재 작업: [Phase 2 수정 지시](../../CLAUDE_PHASE2_FIX_PROMPT.md). [Astra 검토](ASTRA_PHASE2_REVIEW.md)에 따라 Task 2a/3의 완료 수용을 보류하고 재현 결함을 수정한다. 아래는 원래 구현 범위다.
-
-정본: [마스터](../00_MASTER_PLAN.md), [AGENT_WORKFLOW](AGENT_WORKFLOW.md). 현재 착수 프롬프트: [CLAUDE_PHASE2_OFFLINE_PROMPT](../../CLAUDE_PHASE2_OFFLINE_PROMPT.md).
-
-이 목록은 구현 계획이다. 2026-09-14 현재 실행 지시는 [Phase 2 오프라인 프롬프트](../../CLAUDE_PHASE2_OFFLINE_PROMPT.md), 설계 보정은 [Astra 검토](ASTRA_PHASE1_REVIEW.md)다. Task 0·1 구현 보고 이후 fixture 보정과 Task 2a·Task 3을 진행한다. 전체 Phase 1의 의미 검증이 끝났다는 뜻은 아니다.
+정본: [마스터](../00_MASTER_PLAN.md). 현재 단계/지시는 [ROADMAP](ROADMAP.md), 실행과 검토는 [Sessions](Sessions/README.md), 공통 절차는 [AGENT_WORKFLOW](AGENT_WORKFLOW.md)를 따른다. 아래는 Task 정의이며 완료 사실이 아니다.
 
 ## Task 0 — 교정 fixture
 

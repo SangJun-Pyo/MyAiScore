@@ -4,9 +4,12 @@
 
 ## 현재 단계
 
-기획 문서 v0.3.1 — Astra 검토 반영. Phase 1(Task 0 교정 fixture + Task 1 읽기 전용 GitHub 수집 PoC)과 Phase 2 오프라인 범위(fixture 보정 + Task 2a 오프라인 질문·판정 구조 + Task 3 결정적 점수 엔진)를 구현·검증했다. 실제 LLM 호출·DB·웹 UI·배포는 아직 없다. 상세 결과는 [PHASE1_REPORT.md](docs/Development/PHASE1_REPORT.md), [PHASE2_OFFLINE_REPORT.md](docs/Development/PHASE2_OFFLINE_REPORT.md) 참고.
+Phase 2 오프라인 구현 보고 후 Astra 검토에서 결함이 발견돼 수정/재검토 중이다. 실제 모델·DB·UI·배포는 아직 없다.
 
-**정본: [docs/00_MASTER_PLAN.md](docs/00_MASTER_PLAN.md)**. 루트의 이전 마스터 안내 파일은 정리했다.
+- [현재 작업과 상태](docs/Development/ROADMAP.md)
+- [개발 세션 기록](docs/Development/Sessions/README.md)
+- [열린 결함](docs/Development/BUGS.md)
+- [제품·평가 정본](docs/00_MASTER_PLAN.md)
 
 ## 실제로 실행해 확인한 명령
 
@@ -24,13 +27,9 @@ npx tsx scripts/evaluateOffline.ts --case fixtures/calibration/cases/case-02-sim
 
 ## 읽는 순서
 
-1. [마스터 플랜](docs/00_MASTER_PLAN.md)
-2. [Astra 검토 결과](docs/Development/ASTRA_REVIEW_BRIEF.md), [결정 기록](docs/Development/DECISIONS.md)
-3. [평가 기준](docs/Assessment/SCORING_RUBRIC.md), [데이터 계약](docs/Assessment/EVIDENCE_SCHEMA.md)
-4. [수집 설계](docs/Architecture/GITHUB_INGESTION.md), [API 계약](docs/Architecture/API_DATA_CONTRACTS.md)
-5. [작업 목록](docs/Development/IMPLEMENTATION_TASKS.md), [Claude 다음 작업 프롬프트](CLAUDE_PHASE1_PROMPT.md)
+AGENTS/CLAUDE → 마스터 → ROADMAP의 현재 Phase → 해당 Sessions 기록 → 관련 도메인/BUGS/DECISIONS. 실제 코드는 Git status와 함께 확인한다.
 
-전체 문서 지도는 마스터 플랜에 있다. CLAUDE.md와 AGENTS.md는 협업 지침이며 제품 정책 전체를 복제하지 않는다.
+로컬 Git은 2026-09-14부터 추적한다. 최초 commit은 당시 진행 중인 변경을 포함한 기준점이며 과거 Phase별 commit을 의미하지 않는다. 세션은 경위·검증을, Git은 파일 변경을 보존한다. 사용자 지정 원격은 [SangJun-Pyo/MyAiScore](https://github.com/SangJun-Pyo/MyAiScore)다. 업로드와 진행 중 변경의 구분은 [인계 기록](docs/Development/Sessions/Session-2026-09-14-Documentation-And-Git.md)을 따른다.
 
 ## 이번 보정
 
@@ -42,7 +41,6 @@ npx tsx scripts/evaluateOffline.ts --case fixtures/calibration/cases/case-02-sim
 
 ## 원본 보관
 
-- [v0.2 전체 ZIP](MyAiScore_Planning_v0.2_markdown.zip)
 - [v0.2 마스터 원문](_archive/v0.2/00_MASTER_PLAN.original.md)
 - 이전 폴더·완료된 지시문·루트 안내는 _archive에 보관했다. 현재 요구사항이 아니다.
 - 수정 전 v0.3 전체 문서 ZIP은 _archive/v0.3.1 안에 있다.

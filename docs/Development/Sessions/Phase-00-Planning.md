@@ -1,6 +1,32 @@
+# Development Session — Phase 0: 기획과 평가 계약
+
+- 작업 시점: 2026-09-10. 세션 복원일: 2026-09-14.
+- 작성/검토: 기존 Claude 문서 및 Astra AI 검토 기록을 근거로 Astra가 사후 통합.
+- 상태: v0.3.1 평가·실행 계약 채택. 실제 모델 교정은 미완료.
+- 당시 Git 커밋: 없음. 아래 기록을 보존한 최초 기준점은 `957e3c5254f55b19071f231cfc0f4e64287059cc`이다.
+
+## 목표와 결과
+
+단일 공개 저장소와 대표 협업 사례로 평가 범위를 정하고, 미확인=null·5축 모두 관찰 시 총점 발급·근거 변화와 행동 변화 분리·개인 결과 격리·단계별 실행 계약을 정했다. 자세한 현재 정책은 마스터와 도메인 문서가 정본이다.
+
+## 검증과 한계
+
+기존 문서 검사 기록을 보존한다. 문서 검사와 실제 평가 타당성 검증은 다르다. 당시 모델 실험이나 사람 fixture 검토를 수행한 것으로 복원하지 않는다.
+
+## 인계
+
+후속 작업은 [Phase 1](Phase-01-Fixtures-And-Ingestion.md)로 이어졌다. 아래는 당시 기록이며 현재 지시가 아니다.
+
+
+---
+
+<a id="planning-review"></a>
+
+## 보존 기록: ASTRA_REVIEW_BRIEF.md
+
 # Astra Review Brief — v0.3.1
 
-정본: [마스터 플랜](../00_MASTER_PLAN.md). 변경 판단: [DECISIONS](DECISIONS.md). 이 문서는 Claude의 초기 완료 보고 이후 Astra가 실제 문서를 읽고 보정한 결과다.
+정본: [마스터 플랜](../../00_MASTER_PLAN.md). 변경 판단: [DECISIONS](../DECISIONS.md). 이 문서는 Claude의 초기 완료 보고 이후 Astra가 실제 문서를 읽고 보정한 결과다.
 
 ## 1. 검토 결론
 
@@ -19,7 +45,7 @@
 
 문서 23개, 상대 링크 137개, JSON 예시 9개를 검사했다. 끊긴 링크/JSON 오류/지정 계약 불일치 0건. 축별 레벨 20개, 가중치 합계 100, 점수 예시 73·100·25와 보류 예시 4건을 재확인했다. 보관한 v0.2 파일 18개도 원본 ZIP과 해시가 일치했다.
 
-검사 기록: [document-validation.json](../../_archive/v0.3.1/document-validation.json). 이 검사는 문서의 파일·링크·JSON·정의·예시 계산을 확인하며, 실제 모델 교정·앱 테스트·실제 GitHub 수집 성공을 뜻하지 않는다.
+검사 기록: [document-validation.json](../../../_archive/v0.3.1/document-validation.json). 이 검사는 문서의 파일·링크·JSON·정의·예시 계산을 확인하며, 실제 모델 교정·앱 테스트·실제 GitHub 수집 성공을 뜻하지 않는다.
 
 ## 4. 원본과 정리
 
@@ -33,4 +59,4 @@
 
 ## 6. 다음 지시
 
-[CLAUDE_PHASE1_PROMPT](../../CLAUDE_PHASE1_PROMPT.md)를 전달한다. Task 0·1을 실제 구현·검증하고 PHASE1_REPORT를 제출한 뒤 종료한다. LLM 호출·DB·UI·배포는 이어지는 별도 작업이다.
+[CLAUDE_PHASE1_PROMPT](Prompts/CLAUDE_PHASE1_PROMPT.md)를 전달한다. Task 0·1을 실제 구현·검증하고 PHASE1_REPORT를 제출한 뒤 종료한다. LLM 호출·DB·UI·배포는 이어지는 별도 작업이다.
