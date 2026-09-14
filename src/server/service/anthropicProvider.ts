@@ -8,7 +8,7 @@ export interface ProviderCallRecord { stage: 'questions' | 'judgement'; wireRequ
 export interface RecordedProvider extends EvaluationProvider { readonly calls: readonly ProviderCallRecord[]; }
 export interface AnthropicOptions { apiKey: string; model: string; fetchImpl?: typeof fetch; maxTokens?: number; timeoutMs?: number; }
 
-export function createAnthropicProviderFromEnv(env: NodeJS.ProcessEnv = process.env): RecordedProvider {
+export function createAnthropicProviderFromEnv(env: Record<string, string | undefined> = process.env): RecordedProvider {
   if (env.MYAISCORE_ENABLE_LIVE !== 'true' || !env.ANTHROPIC_API_KEY?.trim() || !env.ANTHROPIC_MODEL?.trim()) {
     throw new ServiceError('input', 'live_not_configured', '실제 평가는 관리자 API 설정과 명시적 활성화가 필요합니다.');
   }
