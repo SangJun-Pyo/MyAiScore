@@ -2,6 +2,8 @@
 
 프로젝트 루트: C:/Users/sangj/MyAiScore.
 
+공용 문서는 위 루트의 `docs/`다. worktree에서 작업했어도 완료한 변경은 Git으로 통합하고 이 루트의 코드·문서를 함께 동기화한다. 시작 시 실제 브랜치/HEAD와 미반영 변경을 확인한다. 다른 작업자의 변경을 강제 덮어쓰거나 worktree 문서만 별도 정본처럼 인계하지 않는다.
+
 ## 시작과 인계
 
 [AGENTS](AGENTS.md), [마스터](docs/00_MASTER_PLAN.md), [ROADMAP](docs/Development/ROADMAP.md)의 현재 작업, 해당 [세션](docs/Development/Sessions/README.md), [BUGS](docs/Development/BUGS.md), 관련 정본을 읽고 Git 상태와 실제 코드를 확인한다. 현재 작업은 이 파일에 복제하지 않는다.

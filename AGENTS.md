@@ -1,5 +1,9 @@
 # AGENTS.md — MyAiScore 협업 지침
 
+## 공용 작업·인계 경로
+
+이 환경의 기본 프로젝트는 `C:/Users/sangj/MyAiScore`, 공용 문서는 그 안의 `docs/`다. 다른 에이전트도 여기의 AGENTS → ROADMAP → Sessions/ADR에서 시작한다. 별도 worktree는 병렬 작업용이며 새 정본 경로가 아니다. 완료 시 원격 main뿐 아니라 이 checkout도 코드·문서가 같은 기준이 되도록 동기화하고 실제 HEAD/clean 상태를 확인한다. 미커밋 변경이나 미통합 commit이 있으면 보존·통합한 뒤 진행한다. 강제 reset이나 docs만 수동 복사하지 않는다. 절차는 [AGENT_WORKFLOW](docs/Development/AGENT_WORKFLOW.md)를 따른다.
+
 ## 역할
 
 - 상준님: 사용자 문제·제품 방향·우선순위·결과 수용 판단.

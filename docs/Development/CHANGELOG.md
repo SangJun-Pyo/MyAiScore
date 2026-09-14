@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-14 — 공용 프로젝트 인계 경로 복원
+
+- worktree/원격만 최신이고 원래 checkout은 과거 브랜치에 남아 있던 누락을 확인했다. `C:/Users/sangj/MyAiScore/docs`를 공용 문서 진입점으로 명시하고 코드와 함께 Git으로 동기화하는 종료 절차를 추가했다.
+- 원래 폴더의 Claude 재검토 commit `f4f7012`를 merge로 보존하고, 과거 상태와 최신 상태의 충돌은 최신 ROADMAP/BUGS를 유지하며 원문 검토를 세션에 남기는 방식으로 해결했다.
+- 관련 [#9](https://github.com/SangJun-Pyo/MyAiScore/issues/9), [Phase 4](Sessions/Phase-04-Web-MVP.md). 앱 소스 변경 없음.
+
 ## 2026-09-14 — Phase 4 ADR 사후 기록
 
 - DECISIONS/세션 요약에만 남겼던 주요 설계 6개를 Architecture/ADR에 배경·결정·대안·결과·미검증 범위와 함께 기록했다.
@@ -15,6 +21,13 @@
 - #5 후속 디자인: 전체 다크 팔레트, 보라·시안 강조, hover/focus, 실제 Three.js 장면과 정적 대체. 데스크톱·모바일 캡처 확인.
 - typecheck, 224개 테스트, production build, 데스크톱/모바일 브라우저 12건 통과. 실제 모델/DB/배포는 미수행.
 - 상세: [Phase 4](Sessions/Phase-04-Web-MVP.md). 과거 보고 날짜는 원문을 보존하며 현재 상태는 ROADMAP을 따른다.
+
+## 2026-09-20 — MAS-006 독립 재검토: PASS, 종료
+
+- 구현자와 분리된 독립 검토 서브에이전트가 MAS-006 수정(`187cf52`)을 재검토했다. worktree 격리는 이번 환경에서 사용할 수 없어 메인 작업 트리를 읽기 전용으로 사용(검토 전후 `git status` clean·동일 확인).
+- 단순 `grep`이 아니라 `LocalCollectionPublicView`의 허용 필드 목록과 실제 `--json`/artifact 출력의 최상위·중첩 키 구조를 대조해 확인. `secrets-session.jsonl`/`unsupported-format.jsonl`/`corrupted-session.jsonl` 실행 모두에서 synthetic 비밀·원문 미노출을 확인. `npm run typecheck` 통과, `npm test` 170 pass 재확인. `git diff 0e7259e..187cf52`로 MAS-002/004/005·평가 파이프라인과 무관함을 파일 범위로 확인.
+- **판정 PASS.** MAS-006을 이번 재현 경로(`--json`의 `events`/`analysisContext` 노출)에 한해 종료(closed) 처리했다 — 다른 개인정보 마스킹 패턴의 완전성까지 보증하는 것은 아니다(BUGS.md에 명시).
+- 상세: [Phase 3 — MAS-006 독립 재검토](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-20-후속--mas-006-독립-재검토-pass).
 
 ## 2026-09-20 — MAS-006 수정 (로컬 수집 PoC CLI 원문 노출)
 
