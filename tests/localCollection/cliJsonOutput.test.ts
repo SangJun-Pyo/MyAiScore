@@ -16,7 +16,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -96,6 +96,36 @@ test("an unsupported-format session (error path) never leaks anything secret-sha
     assert.equal(status, 1);
     assert.ok(!stdout.includes(SECRET) && !stderr.includes(SECRET));
     assert.doesNotMatch(stderr, /sk-[A-Za-z0-9]{10,}/);
+  } finally {
+    rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+
+test("MAS-006 diagnostics do not echo malformed JSON or unknown record type text", () => {
+  const projectRoot = mkdtempSync(join(tmpdir(), "myaiscore-mas006-diagnostics-"));
+  const path = join(projectRoot, "synthetic.jsonl");
+  const diagnosticSecret = "sk-SYNTHETIC_SECRET";
+  try {
+    writeFileSync(path, [
+      JSON.stringify({ type: "user", uuid: "synthetic", timestamp: "2026-09-14T00:00:00Z", message: { content: "safe" } }),
+      diagnosticSecret,
+      JSON.stringify({ type: SECRET }),
+    ].join("\n"));
+    for (const mode of [[], ["--json"]]) {
+      const result = runCli(["--project", projectRoot, "--session", path, ...mode]);
+      assert.equal(result.status, 0);
+      assert.ok(!result.stdout.includes(diagnosticSecret));
+      assert.ok(!result.stderr.includes(diagnosticSecret));
+      assert.ok(!result.stdout.includes(SECRET));
+      assert.ok(!result.stderr.includes(SECRET));
+      if (mode.length) {
+        const view = JSON.parse(result.stdout);
+        assert.deepEqual(view.malformedLines, [{ lineNumber: 2, reason: "invalid JSON" }]);
+        assert.equal(view.recordTypeCounts.unknown, 1);
+        assert.equal(view.recordTypeCounts.user, 1);
+      }
+    }
   } finally {
     rmSync(projectRoot, { recursive: true, force: true });
   }

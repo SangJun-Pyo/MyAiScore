@@ -68,8 +68,9 @@ export function parseClaudeCodeSessionFile(filePath: string): ParsedSession {
     let parsed: unknown;
     try {
       parsed = JSON.parse(line);
-    } catch (err) {
-      malformedLines.push({ lineNumber: index + 1, reason: `invalid JSON: ${err instanceof Error ? err.message : String(err)}` });
+    } catch {
+      // JSON.parse diagnostics can quote the malformed raw line, including secrets.
+      malformedLines.push({ lineNumber: index + 1, reason: "invalid JSON" });
       return;
     }
     if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed) || typeof (parsed as { type?: unknown }).type !== "string") {
@@ -89,7 +90,11 @@ export function parseClaudeCodeSessionFile(filePath: string): ParsedSession {
   }
 
   const typeCounts: Record<string, number> = {};
-  for (const r of records) typeCounts[r.type] = (typeCounts[r.type] ?? 0) + 1;
+  for (const r of records) {
+    // Unknown type labels are untrusted transcript text, not safe output keys.
+    const type = KNOWN_RECORD_TYPES.has(r.type) ? r.type : "unknown";
+    typeCounts[type] = (typeCounts[type] ?? 0) + 1;
+  }
 
   return { filePath, records, malformedLines, typeCounts };
 }
