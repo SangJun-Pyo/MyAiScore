@@ -10,7 +10,7 @@
 import { randomUUID } from "node:crypto";
 import type { CriterionCode, CriterionResult, CriterionStatus } from "../../shared/contracts/evaluation.js";
 import type { EvaluationInputBundle } from "./inputAssembly.js";
-import type { RawProviderOutput } from "./provider.js";
+import type { ProviderError, RawProviderOutput } from "./provider.js";
 
 const ALL_CODES: CriterionCode[] = ["A", "B", "C", "D", "E"];
 const VALID_STATUSES: CriterionStatus[] = ["observed", "not_observed", "insufficient_evidence"];
@@ -26,6 +26,7 @@ export interface CriterionJudgementFailure {
     | "invalid_blocking_conflict";
   message: string;
   retryable: boolean;
+  providerCode?: ProviderError["code"];
 }
 
 export type CriterionJudgementResult = { ok: true; criteria: CriterionResult[] } | { ok: false; failure: CriterionJudgementFailure };
@@ -53,7 +54,7 @@ export function validateAndBuildCriterionResults(output: RawProviderOutput, bund
   if (output.providerError) {
     return {
       ok: false,
-      failure: { code: "provider_error", message: output.providerError.message, retryable: output.providerError.retryable },
+      failure: { code: "provider_error", message: output.providerError.message, retryable: output.providerError.retryable, providerCode: output.providerError.code },
     };
   }
 

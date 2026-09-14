@@ -18,6 +18,7 @@ export function buildManifest(params: {
   versions: EvaluationVersions;
   bundleTextHash: string;
   modelInputHash: string;
+  stageRequestHashes?: { questions: string | null; judgement: string | null };
   warnings: string[];
 }): EvaluationManifest {
   return {
@@ -26,6 +27,7 @@ export function buildManifest(params: {
     versions: params.versions,
     bundleTextHash: params.bundleTextHash,
     modelInputHash: params.modelInputHash,
+    stageRequestHashes: params.stageRequestHashes,
     questionPromptTextHash: hashPromptText(QUESTION_PROMPT_TEXT),
     judgePromptTextHash: hashPromptText(JUDGE_PROMPT_TEXT),
     rubricCriteriaVersion: RUBRIC_CRITERIA_VERSION,

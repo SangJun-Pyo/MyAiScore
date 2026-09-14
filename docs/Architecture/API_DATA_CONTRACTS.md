@@ -1,8 +1,25 @@
-# API & Data Contracts v0.3.1
+# API & Data Contracts v0.4
 
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 필드: [EVIDENCE_SCHEMA](../Assessment/EVIDENCE_SCHEMA.md). 실행·캐시: [SYSTEM_ARCHITECTURE](SYSTEM_ARCHITECTURE.md). 보안: [PRIVACY_SECURITY](../Security/PRIVACY_SECURITY.md).
 
-현재는 구현 계약이며 서비스는 미구현이다. JSON 예시는 모두 synthetic 형식 예시다.
+웹·API는 구현됐으며 실제 모델/운영 DB 실험은 별도다. 아래 상태·보안 원칙은 유지하고 v0.4의 실제 wire 형태는 이 절을 우선한다. 기존 v0.3.1 JSON은 역사적 설계 예시다.
+
+## v0.4 실제 wire와 저장 경계
+
+- `GET /api/config`: live_enabled/provider_configured/storage_mode와 제한 안내. 키·모델 설정을 반환하지 않는다.
+- `GET /api/health`: liveness만 제공. DB·모델 readiness 인증은 아니다.
+- create는 `consent:true`, `repo_url`, 선택 `commit_ref`, `collaboration_case`, `excerpts:string[]`를 받는다. 발췌는 최대 3개/각 2,000자이며 파일 경로나 로컬 JSON 업로드를 받지 않는다.
+- owner DTO: assessment_id, repo_url, commit_sha, status, ingestion_status, input_revision, created_at, expires_at, questions, evidence, result, failure, visibility, share_id, previous_assessment_id, needs_retry.
+- `result`는 criteria/score/confidence/improvement_task/manifest/evidence를 포함한다. 예전 flat `my_ai_score`는 현재 `result.score`, `confidence_summary`는 `result.confidence`다. CriterionResult의 snake_case 필드·점수 공식·근거 참조 원칙은 유지한다.
+- 작업서 wire는 title/why/action/steps/done_checklist/done_when/evidence_ids/copy_text/criterion_code다. 문서의 풍부한 작업서 템플릿을 모두 LLM으로 생성하는 기능은 아니다. 현재는 가장 필요한 한 축을 선택하는 결정적 행동·완료 체크 템플릿이다.
+- 공개 DTO는 repo_url/commit_sha와 result의 축별 상태·레벨·점수·파일 수 및 일반 안내만 포함한다. 모델 자유 서술 rationale/missing_evidence, 개인 작업서, 원문·답변·발췌·근거 상세는 공개하지 않는다. 예시 endpoint는 별도의 synthetic 데이터 전체를 제공한다.
+- `GET /api/assessments/:id/comparison`: reassess로 연결된 이전 평가도 동일 owner인지 검사하고 비교한다. comparison_allowed/score_delta/axes/explanations 및 behavior_change=not_established를 반환한다. 모델·버전·출처·범위·발급 조건이 다르면 delta=null이다.
+- manifest는 evaluator_model_id, stage_request_hashes, wire_request_hashes를 기록한다. model_input_hash는 단계별 실제 provider 요청 hash의 집계이며 hash에만 ID/시각을 제거하지 않는다. 실제 Anthropic envelope의 모델/설정은 별도 wire hash로 추적한다.
+- 운영 저장은 owner별 별도 SQL 행 대신 서버 전용 state JSON과 CAS를 사용한다. owner token hash로 소유를 판별하며 개인 자료를 다른 owner에게 재사용하지 않는다.
+- 인증된 create와 변경 요청은 Idempotency-Key가 필요하다. 무인증 첫 create는 토큰 유실 시 복구하지 않는다. 같은 요청의 pending 상태는 409이며 재시도는 새 키로 명시한다.
+- 실제 처리 실패는 422 + owner DTO의 failure, 입력/인증/설정 오류는 error envelope를 사용한다. 만료 시도는 409 stale_attempt다. provider 미설정은 503 provider_not_configured이며 mock 대체가 없다.
+- 결과 접근은 7일 뒤 만료한다. 생성 시/정리 CLI로 물리 삭제하며 자동 스케줄러는 아직 없다. 완료 결과 저장 후 PreparedAssessment와 임시 input/answers를 제거한다. 진행 중에도 소유자가 DELETE할 수 있으며 늦은 결과는 폐기한다.
+- CLI 호출 수 상한은 웹의 영속 예산과 공유하지 않는다. 웹은 UTC 전역 기본 20회/소유자 6회이며 비용 달러 상한을 보장하지 않는다. API 미설정 상태에서는 유료 호출하지 않는다.
 
 ## 1. 소유·공개 접근
 

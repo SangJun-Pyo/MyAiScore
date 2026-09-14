@@ -168,11 +168,9 @@ test("a well-formed bundle assembles without throwing", () => {
   assert.ok(bundle.modelInputHash.length === 64);
 });
 
-// --- modelInputHash: must be stable across random IDs/timestamps (repeat
-// experiments compare this, not bundleTextHash) but must still change when
-// the actual content changes (Astra Phase 2 review "반복 입력").
+// Legacy bundle fingerprint does not normalize model-visible fields.
 
-test("modelInputHash is identical across two runs with different random IDs/timestamps but the same logical content", () => {
+test("deprecated bundle fingerprint preserves different IDs and timestamps", () => {
   const snapshot = makeEmptySnapshot();
   const hashA = computeModelInputHash({
     snapshot,
@@ -188,7 +186,7 @@ test("modelInputHash is identical across two runs with different random IDs/time
     questions: [question("q_b", { assessmentId: "run-b", createdAt: "2099-12-31T23:59:59Z", text: "same question text" })],
     answers: [answer("ans_b", "q_b", { assessmentId: "run-b", submittedAt: "2099-12-31T23:59:59Z", text: "same answer text" })],
   });
-  assert.equal(hashA, hashB);
+  assert.notEqual(hashA, hashB);
 });
 
 test("modelInputHash changes when the actual question text changes", () => {
@@ -199,7 +197,7 @@ test("modelInputHash changes when the actual question text changes", () => {
   assert.notEqual(hashA, hashB);
 });
 
-test("bundleTextHash (audit hash) differs across runs even with identical logical content, unlike modelInputHash", () => {
+test("both bundle fingerprints preserve assessment boundaries", () => {
   const snapshot = makeEmptySnapshot();
   const bundleA = assembleEvaluationInput({
     assessmentId: "run-a",
@@ -214,5 +212,24 @@ test("bundleTextHash (audit hash) differs across runs even with identical logica
     evidence: [evidence("ev_1", { assessmentId: "run-b" })],
   });
   assert.notEqual(bundleA.bundleTextHash, bundleB.bundleTextHash);
-  assert.equal(bundleA.modelInputHash, bundleB.modelInputHash);
+  assert.notEqual(bundleA.modelInputHash, bundleB.modelInputHash);
+});
+
+for (const questions of [undefined, []]) {
+  test(`answers cannot reference absent questions: ${JSON.stringify(questions)}`, () => {
+    assert.throws(() => assembleEvaluationInput({ assessmentId: "as_1", snapshot: makeEmptySnapshot(),
+      collaborationCase: null, evidence: [evidence("ev_1")], questions, answers: [answer("a", "q")] }), BundleAssemblyError);
+  });
+}
+
+test("blank answers and invalid question grounding are rejected at assembly", () => {
+  const base = { assessmentId: "as_1", snapshot: makeEmptySnapshot(), collaborationCase: null, evidence: [evidence("ev_1")] };
+  for (const text of ["", "   ", "\n\t"]) {
+    assert.throws(() => assembleEvaluationInput({ ...base, questions: [question("q")], answers: [answer("a", "q", { text })] }), BundleAssemblyError);
+  }
+  for (const groundingEvidenceIds of [[], ["foreign"]]) {
+    assert.throws(() => assembleEvaluationInput({ ...base, questions: [question("q", { groundingEvidenceIds })] }), BundleAssemblyError);
+  }
+  assert.doesNotThrow(() => assembleEvaluationInput(base));
+  assert.doesNotThrow(() => assembleEvaluationInput({ ...base, questions: [question("q")] }));
 });

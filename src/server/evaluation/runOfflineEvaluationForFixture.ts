@@ -25,17 +25,17 @@ import { buildFixturesFromLocalRepo } from "../ingestion/localRepoFixtureBuilder
 import { resolveExternalExcerpts, resolveLinkedEvidence, type EvidenceMap } from "./evidenceMap.js";
 import { resolveWithinRoot } from "./fixtureRoot.js";
 import { parseCollaborationCase } from "./loadCollaborationCase.js";
-import { assembleEvaluationInput, type EvaluationInputBundle } from "./inputAssembly.js";
+import { assembleEvaluationInput, hashPromptText, type EvaluationInputBundle } from "./inputAssembly.js";
 import { MockProvider } from "./mockProvider.js";
 import type { EvaluationProvider, RawProviderOutput } from "./provider.js";
-import { withTimeout } from "./timeout.js";
+import { invokeProviderSafely } from "./timeout.js";
 import { validateAndBuildQuestions, type QuestionGenerationResult } from "./questionGeneration.js";
 import { validateAndBuildCriterionResults, type CriterionJudgementResult } from "./criterionJudgement.js";
 import { buildManifest } from "./manifest.js";
 import { QUESTION_PROMPT_TEXT, QUESTION_PROMPT_VERSION } from "./prompts/questionPromptV1.js";
 import { JUDGE_PROMPT_TEXT, JUDGE_PROMPT_VERSION } from "./prompts/judgePromptV1.js";
 import { RUBRIC_CRITERIA, RUBRIC_CRITERIA_VERSION } from "./rubricCriteria.js";
-import type { JudgementRequest, QuestionGenerationRequest } from "./providerRequest.js";
+import { prepareProviderRequest, type JudgementRequest, type QuestionGenerationRequest } from "./providerRequest.js";
 import { computeMyAiScore, IngestionNotScorableError, ScoringContractError } from "../scoring/scoreCalculator.js";
 import { computeConfidenceSummary, deriveProcessEvidenceLevel } from "../scoring/confidenceSummary.js";
 import type { Answer, CollaborationCase, Evidence, EvaluationManifest, MyAiScore, ConfidenceSummary } from "../../shared/contracts/evaluation.js";
@@ -216,6 +216,7 @@ export async function runOfflineEvaluationForFixture(input: OfflineEvaluationInp
       judgementResponse: input.mockJudgementResponse ?? { providerError: { code: "provider_failure", message: "no mock response configured", retryable: false } },
     });
 
+  const stageRequestHashes: { questions: string | null; judgement: string | null } = { questions: null, judgement: null };
   let questions: QuestionGenerationResult | null = null;
   if (stages.ingestion.status === "succeeded" && bundle) {
     const request: QuestionGenerationRequest = {
@@ -225,10 +226,9 @@ export async function runOfflineEvaluationForFixture(input: OfflineEvaluationInp
       inferenceConfigVersion,
       timeoutMs,
     };
-    const raced = await withTimeout((signal) => provider.generateQuestions(request, signal), timeoutMs);
-    const questionsRaw: RawProviderOutput = raced.timedOut
-      ? { providerError: { code: "timeout", message: `question generation exceeded ${timeoutMs}ms`, retryable: true } }
-      : raced.value;
+    const prepared = prepareProviderRequest(request);
+    stageRequestHashes.questions = prepared.hash;
+    const questionsRaw = await invokeProviderSafely((signal) => provider.generateQuestions(prepared.payload, signal), timeoutMs);
     questions = validateAndBuildQuestions(questionsRaw, bundle);
     stages.questions = questions.ok ? { status: "succeeded", detail: null } : { status: "failed", detail: `${questions.failure.code}: ${questions.failure.message}` };
   } else {
@@ -268,10 +268,9 @@ export async function runOfflineEvaluationForFixture(input: OfflineEvaluationInp
       inferenceConfigVersion,
       timeoutMs,
     };
-    const raced = await withTimeout((signal) => provider.judgeCriteria(request, signal), timeoutMs);
-    const judgementRaw: RawProviderOutput = raced.timedOut
-      ? { providerError: { code: "timeout", message: `judgement exceeded ${timeoutMs}ms`, retryable: true } }
-      : raced.value;
+    const prepared = prepareProviderRequest(request);
+    stageRequestHashes.judgement = prepared.hash;
+    const judgementRaw = await invokeProviderSafely((signal) => provider.judgeCriteria(prepared.payload, signal), timeoutMs);
     judgement = validateAndBuildCriterionResults(judgementRaw, bundleWithAnswers);
     stages.judgement = judgement.ok ? { status: "succeeded", detail: null } : { status: "failed", detail: `${judgement.failure.code}: ${judgement.failure.message}` };
   } else {
@@ -320,13 +319,14 @@ export async function runOfflineEvaluationForFixture(input: OfflineEvaluationInp
     providerId: provider.providerId,
     versions: {
       rubricVersion: "scoring-rubric-v0.3.1",
-      pipelineVersion: "phase2-fix-v1",
+      pipelineVersion: "phase2-fix-v2",
       questionPromptVersion: QUESTION_PROMPT_VERSION,
       evaluatorPromptVersion: JUDGE_PROMPT_VERSION,
       inferenceConfigVersion,
     },
     bundleTextHash: finalBundle?.bundleTextHash ?? "",
-    modelInputHash: finalBundle?.modelInputHash ?? "",
+    modelInputHash: hashPromptText(JSON.stringify(stageRequestHashes)),
+    stageRequestHashes,
     warnings: [
       provider.mode === "mock" ? "mode=mock: 실제 LLM 호출 없음. 이 출력은 provider 계약 검증용이며 실제 평가 정확도를 증명하지 않는다." : "mode=live",
       ...(unresolved.length > 0 ? unresolved.map((u) => `unresolved evidence: ${u.evidenceId} -- ${u.reason}`) : []),

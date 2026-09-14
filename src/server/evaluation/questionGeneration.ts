@@ -8,7 +8,7 @@
 import { randomUUID } from "node:crypto";
 import type { CriterionCode, Question } from "../../shared/contracts/evaluation.js";
 import type { EvaluationInputBundle } from "./inputAssembly.js";
-import type { RawProviderOutput } from "./provider.js";
+import type { ProviderError, RawProviderOutput } from "./provider.js";
 
 const VALID_CRITERIA: CriterionCode[] = ["A", "B", "C", "D", "E"];
 const REQUIRED_QUESTION_COUNT = 3;
@@ -23,6 +23,7 @@ export interface QuestionGenerationFailure {
     | "invalid_target_criteria";
   message: string;
   retryable: boolean;
+  providerCode?: ProviderError["code"];
 }
 
 export type QuestionGenerationResult = { ok: true; questions: Question[] } | { ok: false; failure: QuestionGenerationFailure };
@@ -45,7 +46,7 @@ export function validateAndBuildQuestions(
   if (output.providerError) {
     return {
       ok: false,
-      failure: { code: "provider_error", message: output.providerError.message, retryable: output.providerError.retryable },
+      failure: { code: "provider_error", message: output.providerError.message, retryable: output.providerError.retryable, providerCode: output.providerError.code },
     };
   }
 

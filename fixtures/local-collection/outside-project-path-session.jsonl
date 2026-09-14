@@ -1,0 +1,2 @@
+{"type":"user","uuid":"u1","parentUuid":null,"timestamp":"2026-09-20T04:00:00.000Z","cwd":"C:\\Users\\sangj\\MyAiScore","message":{"role":"user","content":"다른 프로젝트 설정도 같이 바꿔주세요."}}
+{"type":"file-history-delta","messageId":"msg-m4gmpcb1smc","trackingPath":"..\\..\\other-project\\secrets.env","timestamp":"2026-09-20T04:00:05.000Z","backup":{"backupTime":"2026-09-20T04:00:05.000Z","realParentDir":"C:\\Users\\sangj\\MyAiScore\\src\\lib"}}

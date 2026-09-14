@@ -6,15 +6,10 @@
  *    what was assembled, including random IDs and real timestamps. Useful
  *    for tracing one specific run, never expected to match across two
  *    logically-identical runs.
- *  - `modelInputHash` ("model input hash", via computeModelInputHash):
- *    strips volatile fields (random assessment/question/answer IDs,
- *    timestamps, ingestion wall-clock duration) that a real model never
- *    treats as meaningfully different input. Two runs over the same
- *    fixture with the same canned/real responses produce the same
- *    modelInputHash even though their audit hashes differ. Astra Phase 2
- *    review ("반복 입력"): "전체 감사 hash와 모델 입력 hash의 목적을
- *    구분한다" -- conflating the two made repeat-experiment identity
- *    checks impossible, since the audit hash always changed run to run.
+ *  - `modelInputHash` is retained as a deprecated exact bundle fingerprint.
+ *    Actual model identity is recorded per stage from the precise request
+ *    payload in EvaluationManifest.stageRequestHashes. No IDs/times are
+ *    removed solely for hashing.
  *
  * The bundle's own field names/shape are the only trusted "instructions" in
  * this module. Everything nested inside snapshot/collaborationCase/evidence
@@ -109,6 +104,10 @@ function validateBundleInvariants(params: {
       if (questionIds.has(q.questionId)) {
         throw new BundleAssemblyError(`duplicate questionId in bundle: ${q.questionId}`);
       }
+      if (!Array.isArray(q.groundingEvidenceIds) || q.groundingEvidenceIds.length === 0 ||
+          q.groundingEvidenceIds.some((id) => !evidenceIds.has(id))) {
+        throw new BundleAssemblyError("question has missing or invalid grounding evidence");
+      }
       questionIds.add(q.questionId);
     }
   }
@@ -123,8 +122,11 @@ function validateBundleInvariants(params: {
       if (answerIds.has(a.answerId)) {
         throw new BundleAssemblyError(`duplicate answerId in bundle: ${a.answerId}`);
       }
+      if (typeof a.text !== "string" || a.text.trim() === "") {
+        throw new BundleAssemblyError("answer text must not be blank");
+      }
       answerIds.add(a.answerId);
-      if (questions && !questionIds.has(a.questionId)) {
+      if (!questionIds.has(a.questionId)) {
         throw new BundleAssemblyError(`answer ${a.answerId} references a questionId not present in this bundle's questions: ${a.questionId}`);
       }
       if (answeredQuestionIds.has(a.questionId)) {
@@ -175,16 +177,7 @@ export function assembleEvaluationInput(params: {
   };
 }
 
-/**
- * Strips fields that vary run-to-run without changing what a model actually
- * reads: random assessment/question/answer/evidence-record IDs (normalized
- * to fixed placeholders, and answers linked to their question by *position*
- * rather than by random ID), timestamps, and ingestion's own wall-clock
- * duration. Two calls with logically identical content -- same repo, same
- * case, same resolved evidence, same generated question text/answers in the
- * same order -- produce the same modelInputHash regardless of when or how
- * many times they ran.
- */
+/** @deprecated Exact bundle fingerprint only; use stageRequestHashes for provider input identity. */
 export function computeModelInputHash(params: {
   snapshot: IngestionSnapshot;
   collaborationCase: CollaborationCase | null;
@@ -192,26 +185,7 @@ export function computeModelInputHash(params: {
   questions?: Question[];
   answers?: Answer[];
 }): string {
-  const questions = params.questions ?? [];
-  const answers = params.answers ?? [];
-  const questionIndexById = new Map(questions.map((q, i) => [q.questionId, i]));
-
-  const canonical = {
-    // metrics.durationMs/httpRequests reflect this run's wall-clock timing,
-    // not model-visible content; collectedAt is a timestamp, not content.
-    snapshot: { ...params.snapshot, metrics: undefined, collectedAt: "FIXED" },
-    collaborationCase: params.collaborationCase ? { ...params.collaborationCase, assessmentId: "FIXED", submittedAt: "FIXED" } : null,
-    evidence: params.evidence
-      .map((e) => ({ ...e, assessmentId: "FIXED", collectedAt: "FIXED" }))
-      .sort((a, b) => a.evidenceId.localeCompare(b.evidenceId)),
-    questions: questions.map((q) => ({ text: q.text, groundingEvidenceIds: [...q.groundingEvidenceIds].sort(), targetCriteria: [...q.targetCriteria].sort() })),
-    answers: answers.map((a) => ({
-      questionIndex: questionIndexById.get(a.questionId) ?? -1,
-      text: a.text,
-      linkedEvidenceIds: [...a.linkedEvidenceIds].sort(),
-    })),
-  };
-  return sha256(stableStringify(canonical));
+  return sha256(stableStringify(params));
 }
 
 export function hashPromptText(text: string): string {

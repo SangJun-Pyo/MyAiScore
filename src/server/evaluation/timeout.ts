@@ -11,6 +11,8 @@
  * promise does afterward (resolve or reject) is discarded here, never
  * flowing into the pipeline's result.
  */
+import type { RawProviderOutput } from "./provider.js";
+
 export type TimeoutResult<T> = { timedOut: false; value: T } | { timedOut: true };
 
 export async function withTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, timeoutMs: number): Promise<TimeoutResult<T>> {
@@ -29,11 +31,39 @@ export async function withTimeout<T>(fn: (signal: AbortSignal) => Promise<T>, ti
   // distinct from a genuine timeout. Only the dedicated timeoutPromise above
   // produces {timedOut: true}. If the timeout wins the race, this promise's
   // eventual settlement (resolve or reject) is simply never observed again.
-  const callPromise: Promise<TimeoutResult<T>> = fn(controller.signal).then((value) => ({ timedOut: false, value }));
-
   try {
+    // Defer invocation so a synchronous throw is a rejection covered by the
+    // race and finally, just like an asynchronous transport failure.
+    const callPromise: Promise<TimeoutResult<T>> = Promise.resolve()
+      .then(() => fn(controller.signal))
+      .then((value) => ({ timedOut: false, value }));
     return await Promise.race([callPromise, timeoutPromise]);
   } finally {
     clearTimeout(timer!);
+  }
+}
+
+/** Transport errors must not copy credentials, excerpts or internal paths into results. */
+export async function invokeProviderSafely(
+  fn: (signal: AbortSignal) => Promise<RawProviderOutput>,
+  timeoutMs: number,
+): Promise<RawProviderOutput> {
+  try {
+    const result = await withTimeout(fn, timeoutMs);
+    if (result.timedOut) {
+      return { providerError: { code: "timeout", message: `provider call exceeded ${timeoutMs}ms`, retryable: true } };
+    }
+    // Even provider-shaped transport errors can contain raw upstream text.
+    if (result.value?.providerError) {
+      const code = result.value.providerError.code;
+      return { providerError: {
+        code: code === "timeout" || code === "rate_limited" ? code : "provider_failure",
+        message: code === "timeout" ? "Provider timed out." : code === "rate_limited" ? "Provider rate limit reached." : "Provider request failed.",
+        retryable: result.value.providerError.retryable === true,
+      } };
+    }
+    return result.value;
+  } catch {
+    return { providerError: { code: "provider_failure", message: "Provider request failed.", retryable: false } };
   }
 }

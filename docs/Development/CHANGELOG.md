@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-09-14 — Astra·서브에이전트 웹 MVP 통합
+
+- GitHub 이슈 #1~4와 독립 codex worktree를 만들고 Astra가 구현·통합을 맡는 운영으로 변경.
+- MAS-002/004/005 보정, MAS-006 JSON 파싱 오류/metadata 잔여 노출 경로 추가 수정.
+- 실제 GitHub 수집·서버 모델 adapter·질문/판정/계산·개선 작업서·보수적 비교, 웹 UI 및 인증 API 통합.
+- File/Supabase CAS 저장, 공개 요약 분리·철회·삭제·재시도·예산 제한, CI/Docker/Railway 설정.
+- #5 후속 디자인: 전체 다크 팔레트, 보라·시안 강조, hover/focus, 실제 Three.js 장면과 정적 대체. 데스크톱·모바일 캡처 확인.
+- typecheck, 224개 테스트, production build, 데스크톱/모바일 브라우저 12건 통과. 실제 모델/DB/배포는 미수행.
+- 상세: [Phase 4](Sessions/Phase-04-Web-MVP.md). 과거 보고 날짜는 원문을 보존하며 현재 상태는 ROADMAP을 따른다.
+
+## 2026-09-20 — MAS-006 수정 (로컬 수집 PoC CLI 원문 노출)
+
+- 독립 검토(`0e7259e`)가 발견한 P1 결함 MAS-006(`scripts/collectLocalSession.ts --json`이 마스킹 전 세션 원문을 그대로 출력)을 수정했다. `secrets-session.jsonl`로 먼저 재현(회귀 테스트 3/4 실패 확인) 후 수정.
+- `collectLocalSession.ts`에 `LocalCollectionPublicView`/`buildLocalCollectionPublicView()`를 추가해 사람이 읽는 미리보기와 `--json` 출력이 항상 같은 안전한 필드 집합만 사용하도록 통일했다(`events`/`analysisContext`는 CLI 출력에서 완전히 제외).
+- 기존 커밋된 `artifacts/local-collection-poc/basic-session.json`(마스킹 전 `events` 포함)을 수정된 CLI로 재생성했다 — 실제 세션 기록은 사용하지 않음(synthetic만).
+- 신규 회귀 테스트 `tests/localCollection/cliJsonOutput.test.ts`(4개, CLI를 실제 자식 프로세스로 실행)로 재검증. `npm run typecheck` 통과, `npm test` 170 pass(기존 166 + 신규 4).
+- MAS-006을 "수정 완료 / 독립 재검토 대기"로 표시. MAS-002/004/005는 이번과 무관하게 그대로 둠. 상세: [Phase 3 — MAS-006 수정](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-20-후속--mas-006-수정).
+
+## 2026-09-14 — Phase 3 로컬 수집 PoC 독립 검토
+
+- 구현자와 별도로 `claude/local-collection-poc`의 `5978210`(base `c7b3a2e`)을 별도 worktree에서 검토했다. `npm run typecheck`/`npm test`(166 pass) 재실행 확인, synthetic fixture 7종 전부로 CLI를 직접 재현 실행했다.
+- 수집·연결·Evidence 변환 계층은 결함 없음. `scripts/collectLocalSession.ts --json` 출력이 마스킹·절단 전 세션 원문을 그대로 노출하는 결함 1건(MAS-006, P1)을 발견해 등록 — 다음 실제 세션 실험 전 수정 필요.
+- 기존 평가 입력 adapter에는 연결돼 있지 않음(Evidence 생성까지만)을 코드로 재확인. 점수 조건/`humanReviewed`/MAS-002·004·005는 변경되지 않았음을 diff로 확인.
+- 상세: [Phase 3 독립 검토](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-14--독립-검토-구현자와-별도-claude-code).
+
+## 2026-09-20 — Phase 3 로컬 협업 기록 수집 PoC
+
+- 사용자·Astra 합의로 `MVP_SCOPE.md`의 Local Evidence Mode 보류를 이 PoC 1건에 한정해 재검토([DECISIONS](DECISIONS.md#7-정식-mvp-편입-전의-제한된-로컬-수집-실험-2026-09-20)). Claude Code 세션 JSONL(실제 프로젝트 파일로 구조 확인) 1개를 읽어 요청/제안/도구 호출·결과를 구조적으로 추출하고, 기존 Evidence 계약(`sourceType:"user_provided_excerpt"`)에 계약 확장 없이 연결하는 로컬 수집기·CLI·synthetic fixture 7종·테스트 24개를 구현했다.
+- `npm run typecheck` 통과, `npm test` 166 pass(기존 142 + 신규 24). CLI를 정상/손상/미지원 형식 세 경로로 실제 실행해 exit code(0/0/1)를 확인.
+- MAS-002/004/005는 이 작업과 무관하게 미해결로 유지. 상세: [Phase 3](Sessions/Phase-03-Local-Collection-PoC.md).
+
 ## 2026-09-14 — Phase 2 Fixes 구현 보고와 실행 확인
 
 - 후속 Astra 재검토: typecheck·142 pass 확인. MAS-001/003은 오프라인 범위 해결 확인, MAS-002/004 잔여 경로와 MAS-005 입력 hash 문제를 재현해 수정 지시를 갱신했다. [검토 기록](Sessions/Phase-02-Fixes.md#astra-rereview-20260914).

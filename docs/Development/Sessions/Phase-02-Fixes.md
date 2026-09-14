@@ -283,3 +283,26 @@ R1~R4를 모두 실제 코드에서 수정했다(문서 제안에 그치지 않�
 기존 구현을 전부 다시 작성하지 않는다. provider 예외, 고아 답변, 실제 단계 payload와 hash의 일치 세 항목만 보정한다. 일반 내용 비교 hash를 유지할 수 있지만 이름과 목적을 구분하고 반복 실험 동일성에는 실제 전송할 payload hash를 사용한다. 필요한 ID 정규화는 hash에만 적용하지 말고 실제 payload와 참조 매핑에도 똑같이 적용한다. event_time 같은 행동 시점 근거를 임의 삭제하지 않는다.
 
 질문/판정 단계별 고정 실험 입력을 만들고 기록형 provider가 받은 내용과 hash가 일치하는지 검사한다. 모델 설정/프롬프트 버전은 함께 고정한다. 실제 API·예산은 계속 미정이며 이번 수정에 호출 비용이 필요하지 않다. 58회 계획도 실입력 동일성 검증 전에는 확정 실행량으로 취급하지 않는다.
+
+
+## 2026-09-14 — Astra 구현 서브에이전트: MAS-002/004/005 잔여 경계 수정
+
+작업: GitHub issue #1, 브랜치 `codex/evaluation-boundaries`, 기준 `3fa263b`. 사용자 요청에 따라 Astra가 구현을 위임한 독립 worktree에서 수행했다. 작성자 자체 테스트이며 사람 검토·실제 모델 타당성 확인은 아니다.
+
+### 변경과 호환성
+
+- MAS-002: `withTimeout`은 동기 호출도 Promise 안에서 실행해 모든 종료 경로에서 타이머를 해제한다. `invokeProviderSafely`가 질문·판정의 sync throw/async reject를 안전한 `provider_failure`로 변환한다. timeout은 별도 코드이며 늦은 resolve/reject는 결과를 바꾸지 않는다. provider가 직접 돌려준 오류 메시지도 사용자 결과에 복사하지 않는다. 기존 `provider_error` 실패 코드에 선택적 `providerCode`를 추가해 호환성을 유지하면서 원인을 구분한다.
+- MAS-004: 질문 목록 생략/빈 목록에서 답변 참조를 거부한다. 공백 답변과 누락/외부 질문 grounding도 bundle 조립 시 거부한다. 미연결 사례 주장은 unresolved 유지, 기존 점수 규칙 변경 없음.
+- MAS-005: `prepareProviderRequest`가 JSON으로 복제·동결한 payload를 실제 provider와 hash 계산에 함께 사용한다. `stageRequestHashes.questions/judgement`는 해당 요청의 정확한 JSON bytes에 대한 SHA-256이며 미실행은 null이다. provider가 기록한 요청을 다시 hash한 값과 일치한다. 사건 시각·질문 ID·참조·답변·발췌·루브릭·설정을 hash에서만 제거하지 않는다.
+- manifest의 `pipelineVersion=phase2-fix-v2`. `bundleTextHash`는 전체 bundle 감사용으로 유지한다. manifest `modelInputHash`는 단계 hash 객체의 합성 hash로 변경됐으며 과거 의미와 비교하지 않는다. 단계 필드는 과거 manifest 읽기를 위해 타입상 optional이지만 새 오프라인 실행에서는 항상 존재한다. bundle 내부의 기존 `modelInputHash`/`computeModelInputHash`는 deprecated 전체 bundle 지문이며 실험 동일성에 사용하지 않는다.
+- 반복 실험은 한 번 동결한 단계 payload를 매번 provider에 호출한다. UUID/실행시각 등 운영 기록은 이 고정 payload 밖에서 바뀔 수 있고, 실제 생성 질문이 달라지면 판정 요청 hash가 달라지는 것이 정상이다. 모델 응답 캐시는 사용하지 않는다. 향후 SDK adapter의 모델 선택·추가 envelope는 해당 전송 경계에서도 별도 기록해야 한다.
+
+### 실제 검증
+
+- `npm run typecheck`: 통과.
+- `npm test`: **183 pass / 0 fail** (기존 170 + 신규 13). 질문·판정 각각 sync/async 실패, 타이머 해제, timeout 후 늦은 resolve/reject, 안전한 오류, 고아/빈 답변, 질문 grounding, 실제 요청 hash와 고정 payload 반복을 확인했다.
+- CLI `scripts/evaluateOffline.ts`: 기존 case-02 generic/full-marks/malformed fixture 실행에서 각각 withheld/issued/failed, exit **0/0/1**, stdout JSON 1개를 확인했다. 실패 시 judgement hash는 null, score=null이다.
+- `node scripts/checkDocs.mjs`: 33개 문서, 212개 로컬 링크, 오류 0 (기록 추가 전 실행).
+- 변경 파일 자체 diff를 검토했다. 외부 API 호출·원문 세션 탐색·유료 리소스·fixture 사람 검토는 수행하지 않았다.
+
+공통 BUGS/ROADMAP/CHANGELOG/DECISIONS 및 API 정본의 hash 변경 기록은 병렬 작업의 충돌 방지를 위해 루트 Astra가 통합한다. 이 작업은 source evaluation 및 해당 테스트/세션만 변경한다.
