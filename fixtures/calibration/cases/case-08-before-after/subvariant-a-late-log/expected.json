@@ -15,10 +15,10 @@
     {
       "criterionCode": "D",
       "previousStatus": "not_observed",
-      "currentStatusOptions": ["insufficient_evidence", "observed"],
+      "currentStatusOptions": ["insufficient_evidence"],
       "expectedEvidenceChange": "added",
       "expectedBehaviorChange": "not_established",
-      "rationale": "EVIDENCE_SCHEMA.md 8절: '이전 로그를 뒤늦게 제출해 not_observed -> observed가 되어도 evidence_change=added, behavior_change=not_established가 기본이다.' ASTRA_PHASE1_REVIEW.md 3절은 과거 자료 추가로 레벨/상태가 실제로 올라갈 수 있다는 점을 확인했으므로(behavior_change와 evidence_change/status 변화는 독립적인 축), 이 fixture는 currentStatus를 하나로 강제하지 않고 insufficient_evidence(이 fixture에서는 참조가 끊겨 있으므로 더 유력)와 observed(만약 실제 evaluator가 자기진술만으로도 근거로 인정한다면) 모두를 허용 범위로 남긴다. 어느 쪽이든 behavior_change=not_established는 고정이다 -- 이번 제출이 코드 변경이나 새로운 행동을 증명하지 않기 때문"
+      "rationale": "Phase 2 Fix(ASTRA_PHASE2_REVIEW.md 3절: '실제 관련 자료가 없는 08a 로그에는 observed를 허용하는 기대를 그대로 두지 않는다')에 따라 currentStatusOptions에서 'observed'를 제거했다. 이 subvariant는 evidence_map.json이 명시하듯 실제 로그 발췌 파일 자체가 없는 경우(자료 부재)이지, 뒤늦게라도 실제 자료가 도착한 경우(subvariant-b처럼 observed로 격상 가능한 경우)가 아니다. EVIDENCE_SCHEMA.md 8절의 '뒤늦은 로그 제출로 observed 격상 가능'은 실제 로그 내용이 존재할 때의 이야기이며, 이 subvariant처럼 참조가 끝내 끊긴 경우에는 적용되지 않는다. behavior_change=not_established는 고정이다 -- 상태가 어느 쪽이든 이번 제출이 새로운 행동을 증명하지 않기 때문"
     }
   ],
   "expectedMyAiScoreStatus": "not_determinable_without_model",

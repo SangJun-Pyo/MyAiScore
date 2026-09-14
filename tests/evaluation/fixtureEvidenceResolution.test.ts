@@ -94,7 +94,7 @@ test("case-08 subvariant-a: the claimed 'late log' evidence ID is explicitly unr
   const subDir = join(CASES_ROOT, "case-08-before-after", "subvariant-a-late-log");
   const repoDir = join(subDir, "..", "..", "..", "shared", "repos", "before-after", "v2-late-log");
   const snapshot = await ingestFixtureRepo(repoDir, "fixture", "case08a-after");
-  const evidenceMap = loadJson<EvidenceMap>(join(subDir, "evidence_map.json"));
+  const evidenceMap = loadJson<EvidenceMap>(join(subDir, "after", "evidence_map.json"));
   const cc = parseCollaborationCase(loadJson(join(subDir, "after", "collaboration_case.json")), "as_case08a");
 
   const result = resolveLinkedEvidence({
@@ -113,7 +113,7 @@ test("case-08 subvariant-b: both linked test evidence and the user-submitted exe
   const subDir = join(CASES_ROOT, "case-08-before-after", "subvariant-b-real-improvement");
   const repoDir = join(subDir, "..", "..", "..", "shared", "repos", "before-after", "v2-real-improvement");
   const snapshot = await ingestFixtureRepo(repoDir, "fixture", "case08b-after");
-  const evidenceMap = loadJson<EvidenceMap>(join(subDir, "evidence_map.json"));
+  const evidenceMap = loadJson<EvidenceMap>(join(subDir, "after", "evidence_map.json"));
   const cc = parseCollaborationCase(loadJson(join(subDir, "after", "collaboration_case.json")), "as_case08b");
 
   const linked = resolveLinkedEvidence({
@@ -130,7 +130,7 @@ test("case-08 subvariant-b: both linked test evidence and the user-submitted exe
     assessmentId: "as_case08b",
     externalExcerpts: cc.externalExcerpts ?? [],
     readExcerptText: (p) => {
-      const full = join(subDir, p);
+      const full = join(subDir, "after", p);
       return existsSync(full) ? readFileSync(full, "utf8") : null;
     },
     collectedAt: "2026-09-14T00:00:00Z",

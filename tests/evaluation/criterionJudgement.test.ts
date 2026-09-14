@@ -172,3 +172,19 @@ test("an invalid status enum value is rejected", () => {
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.failure.code, "output_validation_failed");
 });
+
+// Regression (Astra Phase 2 review R4): a null entry in the criteria array
+// used to throw a raw TypeError instead of returning an explicit failure.
+test("a null entry in the criteria array is an explicit validation failure, not a TypeError", () => {
+  const raw = { criteria: [null, validCriterion("B"), validCriterion("C"), validCriterion("D"), validCriterion("E")] };
+  const result = validateAndBuildCriterionResults({ raw }, bundle(["ev_1"]));
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.failure.code, "output_validation_failed");
+});
+
+test("a primitive entry in the criteria array is an explicit validation failure, not a TypeError", () => {
+  const raw = { criteria: ["nope", validCriterion("B"), validCriterion("C"), validCriterion("D"), validCriterion("E")] };
+  const result = validateAndBuildCriterionResults({ raw }, bundle(["ev_1"]));
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.failure.code, "output_validation_failed");
+});

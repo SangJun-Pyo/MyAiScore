@@ -1,0 +1,60 @@
+{
+  "stages": {
+    "ingestion": {
+      "status": "succeeded",
+      "detail": null
+    },
+    "questions": {
+      "status": "failed",
+      "detail": "wrong_question_count: expected exactly 3 questions, got 2"
+    },
+    "judgement": {
+      "status": "not_attempted",
+      "detail": "questions stage failed"
+    },
+    "scoring": {
+      "status": "not_attempted",
+      "detail": "judgement stage did not succeed"
+    }
+  },
+  "pipelineFailed": true,
+  "manifest": {
+    "mode": "mock",
+    "providerId": "mock-fixed-response",
+    "versions": {
+      "rubricVersion": "scoring-rubric-v0.3.1",
+      "pipelineVersion": "phase2-fix-v1",
+      "questionPromptVersion": "question-prompt-v1",
+      "evaluatorPromptVersion": "judge-prompt-v1",
+      "inferenceConfigVersion": "not-applicable-mock"
+    },
+    "bundleTextHash": "d2167698eb7b17979ed61071ee337bd464a974f32286011ed1e025f8b429ed9c",
+    "modelInputHash": "39c44c340bd8bd70ade6dd3ebcde67eba70da5fdd6aa32317d8e37960606e6d5",
+    "questionPromptTextHash": "10538a319d7ad0766fd1b0c81fc10411e65c0da06ef257ff27fb782ada4b3ae4",
+    "judgePromptTextHash": "635d630c301828591208557bdabdfaf99675a287cc5680a523b9d8b5f92d1aca",
+    "rubricCriteriaVersion": "scoring-rubric-v0.3.1-criteria-table-v1",
+    "rubricCriteriaHash": "3b42ecb343b4406e994d06c6638d37800e065065d075cd9dbec61534be380227",
+    "tokensUsed": null,
+    "costUsd": null,
+    "costNote": "mode=mock -- 실제 LLM 호출이 없어 토큰/비용을 측정하지 않음",
+    "executedAt": null,
+    "warnings": [
+      "mode=mock: 실제 LLM 호출 없음. 이 출력은 provider 계약 검증용이며 실제 평가 정확도를 증명하지 않는다.",
+      "pipeline failed at stage(s): questions"
+    ]
+  },
+  "evidenceCount": 4,
+  "unresolvedEvidence": [],
+  "questions": {
+    "ok": false,
+    "failure": {
+      "code": "wrong_question_count",
+      "message": "expected exactly 3 questions, got 2",
+      "retryable": false
+    }
+  },
+  "answers": [],
+  "judgement": null,
+  "score": null,
+  "confidence": null
+}

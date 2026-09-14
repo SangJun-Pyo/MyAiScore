@@ -131,3 +131,24 @@ test("no evidence at all -> any grounded question is impossible, all rejected as
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.failure.code, "invalid_grounding_evidence");
 });
+
+// Regression (Astra Phase 2 review R4): null/primitive/array entries in the
+// questions array used to throw a raw TypeError ("Cannot read properties of
+// null") instead of returning an explicit validation failure.
+test("null entries in the questions array are an explicit validation failure, not a TypeError", () => {
+  const result = validateAndBuildQuestions({ raw: { questions: [null, null, null] } }, bundle(["ev_1", "ev_2"]));
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.failure.code, "output_validation_failed");
+});
+
+test("a primitive (string) entry in the questions array is an explicit validation failure, not a TypeError", () => {
+  const result = validateAndBuildQuestions({ raw: { questions: ["not an object", "not an object", "not an object"] } }, bundle(["ev_1"]));
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.failure.code, "output_validation_failed");
+});
+
+test("an array entry (instead of an object) in the questions array is an explicit validation failure", () => {
+  const result = validateAndBuildQuestions({ raw: { questions: [[], [], []] } }, bundle(["ev_1"]));
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.failure.code, "output_validation_failed");
+});

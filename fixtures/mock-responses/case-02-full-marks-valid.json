@@ -1,0 +1,23 @@
+{
+  "_comment": "A hand-written, structurally-valid canned provider response where all 5 axes are observed -- used to demonstrate the CLI's normal exit-code-0 'issued' path end to end. Not derived from case-02/expected.json.",
+  "questions": {
+    "raw": {
+      "questions": [
+        { "text": "검증 테스트는 어떤 실패 조건을 재현합니까?", "grounding_evidence_ids": ["ev_fixture_case02_test"], "target_criteria": ["D"] },
+        { "text": "AI 제안에서 누락된 부분을 어떻게 알아챘습니까?", "grounding_evidence_ids": ["ev_fixture_case02_test"], "target_criteria": ["E"] },
+        { "text": "완료 조건은 무엇이었고 어떻게 확인했습니까?", "grounding_evidence_ids": ["ev_fixture_case02_test"], "target_criteria": ["A"] }
+      ]
+    }
+  },
+  "judgement": {
+    "raw": {
+      "criteria": [
+        { "criterion_code": "A", "status": "observed", "level": 3, "supporting_evidence_ids": ["ev_fixture_case02_test"], "contrary_evidence_ids": [], "rationale": "mock 데모 -- 실제 판정 아님", "missing_evidence": "", "blocking_conflict": false },
+        { "criterion_code": "B", "status": "observed", "level": 3, "supporting_evidence_ids": ["ev_fixture_case02_test"], "contrary_evidence_ids": [], "rationale": "mock 데모 -- 실제 판정 아님", "missing_evidence": "", "blocking_conflict": false },
+        { "criterion_code": "C", "status": "observed", "level": 3, "supporting_evidence_ids": ["ev_fixture_case02_test"], "contrary_evidence_ids": [], "rationale": "mock 데모 -- 실제 판정 아님", "missing_evidence": "", "blocking_conflict": false },
+        { "criterion_code": "D", "status": "observed", "level": 4, "supporting_evidence_ids": ["ev_fixture_case02_test"], "contrary_evidence_ids": [], "rationale": "mock 데모 -- 실제 판정 아님", "missing_evidence": "", "blocking_conflict": false },
+        { "criterion_code": "E", "status": "observed", "level": 3, "supporting_evidence_ids": ["ev_fixture_case02_test"], "contrary_evidence_ids": [], "rationale": "mock 데모 -- 실제 판정 아님", "missing_evidence": "", "blocking_conflict": false }
+      ]
+    }
+  }
+}

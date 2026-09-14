@@ -8,6 +8,6 @@
   "user_action_detail": "AI가 제안한 한 줄 조건을 그대로 추가함",
   "verification_summary": "수정 전에는 버그를 재현하는 스크립트로 실패를 확인했고, 수정 후 실패 케이스 테스트가 통과하는 것을 확인함. 로그를 첨부함",
   "linked_evidence_ids": ["ev_fixture_case08b_test"],
-  "external_excerpts": ["after/excerpts/execution_log.txt"],
+  "external_excerpts": ["excerpts/execution_log.txt"],
   "submitted_at": "2026-09-09T14:25:00Z"
 }

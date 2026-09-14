@@ -5,11 +5,10 @@
   "criteria": [
     {
       "criterionCode": "A",
-      "expectedStatus": "observed",
-      "expectedLevelRange": [1, 1],
-      "rationale": "problem/constraints/done_criteria 자체가 '결제 관련 버그를 고쳤습니다' / '특별히 없음' / '잘 동작하면 됨'으로, SCORING_RUBRIC A-1의 예시('목적·완료 조건이 모호했고... 확인하지 않은 행동이 드러남')와 문자 그대로 일치한다. 이 모호함 자체가 제출된 서술에서 직접 관찰된다",
+      "expectedStatus": "insufficient_evidence",
+      "rationale": "Phase 2 Fix(ASTRA_PHASE2_REVIEW.md '함께 바로잡을 해석': 'case-04b의 모호한 사후 답변 문구만으로 A=1을 확정하면 실제 작업 중의 모호한 요청/미확인 행동을 추론하게 된다')에 따라 이전의 observed level 1 확정을 철회한다. problem/done_criteria가 '결제 관련 버그를 고쳤습니다'/'잘 동작하면 됨'처럼 짧고 모호한 것은 사실이지만, 이 사후 제출 문구만으로 '실제 작업 중 목적이 모호한 채 진행됐다'는 행동을 확정할 수는 없다 -- 사후에 대충 요약했을 뿐 실제 요청은 더 구체적이었을 가능성을 배제할 근거가 없다",
       "requiredEvidenceRefs": [],
-      "failureCondition": "이 서술을 not_observed로 처리하면 안 됨 -- 요청 자체는 존재하고 모호함이 실제로 드러나 있으므로 observed level 1이 맞는 판정이다(빈 서술이 아니라 나쁜 서술)"
+      "failureCondition": "이전 초안처럼 사후 서술의 모호함만으로 A=observed level 1을 확정하면, '모호하게 서술했다'는 사실과 '모호하게 요청·수행했다'는 실제 행동을 혼동하는 것(ASTRA_PHASE2_REVIEW.md). 반대로 not_observed로 낮추는 것도 과도하다 -- 문제 정의에 관한 진술 자체는 존재하므로(문제 인식은 있었음), 근거 부족으로 insufficient_evidence가 맞다"
     },
     {
       "criterionCode": "B",
@@ -27,10 +26,10 @@
     },
     {
       "criterionCode": "D",
-      "expectedStatus": "not_observed",
-      "rationale": "'동작하는 것을 확인했습니다'는 어떤 파일·케이스·결과와도 연결되지 않는다. linked_evidence_ids가 비어 있어(실제로 확인함) 이 진술을 뒷받침할 근거 자체가 없다. createOrder.test.ts가 실제로 존재한다는 사실은 variant-a에서는 근거가 되지만, variant-b의 제출 자료가 그 파일을 전혀 언급·연결하지 않으므로 이 평가에서는 근거로 채택하지 않는다",
+      "expectedStatus": "insufficient_evidence",
+      "rationale": "Phase 2 Fix(ASTRA_PHASE2_REVIEW.md '함께 바로잡을 해석': '테스트 파일을 언급하지 않았다는 이유만으로 D=not_observed를 강제할 수도 없다')에 따라 이전의 not_observed 확정을 철회한다. '동작하는 것을 확인했습니다'는 어떤 파일·케이스·결과와도 명시적으로 연결되지 않아 근거가 약하지만, 검증을 아예 수행하지 않았다고 단정할 근거도 없다 -- 검증 행위 자체를 언급은 했으므로(진술이 존재), 근거 자체가 전무한 not_observed보다는 근거 부족의 insufficient_evidence가 맞다",
       "requiredEvidenceRefs": [],
-      "failureCondition": "코드가 variant-a와 동일하다는 이유로 D를 observed로 재사용하면 '같은 repo라는 이유로 개인 결과 재사용' 금지 위반(CALIBRATION_PLAN case4). 반대로 이 진술이 존재한다는 이유만으로 insufficient_evidence 이상을 주는 것도 근거 없음을 무시하는 것"
+      "failureCondition": "코드가 variant-a와 동일하다는 이유로 D를 observed로 재사용하면 '같은 repo라는 이유로 개인 결과 재사용' 금지 위반(CALIBRATION_PLAN case4). 반대로 '파일/사례 언급이 없다'는 사실만으로 not_observed를 강제하는 것도 검증 진술 자체의 존재를 무시하는 과도한 추론이다(ASTRA_PHASE2_REVIEW.md)"
     },
     {
       "criterionCode": "E",
@@ -42,6 +41,6 @@
   ],
   "expectedMyAiScoreStatus": "withheld",
   "expectedWithheldReasons": ["insufficient_dimensions"],
-  "notes": "이 fixture만 놓고 보면 B/C/D/E가 모두 미확인(insufficient_evidence 또는 not_observed)이라 5축 모두 observed 조건을 충족하지 못하므로 withheld가 기대된다(A만 observed). variant-a와 정확히 대비되는 지점은 A뿐 아니라 D에서도 명확히 갈린다는 것 -- 코드는 같지만 각 variant의 제출 자료가 그 코드를 실제로 근거로 삼았는지 여부가 다르기 때문이다.",
+  "notes": "Phase 2 Fix로 A/D를 observed/not_observed 확정에서 insufficient_evidence로 완화했다(ASTRA_PHASE2_REVIEW.md). 이 fixture는 다섯 축 모두 미확인(insufficient_evidence 또는 not_observed)이라 총점은 withheld가 기대된다. variant-a와 대비되는 지점은 '코드는 같지만 각 variant의 제출 자료가 그 코드를 실제로 근거로 삼았는지 여부가 다르다'는 것이지, 정확한 레벨 차이가 아니다 -- 이 fixture는 정확한 레벨보다 금지된 추론(사후 서술만으로 실제 행동 확정, 언급 부재만으로 미관찰 확정)을 식별하는 데 목적이 있다.",
   "relatedFixtureIds": ["case-04-same-code-different-process/variant-a", "case-03-good-code-no-process"]
 }

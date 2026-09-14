@@ -20,11 +20,10 @@
     },
     {
       "criterionCode": "E",
-      "expectedStatus": "observed",
-      "expectedLevelRange": [1, 1],
-      "rationale": "\"AI가 만들어준 테스트 파일을 그대로 추가함\"이라는 서술과, 그 파일이 실제로 아무것도 검증하지 않으며 원래 버그가 남아 있다는 코드 사실이 함께 있다. 이는 제안의 효과를 확인하지 않고 수용한 과정이 구체적 자료(무의미한 테스트 파일 + 미해결 버그)로 뒷받침되는 경우로, SCORING_RUBRIC E-1 반례('수정 커밋이 없다는 이유만으로 무비판 수용으로 판정하지 않음')가 우려하는 '근거 없는 추정'과 다르다 -- 여기서는 실제 코드가 그 무비판성을 보여준다",
-      "requiredEvidenceRefs": ["src/lib/validateOrderTotal.trivial.test.ts", "src/lib/validateOrderTotal.ts"],
-      "failureCondition": "테스트 파일이 추가됐다는 사실만으로 E를 관대하게 판정(insufficient_evidence 이상)하면, 그 파일이 실제로는 아무 효과도 검증하지 않는다는 구체적 반증을 무시하는 것. 반대로 '수정 커밋이 없다'는 이유만으로 근거 없이 E=1을 단정하는 것도 반례 위반이므로, 여기서는 '효과 없는 파일 + 미해결 버그'라는 구체적 근거가 있어야만 E=1이 성립한다는 점을 rationale에 명시한다"
+      "expectedStatus": "insufficient_evidence",
+      "rationale": "Phase 2 Fix(ASTRA_PHASE2_REVIEW.md '함께 바로잡을 해석': '효과 없는 결과와 무비판적 수용을 구분한다', '실패 결과로 무비판 수용 역추론... 제거한다')에 따라 이전의 observed level 1 확정을 철회한다. 테스트 파일이 아무것도 검증하지 않고 버그가 남아 있다는 것은 '결과가 효과적이지 않았다'는 사실일 뿐, '사용자가 그 결과를 검토 없이 수용했다'는 판단 과정의 증거는 아니다 -- 사용자가 그 테스트의 무의미함을 몰랐는지, 알고도 임시로 받아들였는지는 이 자료만으로 구분할 수 없다",
+      "requiredEvidenceRefs": [],
+      "failureCondition": "'효과 없는 테스트 + 미해결 버그'라는 결과만으로 E를 observed(무비판 수용)로 역추론하면, 결과의 효과성과 수용 과정의 비판성을 혼동하는 것(ASTRA_PHASE2_REVIEW.md). 반대로 '수정 커밋이 없다'는 이유만으로 근거 없이 다른 값을 단정하는 것도 SCORING_RUBRIC E-1 반례 위반이다 -- 판단 과정 자체에 대한 근거가 없으므로 insufficient_evidence가 맞다"
     }
   ],
   "expectedComparisons": [
@@ -39,6 +38,6 @@
   ],
   "expectedMyAiScoreStatus": "withheld",
   "expectedWithheldReasons": ["insufficient_dimensions"],
-  "notes": "이 fixture는 CALIBRATION_PLAN.md 필수 사례 8의 '(c) 파일 수만 증가'를 직접 구현한 것이며, IMPROVEMENT_TASK_TEMPLATE.md가 명시한 반패턴('점수 올리기용 문서/테스트 추가')의 코드 버전이다. Phase 2에서 A/E 축을 추가했다(ASTRA_PHASE1_REVIEW.md 3절: '버그가 남음'이 모든 축의 무변화를 뜻하지는 않는다 -- 코드가 같다는 이유로 A/B를 자동 unchanged로 채우지 않는다'). D가 not_observed이므로 이 fixture 단독으로는 총점이 withheld일 것으로 기대한다.",
+  "notes": "이 fixture는 CALIBRATION_PLAN.md 필수 사례 8의 '(c) 파일 수만 증가'를 직접 구현한 것이며, IMPROVEMENT_TASK_TEMPLATE.md가 명시한 반패턴('점수 올리기용 문서/테스트 추가')의 코드 버전이다. Phase 2 오프라인 구현에서 A/E 축을 추가했고, Phase 2 Fix(ASTRA_PHASE2_REVIEW.md)에서 E를 observed level 1 확정에서 insufficient_evidence로 완화했다 -- '효과 없는 결과'와 '무비판적 수용'은 서로 다른 주장이며 후자를 전자로부터 역추론하지 않는다. D가 not_observed이므로 이 fixture 단독으로는 총점이 withheld일 것으로 기대한다.",
   "relatedFixtureIds": ["case-08-before-after/subvariant-a-late-log", "case-08-before-after/subvariant-b-real-improvement"]
 }

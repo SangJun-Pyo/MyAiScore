@@ -28,16 +28,21 @@ test("end-to-end offline run against case-02 produces a mock manifest, valid que
   assert.equal(outcome.manifest.mode, "mock");
   assert.equal(outcome.manifest.executedAt, null);
   assert.equal(outcome.manifest.tokensUsed, null);
+  assert.equal(outcome.pipelineFailed, false, "a normal withheld result is not a pipeline failure");
+  assert.deepEqual(
+    Object.fromEntries(Object.entries(outcome.stages).map(([k, v]) => [k, v.status])),
+    { ingestion: "succeeded", questions: "succeeded", judgement: "succeeded", scoring: "succeeded" },
+  );
   assert.equal(outcome.unresolvedEvidence.length, 0);
-  assert.equal(outcome.questions.ok, true);
+  assert.ok(outcome.questions);
+  assert.equal(outcome.questions!.ok, true);
   assert.equal(outcome.answers.length, 3);
-  assert.equal(outcome.judgement.ok, true);
-  assert.ok(outcome.score && "status" in outcome.score);
-  if (outcome.score && "status" in outcome.score) {
-    assert.equal(outcome.score.status, "withheld");
-    assert.deepEqual(outcome.score.reasons, ["insufficient_dimensions"]);
-    assert.equal(outcome.score.observedDimensions, 1);
-  }
+  assert.ok(outcome.judgement);
+  assert.equal(outcome.judgement!.ok, true);
+  assert.ok(outcome.score);
+  assert.equal(outcome.score!.status, "withheld");
+  assert.deepEqual(outcome.score!.reasons, ["insufficient_dimensions"]);
+  assert.equal(outcome.score!.observedDimensions, 1);
   assert.equal(outcome.confidence?.sourceVerification, "complete");
 });
 
@@ -56,18 +61,4 @@ test("case-08 subvariant-a: the unresolved 'late log' evidence flows through to 
   assert.equal(outcome.unresolvedEvidence.length, 1);
   assert.equal(outcome.unresolvedEvidence[0]!.evidenceId, "ev_fixture_case08a_old_log");
   assert.ok(outcome.manifest.warnings.some((w) => w.includes("ev_fixture_case08a_old_log")));
-});
-
-test("a wrong-question-count mock response surfaces an explicit ok:false failure, never a fabricated score", async () => {
-  const malformed = loadJson<{ questions: RawProviderOutput; judgement: RawProviderOutput }>(join(MOCK_RESPONSES_ROOT, "malformed-wrong-question-count.json"));
-
-  const outcome = await runOfflineEvaluationForFixture({
-    fixtureDir: join(CASES_ROOT, "case-02-simple-tool-strong-verification"),
-    mockQuestionsResponse: malformed.questions,
-    mockJudgementResponse: malformed.judgement,
-  });
-
-  assert.equal(outcome.questions.ok, false);
-  assert.equal(outcome.judgement.ok, false);
-  assert.equal(outcome.score, null);
 });
