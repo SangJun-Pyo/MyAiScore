@@ -1,5 +1,7 @@
 # Claude Phase 2 Fixes — Astra 재검토 후 잔여 수정
 
+> 완료된 과거 지시문입니다. MAS-002/004/005는 Phase 4 통합에서 보정했습니다. 현재 작업은 ROADMAP과 GitHub 이슈를 따르며 이 프롬프트를 재실행하지 않습니다.
+
 루트: C:/Users/sangj/MyAiScore. 현재 지시는 같은 Phase의 후속 보정이다. 기존 R1~R4 전체를 다시 구현하지 않는다. 이전 지시 원문은 Git commit 01309c5에서 확인할 수 있다.
 
 먼저 AGENTS.md, CLAUDE.md, docs/Development/ROADMAP.md, docs/Development/Sessions/Phase-02-Fixes.md의 최신 Astra 재검토 절, docs/Development/BUGS.md와 관련 계약을 읽는다. 신규 REPORT/REVIEW 파일을 Development 최상위에 생성하지 않는다.

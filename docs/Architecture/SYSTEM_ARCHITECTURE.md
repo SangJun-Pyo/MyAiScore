@@ -4,9 +4,11 @@
 
 ## 1. 최소 구성과 상태
 
-Next.js/React/TypeScript + 서버 API + Supabase/PostgreSQL을 구현 기본안으로 둔다. LLM은 서버의 얇은 래퍼로 호출한다. 배포 후보는 Vercel이며 계정·플랜·실행 제한·시간·비용은 아직 확인/실측 전이다. 별도 큐나 워커 서비스는 MVP 기본안에 포함하지 않는다.
+Next.js/React/TypeScript + 서버 API + Supabase/PostgreSQL adapter를 구현했다. LLM은 서버의 Anthropic Messages adapter로 호출하며 키·정확한 모델 ID·명시적 활성화가 필요하다. Docker/Railway 설정을 준비했으나 계정 배포·실제 비용은 미검증이다. 별도 큐나 워커는 없다.
 
-이 문서는 설계이며 현재 앱·DB·LLM 연결은 미구현이다. 다음 작업은 로컬 교정 fixture와 읽기 전용 GitHub 수집 PoC다.
+현재 구현과 미실행 구분은 [Phase 4](../Development/Sessions/Phase-04-Web-MVP.md)를 따른다. API 단계와 합성 end-to-end 검증은 구현됐지만 실제 모델 판정 타당성·Supabase 인스턴스 실행은 미검증이다.
+
+운영 저장은 RLS로 클라이언트 접근을 막은 단일 JSON state row와 revision CAS를 사용한다. 전체 state를 읽고 쓰는 소규모 MVP 방식이며 정규화 테이블/대규모 트래픽 설계는 아니다. 로컬 FileStore는 같은 프로세스의 쓰기만 직렬화하며 운영 모드에서 명시적 허용 없이 fallback하지 않는다. raw owner token은 최초 응답 후 저장하지 않는다.
 
 ## 2. 책임
 

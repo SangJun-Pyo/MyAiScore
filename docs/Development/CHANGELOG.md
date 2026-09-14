@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-14 — Astra·서브에이전트 웹 MVP 통합
+
+- GitHub 이슈 #1~4와 독립 codex worktree를 만들고 Astra가 구현·통합을 맡는 운영으로 변경.
+- MAS-002/004/005 보정, MAS-006 JSON 파싱 오류/metadata 잔여 노출 경로 추가 수정.
+- 실제 GitHub 수집·서버 모델 adapter·질문/판정/계산·개선 작업서·보수적 비교, 웹 UI 및 인증 API 통합.
+- File/Supabase CAS 저장, 공개 요약 분리·철회·삭제·재시도·예산 제한, CI/Docker/Railway 설정.
+- typecheck, 222개 테스트, production build, 데스크톱/모바일 브라우저 8건 통과. 실제 모델/DB/배포는 미수행.
+- 상세: [Phase 4](Sessions/Phase-04-Web-MVP.md). 과거 보고 날짜는 원문을 보존하며 현재 상태는 ROADMAP을 따른다.
+
 ## 2026-09-20 — MAS-006 수정 (로컬 수집 PoC CLI 원문 노출)
 
 - 독립 검토(`0e7259e`)가 발견한 P1 결함 MAS-006(`scripts/collectLocalSession.ts --json`이 마스킹 전 세션 원문을 그대로 출력)을 수정했다. `secrets-session.jsonl`로 먼저 재현(회귀 테스트 3/4 실패 확인) 후 수정.

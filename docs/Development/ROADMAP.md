@@ -1,42 +1,37 @@
 # Roadmap — 현재 상태와 다음 작업
 
-최종 확인: 2026-09-14. 현재 상태의 단일 안내 문서다. 구현 사실은 코드와 실행 기록, 제품 요구는 [마스터](../00_MASTER_PLAN.md)와 도메인 정본을 따른다.
+최종 확인: 2026-09-14. 현재 작업의 단일 안내다. 과거 프롬프트의 미완료 표시는 아래 최신 상태로 대체한다.
 
-## 현재 작업
+## 현재 상태
 
-두 작업이 **서로 독립적으로** 진행 중이다. 하나가 다른 하나를 막지 않는다.
+**웹 MVP 구현·통합 후 다크 UI/Three.js 재설계 진행. 실제 모델 교정과 계정 배포는 별도 준비 단계.**
 
-**1) Phase 2 Fixes — Astra 재검토 완료. MAS-001/003은 해결 확인, MAS-002/004의 잔여 경로와 MAS-005를 보정한다.**
-
-- 현재 잔여 수정 지시: [CLAUDE_PHASE2_FIX_PROMPT](../../CLAUDE_PHASE2_FIX_PROMPT.md)
-- 기록할 세션: [Phase-02-Fixes](Sessions/Phase-02-Fixes.md)
-- 수정할 결함: [BUGS](BUGS.md)의 MAS-002/004/005
-
-**2) Phase 3 — 로컬 협업 기록 수집 PoC (제한적 실험, 정식 MVP 편입 아님).**
-
-- `MVP_SCOPE.md`가 보류한 Local Evidence Mode를 이 PoC 1건에 한정해 재검토한다. 근거: [DECISIONS](DECISIONS.md) §7.
-- 기록할 세션: [Phase-03-Local-Collection-PoC](Sessions/Phase-03-Local-Collection-PoC.md)
-- 브랜치: `claude/local-collection-poc`(base: `codex/document-governance`). MAS-002/004/005와 코드 경로가 겹치지 않는다 — 이 PoC는 `assembleEvaluationInput`/provider/scoring을 호출하지 않고 Evidence 생성까지만 다룬다.
-- 이 실험 완료가 Phase 2 Fixes를 대체하거나 MAS-002/004/005를 닫지 않는다.
-
-서비스 LLM API/예산: 사용자 답변 **미정**. 실제 API 호출·DB·UI·배포는 두 작업 모두 이번 범위에 없다.
+- 실행: [README](../../README.md), 기록: [Phase 4](Sessions/Phase-04-Web-MVP.md).
+- 현재 시각 작업: [#5 Linear 다크 UI·Three.js](https://github.com/SangJun-Pyo/MyAiScore/issues/5).
+- GitHub 작업: [#1 평가 경계](https://github.com/SangJun-Pyo/MyAiScore/issues/1), [#2 서비스](https://github.com/SangJun-Pyo/MyAiScore/issues/2), [#3 웹](https://github.com/SangJun-Pyo/MyAiScore/issues/3), [#4 실제 실험·배포](https://github.com/SangJun-Pyo/MyAiScore/issues/4).
+- Astra가 구현·통합을 맡고 서브에이전트가 독립 작업·핵심 검토를 수행한다. Claude 별도 세션 간 수동 전달은 기본 절차가 아니다.
+- 원래 `claude/local-collection-poc@3fa263b`에서 독립 `codex/` worktree/브랜치로 이어갔다. 통합 브랜치 `codex/web-mvp`.
+- 모델 API 키·정확한 모델·활성화 없이 합성 예시만 사용할 수 있다. 실제 평가 adapter가 있어도 검증된 평가 서비스로 간주하지 않는다.
 
 ## 단계별 상태
 
-| 단계 | 상태 | 근거 / 다음 조건 |
+| 영역 | 구현/검증 상태 | 남은 조건 |
 |---|---|---|
-| Phase 0 기획 계약 | 채택, 타당성 교정 미완료 | [기록](Sessions/Phase-00-Planning.md) |
-| Phase 1 Task 0·1 | 구현/기초 검증 기록 확보 | [기록](Sessions/Phase-01-Fixtures-And-Ingestion.md) |
-| Phase 2 Task 2a·3 | 구현 보고 후 수용 보류 | [검토](Sessions/Phase-02-Offline-Evaluation.md#astra-review) |
-| Phase 2 Fixes | 재검토 후 잔여 3항목 보정 | [현재 세션](Sessions/Phase-02-Fixes.md) |
-| Phase 3 로컬 수집 PoC | MAS-006 구현자 수정 완료, 독립 재검토 대기 — 통과 후 실제 세션 실험. 정식 MVP 편입 아님, Task 순서에 삽입되지 않음 | [현재 세션](Sessions/Phase-03-Local-Collection-PoC.md) |
-| Task 2b 실제 모델 실험 | 미착수 | 코드 검토 통과 + 모델/접속/예산 확정 |
-| Task 4 개선 작업서·비교 | 미착수 | Task 2·3 검토 |
-| Task 5 API·저장 | 미착수 | 데이터 계약·환경 확정 |
-| Task 6 UI·사용자 확인·제출 | 미착수 | API 검증 및 실제 서비스 확인 |
+| 평가 계약·공식 | 코드/fixture 교정 초안 | 실제 모델·사람 검토로 타당성 확인 |
+| GitHub 수집 | 실제 API 수집과 웹 서비스 연결 | 다양한 저장소 시간/비용 실측 |
+| MAS-002/004/005 | 회귀 테스트와 경계 수정 완료 | 기존 회귀 유지 |
+| 로컬 수집/MAS-006 | synthetic 범위 출력·진단 메시지 경계 수정 | 지정한 실제 세션 호환성 검증 |
+| 모델 provider | Anthropic opt-in adapter + transport mock 검증 | 서비스 키·모델·예산 결정 후 실제 호출 |
+| 질문/판정/점수/작업서 | 서비스·CLI·웹 통합, mock 흐름 테스트 | 실제 판단 정확성·인젝션 실험 |
+| API/소유권/저장 | file + Supabase CAS adapter, 소유/공개/재시도/삭제 검사 | 실제 Supabase migration·RLS 실증 |
+| 웹/공유/비교 | 반응형 화면 및 브라우저 테스트 | 실제 사용자 피드백 |
+| CI/배포 준비 | GitHub Actions, Docker/Railway 설정 | CI 원격 결과·실제 계정 배포는 세션 후속에서 확인 |
 
-## 일정과 범위
+## 다음 작업
 
-기존 계획에 기록된 대회 접수/제출 마감은 각각 09-18/09-20 23:59:59다. 실제 접수·제출 완료는 확인되지 않았다. 이번 문서 정리에서는 대회 일정을 재조회하지 않았다. 시간 계획을 완료 사실로 표시하지 않는다.
+1. 실제 서비스용 LLM 제공사/모델/예산 결정. 현재 Anthropic adapter는 구현 선택이며 모델 구매·선택 승인이 아니다.
+2. 최소 실제 평가 1건과 대표 fixture의 판정·근거·인젝션 검증. 비용과 토큰을 실제 기록한다.
+3. Supabase 운영 저장과 배포 환경 설정. 실제 migration/권한·만료 정리/운영 로그 검증 후 배포한다.
+4. 로컬 세션은 사용자 지정 파일만 실제 호환성 실험한다. 자동 수집·업로드/CLI 배포는 아직 보류다.
 
-구현 순서·완료 조건은 [IMPLEMENTATION_TASKS](IMPLEMENTATION_TASKS.md)에 있다. 일정 압박으로 핵심 결함을 성공으로 바꾸지 않는다. 범위 축소가 필요하면 [MVP_SCOPE](../Product/MVP_SCOPE.md)를 기준으로 판단한다. 호스팅 Railway+Supabase는 이전 추천이며 계정/배포 확정 기록은 없다.
+확인하지 않은 점수를 mock으로 대신 발급하거나 fixture의 humanReviewed를 변경하지 않는다. 오래된 대회 일정은 이 작업에서 재검증하지 않았으며 제출 완료를 주장하지 않는다.

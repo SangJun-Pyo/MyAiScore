@@ -303,3 +303,13 @@ npm test             # 170 pass, 0 fail (기존 166 + 신규 4)
 ### 변경·커밋 기록 (이번 절)
 
 - `187cf52` — `fix: MAS-006 -- collect-local-session CLI leaks unmasked session text via --json` (브랜치 `claude/local-collection-poc`, 독립 검토 commit `0e7259e` 바로 위). 이 절에 기록한 재현·수정·artifact 재생성·회귀 테스트 전부 포함.
+
+## 2026-09-14 — Astra 서브에이전트 재검토 및 MAS-006 후속
+
+이 절은 현재 코드 검토를 기록하며 앞선 보고의 09-20 날짜를 실제 이번 실행 날짜로 사용하지 않는다. 과거 보고 내용은 보존했다.
+
+events/analysisContext를 공개 출력에서 제외한 기존 수정은 확인했지만, JSON.parse error.message가 손상된 줄의 원문을 인용하는 별도 경로를 synthetic 입력으로 재현했다. 고정 오류 문구로 바꾸고 unknown record type을 고정 그룹으로 분류했다. 원본 commit `2ed2dff`, 통합 `c1209c9`.
+
+공개 뷰의 경로/요약/진단 문자열에 기존 비밀값 마스킹을 적용하고 timestamp를 ISO 날짜로 제한했다. 원본 `bae9adc`, 통합 `38b297a`. human/JSON CLI에서 malformed line과 tool/path/timestamp metadata의 synthetic 비밀값 회귀가 통과했다.
+
+MAS-006은 재현한 출력 경계 범위에서 종료한다. 마스킹의 모든 PII 탐지, 실제 사용자 파일 호환성, 모델 인젝션 방어를 인증하지 않는다. 실제 개인 세션을 새로 탐색하거나 수집하지 않았다. 후속 웹 연결은 자동 CLI 업로드가 아니라 사용자가 검토한 발췌를 붙여넣는 형태다. 전체 통합은 [Phase 4](Phase-04-Web-MVP.md).

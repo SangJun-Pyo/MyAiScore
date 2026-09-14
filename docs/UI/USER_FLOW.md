@@ -1,4 +1,12 @@
-# User Flow v0.3.1
+# User Flow v0.4
+
+## 시각 방향 (2026-09-14)
+
+사용자 요청에 따라 Linear 계열의 다크 화면, 보라·시안 glow, 얇은 카드 경계와 hover/focus 피드백을 적용한다. 참고는 [Linear](https://linear.app/), [Tokscale](https://tokscale.ai/), [Aceternity Glowing Effect](https://ui.aceternity.com/components/glowing-effect)다. 다른 서비스의 로고·실적·순위·에셋을 복제하지 않는다.
+
+랜딩의 Three.js 장면은 다섯 평가 축과 근거의 연결을 나타내는 장식이다. 실제 분석 진행이나 사용자 점수를 시각화한 것으로 표시하지 않는다. WebGL 미지원과 모션 감소 설정에서는 정적 그래픽을 제공하며 모바일에서 가독성과 폼 접근을 우선한다. 입력·질문·결과·공유 화면에도 같은 다크 팔레트를 사용한다.
+
+현재 React 19.3과 R3F 9.7의 peer 범위가 맞지 않아 Three.js를 직접 지연 로딩한다. UI 참조에 언급된 라이브러리를 모두 설치하지 않는다. 시각 변경은 아래 평가·공개·동의 흐름을 바꾸지 않는다.
 
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 상태·API: [API_DATA_CONTRACTS](../Architecture/API_DATA_CONTRACTS.md). 결과 필드: [EVIDENCE_SCHEMA](../Assessment/EVIDENCE_SCHEMA.md).
 

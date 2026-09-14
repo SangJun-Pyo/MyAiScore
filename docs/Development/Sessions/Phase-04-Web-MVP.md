@@ -1,0 +1,53 @@
+# Phase 4 — Astra·서브에이전트 웹 MVP 통합
+
+## 2026-09-14 — 목표와 운영 전환
+
+사용자가 Claude 세션에 프롬프트를 전달하는 대신 Astra가 구현·통합을 맡고 서브에이전트와 GitHub 이슈/브랜치로 진행하도록 지시했다. 기준은 `claude/local-collection-poc@3fa263b`. 원래 작업 폴더는 보존하고 독립 worktree를 만들었다.
+
+| 작업 | GitHub 이슈 | 담당 브랜치 |
+|---|---|---|
+| 평가 실패·참조·입력 hash | [#1](https://github.com/SangJun-Pyo/MyAiScore/issues/1) | codex/evaluation-boundaries |
+| 수집·질문·판정·작업서·모델 adapter | [#2](https://github.com/SangJun-Pyo/MyAiScore/issues/2) | codex/assessment-service |
+| 한국어 웹·결과·비교 | [#3](https://github.com/SangJun-Pyo/MyAiScore/issues/3) | codex/web-experience |
+| 통합·저장·CI·배포 준비·남은 실험 | [#4](https://github.com/SangJun-Pyo/MyAiScore/issues/4) | codex/web-mvp |
+
+Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했다. 각 서브에이전트는 담당 경로만 commit했고, root가 해당 commit을 통합했다. 핵심 경계는 별도 에이전트가 읽고 실패 사례를 재현했다. AI 검토이며 사람 fixture 검토가 아니다.
+
+## 실제 구현
+
+- Next.js 16.3.5 / React 19.3.0. 한국어 반응형 랜딩, 합성 예시, 동의와 입력, 질문 3개, 발급/보류, 근거 상세, 개선 작업서 복사, 공개 요약·철회·삭제, 재평가·비교.
+- 실제 GitHub 수집을 서비스에 연결했다. 사용자 사례·발췌·답변은 해당 평가의 Evidence로 변환하며 `user_submission`과 한계를 유지한다. 로컬 수집 JSON 자동 업로드는 구현하지 않았다.
+- Anthropic Messages adapter: 고정 endpoint, 서버 키/명시적 모델/활성화 필요, timeout·입출력 크기 제한, 정상 종료 JSON만 검증, 실제 wire hash·모델 ID·토큰 기록. 키 없을 때 mock으로 대체하지 않는다.
+- 모델의 다섯 축 판단을 기존 validator와 scorer로 검증한다. 개선 작업서는 우선순위가 높은 미관찰/낮은 축을 선택하는 결정적 템플릿이다. 추가 모델 호출 없이 행동과 완료 체크를 제공한다.
+- API는 동기 단계 실행, owner token 해시, private/public DTO 분리, Idempotency-Key, attempt/revision/deadline, 삭제 뒤 늦은 작업 무효화, 전역/소유자별 호출 상한을 구현했다.
+- 로컬 FileStore와 Supabase REST CAS store, RLS SQL migration, standalone 시작 도구, Docker/Railway 설정, GitHub Actions CI를 추가했다. Supabase는 단일 JSON 문서 기반 소규모 구현이며 영속 인스턴스 실측은 하지 않았다.
+- 비교는 동일 저장소·버전·모델·근거 출처·수집 범위 및 양쪽 점수 발급을 확인한다. 조건이 다르면 숫자 차이는 null이다. 행동 개선은 항상 `not_established`로 남긴다.
+
+## 결함 수정과 독립 검토
+
+- MAS-002/004/005: provider 동기/비동기 예외, 고아 답변/grounding, 실제 payload hash를 수정했다. core 원본 `0f77f9f`, 통합 `9076f5c`.
+- MAS-006: 기존 events 제거만으로는 부족했다. JSON.parse 오류 메시지가 원문을 인용하는 경로를 synthetic 입력으로 독립 재현하고 고정 진단 문구로 변경했다. unknown record type 집계와 tool/path/timestamp metadata도 제한·마스킹했다. 통합 `c1209c9`, `38b297a`. 모든 개인정보 마스킹의 완전성을 인증한 것은 아니다.
+- root API 초안에서 분석 중 DELETE가 막히는 문제, 인증 후 create의 idempotency 누락을 보정하고 회귀 테스트를 추가했다.
+- 서비스의 provider 오류 코드가 재시도 가능성을 잃는 문제를 수정했다. 질문과 판정 사이 모델 변경도 거부한다.
+- 소유 인증, 공개 요약, 실행 attempt fencing, Supabase CAS의 코드 경계를 별도 에이전트가 확인했다. 실제 서비스키·배포 계정은 사용하지 않았다.
+
+## 실제 실행한 검증
+
+- `npm run typecheck`: 통과.
+- `npm test`: 통합 222 pass / 0 fail. 실제 모델 전역 예산 초과 시 호출 전에 차단되는 회귀까지 포함한다.
+- `npm run build`: Next production build 통과.
+- Playwright Chromium 데스크톱·모바일: 합성 예시, 접근 토큰 없음, 공유 결과 없음, synthetic API fixture를 사용한 입력→질문→결과 흐름 총 8건 통과. 브라우저의 전체 흐름은 합성 응답임을 명시하고, 서버 파이프라인은 별도 테스트로 검증했다. 초기 환경 실패는 해당 Playwright 버전의 브라우저 설치 후 해결했고, Next route announcer와 겹친 테스트 selector를 main 영역으로 한정했다.
+- 실제 공개 `SangJun-Pyo/MyAiScore@c7b3a2e2c0bb1f78fb7602d251d42a60ba32d65d` 읽기 전용 수집: complete, 읽은 파일 40, Evidence 40, 모델 호출 0. 저장소 코드는 실행하지 않았다.
+- 서비스/Anthropic transport 검증은 주입한 synthetic 응답으로 수행했다. 실제 외부 모델의 판정이나 비용 실측이 아니다.
+
+## 미실행과 다음 조건
+
+1. 실제 API 제공사/모델/예산은 사용자 결정 전이다. Anthropic 연결 코드를 먼저 마련했지만 특정 모델 선택이나 유료 호출은 하지 않았다.
+2. 실제 모델 정확도·재현성·프롬프트 인젝션 방어·fixture 사람 검토는 미수행. 점수 가중치/레벨 타당성은 교정 중이다.
+3. 실제 Supabase migration/RLS/다중 인스턴스 실행, Docker 이미지 실행, Railway 배포는 미수행. 배포 설정 준비를 배포 완료라고 표시하지 않는다.
+4. 실제 개인 세션을 추가 탐색·수집하지 않았다. 명시적으로 선택한 세션의 실제 호환성 실험은 별도다.
+5. 결과 7일 접근 만료와 물리 삭제는 다르다. 신규 생성 시 만료분을 정리하며, 비활성 기간에도 정리하려면 prune CLI를 운영 스케줄러에 연결한다. 현재 상시 스케줄러는 없다.
+
+## 인계
+
+현재 소스와 실행 방법은 [README](../../../README.md), wire 형태는 [API 계약](../../Architecture/API_DATA_CONTRACTS.md), 상태는 [ROADMAP](../ROADMAP.md), 남은 출시 조건은 GitHub #4에서 관리한다. 과거 Claude 프롬프트를 재실행하지 않는다. 이번 세션의 최종 commit은 `git log --follow -- docs/Development/Sessions/Phase-04-Web-MVP.md`로 확인한다.
