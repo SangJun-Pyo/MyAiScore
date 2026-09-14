@@ -3,7 +3,7 @@ import type { HttpClient } from "./httpClient.js";
 import { GithubApiClient } from "./githubApi.js";
 import { IngestionBudget } from "./budget.js";
 import { normalizeAndValidateRepoUrl, validateCommitRef } from "./urlValidation.js";
-import { selectFiles, isProbablyBinaryContent } from "./fileSelection.js";
+import { selectFiles, isProbablyBinaryContent, SELECTION_POLICY_VERSION } from "./fileSelection.js";
 import { redactSecrets } from "./redact.js";
 import type {
   IngestionSnapshot,
@@ -15,7 +15,7 @@ import type {
 } from "../../shared/contracts/ingestion.js";
 import { INGESTION_LIMITS } from "../../shared/contracts/ingestion.js";
 
-export const COLLECTOR_VERSION = "ingestion-poc-0.1.0";
+export const COLLECTOR_VERSION = "ingestion-0.2.0";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -197,6 +197,9 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
   const skipped: SkippedFile[] = [...selection.skipped];
   const warnings: string[] = [];
   let ingestionStatus: "complete" | "partial" = "complete";
+  if (selection.selected.length < selection.candidates.length) {
+    warnings.push(`선별 표본 ${selection.selected.length}/${selection.candidates.length}개 파일입니다 (${SELECTION_POLICY_VERSION}). 저장소 전체 내용이나 개인의 AI 활용 역량을 확인한 것이 아닙니다.`);
+  }
 
   if (treeResult.value.truncated || selection.selectionLimited) {
     ingestionStatus = "partial";
@@ -269,7 +272,7 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
   const evidenceCandidates = buildEvidenceCandidates(files, repoSlug, commitSha);
 
   const selectionDigest = createHash("sha256")
-    .update(selection.selected.map((f) => f.entry.path).sort().join("\n"))
+    .update(JSON.stringify({ collectorVersion: COLLECTOR_VERSION, selectionPolicyVersion: SELECTION_POLICY_VERSION, selectedPaths: selection.selected.map((f) => f.entry.path).sort() }))
     .digest("hex");
 
   if (files.length === 0 && ingestionStatus === "complete") {

@@ -1,10 +1,26 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ingestRepository } from "../../src/server/ingestion/ingest.js";
+import { ingestRepository, COLLECTOR_VERSION } from "../../src/server/ingestion/ingest.js";
+import { SELECTION_POLICY_VERSION } from "../../src/server/ingestion/fileSelection.js";
+import { createHash } from "node:crypto";
 import { OfflineHttpClient } from "../../src/server/ingestion/offlineHttpClient.js";
 import { buildStandardFixtures, repoUrl, treeUrl } from "./githubFixtures.js";
 
 const COMMIT_SHA = "a".repeat(40);
+
+test("MAS-007: sampled collection remains complete with explicit coverage warning and versioned digest", async () => {
+  const entries = Array.from({ length: 51 }, (_, i) => ({ path: `src/file-${i}.ts`, sha: `sample-${i}` }));
+  const fixtures = buildStandardFixtures({ owner: 'acme', repo: 'sampled', commitSha: COMMIT_SHA, entries,
+    blobs: entries.map(e => ({ sha: e.sha, content: 'export const synthetic = true;' })) });
+  const snapshot = await ingestRepository({ repoUrl: 'https://github.com/acme/sampled' }, { httpClient: new OfflineHttpClient(fixtures) });
+  assert.equal(snapshot.ingestionStatus, 'complete'); assert.equal(snapshot.coverage.selectionLimited, false);
+  assert.equal(snapshot.coverage.selectedFiles, 40); assert.equal(snapshot.coverage.readFiles, 40); assert.equal(snapshot.coverage.candidateFiles, 51);
+  assert.ok(snapshot.warnings.some(w => w.includes('40/51') && w.includes(SELECTION_POLICY_VERSION)));
+  const paths = snapshot.files.map(f => f.path).sort();
+  const expected = createHash('sha256').update(JSON.stringify({ collectorVersion: COLLECTOR_VERSION, selectionPolicyVersion: SELECTION_POLICY_VERSION, selectedPaths: paths })).digest('hex');
+  assert.equal(snapshot.selectionDigest, expected);
+  assert.notEqual(snapshot.selectionDigest, createHash('sha256').update(paths.join('\n')).digest('hex'), 'old path-only digest must not silently identify the new policy');
+});
 
 test("happy path: complete ingestion with next.js/typescript detection and evidence candidates", async () => {
   const fixtures = buildStandardFixtures({
