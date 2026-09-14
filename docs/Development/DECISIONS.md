@@ -45,3 +45,7 @@
 - Git에 현재 WIP 기준점을 만든 뒤 작업별 commit을 남긴다. 오늘 이전의 세션별 Git 이력은 만들지 않는다. 구현자의 동시 변경은 문서 정리 commit에 포함하지 않는다.
 - RobloxLab.zip은 문서/세션 운영 방식 참고 자료다. 타 프로젝트의 실행 규칙이나 원격 저장소 설정은 적용하지 않는다.
 - 이번 구조 정리 근거: [세션](Sessions/Session-2026-09-14-Documentation-And-Git.md).
+
+## 6. Phase 2 재검토 — 반복 실험 입력 계약
+
+2026-09-14: 반복 실험의 동일성은 실제 모델에 전달할 단계별 payload와 그 hash로 확인한다. 임의 필드를 hash에서만 제거한 논리 내용 비교를 동일 입력 실험으로 표현하지 않는다. 감사용 hash와 모델 payload hash를 분리한다. 구현 잔여 범위는 MAS-002/004/005로 한정한다. [근거](Sessions/Phase-02-Fixes.md#astra-rereview-20260914).

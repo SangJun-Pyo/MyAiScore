@@ -1,5 +1,7 @@
 # Development Session — Phase 2 Fixes: 평가 경계 수정
 
+> 최신 판정: [Astra 재검토](#astra-rereview-20260914)에서 MAS-001/003은 해당 오프라인 범위 해결을 확인했다. MAS-002/004 잔여 결함과 MAS-005 실험 입력 식별 문제를 수정한 뒤 재검토한다. 아래 '재검토 대기' 문장은 당시 인계 기록이다.
+
 - 시작 기록: 2026-09-14. 구현자: Claude Code. 검토자: Astra AI.
 - 현재 상태: **구현 완료 보고 수신 / 142개 테스트 재실행 통과 / Astra 코드 재검토 대기**.
 - 시작 기준점: `957e3c5254f55b19071f231cfc0f4e64287059cc`은 정리 당시 진행 중인 구현도 포함한 WIP 보존점이다.
@@ -255,3 +257,29 @@ Astra Phase 2 검토가 "제거하라"고 명시한 세 가지 금지된 추론�
 ## 7. 요약
 
 R1~R4를 모두 실제 코드에서 수정했다(문서 제안에 그치지 않음): 단계별 실패 전파(R1), 실제 요청 객체 배선과 timeout(R2), 발췌/코드 원문의 임시 분석 채널 신설과 fixture 루트 경계(R3), bundle 조립 시점의 소속·중복·참조 검증과 null-safety(R4). 이 과정에서 case-08 subvariant-b의 evidence_map.json 위치 오류라는 별도의 실제 버그도 발견해 함께 고쳤다. 새 회귀 테스트 34개를 추가(기존 108 → 142, 3개는 재구성으로 순감)하고 전부 통과를 확인했다. CLI를 정상/정상 withheld/실패 세 경로 모두 실제 실행해 exit code(0/0/1)를 확인했다. fixture 레벨 값 4곳을 Astra 지적에 따라 완화했지만 이는 여전히 사람 검토 전이다. 실제 LLM 평가 정확도, 인젝션 방어, 반복 예산 상한 확정은 이번 범위에 없으며 완료를 주장하지 않는다.
+
+<a id="astra-rereview-20260914"></a>
+
+## 2026-09-14 — Astra 재검토: 해결 확인과 잔여 수정
+
+검토자: Astra AI. 검토 시작 commit: `01309c5`. 현재 코드/기존 회귀 테스트를 읽고 `npm run typecheck`, `npm test`를 재실행해 142 pass / 0 fail을 확인했다. 실제 LLM 호출이나 사람 검토는 하지 않았다.
+
+### 해결을 확인한 범위
+
+- MAS-001: 질문 실패 뒤 판정/계산을 건너뛰며 score=null, 미실행 단계와 정상 withheld를 구분한다. 회귀 테스트와 구현 분기를 확인했다.
+- MAS-003: 로컬 발췌의 마스킹/절단 내용이 analysisContext를 통해 기록형 provider 요청에 도달하고, 일반 결과 객체에는 해당 원문 맵을 넣지 않는 것을 확인했다. 전체 비밀 탐지/서비스 공개 API/실제 모델의 원문 재인용 방어를 인증한 것은 아니다.
+- MAS-002의 입력 배선·20개 루브릭 전달·끝나지 않는 호출 제한은 구현됐다. MAS-004의 다른 assessment 근거 및 null provider 항목 차단도 구현됐다. 다만 아래 경로는 남았다.
+
+### 재현한 잔여 결함
+
+1. **MAS-002 — 실제 provider 예외가 단계 결과를 우회한다.** generateQuestions가 async throw하면 `withTimeout`의 rejection이 호출자까지 전파돼 OfflineEvaluationOutcome을 반환하지 않는다. 에러 모양의 canned providerError를 반환하는 테스트는 이 경로를 다루지 못한다. 질문/판정 각 호출에서 sync throw와 rejected Promise를 명시적인 해당 단계 실패로 바꿔야 한다. timeout 래퍼는 sync throw에서도 타이머를 정리해야 한다. 예외 상세의 토큰/원문을 일반 결과에 그대로 노출하지 않는다.
+2. **MAS-004 — 질문 배열 생략 시 고아 답변 허용.** `validateBundleInvariants`의 `if (questions && ...)` 때문에 questions가 undefined일 때 임의 questionId를 가진 답변을 허용한다. 질문 기본값을 빈 집합으로 다루고 유효한 질문이 없는 모든 답변을 거부한다. 직접 조립한 빈 답변/잘못된 질문 grounding 참조도 입력 경계에서 검사한다.
+3. **MAS-005 — modelInputHash가 실제 모델 입력의 동일성을 보증하지 못함.** 동일 fixture 두 번을 실제 실행하면 hash가 바뀐다(중첩 snapshot 메타데이터 등 잔존). 시각을 고정하면 hash가 같아지지만 provider가 받은 실제 판정 요청은 random question ID 때문에 다르다. 모델이 해당 필드를 의미 없게 취급할 것이라고 가정해 다른 입력을 같은 반복 실험으로 분류해서는 안 된다.
+
+재현: [astra-rereview.mjs](../../../artifacts/phase2-fix/astra-rereview.mjs), 실행 출력: [astra-rereview.json](../../../artifacts/phase2-fix/astra-rereview.json). 루트에서 `node --import tsx artifacts/phase2-fix/astra-rereview.mjs`. 과거 재현처럼 문법 오류/스크립트 중단을 해결 증거로 삼지 말고 수정된 경계의 회귀 테스트를 추가한다.
+
+### 이번 결정과 다음 범위
+
+기존 구현을 전부 다시 작성하지 않는다. provider 예외, 고아 답변, 실제 단계 payload와 hash의 일치 세 항목만 보정한다. 일반 내용 비교 hash를 유지할 수 있지만 이름과 목적을 구분하고 반복 실험 동일성에는 실제 전송할 payload hash를 사용한다. 필요한 ID 정규화는 hash에만 적용하지 말고 실제 payload와 참조 매핑에도 똑같이 적용한다. event_time 같은 행동 시점 근거를 임의 삭제하지 않는다.
+
+질문/판정 단계별 고정 실험 입력을 만들고 기록형 provider가 받은 내용과 hash가 일치하는지 검사한다. 모델 설정/프롬프트 버전은 함께 고정한다. 실제 API·예산은 계속 미정이며 이번 수정에 호출 비용이 필요하지 않다. 58회 계획도 실입력 동일성 검증 전에는 확정 실행량으로 취급하지 않는다.

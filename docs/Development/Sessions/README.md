@@ -7,7 +7,7 @@
 | [Phase 0 — 기획](Phase-00-Planning.md) | 09-10 | 문서 계약 채택, 모델 타당성 미검증 |
 | [Phase 1 — fixture·수집](Phase-01-Fixtures-And-Ingestion.md) | 09-10~14 | 구현/후속 검토 기록 확보 |
 | [Phase 2 — 오프라인 평가](Phase-02-Offline-Evaluation.md) | 09-14 | 구현 보고 후 결함 발견, 수용 보류 |
-| [Phase 2 Fixes](Phase-02-Fixes.md) | 09-14~ | 수정 보고·142 pass 확인, 코드 검토 대기 |
+| [Phase 2 Fixes](Phase-02-Fixes.md) | 09-14~ | 재검토 후 MAS-002/004/005 보정 |
 | [문서·Git 정리](Session-2026-09-14-Documentation-And-Git.md) | 09-14 | 이력 복원 및 로컬 형상 관리 도입 |
 
 ## 기록 원칙

@@ -4,11 +4,11 @@
 
 ## 현재 작업
 
-**Phase 2 Fixes — 구현 완료 보고 수신. typecheck·142개 테스트 재실행 통과. Astra의 상세 코드 재검토 대기.**
+**Phase 2 Fixes — Astra 재검토 완료. MAS-001/003은 해결 확인, MAS-002/004의 잔여 경로와 MAS-005를 보정한다.**
 
-- 기존 구현 지시(완료 보고 수신, 재실행하지 않음): [CLAUDE_PHASE2_FIX_PROMPT](../../CLAUDE_PHASE2_FIX_PROMPT.md)
+- 현재 잔여 수정 지시: [CLAUDE_PHASE2_FIX_PROMPT](../../CLAUDE_PHASE2_FIX_PROMPT.md)
 - 기록할 세션: [Phase-02-Fixes](Sessions/Phase-02-Fixes.md)
-- 수정할 결함: [BUGS](BUGS.md)의 MAS-001~004
+- 수정할 결함: [BUGS](BUGS.md)의 MAS-002/004/005
 - 서비스 LLM API/예산: 사용자 답변 **미정**. 실제 API 호출·DB·UI·배포는 이번 범위에 없다.
 
 ## 단계별 상태
@@ -18,7 +18,7 @@
 | Phase 0 기획 계약 | 채택, 타당성 교정 미완료 | [기록](Sessions/Phase-00-Planning.md) |
 | Phase 1 Task 0·1 | 구현/기초 검증 기록 확보 | [기록](Sessions/Phase-01-Fixtures-And-Ingestion.md) |
 | Phase 2 Task 2a·3 | 구현 보고 후 수용 보류 | [검토](Sessions/Phase-02-Offline-Evaluation.md#astra-review) |
-| Phase 2 Fixes | 구현 보고·142 pass 확인, 코드 검토 대기 | [현재 세션](Sessions/Phase-02-Fixes.md) |
+| Phase 2 Fixes | 재검토 후 잔여 3항목 보정 | [현재 세션](Sessions/Phase-02-Fixes.md) |
 | Task 2b 실제 모델 실험 | 미착수 | 코드 검토 통과 + 모델/접속/예산 확정 |
 | Task 4 개선 작업서·비교 | 미착수 | Task 2·3 검토 |
 | Task 5 API·저장 | 미착수 | 데이터 계약·환경 확정 |

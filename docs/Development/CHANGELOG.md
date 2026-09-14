@@ -2,6 +2,8 @@
 
 ## 2026-09-14 — Phase 2 Fixes 구현 보고와 실행 확인
 
+- 후속 Astra 재검토: typecheck·142 pass 확인. MAS-001/003은 오프라인 범위 해결 확인, MAS-002/004 잔여 경로와 MAS-005 입력 hash 문제를 재현해 수정 지시를 갱신했다. [검토 기록](Sessions/Phase-02-Fixes.md#astra-rereview-20260914).
+
 - Claude의 R1~R4 수정 보고를 해당 Phase 세션에 편입했다. Astra가 typecheck와 142개 테스트 통과를 재확인했다.
 - 상세 코드 검토는 대기 상태이며 BUGS를 review_required로 갱신했다. 수정 코드는 문서 정리와 별도 checkpoint로 보존한다.
 - 상세: [Phase 2 Fixes](Sessions/Phase-02-Fixes.md#fix-report).
