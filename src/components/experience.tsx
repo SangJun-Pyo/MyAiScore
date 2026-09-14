@@ -26,7 +26,7 @@ type Assessment = {
   assessment_id?: string; repo_url?: string; commit_sha?: string | null; status?: string; ingestion_status?: string;
   questions?: Question[]; evidence?: Evidence[]; result?: Result | null; visibility?: string; share_id?: string | null;
   failure?: { code: string; message: string; retryable: boolean; stage?: string } | null;
-  is_example?: boolean; example_kind?: string; example_source?: string;
+  is_example?: boolean; example_kind?: string; example_source?: string; needs_retry?: boolean; previous_assessment_id?: string | null;
 };
 type Configuration = { live_enabled: boolean; provider_configured: boolean; limitations?: string[] };
 
@@ -49,6 +49,11 @@ async function request<T>(path: string, options: { method?: string; body?: unkno
   }
   if (path === "/api/assessments" && method === "POST" && tokenFor()) headers.Authorization = `Bearer ${tokenFor()}`;
   const response = await fetch(path, { method, headers, body: options.body === undefined ? undefined : JSON.stringify(options.body), cache: "no-store" });
+  if (response.status === 204) return undefined as T;
+  if (response.status === 401 && path === "/api/assessments" && method === "POST" && headers.Authorization) {
+    sessionStorage.removeItem("myaiscore_owner_token");
+    return request<T>(path, options);
+  }
   let data: unknown;
   try { data = await response.json(); } catch { throw new Error("응답을 확인하지 못했어요. 잠시 후 다시 시도해 주세요."); }
   if (!response.ok) {
@@ -61,7 +66,7 @@ function asMessage(error: unknown) { return error instanceof Error ? error.messa
 function Arrow({ diagonal = false }: { diagonal?: boolean }) { return <span aria-hidden="true">{diagonal ? "↗" : "→"}</span>; }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return <><a className="skip-link" href="#main">본문으로 이동</a><header className="site-header"><div className="header-inner"><Link href="/" className="brand" aria-label="MyAiScore 홈"><span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>MyAiScore<span className="beta">BETA</span></Link><nav aria-label="주 메뉴"><a href="/#how">평가 방식</a><Link href="/?view=example#example">결과 예시 <Arrow diagonal /></Link></nav></div></header>{children}<footer className="site-footer"><Link href="/" className="brand">MyAiScore<span className="footer-dot">·</span></Link><p>더 많이 쓰는 것에서, 더 잘 함께 만드는 것으로.</p><span>프로젝트 단위의 실험적 진단</span></footer></>;
+  return <><a className="skip-link" href="#main">본문으로 이동</a><header className="site-header"><div className="header-inner"><Link href="/" className="brand" aria-label="MyAiScore 홈"><span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>MyAiScore<span className="beta">BETA</span></Link><nav aria-label="주 메뉴"><a href="/#how">평가 방식</a><a href="/?view=example#example">결과 예시 <Arrow diagonal /></a></nav></div></header>{children}<footer className="site-footer"><Link href="/" className="brand">MyAiScore<span className="footer-dot">·</span></Link><p>더 많이 쓰는 것에서, 더 잘 함께 만드는 것으로.</p><span>프로젝트 단위의 실험적 진단</span></footer></>;
 }
 function Alert({ children, error = false }: { children: React.ReactNode; error?: boolean }) { return <div className={`notice ${error ? "notice-error" : ""}`} role={error ? "alert" : "status"}>{children}</div>; }
 function SectionLabel({ children }: { children: React.ReactNode }) { return <p className="eyebrow"><span />{children}</p>; }
@@ -107,6 +112,7 @@ function AssessmentForm({ config, configError }: { config: Configuration | null;
       if (parsed.protocol !== "https:" || parsed.hostname !== "github.com" || !/^\/[^/]+\/[^/]+\/?$/.test(parsed.pathname)) throw new Error("https://github.com/소유자/저장소 형식의 공개 저장소 주소를 입력해 주세요.");
       const fields = ["problem", "constraints", "done_criteria", "ai_suggestion_summary", "user_action_detail", "verification_summary"];
       const collaborationCase = includeCase ? Object.fromEntries([...fields.map(key => [key, String(form.get(key) || "").trim()]), ["user_action", String(form.get("user_action") || "modified")]]) : undefined;
+      if (collaborationCase && fields.reduce((count, key) => count + String(collaborationCase[key] || "").length, 0) > 4000) throw new Error("협업 사례 여섯 항목은 합쳐서 4,000자 이내로 적어주세요.");
       const result = await request<{ assessment_id: string; owner_access_token?: string }>("/api/assessments", { method: "POST", body: { repo_url: repoUrl, collaboration_case: collaborationCase, excerpts: excerpts.map(item => item.trim()).filter(Boolean), consent: form.get("consent") === "on" } });
       if (!result.owner_access_token && !tokenFor()) throw new Error("접근 정보를 받지 못해 평가를 열 수 없습니다. 다시 시작해 주세요.");
       if (result.owner_access_token) rememberToken(result.assessment_id, result.owner_access_token);
@@ -114,7 +120,7 @@ function AssessmentForm({ config, configError }: { config: Configuration | null;
     } catch (e) { setError(asMessage(e)); setBusy(false); }
   }
   return <form className="assessment-form" onSubmit={submit}><div className="form-heading"><h3>어떤 프로젝트인가요?</h3><span className="private-chip">비공개 진단</span></div><label htmlFor="repo-url">공개 GitHub 저장소 <span className="required">필수</span></label><input id="repo-url" name="repo_url" type="url" required placeholder="https://github.com/you/your-project" maxLength={500} autoComplete="url" /><p className="field-help">TypeScript·Next.js 프로젝트를 우선 지원합니다.</p>
-    <div className="case-switch"><label><input type="checkbox" checked={includeCase} onChange={event => setIncludeCase(event.target.checked)} />협업 사례 추가하기 <span>선택</span></label><p>과정 근거가 없으면 일부 항목은 미확인으로 남을 수 있어요.</p></div>
+    <div className="case-switch"><label><input type="checkbox" checked={includeCase} onChange={event => setIncludeCase(event.target.checked)} />협업 사례 추가하기 <span>선택</span></label><p>여섯 항목 합계 4,000자 이내. 사례가 없으면 일부 항목은 미확인으로 남을 수 있어요.</p></div>
     {includeCase && <div className="case-fields"><Field name="problem" label="해결하려던 문제" placeholder="누구의 어떤 문제를 해결하려고 했나요?" /><Field name="constraints" label="제약 조건" placeholder="시간, 기술, 비용 등 고려한 조건" /><Field name="done_criteria" label="완료 조건" placeholder="어떤 상태가 되면 성공이라고 정했나요?" /><Field name="ai_suggestion_summary" label="AI의 제안" placeholder="AI가 제안한 접근이나 구현 방법" /><label htmlFor="user_action">내 판단</label><select id="user_action" name="user_action"><option value="modified">제안을 수정했어요</option><option value="accepted">제안을 채택했어요</option><option value="rejected">제안을 거절했어요</option></select><Field name="user_action_detail" label="판단의 이유와 실행" placeholder="왜 그렇게 판단했고 실제로 무엇을 했나요?" /><Field name="verification_summary" label="검증 과정과 결과" placeholder="무엇을 확인했고 어떤 결과가 나왔나요? 미실행이라면 그대로 적어주세요." /></div>}
     <details className="excerpt-details"><summary>협업 기록 발췌 추가 <span>선택 · 최대 3개</span></summary><p className="field-help">직접 고른 대화나 실행 결과를 붙여넣으세요. 이름, 이메일, 비밀키 등 민감정보는 먼저 지워주세요. 컴퓨터의 다른 파일을 읽지 않습니다.</p>{excerpts.map((excerpt, index) => <div className="excerpt-item" key={index}><label htmlFor={`excerpt-${index}`}>발췌 {index + 1}</label><textarea id={`excerpt-${index}`} value={excerpt} maxLength={2000} rows={4} onChange={event => setExcerpts(items => items.map((item, i) => i === index ? event.target.value : item))} placeholder="평가에 사용할 부분만 붙여넣으세요." /><div className="excerpt-meta"><span>{excerpt.length}/2,000자</span><button type="button" className="text-button" onClick={() => setExcerpts(items => items.filter((_, i) => i !== index))}>삭제</button></div></div>)}{excerpts.length < 3 && <button className="button button-small button-secondary" type="button" onClick={() => setExcerpts(items => [...items, ""])}>+ 발췌 추가</button>}</details>
     <label className="consent"><input name="consent" type="checkbox" required /><span>선택한 공개 코드와 입력 자료가 서버 및 외부 AI 제공사로 전송되어 평가에 사용됨을 확인했습니다. 공유할 권한이 있는 자료만 제출합니다.</span></label>
@@ -133,6 +139,7 @@ export function AssessmentExperience({ id }: { id: string }) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [shareConfirm, setShareConfirm] = useState(false);
+  const [reassessConfirm, setReassessConfirm] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
   const base = `/api/assessments/${encodeURIComponent(id)}`;
   const refresh = useCallback(async () => { const next = await request<Assessment>(`/api/assessments/${encodeURIComponent(id)}`, { id }); setAssessment(next); return next; }, [id]);
@@ -141,7 +148,10 @@ export function AssessmentExperience({ id }: { id: string }) {
     setBusy(true); setError("");
     try {
       let current = assessment || await refresh();
-      if (stage === "scoring" || stage === "finalize") {
+      if (stage === "retry") {
+        setActivity("중단된 단계부터 다시 진행하고 있어요.");
+        await request(`${base}/retry`, { method: "POST", id });
+      } else if (stage === "scoring" || stage === "finalize") {
         setActivity("근거를 대조해 진단과 다음 행동을 정리하고 있어요.");
         await request(`${base}/finalize`, { method: "POST", id });
       } else {
@@ -161,7 +171,7 @@ export function AssessmentExperience({ id }: { id: string }) {
   async function submitAnswers(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError("");
     try {
-      await request(`${base}/answers`, { method: "PUT", id, body: { answers: (assessment?.questions || []).map(question => ({ question_id: question.question_id, text: answers[question.question_id]?.trim() || "" })) } });
+      await request(`${base}/answers`, { method: "PUT", id, body: { answers: (assessment?.questions || []).map(question => ({ question_id: question.question_id, text: answers[question.question_id]?.trim() || "" })).filter(answer => answer.text.length > 0) } });
       setActivity("답변과 근거를 바탕으로 진단하고 있어요.");
       await request(`${base}/finalize`, { method: "POST", id });
       await refresh();
@@ -179,8 +189,16 @@ export function AssessmentExperience({ id }: { id: string }) {
     try { await request(base, { method: "DELETE", id }); router.replace("/"); }
     catch (e) { setError(asMessage(e)); setBusy(false); }
   }
+  async function reassess() {
+    setBusy(true); setError("");
+    try {
+      const fresh = await request<Assessment>(`${base}/reassess`, { method: "POST", id, body: { consent: true } });
+      if (!fresh.assessment_id) throw new Error("새 평가를 열지 못했어요. 다시 시도해 주세요.");
+      router.push(`/assessments/${encodeURIComponent(fresh.assessment_id)}`);
+    } catch (e) { setError(asMessage(e)); setBusy(false); }
+  }
   const status = assessment?.status;
-  const pending = ["ingesting", "generating_questions", "scoring"].includes(status || "");
+  const pending = ["ingesting", "generating_questions", "scoring"].includes(status || "") && !assessment?.needs_retry;
   useEffect(() => {
     if (!pending || busy) return;
     const timer = setInterval(() => { void refresh().catch(e => setError(asMessage(e))); }, 3000);
@@ -190,9 +208,12 @@ export function AssessmentExperience({ id }: { id: string }) {
     {error && <Alert error>{error}</Alert>}{!assessment && !error && <div className="loading-panel" role="status"><span className="spinner" />평가 정보를 불러오고 있어요.</div>}
     {(busy || pending) && <div className="loading-panel" role="status"><span className="spinner" /><div><strong>{activity || "요청한 작업을 처리하고 있어요."}</strong><p>이 탭에서 완료 상태를 확인할 수 있어요. 자료의 양에 따라 잠시 걸릴 수 있습니다.</p></div></div>}
     {assessment && status === "draft" && !busy && <section className="action-panel"><div><h2>분석할 준비가 됐어요.</h2><p>선택한 저장소를 읽고, 협업 과정을 확인할 질문을 준비합니다.</p><p className="caption">비공개 결과의 접근 정보는 현재 탭에 보관됩니다. 결과를 확인할 때까지 탭을 유지해 주세요.</p></div><button className="button button-primary" onClick={() => void run()}>근거 수집 시작 <Arrow /></button></section>}
-    {assessment?.failure && !busy && <section className="action-panel failure-panel"><div><h2>이 단계를 마치지 못했어요.</h2><p>{assessment.failure.message}</p><p className="caption">실패한 분석으로 점수를 발급하지 않습니다.</p></div>{assessment.failure.retryable && <button className="button button-primary" onClick={() => void run(assessment.failure?.stage)}>이 단계 다시 시도</button>}</section>}
-    {status === "awaiting_answers" && !busy && <form className="questions-panel" onSubmit={submitAnswers}><div className="section-heading"><div><SectionLabel>THE CONTEXT ONLY YOU KNOW</SectionLabel><h2>코드에 없는 이야기를<br />들려주세요.</h2></div><p>답변은 선택입니다. 기억나지 않는 부분은<br />비워두세요. 없는 행동을 추정하지 않습니다.</p></div>{assessment?.questions?.map((question, index) => <article className="question-card" key={question.question_id}><span className="question-number">0{index + 1}</span><div><label htmlFor={`question-${question.question_id}`}>{question.text}</label><div className="question-evidence">{question.grounding_evidence_ids?.map(evidenceId => { const item = assessment.evidence?.find(evidence => evidence.evidence_id === evidenceId); return <span key={evidenceId}>{item?.path || item?.summary || "제출한 협업 근거"}</span>; })}</div><textarea id={`question-${question.question_id}`} rows={4} maxLength={4000} value={answers[question.question_id] || ""} onChange={event => setAnswers(items => ({ ...items, [question.question_id]: event.target.value }))} placeholder="실제로 했던 판단과 확인한 결과를 적어주세요." /></div></article>)}<div className="question-submit"><p>입력한 답변은 같은 평가의 외부 AI 분석에 사용됩니다.</p><button className="button button-primary" type="submit">이 답변으로 진단 보기 <Arrow /></button></div></form>}
-    {assessment?.result && status === "done" && <><ResultView assessment={assessment} /><section className="share-panel"><div><h3>공유할 때도, 필요한 만큼만.</h3><p>공개 요약에는 평가 항목과 점수 상태가 표시됩니다.<br />협업 사례, 답변, 발췌 원문은 공유하지 않습니다.</p></div>{assessment.visibility === "public" && assessment.share_id ? <div className="share-actions"><Link href={`/results/${encodeURIComponent(assessment.share_id)}`} className="button button-secondary">공개 요약 보기 <Arrow diagonal /></Link><button className="button button-secondary" onClick={async () => { try { await navigator.clipboard.writeText(`${window.location.origin}/results/${encodeURIComponent(assessment.share_id!)}`); setCopyStatus("링크를 복사했어요."); } catch { setCopyStatus("복사하지 못했어요. 공개 요약을 열어 주소를 복사해 주세요."); } }}>링크 복사</button><button disabled={busy} className="text-button" onClick={() => void visibility(false)}>공유 중지</button><p role="status">{copyStatus}</p></div> : <button className="button button-secondary" disabled={busy} onClick={() => setShareConfirm(true)}>공개할 항목 확인</button>}</section>{shareConfirm && <section className="confirm-panel" role="region" aria-label="공개 요약 확인"><h3>이 항목이 링크를 가진 사람에게 보입니다.</h3><p>다섯 항목의 단계, 종합점수 발급·보류 상태. 공개 후 언제든 공유를 중지할 수 있어요.</p><div className="share-preview">{AXES.map(axis => { const criterion = assessment.result?.criteria?.find(item => item.criterion_code === axis.code); return <span key={axis.code}>{axis.name} <strong>{criterion?.status === "observed" && criterion.level ? `${criterion.level}단계` : "미확인"}</strong></span>; })}</div><div className="button-row"><button className="button button-primary" disabled={busy} onClick={() => void visibility(true)}>이 요약 공개하기</button><button className="button button-secondary" onClick={() => setShareConfirm(false)}>취소</button></div></section>}</>}
+    {assessment?.needs_retry && !busy && <section className="action-panel"><div><h2>진행이 중단됐어요.</h2><p>이전에 시작한 작업이 제한 시간 안에 완료되지 않았습니다. 해당 단계부터 다시 시도할 수 있어요.</p></div><button className="button button-primary" onClick={() => void run("retry")}>중단된 단계 재시도</button></section>}
+    {assessment?.failure && !busy && <section className="action-panel failure-panel"><div><h2>이 단계를 마치지 못했어요.</h2><p>{assessment.failure.message}</p><p className="caption">실패한 분석으로 점수를 발급하지 않습니다.</p></div>{assessment.failure.retryable && <button className="button button-primary" onClick={() => void run("retry")}>이 단계 다시 시도</button>}</section>}
+    {status === "awaiting_answers" && !busy && <form className="questions-panel" onSubmit={submitAnswers}><div className="section-heading"><div><SectionLabel>THE CONTEXT ONLY YOU KNOW</SectionLabel><h2>코드에 없는 이야기를<br />들려주세요.</h2></div><p>답변은 선택입니다. 기억나지 않는 부분은<br />비워두세요. 없는 행동을 추정하지 않습니다.</p></div>{assessment?.questions?.map((question, index) => <article className="question-card" key={question.question_id}><span className="question-number">0{index + 1}</span><div><label htmlFor={`question-${question.question_id}`}>{question.text}</label><div className="question-evidence">{question.grounding_evidence_ids?.map(evidenceId => { const item = assessment.evidence?.find(evidence => evidence.evidence_id === evidenceId); return <span key={evidenceId}>{item?.path || item?.summary || "제출한 협업 근거"}</span>; })}</div><textarea id={`question-${question.question_id}`} rows={4} maxLength={2000} value={answers[question.question_id] || ""} onChange={event => setAnswers(items => ({ ...items, [question.question_id]: event.target.value }))} placeholder="실제로 했던 판단과 확인한 결과를 적어주세요." /></div></article>)}<div className="question-submit"><p>입력한 답변은 같은 평가의 외부 AI 분석에 사용됩니다.</p><button className="button button-primary" type="submit">이 답변으로 진단 보기 <Arrow /></button></div></form>}
+    {assessment?.result && status === "done" && <><ResultView assessment={assessment} /><section className="share-panel"><div><h3>공유할 때도, 필요한 만큼만.</h3><p>공개 요약에는 저장소 주소, 커밋, 평가 항목과 근거 범위가 표시됩니다.<br />협업 사례, 답변, 발췌 원문은 공유하지 않습니다.</p></div>{assessment.visibility === "public" && assessment.share_id ? <div className="share-actions"><Link href={`/results/${encodeURIComponent(assessment.share_id)}`} className="button button-secondary">공개 요약 보기 <Arrow diagonal /></Link><button className="button button-secondary" onClick={async () => { try { await navigator.clipboard.writeText(`${window.location.origin}/results/${encodeURIComponent(assessment.share_id!)}`); setCopyStatus("링크를 복사했어요."); } catch { setCopyStatus("복사하지 못했어요. 공개 요약을 열어 주소를 복사해 주세요."); } }}>링크 복사</button><button disabled={busy} className="text-button" onClick={() => void visibility(false)}>공유 중지</button><p role="status">{copyStatus}</p></div> : <button className="button button-secondary" disabled={busy} onClick={() => setShareConfirm(true)}>공개할 항목 확인</button>}</section>{shareConfirm && <section className="confirm-panel" role="region" aria-label="공개 요약 확인"><h3>이 항목이 링크를 가진 사람에게 보입니다.</h3><p>저장소 주소와 커밋, 다섯 항목의 단계, 종합점수 상태, 읽은 파일 수 등 근거 범위가 공개됩니다. 공개 후 언제든 공유를 중지할 수 있어요.</p><div className="share-preview">{AXES.map(axis => { const criterion = assessment.result?.criteria?.find(item => item.criterion_code === axis.code); return <span key={axis.code}>{axis.name} <strong>{criterion?.status === "observed" && criterion.level ? `${criterion.level}단계` : "미확인"}</strong></span>; })}</div><div className="button-row"><button className="button button-primary" disabled={busy} onClick={() => void visibility(true)}>이 요약 공개하기</button><button className="button button-secondary" onClick={() => setShareConfirm(false)}>취소</button></div></section>}</>}
+    {assessment?.result && status === "done" && <section className="reassessment-panel"><div><h3>한 가지를 개선했다면, 다시 살펴보세요.</h3><p>같은 저장소의 최신 커밋으로 새 평가를 만듭니다. 근거가 달라진 것과 실제 행동이 개선된 것은 구분합니다.</p></div><button className="button button-secondary" disabled={busy} onClick={() => setReassessConfirm(true)}>새 커밋으로 다시 평가 <Arrow /></button></section>}
+    {reassessConfirm && <section className="confirm-panel" aria-label="새 평가 시작 확인"><h3>같은 프로젝트를 새로 평가할까요?</h3><p>이전 결과는 보존합니다. 이전 사례·발췌·답변은 복사하지 않으며, 새 질문에 이번 협업 과정을 답할 수 있어요. 새 공개 코드와 입력 답변은 서버 및 외부 AI 제공사에 전송되어 평가에 사용됩니다.</p><div className="button-row"><button className="button button-primary" disabled={busy} onClick={() => void reassess()}>전송에 동의하고 새 평가</button><button className="button button-secondary" onClick={() => setReassessConfirm(false)}>취소</button></div></section>}
     {assessment && <div className="delete-section">{deleteConfirm ? <div className="confirm-panel"><h3>이 평가와 저장된 자료를 삭제할까요?</h3><p>공유 링크도 사용할 수 없게 됩니다. 삭제 후에는 복구할 수 없습니다.</p><div className="button-row"><button disabled={busy} className="button button-danger" onClick={() => void remove()}>평가 삭제</button><button className="button button-secondary" onClick={() => setDeleteConfirm(false)}>취소</button></div></div> : <button disabled={busy || pending} className="text-button muted" onClick={() => setDeleteConfirm(true)}>이 평가의 자료 삭제</button>}</div>}
   </main></Shell>;
 }
