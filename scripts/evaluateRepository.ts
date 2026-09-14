@@ -1,12 +1,30 @@
 #!/usr/bin/env node
 /** Operator-only interactive CLI. --example never uses network; --live requires explicit env configuration.
  * No repository code or local session paths are executed/read by this command. */
-import { readFile, writeFile } from 'node:fs/promises';
+import { access, lstat, readFile, stat, writeFile } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { createInterface } from 'node:readline/promises';
 import { stdin, stderr } from 'node:process';
 import { createAnthropicProviderFromEnv } from '../src/server/service/anthropicProvider.js';
 import { prepareAssessment, generateAssessmentQuestions, finalizeAssessment, syntheticExample, ServiceError, type CaseSubmission, type AssessmentResult } from '../src/server/service/assessment.js';
+
+/** Check predictable output failures before any paid work. Final exclusive write still protects races. */
+async function checkOutputDestination(destination: string): Promise<void> {
+  const target = resolve(destination);
+  let exists = false;
+  try { await lstat(target); exists = true; }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw new ServiceError('input', 'output_unavailable', '출력 위치를 확인할 수 없습니다. 다른 위치를 지정해 주세요.');
+  }
+  if (exists) throw new ServiceError('input', 'output_exists', '출력 파일이 이미 존재합니다. 덮어쓰지 않으므로 새 파일명을 지정해 주세요.');
+  try {
+    const parent = dirname(target);
+    if (!(await stat(parent)).isDirectory()) throw new Error('not_directory');
+    await access(parent, constants.W_OK);
+  } catch { throw new ServiceError('input', 'output_unavailable', '출력할 폴더가 없거나 쓸 수 없습니다. 먼저 폴더를 준비해 주세요.'); }
+}
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -20,6 +38,7 @@ async function main(): Promise<void> {
     else throw new ServiceError('input', 'invalid_arguments', '사용법: --example [--out FILE] 또는 --live --repo URL [--ref REF] [--case FILE] [--out FILE]');
   }
   if (example && live) throw new ServiceError('input', 'invalid_arguments', '--example과 --live는 함께 사용할 수 없습니다.');
+  if (values['--out']) await checkOutputDestination(values['--out']);
   let result: AssessmentResult;
   if (example) result = syntheticExample();
   else {
