@@ -16,7 +16,7 @@ Phase 2 오프라인 구현 보고 후 Astra 검토에서 결함이 발견돼 �
 ```bash
 npm install
 npm run typecheck                 # tsc --noEmit, 에러 없음 확인됨
-npm test                          # node:test, 108개 테스트 모두 통과 확인됨
+npm test                          # 최신 실행 결과는 해당 Phase 세션에 기록
 npm run ingest -- --repo https://github.com/octocat/Hello-World   # 실제 공개 저장소 live smoke, 성공 확인됨 (Phase 1)
 npx tsx scripts/evaluateOffline.ts --case fixtures/calibration/cases/case-02-simple-tool-strong-verification \
   --mock-response fixtures/mock-responses/case-02-generic-valid.json \

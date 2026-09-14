@@ -40,7 +40,15 @@ RobloxLab.zip의 HackTheTower CLAUDE.md, Phase 1 세션, Changelog/Roadmap/Bugs�
 
 ## 원격 인계
 
-사용자가 정리 후 https://github.com/SangJun-Pyo/MyAiScore 에 업로드하도록 지시했다. `git ls-remote`로 연결 가능하고 아직 ref가 없는 저장소임을 확인했다. 정리한 commit과 최초 기준점만 업로드 대상으로 삼고, 이후 변경 중인 구현은 별도 후속 commit으로 남긴다. 실제 업로드 결과는 push 후 확인한다.
+사용자가 정리 후 https://github.com/SangJun-Pyo/MyAiScore 에 업로드하도록 지시했다. `git ls-remote`로 처음에는 ref가 없는 저장소임을 확인했다. 최초 기준점 `957e3c5`와 문서 정리 `c790028`을 main으로 push했고 원격 HEAD/main이 `c79002825ac1462dcdf106e53f8dfc11b0053613`인 것을 확인했다.
+
+### 정리 도중 수신한 Phase 2 수정 완료 보고
+
+- Claude가 구형 위치에 새 PHASE2_FIX_REPORT.md를 작성해 해당 내용을 Phase-02-Fixes의 날짜별 기록에 편입했다. 원문은 7번째 로컬 보관본으로 남기고 상대 링크를 수정했다.
+- Astra가 현재 구현의 typecheck·142개 오프라인 테스트 통과를 재확인했다. 완료 보고가 없는 진행 중 변경으로 취급하던 상태에서 **구현 보고 수신 / 상세 코드 검토 대기**로 바꿨다.
+- 수정 파일은 별도 commit `690d5dc`에 보존했다. 문서 정리 commit과 섞지 않았으며 코드 검토 통과/배포 승인으로 표현하지 않는다.
+- 본 기록과 세션·변경 이력·결함 상태 동기화는 별도 인계 commit으로 남긴다. 마지막 upload는 `git ls-remote origin refs/heads/main`과 로컬 HEAD를 대조해 확인한다. 현재 작업 브랜치 codex/document-governance는 origin/main을 추적하며 명시적 push는 `git push origin HEAD:main`을 사용한다.
+- 최종 문서 검사: active Markdown 32개, 상대 링크 199개 정상. 이관한 원본 7개는 로컬 보관본으로 유지한다. Git에 추가한 옛 원문 마스터의 의도적인 Markdown 줄바꿈 공백은 원문 보존을 위해 변경하지 않았다. 활성 변경의 diff 공백 검사는 통과했다.
 
 ## 다음 작업
 

@@ -1,10 +1,17 @@
 # Changelog
 
+## 2026-09-14 — Phase 2 Fixes 구현 보고와 실행 확인
+
+- Claude의 R1~R4 수정 보고를 해당 Phase 세션에 편입했다. Astra가 typecheck와 142개 테스트 통과를 재확인했다.
+- 상세 코드 검토는 대기 상태이며 BUGS를 review_required로 갱신했다. 수정 코드는 문서 정리와 별도 checkpoint로 보존한다.
+- 상세: [Phase 2 Fixes](Sessions/Phase-02-Fixes.md#fix-report).
+
+
 ## 2026-09-14 — 문서 운영·Git 정리
 
 - RobloxLab의 Phase 세션/Changelog/Roadmap/Bugs 구조를 참고해 기존 보고·검토 6개를 Phase 세션 3개로 통합하고 과거 지시문을 Prompts에 이동.
 - 현재 상태는 ROADMAP으로 통일, 열린 결함 MAS-001~004를 BUGS에 등록, 세션 기록·변경 요약·본인 변경만 Git commit하는 규칙 반영.
-- 초기 Git 기준점을 생성했다. 과거 작업별 commit 이력은 존재하지 않으며 복원하지 않았다. 원격 연결/push 없음.
+- 초기 Git 기준점을 생성했다. 과거 작업별 commit 이력은 존재하지 않으며 복원하지 않았다. 이후 사용자 요청으로 GitHub main에 기준점과 정리 commit을 업로드했다. 배포는 하지 않았다.
 - 상세: [문서·Git 정리 세션](Sessions/Session-2026-09-14-Documentation-And-Git.md).
 
 ## 2026-09-14 — Phase 2 오프라인 구현과 검토 (사후 요약)
