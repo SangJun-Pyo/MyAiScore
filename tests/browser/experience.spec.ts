@@ -27,6 +27,7 @@ test('landing and real synthetic example render without a model key', async ({ p
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /AI와 함께 만들었나요/ })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
   await page.getByRole('button', { name: /결과 먼저 살펴보기/ }).click();
   await expect(page.locator('#example')).toContainText('가상');
   await expect(page.locator('#example')).toContainText('개선');

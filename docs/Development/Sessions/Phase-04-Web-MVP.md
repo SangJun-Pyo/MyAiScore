@@ -60,4 +60,6 @@ Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했�
 
 통합 변경은 [PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6)으로 올렸다. 로컬 검증은 위와 같으며 원격 Linux CI의 최신 결과는 PR의 Checks에서 확인한다. 배포와 실제 모델 교정은 [#4](https://github.com/SangJun-Pyo/MyAiScore/issues/4)에 남긴다.
 
+`4606939`의 [Linux CI](https://github.com/SangJun-Pyo/MyAiScore/actions/runs/34843577726)가 전체 통과했다. 이후 390px 화면에서 장식 글로우가 2px 가로 overflow를 만드는 점을 보정했고, 최종 빌드·브라우저 12건을 다시 통과했다. 직접 계측도 `innerWidth=390`, `scrollWidth=390`이며 모바일 캡처를 갱신했다. 최종 후속 commit의 원격 결과는 PR Checks를 따른다.
+
 현재 소스와 실행 방법은 [README](../../../README.md), wire 형태는 [API 계약](../../Architecture/API_DATA_CONTRACTS.md), 상태는 [ROADMAP](../ROADMAP.md), 남은 출시 조건은 GitHub #4에서 관리한다. 과거 Claude 프롬프트를 재실행하지 않는다. 이번 세션의 최종 commit은 `git log --follow -- docs/Development/Sessions/Phase-04-Web-MVP.md`로 확인한다.

@@ -224,6 +224,7 @@ input::placeholder, textarea::placeholder { color: #917a9a; }
   .hero-description { font-size: 13px; }
   .hero-trust { font-size: 8px; }
   .hero-visual { width: 100%; max-width: 490px; height: 440px; }
+  .hero-visual:before { left: 0; right: 0; }
   .hero-scene { height: 440px; }
   .hero-insight { left: 8px; right: 8px; bottom: 16px; padding: 17px; }
   .hero-insight p { font-size: 12px; }
