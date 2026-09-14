@@ -1,6 +1,6 @@
 # Bugs — 열린 결함과 검증 상태
 
-최신 상태: 2026-09-14 Astra 재검토. 코드와 회귀 테스트 확인 범위에서만 닫으며, 실제 모델/배포 검증과 구분한다. 발견·작성자 수정 보고·검토의 전체 이력은 해당 세션에 보존한다.
+최신 상태: 2026-09-20 MAS-006 구현자 수정(독립 재검토 대기). 코드와 회귀 테스트 확인 범위에서만 닫으며, 실제 모델/배포 검증과 구분한다. 발견·작성자 수정 보고·검토의 전체 이력은 해당 세션에 보존한다.
 
 | ID | 우선순위 | 문제 | 상태 | 다음 완료 조건 |
 |---|---|---|---|---|
@@ -9,9 +9,9 @@
 | MAS-003 | P1 | 발췌 원문 전달 누락 | closed — 오프라인 재검토 확인 | 원문 전달/출력 분리 회귀 유지. 실제 모델/API 개인정보 검증은 후속 |
 | MAS-004 | P1 | assessment/질문·답변 참조 경계 | reopened — 타 평가 차단 해결, 질문 생략 시 고아 답변 허용 | 질문 생략/빈 목록에서도 참조·빈 답변·grounding 검사 |
 | MAS-005 | P2 | 실제 모델 payload와 반복 입력 hash 불일치 | open — Astra 재현 | 실제 payload에 대한 단계별 hash 및 고정 반복 입력 검증 |
-| MAS-006 | P1 | 로컬 수집 PoC CLI `--json`이 마스킹 전 세션 원문을 그대로 출력 | open — 독립 검토 발견, `secrets-session.jsonl`로 재현 | `--json` 출력에서 원문 `events` 필드를 제거하거나 사람이 읽는 미리보기와 동일하게 마스킹·절단된 필드만 노출 |
+| MAS-006 | P1 | 로컬 수집 PoC CLI `--json`이 마스킹 전 세션 원문을 그대로 출력 | **수정 완료 / 독립 재검토 대기** — `buildLocalCollectionPublicView()`로 human/`--json` 두 출력을 동일 필드로 통일, `events`/`analysisContext` 노출 제거 | 독립 검토자가 `tests/localCollection/cliJsonOutput.test.ts`(4개)와 수정 코드를 재검토 |
 
-근거와 재현: [Phase 2 Fixes Astra 재검토](Sessions/Phase-02-Fixes.md#astra-rereview-20260914). 현재 지시: [Phase 2 Fixes](../../CLAUDE_PHASE2_FIX_PROMPT.md). MAS-006 근거·재현: [Phase 3 로컬 수집 PoC 독립 검토](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-14--독립-검토-구현자와-별도-claude-code).
+근거와 재현: [Phase 2 Fixes Astra 재검토](Sessions/Phase-02-Fixes.md#astra-rereview-20260914). 현재 지시: [Phase 2 Fixes](../../CLAUDE_PHASE2_FIX_PROMPT.md). MAS-006 발견·재현: [Phase 3 독립 검토](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-14--독립-검토-구현자와-별도-claude-code). MAS-006 수정 기록: [Phase 3 후속](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-20-후속--mas-006-수정).
 
 ## 미검증
 

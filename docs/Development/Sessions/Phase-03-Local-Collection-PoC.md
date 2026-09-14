@@ -252,3 +252,54 @@ npx tsx scripts/collectLocalSession.ts --project <프로젝트 절대경로> --s
 
 - 추가로 얻은 것: 도구 호출이 **결과 없이 끝났는지**(`no_result_found`)와 **검증 명령처럼 보이는 패턴과 실제 오류 여부**가 분리돼 나타난다 — 최종 diff만 봐서는 안 보이는 "시도했지만 결과 불명" 상태. `file-history-delta`로 세션 중 반복 접촉한 파일 경로도 드러난다.
 - 한계: 전부 synthetic 데이터로만 확인했다. 실제 세션에서 이 신호들이 노이즈 없이 유용한지, 이미지 첨부·서브에이전트 sidechain처럼 관찰 범위를 벗어난 콘텐츠가 실제로 얼마나 섞여 있는지는 이번 검토도 확인하지 못했다. Evidence로 변환된 뒤에도 실제 평가(질문 생성·판정·점수) 파이프라인에 연결되지 않았으므로, "GitHub만 볼 때보다 구체적인 개선 피드백을 만드는가"라는 이 PoC의 원래 가설 자체는 이번 검토로도 검증되지 않는다.
+
+---
+
+## 2026-09-20 (후속) — MAS-006 수정
+
+담당: Claude Code(구현). 독립 검토 commit `0e7259e`가 지적한 필수 수정 1건만 처리한다. 일반 개선 제안(중복 `tool_use_id`, `realpathSync` 심볼릭 링크 해석)과 MAS-002/004/005는 이번에 다루지 않는다. 실제 세션 실험, 평가 파이프라인 연결, 추가 기능도 하지 않는다.
+
+### 1. 먼저 재현
+
+수정 전 코드로 재현: `npx tsx scripts/collectLocalSession.ts --project <임의 디렉터리> --session fixtures/local-collection/secrets-session.jsonl --json | grep -o "sk-a*"` → synthetic 시크릿 원문(`sk-aaaa...`)이 그대로 출력됨을 확인. 이어서 `tests/localCollection/cliJsonOutput.test.ts`를 먼저 작성해 수정 전 코드로 실행 → 4개 중 3개 실패(핵심 실패: `stdout must never contain the raw secret`)를 확인한 뒤 수정에 들어갔다.
+
+### 2. 원인과 수정
+
+`LocalCollectionResult`(`collectLocalSession.ts`)는 `events`(내부 `CollaborationEvent[]`, 마스킹 전 원문 포함)와 `conversion.analysisContext`(마스킹·절단됐지만 Evidence 요약보다 더 원문에 가까운 텍스트)를 그대로 담고 있었다. 사람이 읽는 미리보기(`printHumanPreview`)는 우연히 `conversion.evidence`만 순회해 안전했지만, `--json` 분기는 `JSON.stringify(result, null, 2)`로 **내부 결과 전체**를 그대로 내보내 이 안전장치를 우회했다 — 두 출력 경로가 손으로 따로 작성돼 있었기 때문에 하나만 안전하고 하나는 아니었다.
+
+수정: `collectLocalSession.ts`에 `LocalCollectionPublicView`(공개 가능한 필드만: `projectRoot`/`sessionFilePath`/`recordTypeCounts`/`malformedLines`/`fileConnections`/`evidence`/`excluded`/`maskedEvidenceIds` — `events`와 `analysisContext` 제외)와 이를 만드는 `buildLocalCollectionPublicView()`를 추가했다. `scripts/collectLocalSession.ts`의 `printHumanPreview`와 `--json` 분기 **둘 다** 이제 `buildLocalCollectionPublicView(result)`가 만든 같은 객체만 사용한다 — 내부 `result.events`/`result.conversion.analysisContext`를 참조하는 코드는 CLI에서 완전히 제거했다. 이렇게 두 출력 경로가 우연히 같은 규칙을 따르는 것이 아니라 **구조적으로 같은 데이터만 볼 수 있게** 했다(요청 3의 "동일한 공개 범위 원칙"을 코드 수준에서 강제).
+
+`LocalCollectionResult` 자체(라이브러리 반환값)는 바꾸지 않았다 — `events`/`analysisContext`는 여전히 내부적으로 존재하며, 이는 향후 평가 파이프라인 연결이나 테스트가 내부 상태를 검사할 때 필요하다. 다만 **CLI를 포함해 이 결과를 그대로 직렬화해 밖으로 내보내는 코드는 없다.**
+
+### 3. 오류 출력 확인
+
+`LocalCollectionError`(파싱 실패)의 메시지는 호출자가 준 파일 경로와 정적 문구(`parseSessionFile.ts`가 만드는 고정 문자열)만 담는다 — 세션 내용을 담지 않음을 코드로 재확인했다. `unsupported-format.jsonl`로 실행한 오류 경로(exit 1)의 stdout/stderr에 synthetic 시크릿이나 `sk-[A-Za-z0-9]{10,}` 패턴이 없음을 회귀 테스트로 확인했다.
+
+### 4. 기존 artifact 재생성
+
+`git show 1a11fa1:artifacts/local-collection-poc/basic-session.json`으로 확인한 기존 커밋 내용에 `events` 키가 있었고(마스킹 전 텍스트 `"# tests 53\n# pass 53\n# fail 0"` 등 포함, 리뷰가 지적한 그대로) — synthetic fixture라 실제 피해는 없었지만 **수정된 CLI로 재실행해 교체**했다. 새 파일의 최상위 키는 `projectRoot`/`sessionFilePath`/`recordTypeCounts`/`malformedLines`/`fileConnections`/`evidence`/`excluded`/`maskedEvidenceIds`뿐이고 `events`/`analysisContext` 키 자체가 없다(코드로 확인). `basic-session-preview.txt`/`corrupted-session-preview.txt`/`unsupported-format-preview.txt`도 같은 synthetic 입력으로 재생성했다(수정된 안내 문구 반영). **실제 세션 기록은 이번에도 사용하지 않았다.**
+
+### 5. 회귀 테스트
+
+`tests/localCollection/cliJsonOutput.test.ts`(신규, 4개) — `execFileSync(process.execPath, ["--import","tsx", CLI, ...])`로 CLI를 실제 프로세스로 실행한다(라이브러리 함수 직접 호출이 아니라 CLI 자체의 직렬화 버그를 재현하기 위함):
+- `--json` 출력에 synthetic 시크릿이 stdout/stderr 어디에도 없고, `events`/`analysisContext` 키 자체가 응답에 없음을 확인.
+- 기본 미리보기도 동일하게 안전함을 대조 확인(회귀 방지).
+- `--json` 출력이 소비자에게 필요한 구조(`recordTypeCounts`/`fileConnections`/`evidence`/`excluded`/`maskedEvidenceIds`)를 유지하고, `evidence[].summary`가 짧은 마스킹 미리보기로 유지됨을 확인.
+- 오류 경로(`unsupported-format.jsonl`, exit 1)에서도 stdout/stderr에 시크릿 패턴이 없음을 확인.
+
+### 6. 실행 결과
+
+```
+npm run typecheck   # 통과, 0 에러
+npm test             # 170 pass, 0 fail (기존 166 + 신규 4)
+```
+
+수정 전 재현 실행(3/4 실패, 위 "먼저 재현" 절) → 수정 후 재실행(4/4 통과)을 직접 확인했다. 실제 CLI 재현: `npx tsx scripts/collectLocalSession.ts --project <tmp> --session fixtures/local-collection/secrets-session.jsonl --json | grep -c "sk-a"` → `0`.
+
+### 7. 상태
+
+**MAS-006: 수정 완료 / 독립 재검토 대기.** BUGS.md·CHANGELOG.md를 동기화했다. 이번 수정은 MAS-006 하나에만 한정했다 — MAS-002/004/005, 평가 파이프라인 연결, 실제 세션 실험, 그 외 개선 제안은 다루지 않았다.
+
+### 변경·커밋 기록 (이번 절)
+
+- `<commit-hash>` — `fix: MAS-006 -- collect-local-session CLI leaks unmasked session text via --json`(아래 "완료 보고" 참고, 실제 해시는 커밋 직후 이 문서에 채운다).

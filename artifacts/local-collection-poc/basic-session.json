@@ -1,79 +1,12 @@
 {
-  "projectRoot": "C:/Users/sangj/AppData/Local/Temp/myaiscore-demo-project",
+  "projectRoot": "C:/Users/sangj/AppData/Local/Temp/mas006-artifact",
   "sessionFilePath": "fixtures/local-collection/basic-session.jsonl",
-  "parsed": {
-    "typeCounts": {
-      "user": 4,
-      "assistant": 3,
-      "file-history-delta": 1
-    },
-    "malformedLines": []
+  "recordTypeCounts": {
+    "user": 4,
+    "assistant": 3,
+    "file-history-delta": 1
   },
-  "events": [
-    {
-      "kind": "user_message",
-      "uuid": "u1",
-      "timestamp": "2026-09-20T00:00:00.000Z",
-      "text": "validateOrderTotal 함수에 음수 총액 검증이 빠진 것 같아요. 수정해 주세요."
-    },
-    {
-      "kind": "assistant_text",
-      "uuid": "a1",
-      "timestamp": "2026-09-20T00:00:05.000Z",
-      "text": "네, 음수 총액을 거부하는 조건을 추가하겠습니다."
-    },
-    {
-      "kind": "tool_call",
-      "uuid": "a1",
-      "toolUseId": "tool_edit_1",
-      "toolName": "Edit",
-      "timestamp": "2026-09-20T00:00:05.000Z",
-      "inputSummary": {
-        "file_path": "src/lib/validateOrderTotal.ts"
-      },
-      "result": {
-        "status": "tool_reported_ok",
-        "resultTextExcerpt": "The file has been edited successfully."
-      },
-      "inferred": {
-        "looksLikeVerificationCommand": false
-      }
-    },
-    {
-      "kind": "file_touch",
-      "path": "src/lib/validateOrderTotal.ts",
-      "timestamp": "2026-09-20T00:00:06.100Z"
-    },
-    {
-      "kind": "tool_call",
-      "uuid": "a2",
-      "toolUseId": "tool_bash_1",
-      "toolName": "Bash",
-      "timestamp": "2026-09-20T00:00:10.000Z",
-      "inputSummary": {
-        "command": "npm test"
-      },
-      "result": {
-        "status": "tool_reported_ok",
-        "resultTextExcerpt": "# tests 53\n# pass 53\n# fail 0"
-      },
-      "inferred": {
-        "looksLikeVerificationCommand": true
-      }
-    },
-    {
-      "kind": "assistant_text",
-      "uuid": "a3",
-      "timestamp": "2026-09-20T00:00:16.000Z",
-      "text": "테스트가 모두 통과했습니다. 음수 총액이 이제 거부됩니다."
-    },
-    {
-      "kind": "user_message",
-      "uuid": "u4",
-      "timestamp": "2026-09-20T00:00:20.000Z",
-      "text": "좋습니다, 반영해주세요."
-    }
-  ],
+  "malformedLines": [],
   "fileConnections": [
     {
       "path": "src/lib/validateOrderTotal.ts",
@@ -81,123 +14,113 @@
       "note": "이 경로는 지금(수집 시점) 작업 트리에 존재한다 -- 세션 당시 상태와 같다고 가정하지 않는다"
     }
   ],
-  "conversion": {
-    "evidence": [
-      {
-        "evidenceId": "local_663e942b-1faf-4515-b39e-887fbed52077",
-        "assessmentId": "local_collection_poc",
-        "sourceType": "user_provided_excerpt",
-        "collectionMethod": "user_submission",
-        "summary": "로컬 세션 사용자 메시지(원문 미검증 자기 자료): validateOrderTotal 함수에 음수 총액 검증이 빠진 것 같아요. 수정해 주세요.",
-        "contentSha256": "6c7d97ddf3127ac17b75351b0fb077dd9ce23d6181907aeb9678fd95eb92892b",
-        "collectedAt": "2026-09-14T08:09:02.839Z",
-        "repo": null,
-        "commitSha": null,
-        "path": null,
-        "locator": null,
-        "eventTime": "2026-09-20T00:00:00.000Z",
-        "verificationNote": "로컬 Claude Code 세션 로그에서 추출한 사용자 발화. 서비스가 독립적으로 확인한 사실이 아니며, GitHub에서 확인한 근거와 구분한다."
-      },
-      {
-        "evidenceId": "local_53c24383-512e-40c7-a0bc-ae72821af0b0",
-        "assessmentId": "local_collection_poc",
-        "sourceType": "user_provided_excerpt",
-        "collectionMethod": "user_submission",
-        "summary": "로컬 세션 AI 응답(원문 미검증 자기 자료): 네, 음수 총액을 거부하는 조건을 추가하겠습니다.",
-        "contentSha256": "a4f77366521c4108d36e070760c0131ec945e4aaf6b896db4b2335ba27350e32",
-        "collectedAt": "2026-09-14T08:09:02.839Z",
-        "repo": null,
-        "commitSha": null,
-        "path": null,
-        "locator": null,
-        "eventTime": "2026-09-20T00:00:05.000Z",
-        "verificationNote": "로컬 Claude Code 세션 로그에서 추출한 AI 응답 텍스트. 실제로 그 제안이 반영·검증됐는지는 별도 확인이 필요하다."
-      },
-      {
-        "evidenceId": "local_8f3d856b-2c99-41c7-9e38-6bfca90923d3",
-        "assessmentId": "local_collection_poc",
-        "sourceType": "user_provided_excerpt",
-        "collectionMethod": "user_submission",
-        "summary": "로컬 세션 도구 호출: Edit: The file has been edited successfully.",
-        "contentSha256": "637119cca42e9a154b0beb5e07bb8d33d23adb4a2742dede2db48925b9d6dfbd",
-        "collectedAt": "2026-09-14T08:09:02.839Z",
-        "repo": null,
-        "commitSha": null,
-        "path": null,
-        "locator": null,
-        "eventTime": "2026-09-20T00:00:05.000Z",
-        "verificationNote": "도구가 오류 없이 완료됐다고 보고했다(이것이 곧 '검증 성공'이나 '테스트 통과'를 의미하지 않는다 -- 명령 이름만으로 결과 내용을 판단하지 않는다). 파일 경로 연결: 이 경로는 지금(수집 시점) 작업 트리에 존재한다 -- 세션 당시 상태와 같다고 가정하지 않는다"
-      },
-      {
-        "evidenceId": "local_608a76f2-d034-4792-a9d4-5b5628d79651",
-        "assessmentId": "local_collection_poc",
-        "sourceType": "user_provided_excerpt",
-        "collectionMethod": "user_submission",
-        "summary": "로컬 세션 파일 변경 추적: src/lib/validateOrderTotal.ts",
-        "contentSha256": "404d7eb56793ad4c2c8fc4d259386d1ba61963bc5b06492d8d40bbbff96f4219",
-        "collectedAt": "2026-09-14T08:09:02.839Z",
-        "repo": null,
-        "commitSha": null,
-        "path": null,
-        "locator": null,
-        "eventTime": "2026-09-20T00:00:06.100Z",
-        "verificationNote": "이 경로는 지금(수집 시점) 작업 트리에 존재한다 -- 세션 당시 상태와 같다고 가정하지 않는다"
-      },
-      {
-        "evidenceId": "local_b034c6a2-719a-457d-b279-6f33e67f445a",
-        "assessmentId": "local_collection_poc",
-        "sourceType": "user_provided_excerpt",
-        "collectionMethod": "user_submission",
-        "summary": "로컬 세션 도구 호출: Bash: # tests 53 # pass 53 # fail 0",
-        "contentSha256": "4c440ee47494743d2fa11e9ae0095dafee5950509b0b5320b0a7c4ef4c2de4d4",
-        "collectedAt": "2026-09-14T08:09:02.839Z",
-        "repo": null,
-        "commitSha": null,
-        "path": null,
-        "locator": null,
-        "eventTime": "2026-09-20T00:00:10.000Z",
-        "verificationNote": "도구가 오류 없이 완료됐다고 보고했다(이것이 곧 '검증 성공'이나 '테스트 통과'를 의미하지 않는다 -- 명령 이름만으로 결과 내용을 판단하지 않는다). 이 명령은 검증 명령처럼 보이는 패턴과 일치한다(수집기의 문자열 패턴 추정일 뿐, 로그에 기록된 사실이 아님)."
-      },
-      {
-        "evidenceId": "local_b1ad31de-388a-4e62-918f-3dbed992f13b",
-        "assessmentId": "local_collection_poc",
-        "sourceType": "user_provided_excerpt",
-        "collectionMethod": "user_submission",
-        "summary": "로컬 세션 AI 응답(원문 미검증 자기 자료): 테스트가 모두 통과했습니다. 음수 총액이 이제 거부됩니다.",
-        "contentSha256": "7d7a74f5dba86d35b5d64e75159a2c11e5d6e34dad3e26c972c0a058ade4d777",
-        "collectedAt": "2026-09-14T08:09:02.839Z",
-        "repo": null,
-        "commitSha": null,
-        "path": null,
-        "locator": null,
-        "eventTime": "2026-09-20T00:00:16.000Z",
-        "verificationNote": "로컬 Claude Code 세션 로그에서 추출한 AI 응답 텍스트. 실제로 그 제안이 반영·검증됐는지는 별도 확인이 필요하다."
-      },
-      {
-        "evidenceId": "local_6a80d9af-8cea-465a-80b8-3bcd16ec8470",
-        "assessmentId": "local_collection_poc",
-        "sourceType": "user_provided_excerpt",
-        "collectionMethod": "user_submission",
-        "summary": "로컬 세션 사용자 메시지(원문 미검증 자기 자료): 좋습니다, 반영해주세요.",
-        "contentSha256": "330ae469091a1fe9e09b3516134477224649eb8ab15808395fd65cbb0af78187",
-        "collectedAt": "2026-09-14T08:09:02.839Z",
-        "repo": null,
-        "commitSha": null,
-        "path": null,
-        "locator": null,
-        "eventTime": "2026-09-20T00:00:20.000Z",
-        "verificationNote": "로컬 Claude Code 세션 로그에서 추출한 사용자 발화. 서비스가 독립적으로 확인한 사실이 아니며, GitHub에서 확인한 근거와 구분한다."
-      }
-    ],
-    "analysisContext": {
-      "local_663e942b-1faf-4515-b39e-887fbed52077": "validateOrderTotal 함수에 음수 총액 검증이 빠진 것 같아요. 수정해 주세요.",
-      "local_53c24383-512e-40c7-a0bc-ae72821af0b0": "네, 음수 총액을 거부하는 조건을 추가하겠습니다.",
-      "local_8f3d856b-2c99-41c7-9e38-6bfca90923d3": "The file has been edited successfully.",
-      "local_b034c6a2-719a-457d-b279-6f33e67f445a": "# tests 53\n# pass 53\n# fail 0",
-      "local_b1ad31de-388a-4e62-918f-3dbed992f13b": "테스트가 모두 통과했습니다. 음수 총액이 이제 거부됩니다.",
-      "local_6a80d9af-8cea-465a-80b8-3bcd16ec8470": "좋습니다, 반영해주세요."
+  "evidence": [
+    {
+      "evidenceId": "local_0cb96efb-c394-446c-b1a5-e01b7153784a",
+      "assessmentId": "local_collection_poc",
+      "sourceType": "user_provided_excerpt",
+      "collectionMethod": "user_submission",
+      "summary": "로컬 세션 사용자 메시지(원문 미검증 자기 자료): validateOrderTotal 함수에 음수 총액 검증이 빠진 것 같아요. 수정해 주세요.",
+      "contentSha256": "6c7d97ddf3127ac17b75351b0fb077dd9ce23d6181907aeb9678fd95eb92892b",
+      "collectedAt": "2026-09-14T08:30:23.914Z",
+      "repo": null,
+      "commitSha": null,
+      "path": null,
+      "locator": null,
+      "eventTime": "2026-09-20T00:00:00.000Z",
+      "verificationNote": "로컬 Claude Code 세션 로그에서 추출한 사용자 발화. 서비스가 독립적으로 확인한 사실이 아니며, GitHub에서 확인한 근거와 구분한다."
     },
-    "excluded": [],
-    "maskedEvidenceIds": []
-  }
+    {
+      "evidenceId": "local_ab2e933a-fcc2-4941-afcf-e657bf447d57",
+      "assessmentId": "local_collection_poc",
+      "sourceType": "user_provided_excerpt",
+      "collectionMethod": "user_submission",
+      "summary": "로컬 세션 AI 응답(원문 미검증 자기 자료): 네, 음수 총액을 거부하는 조건을 추가하겠습니다.",
+      "contentSha256": "a4f77366521c4108d36e070760c0131ec945e4aaf6b896db4b2335ba27350e32",
+      "collectedAt": "2026-09-14T08:30:23.914Z",
+      "repo": null,
+      "commitSha": null,
+      "path": null,
+      "locator": null,
+      "eventTime": "2026-09-20T00:00:05.000Z",
+      "verificationNote": "로컬 Claude Code 세션 로그에서 추출한 AI 응답 텍스트. 실제로 그 제안이 반영·검증됐는지는 별도 확인이 필요하다."
+    },
+    {
+      "evidenceId": "local_b1393cdd-2403-4564-a3d0-76ffffe2fd55",
+      "assessmentId": "local_collection_poc",
+      "sourceType": "user_provided_excerpt",
+      "collectionMethod": "user_submission",
+      "summary": "로컬 세션 도구 호출: Edit: The file has been edited successfully.",
+      "contentSha256": "637119cca42e9a154b0beb5e07bb8d33d23adb4a2742dede2db48925b9d6dfbd",
+      "collectedAt": "2026-09-14T08:30:23.914Z",
+      "repo": null,
+      "commitSha": null,
+      "path": null,
+      "locator": null,
+      "eventTime": "2026-09-20T00:00:05.000Z",
+      "verificationNote": "도구가 오류 없이 완료됐다고 보고했다(이것이 곧 '검증 성공'이나 '테스트 통과'를 의미하지 않는다 -- 명령 이름만으로 결과 내용을 판단하지 않는다). 파일 경로 연결: 이 경로는 지금(수집 시점) 작업 트리에 존재한다 -- 세션 당시 상태와 같다고 가정하지 않는다"
+    },
+    {
+      "evidenceId": "local_c7d1a5c4-a511-4fd6-8f41-3da8b5bce1bb",
+      "assessmentId": "local_collection_poc",
+      "sourceType": "user_provided_excerpt",
+      "collectionMethod": "user_submission",
+      "summary": "로컬 세션 파일 변경 추적: src/lib/validateOrderTotal.ts",
+      "contentSha256": "404d7eb56793ad4c2c8fc4d259386d1ba61963bc5b06492d8d40bbbff96f4219",
+      "collectedAt": "2026-09-14T08:30:23.914Z",
+      "repo": null,
+      "commitSha": null,
+      "path": null,
+      "locator": null,
+      "eventTime": "2026-09-20T00:00:06.100Z",
+      "verificationNote": "이 경로는 지금(수집 시점) 작업 트리에 존재한다 -- 세션 당시 상태와 같다고 가정하지 않는다"
+    },
+    {
+      "evidenceId": "local_2ed1ba8d-862d-4c5d-8c89-b4dd078f3127",
+      "assessmentId": "local_collection_poc",
+      "sourceType": "user_provided_excerpt",
+      "collectionMethod": "user_submission",
+      "summary": "로컬 세션 도구 호출: Bash: # tests 53 # pass 53 # fail 0",
+      "contentSha256": "4c440ee47494743d2fa11e9ae0095dafee5950509b0b5320b0a7c4ef4c2de4d4",
+      "collectedAt": "2026-09-14T08:30:23.914Z",
+      "repo": null,
+      "commitSha": null,
+      "path": null,
+      "locator": null,
+      "eventTime": "2026-09-20T00:00:10.000Z",
+      "verificationNote": "도구가 오류 없이 완료됐다고 보고했다(이것이 곧 '검증 성공'이나 '테스트 통과'를 의미하지 않는다 -- 명령 이름만으로 결과 내용을 판단하지 않는다). 이 명령은 검증 명령처럼 보이는 패턴과 일치한다(수집기의 문자열 패턴 추정일 뿐, 로그에 기록된 사실이 아님)."
+    },
+    {
+      "evidenceId": "local_268d0ab5-0a8e-4756-95cb-9caf3ad64794",
+      "assessmentId": "local_collection_poc",
+      "sourceType": "user_provided_excerpt",
+      "collectionMethod": "user_submission",
+      "summary": "로컬 세션 AI 응답(원문 미검증 자기 자료): 테스트가 모두 통과했습니다. 음수 총액이 이제 거부됩니다.",
+      "contentSha256": "7d7a74f5dba86d35b5d64e75159a2c11e5d6e34dad3e26c972c0a058ade4d777",
+      "collectedAt": "2026-09-14T08:30:23.914Z",
+      "repo": null,
+      "commitSha": null,
+      "path": null,
+      "locator": null,
+      "eventTime": "2026-09-20T00:00:16.000Z",
+      "verificationNote": "로컬 Claude Code 세션 로그에서 추출한 AI 응답 텍스트. 실제로 그 제안이 반영·검증됐는지는 별도 확인이 필요하다."
+    },
+    {
+      "evidenceId": "local_bd9d85e5-95a7-4c0a-9b82-6ea02eee7106",
+      "assessmentId": "local_collection_poc",
+      "sourceType": "user_provided_excerpt",
+      "collectionMethod": "user_submission",
+      "summary": "로컬 세션 사용자 메시지(원문 미검증 자기 자료): 좋습니다, 반영해주세요.",
+      "contentSha256": "330ae469091a1fe9e09b3516134477224649eb8ab15808395fd65cbb0af78187",
+      "collectedAt": "2026-09-14T08:30:23.914Z",
+      "repo": null,
+      "commitSha": null,
+      "path": null,
+      "locator": null,
+      "eventTime": "2026-09-20T00:00:20.000Z",
+      "verificationNote": "로컬 Claude Code 세션 로그에서 추출한 사용자 발화. 서비스가 독립적으로 확인한 사실이 아니며, GitHub에서 확인한 근거와 구분한다."
+    }
+  ],
+  "excluded": [],
+  "maskedEvidenceIds": []
 }

@@ -14,10 +14,11 @@
  *  - does not feed into assembleEvaluationInput/provider/scoring -- this
  *    PoC verifies collection+connection only (see the session doc for why)
  */
-import { parseClaudeCodeSessionFile, type ParsedSession } from "./parseSessionFile.js";
+import { parseClaudeCodeSessionFile, type ParsedSession, type MalformedLine } from "./parseSessionFile.js";
 import { extractCollaborationEvents, type CollaborationEvent } from "./extractCollaborationEvents.js";
 import { connectFileTouchesToProject, type FileConnection } from "./connectToRepoEvidence.js";
-import { convertEventsToEvidence, type EvidenceConversionResult } from "./toEvidence.js";
+import { convertEventsToEvidence, type EvidenceConversionResult, type ExcludedItem } from "./toEvidence.js";
+import type { Evidence } from "../../shared/contracts/evaluation.js";
 
 export class LocalCollectionError extends Error {
   constructor(
@@ -62,5 +63,50 @@ export function collectLocalSession(params: { projectRoot: string; sessionFilePa
     events,
     fileConnections,
     conversion,
+  };
+}
+
+/**
+ * The ONLY shape any output surface (CLI human preview, CLI --json, and any
+ * future consumer) may show to the outside. Deliberately excludes:
+ *  - `events` (LocalCollectionResult.events): raw CollaborationEvent[] --
+ *    carries session text (assistant_text.text, tool_call.result.
+ *    resultTextExcerpt, etc.) BEFORE redactSecrets/truncation.
+ *  - `conversion.analysisContext`: the masked+truncated text meant only
+ *    for a future provider request (Phase 2 R3 pattern) -- more raw than
+ *    the short preview already inside each Evidence.summary.
+ *
+ * MAS-006 (Astra independent review of claude/local-collection-poc@5978210):
+ * the CLI's `--json` branch used to `JSON.stringify(result)` wholesale,
+ * which included `events` and therefore leaked unmasked session text (a
+ * synthetic secret in `secrets-session.jsonl` reproduced this). The human
+ * preview (`printHumanPreview`) never touched `events`/`analysisContext`
+ * and was already safe -- but that safety existed only because the two
+ * output paths were written separately by hand, not because any single
+ * choke point enforced it. This function is that choke point: both output
+ * paths must now build their output ONLY from this view, so they can never
+ * drift apart again the way MAS-006 happened.
+ */
+export interface LocalCollectionPublicView {
+  projectRoot: string;
+  sessionFilePath: string;
+  recordTypeCounts: Record<string, number>;
+  malformedLines: MalformedLine[];
+  fileConnections: FileConnection[];
+  evidence: Evidence[];
+  excluded: ExcludedItem[];
+  maskedEvidenceIds: string[];
+}
+
+export function buildLocalCollectionPublicView(result: LocalCollectionResult): LocalCollectionPublicView {
+  return {
+    projectRoot: result.projectRoot,
+    sessionFilePath: result.sessionFilePath,
+    recordTypeCounts: result.parsed.typeCounts,
+    malformedLines: result.parsed.malformedLines,
+    fileConnections: result.fileConnections,
+    evidence: result.conversion.evidence,
+    excluded: result.conversion.excluded,
+    maskedEvidenceIds: result.conversion.maskedEvidenceIds,
   };
 }

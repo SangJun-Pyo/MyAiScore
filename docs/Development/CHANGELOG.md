@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-20 — MAS-006 수정 (로컬 수집 PoC CLI 원문 노출)
+
+- 독립 검토(`0e7259e`)가 발견한 P1 결함 MAS-006(`scripts/collectLocalSession.ts --json`이 마스킹 전 세션 원문을 그대로 출력)을 수정했다. `secrets-session.jsonl`로 먼저 재현(회귀 테스트 3/4 실패 확인) 후 수정.
+- `collectLocalSession.ts`에 `LocalCollectionPublicView`/`buildLocalCollectionPublicView()`를 추가해 사람이 읽는 미리보기와 `--json` 출력이 항상 같은 안전한 필드 집합만 사용하도록 통일했다(`events`/`analysisContext`는 CLI 출력에서 완전히 제외).
+- 기존 커밋된 `artifacts/local-collection-poc/basic-session.json`(마스킹 전 `events` 포함)을 수정된 CLI로 재생성했다 — 실제 세션 기록은 사용하지 않음(synthetic만).
+- 신규 회귀 테스트 `tests/localCollection/cliJsonOutput.test.ts`(4개, CLI를 실제 자식 프로세스로 실행)로 재검증. `npm run typecheck` 통과, `npm test` 170 pass(기존 166 + 신규 4).
+- MAS-006을 "수정 완료 / 독립 재검토 대기"로 표시. MAS-002/004/005는 이번과 무관하게 그대로 둠. 상세: [Phase 3 — MAS-006 수정](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-20-후속--mas-006-수정).
+
 ## 2026-09-14 — Phase 3 로컬 수집 PoC 독립 검토
 
 - 구현자와 별도로 `claude/local-collection-poc`의 `5978210`(base `c7b3a2e`)을 별도 worktree에서 검토했다. `npm run typecheck`/`npm test`(166 pass) 재실행 확인, synthetic fixture 7종 전부로 CLI를 직접 재현 실행했다.

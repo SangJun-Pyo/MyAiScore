@@ -11,8 +11,16 @@
  *   npx tsx scripts/collectLocalSession.ts --project <dir> --session <path-to.jsonl> [--json]
  *
  * Not published to npm -- internal development command only.
+ *
+ * Both output modes (default human preview and --json) are built from the
+ * SAME LocalCollectionPublicView (see collectLocalSession.ts) -- neither
+ * branch is allowed to touch the internal `result.events` or
+ * `result.conversion.analysisContext` directly. This is the fix for
+ * MAS-006 (Astra independent review of claude/local-collection-poc@5978210):
+ * `--json` used to serialize the full internal result, which included raw
+ * session text collected before secret-masking/truncation.
  */
-import { collectLocalSession, LocalCollectionError } from "../src/server/localCollection/collectLocalSession.js";
+import { collectLocalSession, buildLocalCollectionPublicView, LocalCollectionError, type LocalCollectionPublicView } from "../src/server/localCollection/collectLocalSession.js";
 
 function parseArgs(argv: string[]) {
   const out: Record<string, string | boolean> = {};
@@ -26,39 +34,39 @@ function parseArgs(argv: string[]) {
   return out;
 }
 
-function printHumanPreview(result: ReturnType<typeof collectLocalSession>): void {
+function printHumanPreview(view: LocalCollectionPublicView): void {
   console.log(`\n=== 로컬 협업 기록 수집 미리보기 (mode=local-collection-poc) ===`);
-  console.log(`프로젝트: ${result.projectRoot}`);
-  console.log(`세션 파일: ${result.sessionFilePath}`);
+  console.log(`프로젝트: ${view.projectRoot}`);
+  console.log(`세션 파일: ${view.sessionFilePath}`);
   console.log(`\n-- 레코드 유형 개수 --`);
-  for (const [type, count] of Object.entries(result.parsed.typeCounts)) console.log(`  ${type}: ${count}`);
+  for (const [type, count] of Object.entries(view.recordTypeCounts)) console.log(`  ${type}: ${count}`);
 
-  if (result.parsed.malformedLines.length > 0) {
-    console.log(`\n-- 손상된 줄 (건너뜀, 총 ${result.parsed.malformedLines.length}개) --`);
-    for (const m of result.parsed.malformedLines) console.log(`  line ${m.lineNumber}: ${m.reason}`);
+  if (view.malformedLines.length > 0) {
+    console.log(`\n-- 손상된 줄 (건너뜀, 총 ${view.malformedLines.length}개) --`);
+    for (const m of view.malformedLines) console.log(`  line ${m.lineNumber}: ${m.reason}`);
   }
 
-  console.log(`\n-- 파일 경로 연결 (${result.fileConnections.length}개) --`);
-  for (const c of result.fileConnections) console.log(`  [${c.status}] ${c.path}\n    - ${c.note}`);
+  console.log(`\n-- 파일 경로 연결 (${view.fileConnections.length}개) --`);
+  for (const c of view.fileConnections) console.log(`  [${c.status}] ${c.path}\n    - ${c.note}`);
 
-  console.log(`\n-- 포함된 근거 (${result.conversion.evidence.length}개) --`);
-  for (const e of result.conversion.evidence) {
+  console.log(`\n-- 포함된 근거 (${view.evidence.length}개) --`);
+  for (const e of view.evidence) {
     console.log(`  [${e.evidenceId}] ${e.summary}`);
     console.log(`    path=${e.path ?? "null"} eventTime=${e.eventTime ?? "null"}`);
     console.log(`    검증 메모: ${e.verificationNote}`);
   }
 
-  if (result.conversion.excluded.length > 0) {
-    console.log(`\n-- 제외된 항목 (${result.conversion.excluded.length}개) --`);
-    for (const x of result.conversion.excluded) console.log(`  [${x.reason}] ${x.detail}`);
+  if (view.excluded.length > 0) {
+    console.log(`\n-- 제외된 항목 (${view.excluded.length}개) --`);
+    for (const x of view.excluded) console.log(`  [${x.reason}] ${x.detail}`);
   }
 
-  if (result.conversion.maskedEvidenceIds.length > 0) {
-    console.log(`\n-- 비밀 패턴이 마스킹된 근거 (${result.conversion.maskedEvidenceIds.length}개) --`);
-    for (const id of result.conversion.maskedEvidenceIds) console.log(`  ${id}`);
+  if (view.maskedEvidenceIds.length > 0) {
+    console.log(`\n-- 비밀 패턴이 마스킹된 근거 (${view.maskedEvidenceIds.length}개) --`);
+    for (const id of view.maskedEvidenceIds) console.log(`  ${id}`);
   }
 
-  console.log(`\n(원문 발췌는 이 화면과 analysisContext에만 존재하며, 외부로 전송되지 않았다.)`);
+  console.log(`\n(원문 발췌는 근거 요약(마스킹·절단됨)으로만 표시되며, 전체 원문은 이 출력에도 외부로도 전송되지 않았다.)`);
 }
 
 async function main(): Promise<void> {
@@ -71,13 +79,16 @@ async function main(): Promise<void> {
 
   try {
     const result = collectLocalSession({ projectRoot: args.project, sessionFilePath: args.session });
+    const view = buildLocalCollectionPublicView(result);
     if (args.json) {
-      process.stdout.write(JSON.stringify(result, null, 2) + "\n");
+      process.stdout.write(JSON.stringify(view, null, 2) + "\n");
     } else {
-      printHumanPreview(result);
+      printHumanPreview(view);
     }
   } catch (err) {
     if (err instanceof LocalCollectionError) {
+      // err.message only ever carries the caller-supplied file path and a
+      // static reason string (see parseSessionFile.ts) -- never session content.
       process.stderr.write(`[collect-local-session] ${err.code}: ${err.message}\n`);
       process.exitCode = 1;
       return;
