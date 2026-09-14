@@ -17,6 +17,21 @@ export function ownerView(record: AssessmentRecord) {
     needsRetry: !!record.attempt && record.attempt.deadline < Date.now(),
   });
 }
+/** Private history uses an explicit summary allowlist, never the detail/result DTO. */
+export function assessmentSummaryView(record: AssessmentRecord) {
+  const result = record.status === 'done' ? record.result : null;
+  return {
+    assessment_id: record.id,
+    repo_url: record.repoUrl,
+    commit_sha: record.prepared?.snapshot.commitSha ?? record.result?.commitSha ?? null,
+    status: record.status,
+    created_at: record.createdAt,
+    expires_at: record.expiresAt,
+    score: result ? { status: result.score.status, value: result.score.value } : null,
+    criteria: result ? result.criteria.map(c => ({ criterion_code: c.criterionCode, status: c.status, level: c.level })) : [],
+    visibility: record.visibility,
+  };
+}
 export function resultView(result: AssessmentResult) {
   return { ...result, improvementTask: { ...result.improvementTask,
     steps: [result.improvementTask.action], doneWhen: result.improvementTask.doneChecklist } };
