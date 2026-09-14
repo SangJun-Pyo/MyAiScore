@@ -19,3 +19,6 @@ coverage/
 .vercel/
 .wrangler/
 *.tsbuildinfo
+.data/
+playwright-report/
+test-results/
