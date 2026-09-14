@@ -143,7 +143,11 @@ export function AssessmentExperience({ id }: { id: string }) {
   const [copyStatus, setCopyStatus] = useState("");
   const base = `/api/assessments/${encodeURIComponent(id)}`;
   const refresh = useCallback(async () => { const next = await request<Assessment>(`/api/assessments/${encodeURIComponent(id)}`, { id }); setAssessment(next); return next; }, [id]);
-  useEffect(() => { void refresh().catch(e => setError(asMessage(e))); }, [refresh]);
+  useEffect(() => {
+    setAssessment(null); setBusy(false); setActivity(""); setError(""); setAnswers({});
+    setDeleteConfirm(false); setShareConfirm(false); setReassessConfirm(false); setCopyStatus("");
+    void refresh().catch(e => setError(asMessage(e)));
+  }, [refresh]);
   async function run(stage?: string) {
     setBusy(true); setError("");
     try {
@@ -236,12 +240,18 @@ function ResultView({ assessment, example = false, shared = false }: { assessmen
   if (!result) return <Alert>아직 표시할 진단이 없습니다.</Alert>;
   const issued = result.score?.status === "issued" && typeof result.score.value === "number";
   const observed = result.criteria?.filter(item => item.status === "observed").length || 0;
+  const withholdingLabels: Record<string, string> = {
+    insufficient_dimensions: "일부 항목을 판단할 근거가 충분하지 않습니다.",
+    ingestion_partial: "선정한 저장소 자료를 일부만 읽어 종합점수를 보류합니다.",
+    unresolved_conflict: "판정에 영향을 주는 근거의 충돌이 남아 있습니다.",
+  };
   const task = result.improvement_task;
   async function copyTask() {
     const text = task?.copy_text || [task?.title, task?.why, ...(task?.steps || []).map((step, index) => `${index + 1}. ${step}`), "완료 조건", ...(task?.done_when || [])].filter(Boolean).join("\n\n");
     try { await navigator.clipboard.writeText(text); setCopyState("작업서를 복사했어요."); } catch { setCopyState("자동 복사를 하지 못했어요. 아래 작업서의 내용을 직접 선택해 복사해 주세요."); }
   }
   return <div className="result-view">{(example || assessment.is_example) && <div className="example-banner"><span className="sample-chip">SYNTHETIC EXAMPLE</span><p>합성 자료로 만든 가상 예시입니다. 실제 사용자의 평가 결과나 실제 모델 실행 결과가 아닙니다.</p></div>}<div className="result-overview"><div className="score-panel"><span className="tiny-label">MY AI SCORE</span>{issued ? <div className="score-number">{result.score!.value}<span>/ 100</span></div> : <h2 className="withheld-title">점수 보류<span>근거를 더 확인해야 해요.</span></h2>}<span className="score-observation">{observed}/5 항목 확인</span><p>{issued ? "다섯 항목을 판단할 근거가 확인됐습니다." : "확인되지 않은 항목을 0점으로 계산하지 않습니다."}</p></div><div className="overview-copy"><SectionLabel>{issued ? "EVIDENCE BEFORE NUMBERS" : "UNKNOWN IS NOT ZERO"}</SectionLabel><h2>{issued ? <>점수는 시작점.<br />근거가 진단의 중심입니다.</> : <>모르는 것을 남겨두는 것도,<br />정확한 진단의 일부입니다.</>}</h2><p>이번 프로젝트와 제출 근거에 한정된 실험적 진단입니다. 개인의 전체 실력이나 채용 적합성을 인증하지 않습니다.</p>{result.confidence?.evidence_scope && <div className="evidence-scope"><span>읽은 파일 <strong>{result.confidence.evidence_scope.read_files ?? "—"}</strong></span><span>선정 후보 <strong>{result.confidence.evidence_scope.candidate_files ?? "—"}</strong></span></div>}<details className="score-explanation"><summary>점수는 어떻게 계산하나요?</summary><p>각 항목은 1–4단계로 판단하고 가중치를 적용합니다. 다섯 항목의 근거가 유효하고 수집이 완료된 경우에만 25–100점 범위의 총점을 제공합니다. 일부 근거가 부족하거나 수집이 불완전하면 보류합니다.</p></details></div></div>
+    {!issued && Boolean(result.score?.reasons?.length) && <div className="notice"><strong>점수를 보류한 이유</strong><ul>{result.score!.reasons!.map(reason => <li key={reason}>{withholdingLabels[reason] || "점수 발급 조건을 확인하지 못했습니다."}</li>)}</ul></div>}
     <div className="findings-heading"><h3>다섯 가지 관점에서 본 협업</h3><span>{shared ? "공개 요약" : "항목을 펼쳐 근거를 확인하세요"}</span></div><div className="findings">{AXES.map(axis => { const criterion = result.criteria?.find(item => item.criterion_code === axis.code); const level = criterion?.status === "observed" ? criterion.level : null; return <details className="finding" key={axis.code}><summary><span className="axis-letter">{axis.code}</span><span className="finding-name">{axis.name}<small>가중치 {axis.weight}%</small></span><span className={`level-badge ${level === null ? "unobserved" : ""}`}>{level === null ? "미확인" : `${level}단계 / 4`}</span><span className="expand-icon" aria-hidden="true">+</span></summary><div className="finding-body">{criterion?.rationale ? <p>{criterion.rationale}</p> : <p>{shared ? "세부 근거와 개인 협업 기록은 비공개입니다." : axis.description}</p>}{!shared && criterion?.missing_evidence && <div className="missing-note"><strong>더 확인할 자료</strong><p>{Array.isArray(criterion.missing_evidence) ? criterion.missing_evidence.join(" · ") : criterion.missing_evidence}</p></div>}{!shared && Boolean(criterion?.supporting_evidence_ids?.length) && <div className="evidence-list">{criterion!.supporting_evidence_ids!.map(evidenceId => { const evidence = assessment.evidence?.find(item => item.evidence_id === evidenceId); return <article key={evidenceId}><span className="evidence-type">{evidence?.source_type?.includes("repo") || evidence?.path ? "코드 근거" : "협업 근거"}</span>{evidence?.path && <code>{evidence.path}</code>}<p>{evidence?.summary || "연결된 근거"}</p>{evidence?.verification_note && <small>{evidence.verification_note}</small>}</article>; })}</div>}</div></details>; })}</div>
     {!shared && Boolean(result.confidence?.remaining_uncertainty?.length) && <details className="uncertainty"><summary>이번 진단에서 확인하지 못한 것</summary><ul>{result.confidence!.remaining_uncertainty!.map((item, index) => <li key={index}>{item}</li>)}</ul></details>}
     {!shared && task && <section className="improvement-panel"><div className="improvement-heading"><div><SectionLabel>ONE NEXT MOVE</SectionLabel><h2>{task.title}</h2></div><span className="task-symbol" aria-hidden="true">↗</span></div>{task.why && <p className="task-why">{task.why}</p>}<div className="task-columns"><div><h3>이렇게 실행하세요</h3><ol>{task.steps?.map((step, index) => <li key={index}>{step}</li>)}</ol></div><div><h3>이렇게 되면 완료</h3><ul>{task.done_when?.map((step, index) => <li key={index}>{step}</li>)}</ul></div></div><div className="task-footer"><p>다음 작업에 붙여넣고 직접 실행해 보세요.</p><button className="button button-light" onClick={() => void copyTask()}>개선 작업서 복사 <Arrow /></button></div>{copyState && <p className="copy-status" role="status">{copyState}</p>}</section>}
