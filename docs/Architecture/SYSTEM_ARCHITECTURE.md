@@ -4,6 +4,8 @@
 
 ## 1. 최소 구성과 상태
 
+이 구조를 선택한 이유·대안·한계는 [ADR 인덱스](ADR/README.md)에 기록한다. 이 문서는 현재 구조의 정본이며 과거 결정 이유를 중복 보관하지 않는다.
+
 Next.js/React/TypeScript + 서버 API + Supabase/PostgreSQL adapter를 구현했다. LLM은 서버의 Anthropic Messages adapter로 호출하며 키·정확한 모델 ID·명시적 활성화가 필요하다. Docker/Railway 설정을 준비했으나 계정 배포·실제 비용은 미검증이다. 별도 큐나 워커는 없다.
 
 현재 구현과 미실행 구분은 [Phase 4](../Development/Sessions/Phase-04-Web-MVP.md)를 따른다. API 단계와 합성 end-to-end 검증은 구현됐지만 실제 모델 판정 타당성·Supabase 인스턴스 실행은 미검증이다.

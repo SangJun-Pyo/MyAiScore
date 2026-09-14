@@ -79,6 +79,7 @@
 | 제품 | [PRD](Product/PRD.md), [MVP_SCOPE](Product/MVP_SCOPE.md) |
 | 평가 | [SCORING_RUBRIC](Assessment/SCORING_RUBRIC.md), [EVIDENCE_SCHEMA](Assessment/EVIDENCE_SCHEMA.md), [CONFIDENCE_MODEL](Assessment/CONFIDENCE_MODEL.md), [CALIBRATION_PLAN](Assessment/CALIBRATION_PLAN.md) |
 | 설계 | [SYSTEM_ARCHITECTURE](Architecture/SYSTEM_ARCHITECTURE.md), [GITHUB_INGESTION](Architecture/GITHUB_INGESTION.md), [API_DATA_CONTRACTS](Architecture/API_DATA_CONTRACTS.md) |
+| 설계 결정 | [ADR 인덱스](Architecture/ADR/README.md) — 결정별 이유·대안·결과·대체 관계 |
 | 보안·화면 | [PRIVACY_SECURITY](Security/PRIVACY_SECURITY.md), [USER_FLOW](UI/USER_FLOW.md), [IMPROVEMENT_TASK_TEMPLATE](Knowledge/IMPROVEMENT_TASK_TEMPLATE.md) |
 | 개발 | [ROADMAP](Development/ROADMAP.md), [AGENT_WORKFLOW](Development/AGENT_WORKFLOW.md), [IMPLEMENTATION_TASKS](Development/IMPLEMENTATION_TASKS.md), [DECISIONS](Development/DECISIONS.md), [CHANGELOG](Development/CHANGELOG.md), [ASTRA_REVIEW_BRIEF](Development/Sessions/Phase-00-Planning.md#planning-review) |
 

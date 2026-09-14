@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-14 — Phase 4 ADR 사후 기록
+
+- DECISIONS/세션 요약에만 남겼던 주요 설계 6개를 Architecture/ADR에 배경·결정·대안·결과·미검증 범위와 함께 기록했다.
+- 사후 기록임을 표시하고 기존 요약에서 상세 ADR로 연결했다. AGENTS/CLAUDE/작업 완료 규칙에 주요 설계 변경의 ADR 작성과 대체 관계를 추가했다.
+- 문서만 변경했다. 관련 [#7](https://github.com/SangJun-Pyo/MyAiScore/issues/7), [Phase 4](Sessions/Phase-04-Web-MVP.md).
+
 ## 2026-09-14 — Astra·서브에이전트 웹 MVP 통합
 
 - GitHub 이슈 #1~4와 독립 codex worktree를 만들고 Astra가 구현·통합을 맡는 운영으로 변경.

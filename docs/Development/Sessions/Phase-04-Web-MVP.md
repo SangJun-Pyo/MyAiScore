@@ -58,6 +58,12 @@ Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했�
 
 ## 인계
 
+### 2026-09-14 — ADR 누락 보완
+
+사용자가 ADR 누락을 지적했다. 확인 결과 독립 ADR은 없었고 DECISIONS 8·9절과 이 세션에 요약만 있었다. Astra가 [ADR-0001~0006](../../Architecture/ADR/README.md)을 실제 merge `db0edd7`과 코드에 근거해 사후 작성했다. 과거 시점에 ADR을 작성했거나 모든 기술 선택에 사용자 개별 승인을 받았다고 표현하지 않는다. 현재 구현의 Accepted와 실제 모델/운영 검증은 구분했다.
+
+모델 활성화, 단계 실행, 소유/공개 경계, 저장, 비교, Three.js 선택의 배경·대안·결과를 분리했다. DECISIONS에는 연결 요약을 두고 AGENTS/CLAUDE/AGENT_WORKFLOW의 완료 조건을 보완했다. 과거 Phase 0~3 전체 ADR 전환이나 앱 변경은 하지 않았다. 문서 링크·배치 검사와 Git diff 검사를 수행하며 관련 이슈는 [#7](https://github.com/SangJun-Pyo/MyAiScore/issues/7)이다.
+
 통합 변경은 [PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6)으로 올렸다. 로컬 검증은 위와 같으며 원격 Linux CI의 최신 결과는 PR의 Checks에서 확인한다. 배포와 실제 모델 교정은 [#4](https://github.com/SangJun-Pyo/MyAiScore/issues/4)에 남긴다.
 
 `4606939`의 [Linux CI](https://github.com/SangJun-Pyo/MyAiScore/actions/runs/34843577726)가 전체 통과했다. 이후 390px 화면에서 장식 글로우가 2px 가로 overflow를 만드는 점을 보정했고, 최종 빌드·브라우저 12건을 다시 통과했다. 직접 계측도 `innerWidth=390`, `scrollWidth=390`이며 모바일 캡처를 갱신했다. 최종 후속 commit의 원격 결과는 PR Checks를 따른다.
