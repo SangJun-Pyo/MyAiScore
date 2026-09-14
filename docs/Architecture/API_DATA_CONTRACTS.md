@@ -8,6 +8,7 @@
 
 - `GET /api/config`: live_enabled/provider_configured/storage_mode와 제한 안내. 키·모델 설정을 반환하지 않는다.
 - `GET /api/health`: liveness만 제공. DB·모델 readiness 인증은 아니다.
+- `GET /api/assessments`: Bearer 필수. 본인 소유이며 만료되지 않은 평가를 created_at 내림차순(동률 ID 순)으로 최대 50개 반환한다. 응답은 `{assessments, total, limit:50, has_more}`이며 total도 같은 소유·만료 필터를 적용한다. 목록 항목은 assessment_id/repo_url/commit_sha/status/created_at/expires_at/score({status,value} 또는 null)/criteria({criterion_code,status,level}[])/visibility만 포함한다. 미완료 결과는 score=null, criteria=[]다. 토큰 누락·형식 오류는 401, 유효 형식의 소유자에 기록이 없으면 빈 목록이다. 쿼리로 다른 owner나 상한을 지정할 수 없다. 원문·자유 서술·근거·답변·소유 해시·share_id는 목록에서 제외한다. [ADR-0007](ADR/0007-anonymous-assessment-workspace.md).
 - create는 `consent:true`, `repo_url`, 선택 `commit_ref`, `collaboration_case`, `excerpts:string[]`를 받는다. 발췌는 최대 3개/각 2,000자이며 파일 경로나 로컬 JSON 업로드를 받지 않는다.
 - owner DTO: assessment_id, repo_url, commit_sha, status, ingestion_status, input_revision, created_at, expires_at, questions, evidence, result, failure, visibility, share_id, previous_assessment_id, needs_retry.
 - `result`는 criteria/score/confidence/improvement_task/manifest/evidence를 포함한다. 예전 flat `my_ai_score`는 현재 `result.score`, `confidence_summary`는 `result.confidence`다. CriterionResult의 snake_case 필드·점수 공식·근거 참조 원칙은 유지한다.

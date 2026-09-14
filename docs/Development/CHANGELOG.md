@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-14 — 프로필·항목별 분석과 실제 저장소 수집
+
+- 홈/프로필/항목별 분석/새 평가 경로를 나누고 5축 선택형 3D hero, 탭 단위 소유 이력, 평가별 근거와 기준 탭을 구현했다. 계정·리더보드는 추가하지 않았다.
+- 소유 이력의 인증·만료·필드 제한을 구현하고 예시/빈 상태를 구분했다. 재클릭/URL 상태 결함을 수정했다.
+- MyAiScore 실제 GitHub 수집에서 표본 편중 MAS-007을 발견해 선정 규칙을 보정했다. 최초 수집과 동일 SHA 로컬 재현을 분리 보존한다. 실제 모델 호출·점수 발급은 미실행이다.
+- typecheck/build, 234개 단위·회귀, 22개 브라우저 검사 통과. [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md), [ADR-0007](../Architecture/ADR/0007-anonymous-assessment-workspace.md), [ADR-0008](../Architecture/ADR/0008-balanced-repository-sampling.md), [#13](https://github.com/SangJun-Pyo/MyAiScore/issues/13), [#14](https://github.com/SangJun-Pyo/MyAiScore/issues/14).
+
 ## 2026-09-14 — 에이전트 공통 지침 통합
 
 - AGENTS를 공통 작업 규칙 정본으로 명시하고 기존 CLAUDE의 구현 원칙을 옮겼다. CLAUDE는 AGENTS/ROADMAP import 진입점으로 간소화했다.

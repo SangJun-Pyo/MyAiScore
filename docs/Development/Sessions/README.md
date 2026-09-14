@@ -10,6 +10,7 @@
 | [Phase 2 Fixes](Phase-02-Fixes.md) | 09-14~ | MAS-002/004/005 코드 경계 보정·회귀 확인 |
 | [Phase 3 — 로컬 협업 기록 수집 PoC](Phase-03-Local-Collection-PoC.md) | 기존 보고 날짜 보존 | synthetic 출력 경계 보정 완료, 실제 세션 호환성 미검증 |
 | [Phase 4 — 웹 MVP 통합](Phase-04-Web-MVP.md) | 09-14 | 웹·API·provider 구현, 실제 모델 교정·계정 배포는 미실행 |
+| [Phase 5 — 프로필·실제 평가 준비](Phase-05-Profile-And-Live-Pilot.md) | 09-14 | 화면·이력·수집 보정 검증, 실제 모델은 API/예산 미정 |
 | [문서·Git 정리](Session-2026-09-14-Documentation-And-Git.md) | 09-14 | 이력 복원 및 로컬 형상 관리 도입 |
 
 ## 기록 원칙
