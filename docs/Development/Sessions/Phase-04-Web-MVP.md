@@ -58,6 +58,12 @@ Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했�
 
 ## 인계
 
+### 2026-09-14 — AGENTS/CLAUDE 공통 지침 연결
+
+사용자가 어느 파일이 최신이며 두 도구가 최신 지침을 읽도록 적용됐는지 물었다. 확인 당시 두 파일의 마지막 변경은 모두 `6c9d563`이었으나 공통 규칙을 중복 보관했다. AGENTS를 공통 정본으로 명시하고 CLAUDE의 고유 구현 원칙을 보존·이동했다. CLAUDE는 공식 import 문법으로 같은 checkout의 AGENTS와 ROADMAP을 불러오게 바꿨다. Codex에는 AGENTS에서 ROADMAP을 작업 전에 디스크로 읽도록 명시했다.
+
+공식 Codex/Claude 문서의 로딩 동작을 확인하고 실제 import 대상 경로와 Markdown 링크를 검사한다. 전역 설정, 앱의 프로젝트 연결, 이미 실행 중인 Claude 세션의 import 상태를 직접 변경하거나 로딩 실증했다고 주장하지 않는다. 기존 세션은 다시 읽거나 공용 폴더에서 새로 시작한다. 관련 [#11](https://github.com/SangJun-Pyo/MyAiScore/issues/11).
+
 ### 2026-09-14 — 공용 프로젝트 경로 동기화 누락 보완
 
 사용자가 다른 에이전트와 공유하던 `C:/Users/sangj/MyAiScore/docs`가 갱신되지 않은 점을 지적했다. Astra는 worktree와 GitHub main만 갱신하고 공용 checkout 인계를 누락했다. 공용 경로는 clean이지만 `claude/local-collection-poc@f4f7012`였고, 원격 main은 `2b7d153`이었다.

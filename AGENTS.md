@@ -1,5 +1,7 @@
 # AGENTS.md — MyAiScore 협업 지침
 
+이 파일은 **Codex·Claude Code·다른 구현 에이전트의 공통 작업 규칙 정본**이다. `CLAUDE.md`는 이 파일을 불러오는 Claude Code 진입점이며 공통 규칙을 별도로 복제하지 않는다. 진행 상태의 정본은 [ROADMAP](docs/Development/ROADMAP.md)이다. 파일 수정 시각으로 둘 중 하나를 고르지 않는다.
+
 ## 공용 작업·인계 경로
 
 이 환경의 기본 프로젝트는 `C:/Users/sangj/MyAiScore`, 공용 문서는 그 안의 `docs/`다. 다른 에이전트도 여기의 AGENTS → ROADMAP → Sessions/ADR에서 시작한다. 별도 worktree는 병렬 작업용이며 새 정본 경로가 아니다. 완료 시 원격 main뿐 아니라 이 checkout도 코드·문서가 같은 기준이 되도록 동기화하고 실제 HEAD/clean 상태를 확인한다. 미커밋 변경이나 미통합 commit이 있으면 보존·통합한 뒤 진행한다. 강제 reset이나 docs만 수동 복사하지 않는다. 절차는 [AGENT_WORKFLOW](docs/Development/AGENT_WORKFLOW.md)를 따른다.
@@ -13,7 +15,15 @@
 
 ## 새 세션의 읽는 순서
 
-[마스터](docs/00_MASTER_PLAN.md) → [ROADMAP](docs/Development/ROADMAP.md)의 현재 작업 → 해당 [세션](docs/Development/Sessions/README.md) → [BUGS](docs/Development/BUGS.md) → 관련 도메인 문서 / [DECISIONS](docs/Development/DECISIONS.md) / [작업 조건](docs/Development/IMPLEMENTATION_TASKS.md). 코드 수정 전 Git status와 실제 코드를 확인한다.
+작업 전에 현재 checkout의 [ROADMAP](docs/Development/ROADMAP.md)을 디스크에서 읽는다. 이어 [마스터](docs/00_MASTER_PLAN.md) → 해당 [세션](docs/Development/Sessions/README.md) → [BUGS](docs/Development/BUGS.md) → 관련 도메인 문서 / [ADR](docs/Architecture/ADR/README.md) / [DECISIONS](docs/Development/DECISIONS.md) / [작업 조건](docs/Development/IMPLEMENTATION_TASKS.md)을 읽는다. 작업 디렉터리·Git 브랜치·HEAD·status를 확인해 과거 브랜치의 문서로 최신 구현을 판단하지 않는다. 기존 세션에서 문서가 갱신됐으면 관련 파일을 다시 읽고 진행한다. 명시적인 worktree 작업은 그 checkout의 코드와 문서를 함께 사용하며 서로 다른 버전의 파일을 섞지 않는다.
+
+## 공통 구현 원칙
+
+- 단일 공개 저장소·협업 사례, 미확인=null, 5축 모두 판정 가능할 때만 총점.
+- SCORING_RUBRIC/EVIDENCE_SCHEMA/API_DATA_CONTRACTS가 각 공식·데이터·상태의 정본이다.
+- 제출 저장소의 install/build/test/hooks/MCP를 실행하지 않는다. MyAiScore 자체 테스트는 실행한다.
+- 개발 도구 구독과 서비스 LLM API는 별개다. 승인된 작업 범위에서 진행하고 미승인 비용·배포를 만들지 않는다.
+- 작은 구현 선택은 근거를 남기고 진행한다. 미실행·미검증·사람 검토를 꾸미지 않는다.
 
 ## 공통 규칙
 

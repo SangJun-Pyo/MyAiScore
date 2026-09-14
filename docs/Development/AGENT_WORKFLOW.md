@@ -4,10 +4,14 @@
 
 ## 세션 시작
 
-1. 루트 AGENTS.md / CLAUDE.md, [마스터](../00_MASTER_PLAN.md)를 읽는다.
-2. [ROADMAP](ROADMAP.md)의 현재 Phase와 지시문을 확인한다.
+1. 공통 규칙은 루트 AGENTS.md에서 읽는다. Codex는 이를 프로젝트 지침으로 읽고, Claude Code의 CLAUDE.md는 `@AGENTS.md`와 `@docs/Development/ROADMAP.md`를 import한다. 두 파일을 별도 규칙 정본으로 관리하지 않는다.
+2. [ROADMAP](ROADMAP.md)의 현재 Phase와 지시문을 디스크에서 확인하고 [마스터](../00_MASTER_PLAN.md)를 읽는다.
 3. 해당 [Sessions](Sessions/README.md) 기록, [BUGS](BUGS.md), 관련 도메인 계약을 읽는다.
 4. `git status --short`, `git log -5 --oneline`으로 실제 변경과 기준점을 확인한다. 채팅 기억이나 오래된 보고만으로 현재 상태를 판단하지 않는다.
+
+자동 발견은 시작한 프로젝트/checkout에 적용된다. 다른 폴더에서 실행한 도구를 이 문서만으로 해당 프로젝트에 연결할 수는 없다. 공용 폴더에서 새 세션을 시작하거나 기존 세션에 AGENTS/ROADMAP을 다시 읽도록 지시한다. 실행 중인 Claude의 실제 import 로딩은 `/memory`에서 확인할 수 있다. 프로젝트 밖 전역 지침/설정은 이번 통합으로 변경하지 않는다.
+
+공식 동작 근거: [Codex AGENTS discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md), [Claude Code imports](https://code.claude.com/docs/en/memory#agents-md). 지침 파일 연결과 에이전트의 모든 행동 준수 보장은 구분한다.
 
 ## 작업 흐름
 
