@@ -29,7 +29,7 @@
 | Phase 1 Task 0·1 | 구현/기초 검증 기록 확보 | [기록](Sessions/Phase-01-Fixtures-And-Ingestion.md) |
 | Phase 2 Task 2a·3 | 구현 보고 후 수용 보류 | [검토](Sessions/Phase-02-Offline-Evaluation.md#astra-review) |
 | Phase 2 Fixes | 재검토 후 잔여 3항목 보정 | [현재 세션](Sessions/Phase-02-Fixes.md) |
-| Phase 3 로컬 수집 PoC | MAS-006 구현자 수정 완료, 독립 재검토 대기 — 통과 후 실제 세션 실험. 정식 MVP 편입 아님, Task 순서에 삽입되지 않음 | [현재 세션](Sessions/Phase-03-Local-Collection-PoC.md) |
+| Phase 3 로컬 수집 PoC | MAS-006 독립 재검토 PASS(종료). 다음은 실제 세션 1건 실험 계획 실행 여부 결정. 정식 MVP 편입 아님, Task 순서에 삽입되지 않음 | [현재 세션](Sessions/Phase-03-Local-Collection-PoC.md) |
 | Task 2b 실제 모델 실험 | 미착수 | 코드 검토 통과 + 모델/접속/예산 확정 |
 | Task 4 개선 작업서·비교 | 미착수 | Task 2·3 검토 |
 | Task 5 API·저장 | 미착수 | 데이터 계약·환경 확정 |

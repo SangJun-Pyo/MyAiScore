@@ -303,3 +303,25 @@ npm test             # 170 pass, 0 fail (기존 166 + 신규 4)
 ### 변경·커밋 기록 (이번 절)
 
 - `187cf52` — `fix: MAS-006 -- collect-local-session CLI leaks unmasked session text via --json` (브랜치 `claude/local-collection-poc`, 독립 검토 commit `0e7259e` 바로 위). 이 절에 기록한 재현·수정·artifact 재생성·회귀 테스트 전부 포함.
+
+---
+
+## 2026-09-20 (후속) — MAS-006 독립 재검토: PASS
+
+- **검토한 정확한 commit**: 코드 기준 `187cf52`, 검토 시점 브랜치 HEAD `3fa263b`(문서 전용, 코드 변경 없음).
+- **검토자**: 구현자와 분리된 독립 검토 서브에이전트(Claude, general-purpose). worktree 격리를 이번 환경에서 사용할 수 없어(설정된 VCS worktree 훅 없음), 메인 작업 트리를 읽기 전용으로 그대로 사용했다 — 검토 시작·종료 시 `git status --short`가 둘 다 비어 있고 서로 동일함을 확인해 작업 트리를 건드리지 않았음을 검증했다. CLI 실행은 저장소 밖 스크래치패드 임시 디렉터리만 대상 프로젝트로 사용했다.
+- **판정: PASS.** 요청한 7개 범위를 단순 `grep` 결과가 아니라 구조 대조로 확인했다:
+  1. `LocalCollectionPublicView`(8개 필드)와 `buildLocalCollectionPublicView()`를 코드로 읽어, human/`--json` 두 출력 경로가 이 함수가 만든 같은 `view` 객체만 쓰고 `result.events`/`result.conversion.analysisContext`를 참조하는 코드가 CLI에 없음을 확인.
+  2. `secrets-session.jsonl --json`의 실제 출력을 파싱해 최상위 키가 `LocalCollectionPublicView` 정의와 정확히 일치(`events`/`analysisContext` 없음)함을 확인. `evidence[]`의 중첩 키도 `Evidence` 계약(13개 필드)과 일치하고, `summary`/`verificationNote`가 마스킹·절단된 텍스트나 고정 템플릿 문구로만 채워짐을(즉 원문이 들어갈 다른 경로가 없음을) `toEvidence.ts` 코드로 확인. `MalformedLine.reason`도 줄 번호+파서 오류 메시지뿐임을 확인.
+  3. `secrets-session.jsonl`(정상/`--json`/human), `unsupported-format.jsonl`(오류 경로), `corrupted-session.jsonl`을 실제로 실행해 synthetic 비밀 패턴이 stdout/stderr 어디에도 없음을 확인(단순 카운트가 아니라 최상위+중첩 키 구조 대조와 함께).
+  4. `recordTypeCounts`/`malformedLines`/`fileConnections`/`evidence`/`excluded`/`maskedEvidenceIds`가 실제 실행에서 모두 정상적으로 채워짐을 확인 — 필요한 정보 손실 없음.
+  5. 재생성된 `artifacts/local-collection-poc/basic-session.json` 및 preview 3종을 직접 열어 원문 노출이 없음을 확인.
+  6. `npm run typecheck` 통과(0 에러), `npm test` **170 pass / 0 fail**을 직접 실행해 확인(문서 수치와 일치).
+  7. `git diff 0e7259e..187cf52 --stat`로 변경 파일이 CLI/오케스트레이션/신규 테스트/artifact/문서로만 한정됨을 확인 — `src/shared/contracts/evaluation.ts`, provider/judgement/scoring 관련 파일은 diff에 없음(MAS-002/004/005 재검토는 하지 않음, 범위 밖).
+- **한계(정직하게 남김)**: 이번 검토는 `secrets-session.jsonl`의 `sk-` 패턴 1종과 손상/미지원 형식 fixture로만 확인했다. `redactSecrets`가 다루지 않는 다른 형태의 개인정보(AWS 키, 이메일, 전화번호 등)가 마스킹되는지는 이번 MAS-006 검토 범위가 아니며, **이번 종료 처리가 모든 개인정보 탐지의 완전성을 보증하지 않는다.** Windows junction/symlink 경로 이탈 검증은 이전 검토와 마찬가지로 미검증으로 남아 있다(MAS-006과 무관). injection/outside-project-path/unresolved-tool fixture는 이번 좁은 범위와 무관해 재실행하지 않았다(2026-09-14 검토에서 이미 확인됨).
+
+### 상태 갱신
+
+**MAS-006: 이번 재현 경로(`--json`의 `events`/`analysisContext` 노출)에 한해 종료(closed).** 다른 형태의 개인정보 누출 경로나 마스킹 패턴 자체의 완전성까지 종료됐다고 확대 해석하지 않는다. BUGS.md를 동기화했다.
+
+MAS-002/004/005는 이번 검토·종료와 무관하게 그대로 열려 있다. 실제 사용자 세션 실험, 평가 파이프라인 연결은 이번에도 실행하지 않았다.

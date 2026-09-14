@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-20 — MAS-006 독립 재검토: PASS, 종료
+
+- 구현자와 분리된 독립 검토 서브에이전트가 MAS-006 수정(`187cf52`)을 재검토했다. worktree 격리는 이번 환경에서 사용할 수 없어 메인 작업 트리를 읽기 전용으로 사용(검토 전후 `git status` clean·동일 확인).
+- 단순 `grep`이 아니라 `LocalCollectionPublicView`의 허용 필드 목록과 실제 `--json`/artifact 출력의 최상위·중첩 키 구조를 대조해 확인. `secrets-session.jsonl`/`unsupported-format.jsonl`/`corrupted-session.jsonl` 실행 모두에서 synthetic 비밀·원문 미노출을 확인. `npm run typecheck` 통과, `npm test` 170 pass 재확인. `git diff 0e7259e..187cf52`로 MAS-002/004/005·평가 파이프라인과 무관함을 파일 범위로 확인.
+- **판정 PASS.** MAS-006을 이번 재현 경로(`--json`의 `events`/`analysisContext` 노출)에 한해 종료(closed) 처리했다 — 다른 개인정보 마스킹 패턴의 완전성까지 보증하는 것은 아니다(BUGS.md에 명시).
+- 상세: [Phase 3 — MAS-006 독립 재검토](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-20-후속--mas-006-독립-재검토-pass).
+
 ## 2026-09-20 — MAS-006 수정 (로컬 수집 PoC CLI 원문 노출)
 
 - 독립 검토(`0e7259e`)가 발견한 P1 결함 MAS-006(`scripts/collectLocalSession.ts --json`이 마스킹 전 세션 원문을 그대로 출력)을 수정했다. `secrets-session.jsonl`로 먼저 재현(회귀 테스트 3/4 실패 확인) 후 수정.
