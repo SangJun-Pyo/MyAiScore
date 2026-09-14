@@ -58,6 +58,12 @@ Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했�
 
 ## 인계
 
+### 2026-09-14 — 공용 프로젝트 경로 동기화 누락 보완
+
+사용자가 다른 에이전트와 공유하던 `C:/Users/sangj/MyAiScore/docs`가 갱신되지 않은 점을 지적했다. Astra는 worktree와 GitHub main만 갱신하고 공용 checkout 인계를 누락했다. 공용 경로는 clean이지만 `claude/local-collection-poc@f4f7012`였고, 원격 main은 `2b7d153`이었다.
+
+로컬에만 남은 Claude의 문서 재검토 commit `f4f7012`를 통합 브랜치의 merge 부모로 보존한다. 원문 검토/CHANGELOG를 보존하면서 최신 BUGS/ROADMAP을 과거 상태로 되돌리지 않았다. 특히 당시 제한된 PASS와 이후 Astra의 파서/metadata 추가 수정은 구분했다. AGENTS/CLAUDE/워크플로에 공용 경로와 통합 후 동기화 절차를 명시했다. 문서만 복사하지 않고 코드·문서를 같은 main으로 갱신하며, 완료 여부는 공용 경로의 실제 HEAD/clean 상태로 확인한다. 관련 [#9](https://github.com/SangJun-Pyo/MyAiScore/issues/9).
+
 ### 2026-09-14 — ADR 누락 보완
 
 사용자가 ADR 누락을 지적했다. 확인 결과 독립 ADR은 없었고 DECISIONS 8·9절과 이 세션에 요약만 있었다. Astra가 [ADR-0001~0006](../../Architecture/ADR/README.md)을 실제 merge `db0edd7`과 코드에 근거해 사후 작성했다. 과거 시점에 ADR을 작성했거나 모든 기술 선택에 사용자 개별 승인을 받았다고 표현하지 않는다. 현재 구현의 Accepted와 실제 모델/운영 검증은 구분했다.

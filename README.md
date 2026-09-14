@@ -71,6 +71,8 @@ npm run collect:local -- --project . --session fixtures/local-collection/basic-s
 
 ## 작업 관리
 
+상준님 환경의 공용 프로젝트는 `C:/Users/sangj/MyAiScore`이며 에이전트 인계 문서는 그 안의 `docs/`입니다. 별도 worktree는 작업을 분리하는 용도이고, 완료 후 코드와 문서를 함께 공용 checkout에 동기화합니다. 다른 환경에서는 이 저장소를 checkout한 루트의 AGENTS와 ROADMAP부터 읽습니다.
+
 [GitHub 이슈](https://github.com/SangJun-Pyo/MyAiScore/issues)로 범위를 정하고 `codex/` 브랜치와 독립 worktree에서 구현·검토합니다. Astra가 통합을 담당하며 필요한 작업과 독립 검토는 서브에이전트에 맡깁니다.
 
 - [현재 진행 상태](docs/Development/ROADMAP.md)
