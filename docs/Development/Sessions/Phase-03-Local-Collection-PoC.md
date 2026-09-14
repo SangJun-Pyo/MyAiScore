@@ -99,4 +99,6 @@ npx tsx scripts/collectLocalSession.ts --project <synthetic temp dir> --session 
 
 ## 변경·검토·커밋 기록
 
-이 세션에서 수행한 commit은 아래 "실제 commit 기록" 절 참고(실제 hash가 생기는 대로 채운다). Astra 검토 결과는 이 문서에 날짜를 붙여 이어 쓴다.
+- `1a11fa14f04ad6ec5316352b8c93ac238539a103` — `feat: local collaboration session collection PoC` (브랜치 `claude/local-collection-poc`, base `codex/document-governance`@`c7b3a2e`). 이번 절에 기록한 신규 파일·테스트·문서 동기화 전부 포함.
+
+Astra 검토 결과는 이 문서에 날짜를 붙여 이어 쓴다.
