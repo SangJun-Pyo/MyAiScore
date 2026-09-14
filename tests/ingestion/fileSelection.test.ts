@@ -89,3 +89,50 @@ test("selection order is deterministic across repeated calls (reproducibility)",
   const second = selectFiles([...entries].reverse()).selected.map((c) => c.entry.path);
   assert.deepEqual(first, second);
 });
+
+test("MAS-007: nested fixture metadata cannot displace root config, AI guidance, product code and tests", () => {
+  const entries = [
+    ...['package.json', 'README.md', 'next.config.ts', 'tsconfig.json', 'AGENTS.md', 'CLAUDE.md', '.github/workflows/ci.yml'].map(path => entry(path)),
+    ...Array.from({ length: 50 }, (_, i) => entry(`fixtures/copy-${i}/README.md`)),
+    ...Array.from({ length: 50 }, (_, i) => entry(`fixtures/copy-${i}/package.json`)),
+    ...Array.from({ length: 50 }, (_, i) => entry(`fixtures/copy-${i}/src/example.test.ts`)),
+    ...Array.from({ length: 50 }, (_, i) => entry(`artifacts/run-${i}.json`)),
+    ...Array.from({ length: 50 }, (_, i) => entry(`tests/feature-${i}.test.ts`)),
+    ...Array.from({ length: 50 }, (_, i) => entry(`docs/design-${i}.md`)),
+    ...Array.from({ length: 50 }, (_, i) => entry(`src/feature-${i}.ts`)),
+  ];
+  const result = selectFiles(entries), paths = result.selected.map(c => c.entry.path);
+  assert.equal(paths.length, 40); assert.equal(result.selectionLimited, false);
+  for (const path of ['package.json', 'README.md', 'AGENTS.md', 'CLAUDE.md', '.github/workflows/ci.yml']) assert.ok(paths.includes(path), path);
+  assert.ok(paths.some(path => path.startsWith('src/')));
+  assert.ok(paths.some(path => path.startsWith('tests/')));
+  assert.ok(paths.some(path => path.startsWith('docs/')));
+  assert.ok(!paths.some(path => /^(fixtures|artifacts)\//.test(path)));
+  assert.equal(result.candidates.filter(c => /^(fixtures|artifacts)\//.test(c.entry.path)).length, 200, 'reference material is deprioritized, not deleted');
+  assert.deepEqual(selectFiles([...entries].reverse()).selected.map(c => c.entry.path), paths);
+});
+
+test("MAS-007: explicitly relevant reference paths win while exclusion and file limits still apply", () => {
+  const wanted = 'fixtures/copy-1/README.md';
+  const entries = [entry(wanted), entry('artifacts/run.json'), entry('fixtures/.env'), entry('fixtures/large.ts', { size: INGESTION_LIMITS.maxFileBytes + 1 }),
+    ...Array.from({ length: 70 }, (_, i) => entry(`src/feature-${i}.ts`)), entry('AGENTS.md')];
+  const result = selectFiles(entries, [wanted, 'artifacts', 'fixtures/.env', 'fixtures/large.ts']);
+  assert.deepEqual(result.selected.slice(0, 2).map(c => c.entry.path), ['artifacts/run.json', wanted]);
+  assert.equal(result.selected.length, 40);
+  assert.ok(result.skipped.some(s => s.path === 'fixtures/.env' && s.reason === 'excluded'));
+  assert.ok(result.skipped.some(s => s.path === 'fixtures/large.ts' && s.reason === 'file_too_large'));
+});
+
+test("MAS-007: small repositories retain reference files and do not fabricate missing categories", () => {
+  const paths = ['README.md', 'fixtures/example/package.json', 'examples/demo.ts', '__fixtures__/input.json', '_archive/old.md', 'artifacts/report.json'];
+  const result = selectFiles(paths.map(path => entry(path)));
+  assert.deepEqual(result.selected.map(c => c.entry.path).sort(), [...paths].sort());
+  assert.equal(result.skipped.length, 0); assert.equal(result.selectionLimited, false);
+});
+
+test("tree scan cap retains its original limited meaning and is independent of input order", () => {
+  const entries = Array.from({ length: INGESTION_LIMITS.maxTreeEntries + 1 }, (_, i) => entry(`src/file-${String(i).padStart(4, '0')}.ts`));
+  const result = selectFiles(entries);
+  assert.equal(result.selectionLimited, true); assert.equal(result.candidates.length, INGESTION_LIMITS.maxTreeEntries);
+  assert.deepEqual(result.selected.map(c => c.entry.path), selectFiles([...entries].reverse()).selected.map(c => c.entry.path));
+});

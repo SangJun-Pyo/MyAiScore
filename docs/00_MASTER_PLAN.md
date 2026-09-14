@@ -22,6 +22,8 @@
 
 포함: 공개 단일 저장소, TypeScript/Next.js 우선 지원, 명시적인 실제/synthetic 예시, 읽기 전용 수집, 개인 협업 사례, 질문 3개, 근거·미확인·점수 발급/보류, 개선 작업서 1개, 선택적 공개 요약, 동일 프로젝트 전후 비교, 실패/재시도/범위 제한.
 
+2026-09-14 화면 확장: 홈·새 평가·프로필·항목별 분석을 분리한다. 프로필은 기존 익명 소유 토큰으로 조회하는 탭 단위 평가 이력이며 계정 로그인이나 개인 역량 인증을 뜻하지 않는다. [ADR-0007](Architecture/ADR/0007-anonymous-assessment-workspace.md).
+
 보류: Private/GitHub App/필수 로그인, 다중 저장소/팀 기여도 판정, Local Mode/CLI 배포/IDE 플러그인, 개인 숙련도 등급/인증서/Verified 배지, 리더보드/백분위/소셜/조직 평가, Project Quality 별도 총점, 사용자 저장소 자동 수정/실행/배포.
 
 수용 조건과 축소 순서의 정본은 [MVP_SCOPE](Product/MVP_SCOPE.md)다. 소스 구현용 내부 CLI PoC는 사용자용 Local Mode 제품 기능과 구분한다.

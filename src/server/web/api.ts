@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { getStore, purgeExpired, type Store, type AssessmentRecord, type Database } from './store.js';
 import { HttpError, bodyOf, onlyKeys, createInput, collaborationInput, excerptsInput, answersInput } from './input.js';
-import { ownerView, publicView, resultView, snakeCase } from './dto.js';
+import { assessmentSummaryView, ownerView, publicView, resultView, snakeCase } from './dto.js';
 import { prepareAssessment, generateAssessmentQuestions, finalizeAssessment, syntheticExample, ServiceError, type PreparedAssessment, type AssessmentResult } from '../service/assessment.js';
 import { createAnthropicProviderFromEnv } from '../service/anthropicProvider.js';
 import type { EvaluationProvider } from '../evaluation/provider.js';
@@ -79,6 +79,17 @@ export function createApi(deps: Dependencies = {}) {
         return reply({ assessment_id: 'example_starter', repo_url: 'https://github.com/example/taskboard', commit_sha: result.commitSha,
           status: 'done', result: snakeCase(resultView(result)), evidence: snakeCase(result.evidence), visibility: 'private',
           is_example: true, example_kind: 'synthetic', example_source: 'MyAiScore synthetic collaboration example', executed_at: null });
+      }
+      if (method === 'GET' && resource === 'assessments' && !id && !action) {
+        // Authenticate before storage access: malformed or absent credentials always return 401.
+        const ownerHash = auth(request);
+        if (!ownerHash) throw new HttpError(401, 'unauthorized', '이 브라우저의 접근 토큰이 필요합니다.');
+        const db = await (deps.store ?? getStore()).read();
+        const timestamp = now(), limit = 50;
+        const records = Object.values(db.assessments)
+          .filter(record => record.ownerHash === ownerHash && Date.parse(record.expiresAt) > timestamp)
+          .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+        return reply({ assessments: records.slice(0, limit).map(assessmentSummaryView), total: records.length, limit, has_more: records.length > limit });
       }
       const store = deps.store ?? getStore();
       if (resource === 'results' && id && !action && method === 'GET') {

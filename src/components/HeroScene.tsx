@@ -2,11 +2,22 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 
+const AXES = ['A', 'B', 'C', 'D', 'E'] as const;
+type Axis = typeof AXES[number];
+
 /** Decorative only: the assessment UI and its meaning never depend on WebGL. */
-export default function HeroScene() {
+export default function HeroScene({ activeAxis = 'D' }: { activeAxis?: Axis } = {}) {
   const host = useRef<HTMLDivElement>(null);
+  const selectedAxis = useRef<Axis>(activeAxis);
+  const applySelection = useRef<(() => void) | null>(null);
   const [ready, setReady] = useState(false);
   const gradientId = useId().replace(/:/g, '');
+
+  // Updating the selection never reloads Three.js or allocates another scene.
+  useEffect(() => {
+    selectedAxis.current = activeAxis;
+    applySelection.current?.();
+  }, [activeAxis]);
 
   useEffect(() => {
     const mountedElement = host.current;
@@ -79,13 +90,15 @@ export default function HeroScene() {
         };
         const pointer = new THREE.Vector2();
         const onPointer = (event: PointerEvent) => {
+          // Touch scrolling must not steer or capture the decorative scene.
+          if (event.pointerType === 'touch') return;
           const bounds = element!.getBoundingClientRect();
           pointer.set((event.clientX - bounds.left) / Math.max(bounds.width, 1) - 0.5,
             (event.clientY - bounds.top) / Math.max(bounds.height, 1) - 0.5);
         };
         const resetPointer = () => pointer.set(0, 0);
         disposeScene = () => {
-          stop(); resize?.disconnect();
+          stop(); resize?.disconnect(); applySelection.current = null;
           element!.removeEventListener('pointermove', onPointer);
           element!.removeEventListener('pointerleave', resetPointer);
           canvas.removeEventListener('webglcontextlost', contextLost);
@@ -144,17 +157,21 @@ export default function HeroScene() {
         const nodeGeometry = geometry(new THREE.IcosahedronGeometry(0.10, 1));
         const positions: InstanceType<typeof THREE.Vector3>[] = [];
         const nodeObjects: InstanceType<typeof THREE.Mesh>[] = [];
+        const nodeMaterials: InstanceType<typeof THREE.MeshStandardMaterial>[] = [];
+        const halos: InstanceType<typeof THREE.Mesh>[] = [];
+        const haloMaterials: InstanceType<typeof THREE.MeshBasicMaterial>[] = [];
+        const links: InstanceType<typeof THREE.LineBasicMaterial>[] = [];
         for (let i = 0; i < 5; i++) {
-          const angle = Math.PI * 2 * i / 5 + Math.PI / 2;
+          const angle = Math.PI / 2 - Math.PI * 2 * i / 5;
           const point = new THREE.Vector3(Math.cos(angle) * 2.04, Math.sin(angle) * 1.49, Math.sin(angle * 2 + 0.3) * 0.5);
           positions.push(point);
           const color = i % 2 === 0 ? 0xac91ff : 0x71dce4;
           const node = new THREE.Mesh(nodeGeometry, material(new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 1.1, roughness: 0.3 })));
-          node.position.copy(point); nodes.add(node); nodeObjects.push(node);
+          node.position.copy(point); nodes.add(node); nodeObjects.push(node); nodeMaterials.push(node.material);
           const halo = new THREE.Mesh(geometry(new THREE.TorusGeometry(0.19, 0.008, 5, 40)), material(new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.56 })));
-          halo.position.copy(point); nodes.add(halo);
+          halo.position.copy(point); nodes.add(halo); halos.push(halo); haloMaterials.push(halo.material);
           const link = new THREE.Line(geometry(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), point])), material(new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.22 })));
-          nodes.add(link);
+          nodes.add(link); links.push(link.material);
         }
         const perimeter = new THREE.LineLoop(geometry(new THREE.BufferGeometry().setFromPoints(positions)), material(new THREE.LineBasicMaterial({ color: 0x8d84c3, transparent: true, opacity: 0.13 })));
         nodes.add(perimeter);
@@ -181,6 +198,18 @@ export default function HeroScene() {
           camera.updateProjectionMatrix();
           if (contextAvailable) renderer.render(scene, camera);
         };
+        applySelection.current = () => {
+          nodeObjects.forEach((node, index) => {
+            const selected = AXES[index] === selectedAxis.current;
+            node.scale.setScalar(selected ? 1.7 : 1);
+            nodeMaterials[index]!.emissiveIntensity = selected ? 2.3 : 0.65;
+            halos[index]!.scale.setScalar(selected ? 1.45 : 1);
+            haloMaterials[index]!.opacity = selected ? 0.95 : 0.32;
+            links[index]!.opacity = selected ? 0.65 : 0.13;
+          });
+          if (contextAvailable && visible && !document.hidden && !motion.matches) renderer.render(scene, camera);
+        };
+        applySelection.current();
         resize = new ResizeObserver(fit); resize.observe(element); fit();
         let elapsed = 0, previousTime = 0;
         renderFrame = (time) => {
@@ -193,7 +222,9 @@ export default function HeroScene() {
           shell.rotation.y = elapsed * 0.1; shell.rotation.z = elapsed * 0.04;
           core.rotation.set(elapsed * 0.16, elapsed * -0.22, 0.2);
           dust.rotation.y = elapsed * 0.014;
-          nodeObjects.forEach((node, index) => node.scale.setScalar(1 + Math.sin(elapsed * 0.85 + index) * 0.08));
+          nodeObjects.forEach((node, index) => node.scale.setScalar(
+            (AXES[index] === selectedAxis.current ? 1.7 : 1) * (1 + Math.sin(elapsed * 0.85 + index) * 0.06),
+          ));
           renderer.render(scene, camera); resume();
         };
         setReady(true); resume();
@@ -211,7 +242,7 @@ export default function HeroScene() {
   }, []);
 
   return (
-    <div ref={host} data-testid="hero-scene" data-renderer={ready ? "webgl" : "static"} aria-hidden="true" style={{ position: 'relative', width: '100%', height: '100%', minHeight: 380, overflow: 'hidden', isolation: 'isolate' }}>
+    <div ref={host} data-testid="hero-scene" data-active-axis={activeAxis} data-renderer={ready ? "webgl" : "static"} aria-hidden="true" style={{ position: 'relative', width: '100%', height: '100%', minHeight: 380, overflow: 'hidden', isolation: 'isolate' }}>
       <svg viewBox="0 0 620 420" preserveAspectRatio="xMidYMid meet" focusable="false" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: ready ? 0 : 1, pointerEvents: 'none' }}>
         <defs>
           <radialGradient id={`${gradientId}-glow`}><stop stopColor="#9270e8" stopOpacity=".19" /><stop offset="1" stopColor="#9270e8" stopOpacity="0" /></radialGradient>
@@ -227,7 +258,14 @@ export default function HeroScene() {
         <path d="m310 136 20 151m-96-89 143-23m-119 91 119-91m-143 23 153 44m-122-94 65 139" fill="none" stroke="#b6a0ff" strokeOpacity=".22" />
         <path d="m310 193 20 16-8 25h-25l-8-25Z" fill="#c5b6ff" fillOpacity=".85" />
         {[[310, 71], [477, 180], [413, 332], [208, 332], [143, 180]].map(([x, y], i) => (
-          <g key={i} transform={`translate(${x} ${y})`}><circle r="12" fill="none" stroke={i % 2 ? '#71dce4' : '#ac91ff'} strokeOpacity=".55" /><circle r="4" fill={i % 2 ? '#71dce4' : '#ac91ff'} /></g>
+          <g key={i} data-axis={AXES[i]} data-active={AXES[i] === activeAxis}>
+            <line x1="310" y1="214" x2={x} y2={y} stroke={i % 2 ? '#71dce4' : '#ac91ff'} strokeOpacity={AXES[i] === activeAxis ? 0.65 : 0} />
+            <g transform={`translate(${x} ${y})`}>
+              {AXES[i] === activeAxis && <circle r="25" fill={i % 2 ? '#71dce4' : '#ac91ff'} fillOpacity=".1" />}
+              <circle r={AXES[i] === activeAxis ? 17 : 12} fill="none" stroke={i % 2 ? '#71dce4' : '#ac91ff'} strokeWidth={AXES[i] === activeAxis ? 1.5 : 1} strokeOpacity={AXES[i] === activeAxis ? 0.95 : 0.35} />
+              <circle r={AXES[i] === activeAxis ? 6 : 4} fill={i % 2 ? '#71dce4' : '#ac91ff'} />
+            </g>
+          </g>
         ))}
         {[[104, 125], [177, 280], [252, 86], [402, 107], [528, 259], [356, 349], [123, 328], [509, 107], [239, 370], [443, 271]].map(([cx, cy], i) => <circle key={i} cx={cx} cy={cy} r={i % 3 ? 1 : 1.5} fill="#afa1e4" opacity=".4" />)}
       </svg>

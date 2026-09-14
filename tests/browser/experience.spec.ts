@@ -4,6 +4,9 @@ test('reduced motion keeps the decorative hero static and the form usable', asyn
   await page.goto('/');
   await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-renderer', 'static');
   await expect(page.getByTestId('hero-scene').locator('canvas')).toHaveCount(0);
+  await page.getByRole('button', { name: 'C 도구 선택', exact: true }).click();
+  await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-active-axis', 'C');
+  await page.goto('/evaluate');
   await expect(page.getByLabel(/공개 GitHub 저장소/)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
 });
@@ -62,7 +65,7 @@ test('browser completes input, questions and result with explicitly synthetic AP
     if (path.endsWith('/finalize')) status = 'done';
     await route.fulfill({ json: { ...example, assessment_id: 'as_synthetic_browser', status, ingestion_status: ingestion, questions: status === 'draft' ? [] : questions, result: status === 'done' ? example.result : null } });
   });
-  await page.goto('/');
+  await page.goto('/evaluate');
   await page.getByLabel(/공개 GitHub 저장소/).fill('https://github.com/example/project');
   await page.locator('input[name="consent"]').check();
   await page.getByRole('button', { name: /내 프로젝트 분석 시작/ }).click();

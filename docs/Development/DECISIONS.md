@@ -83,3 +83,9 @@
 ## 9. 다크 디자인과 Three.js (2026-09-14)
 
 시각 방향은 [USER_FLOW](../UI/USER_FLOW.md), 의존성 선택·3D 수명 관리·정적 대체 결정은 [ADR-0006](../Architecture/ADR/0006-decorative-threejs.md)을 따른다.
+
+## 10. 프로필·항목별 작업 공간과 수집 표본 (2026-09-14)
+
+홈/프로필/항목별 분석/새 평가를 분리하고 기존 익명 토큰으로 이력을 조회한다. 계정 신원·개인 역량 인증을 추가하지 않는다. [ADR-0007](../Architecture/ADR/0007-anonymous-assessment-workspace.md).
+
+실제 MyAiScore 수집에서 발견한 제품 소스 누락은 파일군별 균형 선정으로 보완했다. 수집 상한과 점수 발급 계약은 유지한다. [ADR-0008](../Architecture/ADR/0008-balanced-repository-sampling.md). 실행·검증 범위는 [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md)에서 구분한다.

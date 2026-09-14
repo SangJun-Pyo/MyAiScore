@@ -18,7 +18,7 @@ repo_url은 https://github.com/{owner}/{repo}만 허용한다. 선택적으로 �
 
 1. 트리를 읽고 항목 수·truncated 여부·제외 규칙을 적용한다.
 2. package.json과 .ts/.tsx 및 관련 설정으로 nextjs_typescript / other / unknown을 정적으로 구분한다. 우선 지원 밖이면 제한을 안내하며 PoC는 읽을 수 있는 정적 신호를 반환한다.
-3. 사용자 관련 경로 → package/config/README → 테스트·CI → 주요 소스 → AI 설정 자료 순으로 선정한다. 같은 우선순위는 경로 사전순으로 정해 재현 가능하게 한다.
+3. 명시된 관련 경로를 우선하고, 루트 package/config/README 최대 6개와 AI 설정 최대 4개를 확보한다. 남은 슬롯은 소스/소스/테스트·CI/문서/기타 순환으로 채워 특정 파일군의 독식을 막는다. 각 파일군은 경로로 정렬한다. fixtures/__fixtures__/examples/_archive/artifacts 자료는 일반 자료 소진 뒤 채우되 관련 경로로 명시되면 우선한다. 후보가 40개 이하면 모두 선정할 수 있다. [ADR-0008](ADR/0008-balanced-repository-sampling.md).
 4. 서버에서 구성한 blob URL로만 선정 파일을 읽고 타입·크기·인코딩·비밀 패턴을 검사한다.
 5. 정적 신호와 검증 가능한 줄 구간을 기록한다. AI 설정의 존재는 가산점이 아니다.
 
@@ -57,6 +57,8 @@ repo_url은 https://github.com/{owner}/{repo}만 허용한다. 선택적으로 �
 | failed | 공개 접근 불가/잘못된 입력/유용한 수집 불가 | 평가 상태 failed, 결과를 조작해 생성하지 않음 |
 
 complete는 전체 코드 검증이 아니다. 처음부터 계획한 40개 샘플의 수집 완료와 예상치 못한 누락을 구분한다. 전체 후보 수를 모르면 null로 두고 완전한 백분율을 표시하지 않는다. 반환 자료에는 선정·읽은·생략한 개수와 skipped reasons를 남긴다.
+
+일부 후보만 선정하면 샘플 수/후보 수를 warnings에도 명시한다. `coverage.selectionLimited`는 내부 2,000 tree 항목 제한을 뜻하며 40파일 샘플링 자체의 표시가 아니다. 수집기/선정 정책 버전을 selection digest에 포함해 규칙 변경을 구분한다. 균형 선정도 핵심 구현의 완전한 대표성을 보장하지 않는다.
 
 ## 7. 수집 PoC 검증
 
