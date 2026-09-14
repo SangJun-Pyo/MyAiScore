@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-14 — Phase 3 로컬 수집 PoC 독립 검토
+
+- 구현자와 별도로 `claude/local-collection-poc`의 `5978210`(base `c7b3a2e`)을 별도 worktree에서 검토했다. `npm run typecheck`/`npm test`(166 pass) 재실행 확인, synthetic fixture 7종 전부로 CLI를 직접 재현 실행했다.
+- 수집·연결·Evidence 변환 계층은 결함 없음. `scripts/collectLocalSession.ts --json` 출력이 마스킹·절단 전 세션 원문을 그대로 노출하는 결함 1건(MAS-006, P1)을 발견해 등록 — 다음 실제 세션 실험 전 수정 필요.
+- 기존 평가 입력 adapter에는 연결돼 있지 않음(Evidence 생성까지만)을 코드로 재확인. 점수 조건/`humanReviewed`/MAS-002·004·005는 변경되지 않았음을 diff로 확인.
+- 상세: [Phase 3 독립 검토](Sessions/Phase-03-Local-Collection-PoC.md#2026-09-14--독립-검토-구현자와-별도-claude-code).
+
 ## 2026-09-20 — Phase 3 로컬 협업 기록 수집 PoC
 
 - 사용자·Astra 합의로 `MVP_SCOPE.md`의 Local Evidence Mode 보류를 이 PoC 1건에 한정해 재검토([DECISIONS](DECISIONS.md#7-정식-mvp-편입-전의-제한된-로컬-수집-실험-2026-09-20)). Claude Code 세션 JSONL(실제 프로젝트 파일로 구조 확인) 1개를 읽어 요청/제안/도구 호출·결과를 구조적으로 추출하고, 기존 Evidence 계약(`sourceType:"user_provided_excerpt"`)에 계약 확장 없이 연결하는 로컬 수집기·CLI·synthetic fixture 7종·테스트 24개를 구현했다.
