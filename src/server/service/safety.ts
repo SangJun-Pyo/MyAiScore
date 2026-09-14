@@ -3,7 +3,7 @@ import { redactSecrets } from '../ingestion/redact.js';
 
 export type ServiceStage = 'input' | 'ingestion' | 'questions' | 'judgement' | 'scoring';
 export class ServiceError extends Error {
-  constructor(public readonly stage: ServiceStage, public readonly code: string, message: string) { super(message); this.name = 'ServiceError'; }
+  constructor(public readonly stage: ServiceStage, public readonly code: string, message: string, public readonly retryable = false) { super(message); this.name = 'ServiceError'; }
 }
 export const hash = (value: string): string => createHash('sha256').update(value).digest('hex');
 /** Defense in depth, not a claim of complete PII detection. Redact before truncation. */

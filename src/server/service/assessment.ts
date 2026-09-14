@@ -5,6 +5,8 @@ import { boundedText, hash, inputText, safeText, ServiceError } from './safety.j
 import { assembleEvaluationInput } from '../evaluation/inputAssembly.js';
 import type { EvaluationProvider, RawProviderOutput } from '../evaluation/provider.js';
 import type { JudgementRequest, QuestionGenerationRequest } from '../evaluation/providerRequest.js';
+import { prepareProviderRequest } from '../evaluation/providerRequest.js';
+import { invokeProviderSafely } from '../evaluation/timeout.js';
 import { validateAndBuildQuestions } from '../evaluation/questionGeneration.js';
 import { validateAndBuildCriterionResults } from '../evaluation/criterionJudgement.js';
 import { QUESTION_PROMPT_TEXT, QUESTION_PROMPT_VERSION } from '../evaluation/prompts/questionPromptV1.js';
@@ -90,24 +92,16 @@ export async function prepareAssessment(input: PrepareAssessmentInput, deps: Pre
 
 const TIMEOUT = 45_000;
 async function invoke(fn: (signal: AbortSignal) => Promise<RawProviderOutput>): Promise<RawProviderOutput> {
-  const controller = new AbortController(); let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return await Promise.race([Promise.resolve().then(() => fn(controller.signal)), new Promise<RawProviderOutput>(resolve => {
-      timer = setTimeout(() => { controller.abort(); resolve({ providerError: { code: 'timeout', message: '평가 제한 시간을 초과했습니다.', retryable: true } }); }, TIMEOUT);
-    })]);
-  } catch { return { providerError: { code: 'provider_failure', message: '평가 제공자 요청에 실패했습니다.', retryable: true } }; }
-  finally { if (timer) clearTimeout(timer); }
+  return invokeProviderSafely(fn, TIMEOUT);
 }
 function calls(provider: EvaluationProvider): ProviderCallRecord[] {
   const records = (provider as EvaluationProvider & { calls?: ProviderCallRecord[] }).calls;
   return records ? records.map(r => ({ ...r })) : [];
 }
-function frozenRequest<T>(request: T): { request: T; hash: string } {
-  const serialized = JSON.stringify(request);
+function frozenRequest<T extends QuestionGenerationRequest | JudgementRequest>(request: T): { request: T; hash: string } {
+  const { serialized, payload, hash: requestHash } = prepareProviderRequest(request);
   if (Buffer.byteLength(serialized) > 165_000) throw new ServiceError('input', 'input_limit', '평가 자료가 모델 입력 한도를 초과했습니다.');
-  const cloned = JSON.parse(serialized) as T;
-  function freeze(v: unknown): void { if (v && typeof v === 'object') { Object.values(v).forEach(freeze); Object.freeze(v); } }
-  freeze(cloned); return { request: cloned, hash: hash(serialized) };
+  return { request: payload, hash: requestHash };
 }
 export async function generateAssessmentQuestions(prepared: PreparedAssessment, provider: EvaluationProvider): Promise<PreparedAssessment> {
   if (prepared.questions.length) throw new ServiceError('questions', 'already_generated', '질문은 이미 생성됐습니다.');
@@ -116,7 +110,9 @@ export async function generateAssessmentQuestions(prepared: PreparedAssessment, 
     trustedInstructions: { promptVersion: QUESTION_PROMPT_VERSION, promptText: QUESTION_PROMPT_TEXT, rubricCriteriaVersion: RUBRIC_CRITERIA_VERSION },
     untrusted: { evidence: prepared.evidence, collaborationCase: prepared.collaborationCase, analysisContext: prepared.analysisContext }, inferenceConfigVersion: 'service-v1', timeoutMs: TIMEOUT };
   const request = frozenRequest(q); const before = calls(provider).length;
-  const validated = validateAndBuildQuestions(await invoke(signal => provider.generateQuestions(request.request, signal)), bundle);
+  const raw = await invoke(signal => provider.generateQuestions(request.request, signal));
+  if (raw.providerError) throw new ServiceError('questions', raw.providerError.code, '평가 제공자 요청이 완료되지 않았습니다.', raw.providerError.retryable);
+  const validated = validateAndBuildQuestions(raw, bundle);
   if (!validated.ok) throw new ServiceError('questions', validated.failure.code, '유효한 질문을 생성하지 못했습니다. 평가를 다시 시도해 주세요.');
   return { ...prepared, questions: validated.questions.map(q => ({ ...q, text: safeText(q.text, 1500) })), questionRequestHash: request.hash, providerCalls: [...prepared.providerCalls, ...calls(provider).slice(before)] };
 }
@@ -140,7 +136,9 @@ export async function finalizeAssessment(prepared: PreparedAssessment, submissio
     trustedInstructions: { promptVersion: JUDGE_PROMPT_VERSION, promptText: JUDGE_PROMPT_TEXT, rubricCriteriaVersion: RUBRIC_CRITERIA_VERSION, rubricCriteria: RUBRIC_CRITERIA },
     untrusted: { evidence: p.evidence, collaborationCase: p.collaborationCase, analysisContext: p.analysisContext, questions: p.questions, answers: p.answers }, inferenceConfigVersion: 'service-v1', timeoutMs: TIMEOUT };
   const request = frozenRequest(j); const before = calls(provider).length;
-  const judgement = validateAndBuildCriterionResults(await invoke(signal => provider.judgeCriteria(request.request, signal)), bundle);
+  const raw = await invoke(signal => provider.judgeCriteria(request.request, signal));
+  if (raw.providerError) throw new ServiceError('judgement', raw.providerError.code, '평가 제공자 요청이 완료되지 않았습니다.', raw.providerError.retryable);
+  const judgement = validateAndBuildCriterionResults(raw, bundle);
   if (!judgement.ok) throw new ServiceError('judgement', judgement.failure.code, '평가 응답의 근거 또는 형식이 유효하지 않아 점수를 발급하지 않았습니다.');
   const criteria = judgement.criteria.map(c => ({ ...c, rationale: safeText(c.rationale, 2000), missingEvidence: safeText(c.missingEvidence, 1000) }));
   const score = computeMyAiScore({ criterionResults: criteria, ingestionStatus: p.snapshot.ingestionStatus, validEvidenceIds: new Set(p.evidence.map(e => e.evidenceId)) });
