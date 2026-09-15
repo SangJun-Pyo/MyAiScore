@@ -1,6 +1,6 @@
 # MyAiScore — shared product design
 
-Current decision: [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md), [issue #20](https://github.com/SangJun-Pyo/MyAiScore/issues/20). This is the shared presentation contract for Home, Profile, Insights, assessment and result screens. [User flow](USER_FLOW.md) owns behavior; assessment contracts own scores and evidence states.
+Visual decision: [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md). Primary product flow now follows [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md): Home, Profile, Insights and New session. [User flow](USER_FLOW.md) owns behavior; [SESSION_REPORT](../Assessment/SESSION_REPORT.md) owns session scores. Old assessment contracts apply only to historical result screens.
 
 ## Color and hierarchy
 
@@ -17,11 +17,11 @@ Use neutral borders to separate rows and sections. Other colors require a meanin
 
 ## Content by surface
 
-- **Home:** preserve “Build with AI. Know your part.” and the Approach-through-closing composition. An authored A–E evidence-review panel replaces the 3D scene. Label it “Illustrative preview”; do not invent a score, running analysis or actual project activity.
-- **Profile:** show essential owner-scoped assessment history and truthful empty/error states. Do not simulate an account identity or fill an empty profile with statistics or sample history.
-- **Insights:** prioritize the selected observation, connected evidence and missing evidence. Make the rubric available in a disclosure rather than competing with the result.
-- **New assessment:** one focused form; progressively disclose optional collaboration context. Preserve every supported input, consent and explicit disabled-live feedback.
-- **Results and sharing:** make supported observations, uncertainty and the next action readable. Preserve strict public summaries and distinguish Not observed, Insufficient evidence and Not assessed. Unknown is never a zero score.
+- **Home:** explain local CLI session reports, show a labeled synthetic preview, offer working setup/command instructions. No fake processing or population ranks.
+- **Profile:** show only explicitly saved browser-local summaries with honest empty/error states. No account identity or automatic example history.
+- **Insights:** explain the selected session's numeric signals and capped rule components. Distinguish recorded calls, returned results and verified outcomes.
+- **New session:** CLI instructions and local safe-summary consumption. No collaboration-case, excerpt or interview forms; no service-model gate.
+- **Results and sharing:** present score/style/three highlights/one challenge. Label synthetic and partial data. Copy only a safe summary. Historical assessment/result pages keep their original private/public rules.
 
 Product copy is English. Preserve submitted source text and historical personal records without retrospective translation. Synthetic examples remain separate from actual history.
 

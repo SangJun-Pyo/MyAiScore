@@ -1,5 +1,8 @@
 # Calibration Plan v0.3.1
 
+> 2026-09-15 scope update: this document preserves the **legacy repository assessment** contract/history. The primary v0.4 product is the [CLI session report](SESSION_REPORT.md). Manual cases/questions and five-axis score gating do not apply to the new flow. Do not migrate old records or weaken their security boundaries.
+
+
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 기준: [SCORING_RUBRIC](SCORING_RUBRIC.md). 데이터: [EVIDENCE_SCHEMA](EVIDENCE_SCHEMA.md).
 
 이 문서는 실험 계획이다. 아직 fixture 구현·LLM 교정·외부 사용자 실험을 수행하지 않았다. 문서 예시 계산과 실제 모델 평가를 구분한다.

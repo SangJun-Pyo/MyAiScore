@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "session-report-v1",
+  "ruleVersion": "activity-mix-v1",
+  "source": "claude_code",
+  "origin": "synthetic",
+  "coverage": "complete",
+  "metrics": {
+    "userMessages": 4,
+    "assistantMessages": 9,
+    "toolCalls": 12,
+    "readCalls": 4,
+    "changeCalls": 3,
+    "verificationCalls": 2,
+    "toolResults": 10,
+    "explicitSuccesses": 7,
+    "explicitFailures": 1,
+    "unknownResults": 2,
+    "unmatchedResults": 0,
+    "malformedLines": 0,
+    "unsupportedRecords": 0
+  },
+  "score": {
+    "value": 65,
+    "label": "Session mix",
+    "explanation": "A playful mix of recorded activity, not an ability grade. Conversation, exploration, editing and check-shaped commands each add 5 points per occurrence, capped at 25 each. More activity does not mean better work.",
+    "breakdown": {
+      "conversation": 20,
+      "exploration": 20,
+      "iteration": 15,
+      "verification": 10
+    }
+  },
+  "style": {
+    "id": "curious-explorer",
+    "title": "Curious explorer",
+    "description": "Reading and searching tools feature prominently in this session."
+  },
+  "highlights": [
+    {
+      "title": "Conversation rhythm",
+      "description": "4 user messages and 9 assistant messages were recorded. Tool-result wrappers are excluded from user messages."
+    },
+    {
+      "title": "Tools in motion",
+      "description": "4 reading/searching calls, 3 editing calls and 2 check-shaped command calls were recorded. These are activity signals, not verified outcomes."
+    },
+    {
+      "title": "Results in the record",
+      "description": "10 calls have matched results: 7 explicitly marked non-error, 1 explicitly marked error and 2 with unspecified status. 2 calls have no matched result."
+    }
+  ],
+  "nextChallenge": {
+    "title": "Try a useful counterexample",
+    "description": "On your next task, test one input that could break your preferred solution and inspect what happened."
+  }
+}

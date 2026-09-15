@@ -1,5 +1,8 @@
 # Improvement Task Template v0.3.1
 
+> 2026-09-15 scope update: this document preserves the **legacy repository assessment** contract/history. The primary v0.4 product is the [CLI session report](../Assessment/SESSION_REPORT.md). Manual cases/questions and five-axis score gating do not apply to the new flow. Do not migrate old records or weaken their security boundaries.
+
+
 정본 허브: [`../00_MASTER_PLAN.md`](../00_MASTER_PLAN.md). 데이터 필드는 [`../Assessment/EVIDENCE_SCHEMA.md`](../Assessment/EVIDENCE_SCHEMA.md) 7절 `ImprovementTask`가 정본이며, 이 문서는 **사용자가 복사해 Claude Code 등에 붙여넣는 최종 텍스트 템플릿**을 정의한다.
 
 ## 1. 설계 원칙

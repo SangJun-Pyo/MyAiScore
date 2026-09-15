@@ -1,5 +1,8 @@
 # Scoring Rubric v0.3.1
 
+> 2026-09-15 scope update: this document preserves the **legacy repository assessment** contract/history. The primary v0.4 product is the [CLI session report](SESSION_REPORT.md). Manual cases/questions and five-axis score gating do not apply to the new flow. Do not migrate old records or weaken their security boundaries.
+
+
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 데이터 정본: [EVIDENCE_SCHEMA](EVIDENCE_SCHEMA.md). 교정 계획: [CALIBRATION_PLAN](CALIBRATION_PLAN.md).
 
 ## 1. 결정 상태와 평가 대상

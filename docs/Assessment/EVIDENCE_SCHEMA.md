@@ -1,5 +1,8 @@
 # Evidence & Assessment Schema v0.3.1
 
+> 2026-09-15 scope update: this document preserves the **legacy repository assessment** contract/history. The primary v0.4 product is the [CLI session report](SESSION_REPORT.md). Manual cases/questions and five-axis score gating do not apply to the new flow. Do not migrate old records or weaken their security boundaries.
+
+
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 이 문서가 데이터 필드 정본이다. 상태 전이는 [API_DATA_CONTRACTS](../Architecture/API_DATA_CONTRACTS.md), 계산은 [SCORING_RUBRIC](SCORING_RUBRIC.md)를 따른다.
 
 필드 계약은 v0.3.1 구현 기준이며 실제 PoC에서 변경이 필요하면 변경 근거를 기록한다. 의미 판단 기준은 calibration_required다. 아래 모든 JSON은 synthetic 형식 예시이며 실제 저장소 평가·실행 결과가 아니다.

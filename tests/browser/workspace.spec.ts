@@ -1,146 +1,99 @@
 import { test, expect } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
+import { resolve } from 'node:path';
+import { buildSessionReport, EMPTY_SESSION_METRICS, encodeSessionReportFragment } from '../../src/shared/sessionReport';
 
-test('empty profile and axis criteria never invent an assessment', async ({ page }) => {
-  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/profile');
-  await expect(page.getByRole('heading', { name: 'Profile', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'No assessments yet.' })).toBeVisible();
-  await expect(page.locator('.history-entry')).toHaveCount(0);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
-  await page.getByRole('navigation').getByRole('link', { name: 'Insights', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Insights', exact: true })).toBeVisible();
-  await expect(page.getByText('No completed assessments to show.')).toBeVisible();
-  await expect(page.locator('.example-banner')).toHaveCount(0);
-  const tabA = page.getByRole('tab', { name: /A Problem framing/ });
-  await tabA.focus(); await tabA.press('ArrowRight');
-  await expect(page.getByRole('tab', { name: /B Context & delegation/ })).toBeFocused();
-  await expect(page.getByRole('tabpanel')).toContainText('Context & delegation');
-  await page.getByRole('tab', { name: /B Context & delegation/ }).press('End');
-  await expect(page.getByRole('tab', { name: /E Judgment & iteration/ })).toHaveAttribute('aria-selected', 'true');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
-  expect(errors).toEqual([]);
-});
+const report = buildSessionReport({ ...EMPTY_SESSION_METRICS, userMessages: 3, assistantMessages: 6, toolCalls: 7, readCalls: 2, changeCalls: 3, verificationCalls: 1, toolResults: 5, explicitSuccesses: 3, explicitFailures: 1, unknownResults: 1 });
+const key = 'myaiscore_session_reports_v1';
 
-test('explicit synthetic insight can be exited without contaminating history', async ({ page }) => {
-  await page.goto('/insights?view=example&axis=D');
-  await expect(page.locator('.example-banner')).toContainText('synthetic example');
-  await expect(page.getByRole('tab', { name: /D Verification/ })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.locator('.insight-rationale')).toBeVisible();
-  await page.getByRole('button', { name: 'Synthetic example', exact: true }).click();
-  await expect(page.locator('.insight-rationale')).toBeVisible();
-  await page.getByRole('button', { name: 'My assessments', exact: true }).click();
-  await expect(page.locator('.example-banner')).toHaveCount(0);
-  await expect(page.getByText('No completed assessments to show.')).toBeVisible();
-  await expect(page.locator('.insight-rationale')).toHaveCount(0);
-  expect(await page.evaluate(() => sessionStorage.getItem('myaiscore_owner_token'))).toBeNull();
-});
-
-test('same-route query navigation updates the selected axis and source', async ({ page }) => {
-  await page.goto('/insights?view=example&axis=A');
-  await expect(page.locator('.insight-rationale')).toBeVisible();
-  await page.evaluate(() => window.history.pushState(null, '', '/insights?view=example&axis=E'));
-  await expect(page.getByRole('tab', { name: /E Judgment & iteration/ })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.locator('.insight-rationale')).toBeVisible();
-  await page.evaluate(() => window.history.pushState(null, '', '/insights?axis=B'));
-  await expect(page.getByRole('tab', { name: /B Context & delegation/ })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.locator('.example-banner')).toHaveCount(0);
-  await expect(page.locator('.insight-rationale')).toHaveCount(0);
-  await page.goBack();
-  await expect(page.getByRole('tab', { name: /E Judgment & iteration/ })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.locator('.insight-rationale')).toBeVisible();
-});
-
-test('profile loads owner summaries and selected detail with explicitly synthetic fixtures', async ({ page, request }, testInfo) => {
-  const example = await (await request.get('/api/examples/starter')).json();
-  const token = 'y'.repeat(43);
-  await page.addInitScript(value => sessionStorage.setItem('myaiscore_owner_token', value), token);
-  const summary = { assessment_id: 'as_synthetic_history', repo_url: 'https://github.com/example/synthetic-history', commit_sha: 'a'.repeat(40), status: 'done', created_at: '2026-09-14T00:00:00Z', expires_at: '2026-09-21T00:00:00Z', score: { status: 'withheld', value: null }, criteria: example.result.criteria.map((c: any) => ({ criterion_code: c.criterion_code, status: c.status, level: c.level })), visibility: 'private' };
-  await page.route('**/api/assessments**', async route => {
-    expect(route.request().headers().authorization).toBe(`Bearer ${token}`);
-    const path = new URL(route.request().url()).pathname;
-    if (path === '/api/assessments') return route.fulfill({ json: { assessments: [summary], total: 1, limit: 50, has_more: false } });
-    expect(path).toBe('/api/assessments/as_synthetic_history');
-    await route.fulfill({ json: { ...example, assessment_id: summary.assessment_id, repo_url: summary.repo_url } });
-  });
-  await page.goto('/profile');
-  await expect(page.locator('.history-entry')).toHaveCount(1);
-  await expect(page.locator('.history-entry')).toContainText('Withheld');
-  await expect(page.locator('.history-entry')).not.toContainText('/100');
-  await expect(page.locator('.history-entry').getByRole('link', { name: 'View report' })).toHaveAttribute('href', '/assessments/as_synthetic_history');
-  await page.screenshot({ path: testInfo.outputPath('profile-populated-synthetic.png'), fullPage: true });
-  await page.locator('.history-entry').getByRole('link', { name: 'Insights', exact: true }).click();
-  await expect(page).toHaveURL(/insights\?assessment=as_synthetic_history/);
-  await expect(page.locator('.insight-rationale')).toBeVisible();
-  await page.getByRole('tab', { name: /D Verification/ }).click();
-  await expect(page.getByRole('tabpanel')).toContainText('Verification');
-  await expect(page.locator('.evidence-list')).toContainText('src/');
-  await expect(page.locator('.assessment-criteria')).not.toHaveAttribute('open', '');
-  await page.screenshot({ path: testInfo.outputPath('insights-populated-synthetic.png'), fullPage: true });
-  await page.locator('.assessment-criteria > summary').click();
-  await expect(page.locator('.assessment-criteria > ol > li')).toHaveCount(4);
-  await expect(page.locator('.assessment-criteria > ol')).toBeVisible();
-  await page.screenshot({ path: testInfo.outputPath('insights-criteria-expanded-synthetic.png'), fullPage: true });
-});
-
-test('explicit missing assessment is never replaced by a different history result', async ({ page }) => {
+test('empty profile and insights do not invent a session or use old owner history', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/')) requests.push(request.url()); });
   await page.addInitScript(() => sessionStorage.setItem('myaiscore_owner_token', 'z'.repeat(43)));
-  const requested: string[] = [];
-  await page.route('**/api/assessments**', async route => {
-    const path = new URL(route.request().url()).pathname;
-    if (path === '/api/assessments') return route.fulfill({ json: { assessments: [{ assessment_id: 'as_another_project', repo_url: 'https://github.com/example/other', status: 'done', criteria: [], score: null, created_at: '2026-09-14T00:00:00Z' }], total: 1, limit: 50, has_more: false } });
-    requested.push(path);
-    await route.fulfill({ status: 404, json: { error: { code: 'not_found', message: 'Assessment not found.' } } });
-  });
-  await page.goto('/insights?assessment=as_deleted');
-  await expect(page.locator('main [role="alert"]')).toContainText('Assessment not found.');
-  expect(requested).toEqual(['/api/assessments/as_deleted']);
-  await expect(page.locator('.insight-rationale')).toHaveCount(0);
+  await page.goto('/profile');
+  await expect(page.getByRole('heading', { name: 'No saved sessions yet.' })).toBeVisible();
+  await page.getByRole('navigation').getByRole('link', { name: 'Insights', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'No session selected.' })).toBeVisible();
+  expect(requests).toEqual([]);
 });
 
-test('focused assessment form retains optional inputs and requires consent before submission', async ({ page }) => {
-  let submitted: Record<string, unknown> | undefined;
-  await page.route('**/api/config', route => route.fulfill({ json: { live_enabled: true, provider_configured: true } }));
-  await page.route('**/api/assessments', async route => {
-    expect(route.request().method()).toBe('POST');
-    expect(route.request().headers()['idempotency-key']).toBeTruthy();
-    submitted = route.request().postDataJSON();
-    await route.fulfill({ json: { assessment_id: 'as_synthetic_form', status: 'draft', owner_access_token: 'f'.repeat(43) } });
-  });
-  await page.route('**/api/assessments/as_synthetic_form', route => route.fulfill({ json: {
-    assessment_id: 'as_synthetic_form', status: 'draft', repo_url: 'https://github.com/example/synthetic-form', result: null,
-  } }));
+test('synthetic example has transparent rules but cannot contaminate personal history', async ({ page }) => {
   await page.goto('/evaluate');
-  await expect(page.getByRole('heading', { level: 1, name: 'New assessment', exact: true })).toBeVisible();
-  await expect(page.locator('.case-details')).not.toHaveAttribute('open', '');
-  await expect(page.locator('.excerpt-details')).not.toHaveAttribute('open', '');
-  await page.getByLabel(/Public GitHub repository/).fill('https://github.com/example/synthetic-form');
-  await page.getByRole('button', { name: 'Start project assessment' }).click();
-  expect(submitted).toBeUndefined();
-  await page.locator('.case-details > summary').click();
-  await page.getByLabel('Include this case in the assessment').check();
-  const collaborationCase = {
-    problem: 'Synthetic problem', constraints: 'Synthetic constraints', done_criteria: 'Synthetic completion check',
-    ai_suggestion_summary: 'Synthetic AI suggestion', user_action_detail: 'Synthetic decision reasons',
-    verification_summary: 'Synthetic observed result', user_action: 'rejected',
-  };
-  for (const [name, value] of Object.entries(collaborationCase)) {
-    if (name === 'user_action') await page.getByLabel('Your decision', { exact: true }).selectOption(value);
-    else await page.locator(`[name="${name}"]`).fill(value);
+  await page.getByRole('button', { name: 'Try a synthetic example' }).click();
+  await expect(page.locator('.session-report')).toContainText('SYNTHETIC EXAMPLE');
+  await expect(page.getByRole('button', { name: 'Save report locally' })).toBeDisabled();
+  await page.getByRole('link', { name: 'Explore the counts' }).click();
+  await expect(page.locator('.session-rules')).toContainText('Rule version: activity-mix-v1');
+  await expect(page.locator('.session-metrics')).toContainText('explicit failures');
+  await page.getByRole('navigation').getByRole('link', { name: 'Profile', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'No saved sessions yet.' })).toBeVisible();
+  expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+});
+
+test('safe JSON import previews without network or storage then explicitly saves and removes', async ({ page }, testInfo) => {
+  const requests: string[] = [];
+  page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/')) requests.push(request.url()); });
+  await page.goto('/evaluate');
+  await page.getByLabel('Open session report').setInputFiles({ name: 'session-report.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(report)) });
+  await expect(page.locator('.session-report')).toContainText('LOCAL SESSION SUMMARY');
+  await expect(page.locator('.session-score > strong')).toHaveText(String(report.score.value));
+  expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('local-session-report.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Save report locally' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Summary saved' })).toBeVisible();
+  await page.getByRole('button', { name: 'Save report locally' }).click();
+  const stored = await page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)!), key);
+  expect(stored).toEqual([report]);
+  expect(Object.keys(stored[0])).not.toContain('events');
+  await page.getByRole('navigation').getByRole('link', { name: 'Profile', exact: true }).click();
+  await expect(page.locator('.history-entry')).toHaveCount(1);
+  await page.reload();
+  await expect(page.locator('.history-entry')).toHaveCount(1);
+  await page.getByRole('button', { name: 'View session' }).click();
+  await expect(page.locator('.session-metrics')).toContainText('verification calls');
+  await expect(page.locator('.session-report')).toContainText(report.style.title);
+  await page.getByRole('navigation').getByRole('link', { name: 'Profile', exact: true }).click();
+  await page.getByRole('button', { name: 'Remove summary' }).click();
+  await expect(page.getByRole('heading', { name: 'No saved sessions yet.' })).toBeVisible();
+  expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBeNull();
+  expect(requests).toEqual([]);
+});
+
+test('actual CLI example reaches browser locally and never automatically saves', async ({ page }) => {
+  const cliReport = JSON.parse(execFileSync(process.execPath, [resolve('bin/myaiscore.mjs'), '--example', '--json'], { encoding: 'utf8' }));
+  const requests: string[] = [];
+  page.on('request', request => requests.push(request.url()));
+  await page.goto('/evaluate' + encodeSessionReportFragment(cliReport));
+  await expect(page.locator('.session-report')).toContainText('Curious explorer');
+  await expect(page.locator('.session-score > strong')).toHaveText('65');
+  await expect(page.getByRole('button', { name: 'Save report locally' })).toBeDisabled();
+  await expect(page).toHaveURL(/\/evaluate$/);
+  expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+  expect(requests.some(url => url.includes('userMessages') || url.includes('report='))).toBe(false);
+  await page.reload();
+  await expect(page.locator('.session-report')).toHaveCount(0);
+});
+
+test('raw, forged, malformed and oversize imports reject without revealing or saving content', async ({ page }) => {
+  await page.goto('/evaluate');
+  for (const content of [JSON.stringify({ ...report, events: ['PRIVATE_SENTINEL'] }), JSON.stringify({ ...report, score: { ...report.score, value: 100 } }), '{PRIVATE_SENTINEL', 'PRIVATE_SENTINEL'.repeat(2000)]) {
+    await page.getByLabel('Open session report').setInputFiles({ name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from(content) });
+    await expect(page.locator('main').getByRole('alert')).toContainText('not a supported session summary');
+    await expect(page.locator('main')).not.toContainText('PRIVATE_SENTINEL');
+    await expect(page.locator('.session-report')).toHaveCount(0);
+    expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
   }
-  await page.locator('.case-details > summary').click();
-  await page.locator('.excerpt-details > summary').click();
-  for (let index = 1; index <= 3; index++) {
-    await page.getByRole('button', { name: '+ Add excerpt', exact: true }).click();
-    await page.getByLabel(`Excerpt ${index}`, { exact: true }).fill(`Synthetic excerpt ${index}`);
-  }
-  await expect(page.getByRole('button', { name: '+ Add excerpt', exact: true })).toHaveCount(0);
-  await page.locator('.excerpt-details > summary').click();
-  await page.locator('input[name="consent"]').check();
-  await page.getByRole('button', { name: 'Start project assessment' }).click();
-  await expect(page).toHaveURL(/assessments\/as_synthetic_form/);
-  expect(submitted).toEqual({
-    repo_url: 'https://github.com/example/synthetic-form', collaboration_case: collaborationCase,
-    excerpts: ['Synthetic excerpt 1', 'Synthetic excerpt 2', 'Synthetic excerpt 3'], consent: true,
-  });
-  expect(await page.evaluate(() => sessionStorage.getItem('myaiscore_owner_token'))).toBe('f'.repeat(43));
+  await page.goto('/evaluate#report=PRIVATE_SENTINEL');
+  await expect(page.locator('main').getByRole('alert')).toContainText('not a supported session summary');
+  await expect(page).toHaveURL(/\/evaluate$/);
+});
+
+test('corrupted saved history is recoverable and never renders untrusted text', async ({ page }) => {
+  await page.addInitScript(storageKey => localStorage.setItem(storageKey, '[{"text":"PRIVATE_SENTINEL"}]'), key);
+  await page.goto('/profile');
+  await expect(page.locator('main').getByRole('alert')).toContainText('could not be read');
+  await expect(page.locator('main')).not.toContainText('PRIVATE_SENTINEL');
+  await page.getByRole('button', { name: 'Clear saved summaries' }).click();
+  await expect(page.locator('main').getByRole('alert')).toHaveCount(0);
+  expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBeNull();
 });

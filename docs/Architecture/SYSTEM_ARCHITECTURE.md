@@ -1,4 +1,10 @@
-# System Architecture v0.3.1
+# System Architecture — session reports and legacy v0.3.1
+
+## Current primary flow (v0.4)
+
+[ADR-0014](ADR/0014-cli-first-session-reports.md): local CLI → bounded scoped Claude Code parser → numeric metrics → shared deterministic SessionReport → terminal/new summary file/explicit summary-only fragment → browser validation and recomputation → optional browser-local history/copy summary. No backend assessment, GitHub call, LLM, database or raw-log upload is needed for this flow. [SESSION_REPORT](../Assessment/SESSION_REPORT.md) owns the new contract.
+
+The following sections describe retained **legacy repository assessment** infrastructure. They do not gate the primary CLI experience. Existing private/public record access rules remain in force; do not reinterpret old data as new session reports.
 
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 데이터: [EVIDENCE_SCHEMA](../Assessment/EVIDENCE_SCHEMA.md). API·상태: [API_DATA_CONTRACTS](API_DATA_CONTRACTS.md). 수집: [GITHUB_INGESTION](GITHUB_INGESTION.md).
 

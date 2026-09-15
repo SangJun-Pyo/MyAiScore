@@ -1,5 +1,8 @@
 # Implementation Tasks v0.3.1
 
+> 2026-09-15 scope update: this document preserves the **legacy repository assessment** contract/history. The primary v0.4 product is the [CLI session report](../Assessment/SESSION_REPORT.md). Manual cases/questions and five-axis score gating do not apply to the new flow. Do not migrate old records or weaken their security boundaries.
+
+
 정본: [마스터](../00_MASTER_PLAN.md). 현재 단계/지시는 [ROADMAP](ROADMAP.md), 실행과 검토는 [Sessions](Sessions/README.md), 공통 절차는 [AGENT_WORKFLOW](AGENT_WORKFLOW.md)를 따른다. 아래는 Task 정의이며 완료 사실이 아니다.
 
 ## Task 0 — 교정 fixture

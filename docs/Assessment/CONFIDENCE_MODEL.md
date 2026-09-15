@@ -1,5 +1,8 @@
 # Confidence Model v0.3.1
 
+> 2026-09-15 scope update: this document preserves the **legacy repository assessment** contract/history. The primary v0.4 product is the [CLI session report](SESSION_REPORT.md). Manual cases/questions and five-axis score gating do not apply to the new flow. Do not migrate old records or weaken their security boundaries.
+
+
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 필드: [EVIDENCE_SCHEMA](EVIDENCE_SCHEMA.md). 발급: [SCORING_RUBRIC](SCORING_RUBRIC.md).
 
 ## 1. 의미
