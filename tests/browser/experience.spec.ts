@@ -1,5 +1,62 @@
 import { test, expect } from '@playwright/test';
+test('Logic Core retains one canvas through axis and motion changes and survives context loss', async ({ page }, testInfo) => {
+  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/');
+  const scene = page.getByTestId('hero-scene');
+  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
+  await page.screenshot({ path: testInfo.outputPath('logic-core.png'), fullPage: true });
+  const originalCanvas = await scene.locator('canvas').elementHandle();
+  await page.getByRole('button', { name: 'A 문제 정의', exact: true }).click();
+  await expect(scene).toHaveAttribute('data-active-axis', 'A');
+  await expect(scene.locator('canvas')).toHaveCount(1);
+  expect(await scene.locator('canvas').evaluate((canvas, original) => canvas === original, originalCanvas)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect.poll(() => page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
+  await expect(scene).toHaveAttribute('data-renderer', 'static');
+  await expect(scene.locator('canvas')).toBeHidden();
+  await page.getByRole('button', { name: 'E 판단과 수정', exact: true }).click();
+  await expect(scene.locator('svg [data-axis="E"]')).toHaveAttribute('data-active', 'true');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await expect.poll(() => page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(false);
+  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
+  expect(await scene.locator('canvas').evaluate((canvas, original) => canvas === original, originalCanvas)).toBe(true);
+  await scene.locator('canvas').dispatchEvent('webglcontextlost', { cancelable: true });
+  await expect(scene).toHaveAttribute('data-renderer', 'static');
+  await expect(scene.locator('canvas')).toHaveCount(0);
+  await page.getByRole('link', { name: '프로필', exact: true }).click();
+  await expect(page).toHaveURL(/\/profile$/);
+  expect(errors).toEqual([]);
+});
+
+test('motion preference is reconciled even when the browser misses its change event', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = window.matchMedia.bind(window);
+    window.matchMedia = query => {
+      const media = original(query);
+      if (query.includes('prefers-reduced-motion')) media.addEventListener = () => {};
+      return media;
+    };
+  });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/');
+  const scene = page.getByTestId('hero-scene');
+  await scene.scrollIntoViewIfNeeded();
+  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(scene).toHaveAttribute('data-renderer', 'static');
+  await expect(scene.locator('canvas')).toBeHidden();
+  await page.locator('footer').scrollIntoViewIfNeeded();
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await scene.scrollIntoViewIfNeeded();
+  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
+  await expect(scene.locator('canvas')).toHaveCount(1);
+});
+
 test('reduced motion keeps the decorative hero static and the form usable', async ({ page }) => {
+  const errors: string[] = []; page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-renderer', 'static');
@@ -9,6 +66,7 @@ test('reduced motion keeps the decorative hero static and the form usable', asyn
   await page.goto('/evaluate');
   await expect(page.getByLabel(/공개 GitHub 저장소/)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  expect(errors).toEqual([]);
 });
 test('unavailable WebGL falls back without blocking navigation', async ({ page }) => {
   await page.addInitScript(() => {

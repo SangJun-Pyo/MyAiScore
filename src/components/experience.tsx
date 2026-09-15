@@ -218,7 +218,7 @@ export function HomeExperience() {
   }, [loadExample]);
   return <Shell><main id="main">
     <section className="hero page-width"><div className="hero-copy"><SectionLabel>YOUR NEXT BETTER COLLABORATION</SectionLabel><h1>AI와 함께 만들었나요?<br />이제, <em>어떻게</em> 만들었는지.</h1><p className="hero-description">코드만으로는 보이지 않는 당신의 판단.<br />프로젝트와 협업 근거에서 강점을 찾고,<br className="mobile-break" /> 다음에 바꿀 한 가지를 알려드려요.</p><div className="hero-actions"><a className="button button-primary" href="/evaluate">내 프로젝트 돌아보기 <Arrow /></a><button className="button button-text" onClick={() => { void loadExample(); document.getElementById("example")?.scrollIntoView({ behavior: "smooth" }); }}>결과 먼저 살펴보기 <Arrow diagonal /></button></div><div className="hero-trust"><span><i />공개 저장소 읽기 전용</span><span>결과는 기본 비공개</span><span>가입 없이 시작</span></div></div>
-    <div className="hero-visual" aria-label="AI 협업 과정과 근거의 연결을 보여주는 시각화">
+    <div className="hero-visual hero-visual--logic-core" aria-label="AI 협업 과정과 근거의 연결을 보여주는 시각화">
       <div className="hero-scene"><HeroScene activeAxis={activeAxis} /></div>
       <div className="scene-coordinate scene-coordinate-top" aria-hidden="true"><span className="scene-status-dot" />COLLABORATION INTELLIGENCE <span>01—05</span></div>
       <div className="scene-coordinate scene-coordinate-side" aria-hidden="true">FROM EVIDENCE TO INSIGHT</div>

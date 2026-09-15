@@ -89,3 +89,7 @@
 홈/프로필/항목별 분석/새 평가를 분리하고 기존 익명 토큰으로 이력을 조회한다. 계정 신원·개인 역량 인증을 추가하지 않는다. [ADR-0007](../Architecture/ADR/0007-anonymous-assessment-workspace.md).
 
 실제 MyAiScore 수집에서 발견한 제품 소스 누락은 파일군별 균형 선정으로 보완했다. 수집 상한과 점수 발급 계약은 유지한다. [ADR-0008](../Architecture/ADR/0008-balanced-repository-sampling.md). 실행·검증 범위는 [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md)에서 구분한다.
+
+## 11. ThreeUI 무료 Logic Core 적용 (2026-09-15)
+
+Community 공개 프롬프트와 MIT 원본 소스를 확인하고 히어로의 3D 부분만 기존 React 컴포넌트에 포팅한다. 시각 구조의 출처·고정 revision·원문과 적용 프롬프트·배포 라이선스를 함께 보존한다. [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md). 평가 계약과 API 흐름은 바꾸지 않는다.

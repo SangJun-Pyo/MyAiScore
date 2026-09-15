@@ -5,6 +5,8 @@
 - 결정 주체: 사용자 디자인 요청에 따른 Astra 구현 선택
 - 기준: PR #6 / `db0edd7`; 대체 관계: 없음
 
+2026-09-15 후속: 장면의 시각 구성과 소스 출처는 [ADR-0009](0009-threeui-community-logic-core.md)로 갱신했다. 이 ADR의 직접 지연 로딩·수명 관리·정적 대체 결정은 유지한다. 아래 외부 코드 미사용 설명은 Phase 4 당시 상태다.
+
 ## 배경
 
 사용자는 Linear/Tokscale 계열 다크 UI, glow, microinteraction과 3D 효과를 요청했다. 당시 설치한 React 19.3은 확인한 R3F 9.7 peer 범위 밖이었다. 평가 기능이 WebGL이나 지속적인 애니메이션에 의존해서는 안 된다.

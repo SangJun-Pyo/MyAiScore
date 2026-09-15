@@ -2,7 +2,9 @@
 
 공개 GitHub 프로젝트와 AI 협업 근거를 읽고, 다섯 축의 진단과 다음 개선 행동을 제공합니다. 코드 품질이나 토큰 사용량으로 개인의 AI 실력을 인증하지 않습니다.
 
-![MyAiScore 홈과 다섯 축 인터랙션](artifacts/phase5-workspace/home.png)
+![MyAiScore ThreeUI Logic Core 히어로와 다섯 축 인터랙션](artifacts/phase5-threeui/home.png)
+
+히어로는 MIT 라이선스의 ThreeUI Community Logic Core를 보라·시안 테마와 5축 선택에 맞춰 적용했다. [원문/적용 프롬프트](docs/UI/References/THREEUI_LOGIC_CORE_ADAPTATION.md), [출처와 라이선스](public/third-party/threeui/NOTICE.md). 모션 감소 설정에서는 정적 대체 그래픽이 표시된다.
 
 ## 지금 실행하기
 

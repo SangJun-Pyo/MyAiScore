@@ -515,3 +515,8 @@ input::placeholder, textarea::placeholder { color: #917a9a; }
   *, *:before, *:after { animation-duration: .01ms!important; animation-iteration-count: 1!important; transition-duration: .01ms!important; }
   .button:hover:not(:disabled), .button:hover:not(:disabled)>span, .axis-intro:hover { transform: none; }
 }
+
+/* Keep the isometric platform above the axis explanation on wide screens. */
+@media(min-width:1060px) {
+  .hero-visual--logic-core .hero-scene { height: 390px; }
+}

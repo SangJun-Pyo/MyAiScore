@@ -1,6 +1,6 @@
 # Roadmap — 현재 상태와 다음 작업
 
-최종 확인: 2026-09-14. 현재 작업의 단일 안내다. 과거 프롬프트의 미완료 표시는 아래 최신 상태로 대체한다.
+최종 확인: 2026-09-15. 현재 작업의 단일 안내다. 과거 프롬프트의 미완료 표시는 아래 최신 상태로 대체한다.
 
 다른 에이전트의 공용 시작 경로는 `C:/Users/sangj/MyAiScore/docs`다. 소스도 같은 프로젝트 루트의 main 기준으로 읽는다. worktree 작업 후 이 경로를 동기화하는 절차는 [AGENT_WORKFLOW](AGENT_WORKFLOW.md)에 있다.
 
@@ -10,10 +10,10 @@
 
 - 실행: [README](../../README.md), 최신 기록: [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md), 웹 MVP 기반: [Phase 4](Sessions/Phase-04-Web-MVP.md).
 - 설계 결정: [ADR](../Architecture/ADR/README.md). Phase 4의 독립 ADR 누락은 [#7](https://github.com/SangJun-Pyo/MyAiScore/issues/7)에서 사후 기록·작업 규칙 보완으로 처리한다.
-- 현재 작업: [#13 홈·프로필·항목별 분석](https://github.com/SangJun-Pyo/MyAiScore/issues/13), [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md), [ADR-0007](../Architecture/ADR/0007-anonymous-assessment-workspace.md). #5 다크 UI는 완료했다.
+- 최신 디자인 후속: [#16 ThreeUI 무료 Logic Core](https://github.com/SangJun-Pyo/MyAiScore/issues/16), [Phase 5 기록](Sessions/Phase-05-Profile-And-Live-Pilot.md), [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md). #13 화면 분리는 완료했다.
 - GitHub 작업: [#1 평가 경계](https://github.com/SangJun-Pyo/MyAiScore/issues/1), [#2 서비스](https://github.com/SangJun-Pyo/MyAiScore/issues/2), [#3 웹](https://github.com/SangJun-Pyo/MyAiScore/issues/3), [#4 실제 실험·배포](https://github.com/SangJun-Pyo/MyAiScore/issues/4).
 - Astra가 구현·통합을 맡고 서브에이전트가 독립 작업·핵심 검토를 수행한다. Claude 별도 세션 간 수동 전달은 기본 절차가 아니다.
-- Phase 5 통합 브랜치 `codex/profile-assessment-experience`. 완료 코드·문서는 원격 main과 공용 checkout에서 이어간다.
+- Phase 5 화면 통합은 `codex/profile-assessment-experience`, ThreeUI 후속은 `codex/threeui-logic-core`. 완료 코드·문서는 원격 main과 공용 checkout에서 이어간다.
 - 모델 API 키·정확한 모델·활성화 없이 합성 예시만 사용할 수 있다. 실제 평가 adapter가 있어도 검증된 평가 서비스로 간주하지 않는다.
 
 ## 단계별 상태
