@@ -1,5 +1,8 @@
 # GitHub Ingestion v0.3.1
 
+> 2026-09-15 scope update: this document preserves the **legacy repository assessment** contract/history. The primary v0.4 product is the [CLI session report](../Assessment/SESSION_REPORT.md). Manual cases/questions and five-axis score gating do not apply to the new flow. Do not migrate old records or weaken their security boundaries.
+
+
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 출력: [EVIDENCE_SCHEMA](../Assessment/EVIDENCE_SCHEMA.md)의 IngestionSnapshot. 실행: [SYSTEM_ARCHITECTURE](SYSTEM_ARCHITECTURE.md). 보안: [PRIVACY_SECURITY](../Security/PRIVACY_SECURITY.md).
 
 ## 1. 입력

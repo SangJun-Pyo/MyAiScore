@@ -19,8 +19,9 @@
 
 ## 공통 구현 원칙
 
-- 단일 공개 저장소·협업 사례, 미확인=null, 5축 모두 판정 가능할 때만 총점.
-- SCORING_RUBRIC/EVIDENCE_SCHEMA/API_DATA_CONTRACTS가 각 공식·데이터·상태의 정본이다.
+- 현재 기본 제품은 Claude Code CLI 세션 리포트다. 한 프로젝트/세션을 로컬에서 읽고 재미용 활동 점수·유형·특징·다음 도전을 제공한다. 협업 사례/발췌/질문 입력은 기본 흐름에서 제거한다. [ADR-0014](docs/Architecture/ADR/0014-cli-first-session-reports.md).
+- 새 공식·요약 계약은 [SESSION_REPORT](docs/Assessment/SESSION_REPORT.md)가 정본이다. 기존 SCORING_RUBRIC/EVIDENCE_SCHEMA/API_DATA_CONTRACTS의 5축·총점 보류·소유권 규칙은 과거 평가 결과와 API에 적용하며 세션 점수로 혼합하지 않는다.
+- 현재 프로젝트에 한정된 CLI 탐색과 명시적 파일 선택을 지원한다. 다른 프로젝트/홈 전체 기록을 읽지 않고 원문·명령·파일 경로·세션 ID를 새 리포트에 내보내지 않는다. 개발 검증은 synthetic 입력으로 진행하고 실제 개인 세션 실험은 지정된 범위로 별도 기록한다.
 - 제출 저장소의 install/build/test/hooks/MCP를 실행하지 않는다. MyAiScore 자체 테스트는 실행한다.
 - 개발 도구 구독과 서비스 LLM API는 별개다. 승인된 작업 범위에서 진행하고 미승인 비용·배포를 만들지 않는다.
 - 작은 구현 선택은 근거를 남기고 진행한다. 미실행·미검증·사람 검토를 꾸미지 않는다.

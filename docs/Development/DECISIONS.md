@@ -1,5 +1,9 @@
 # Decisions — 과거 결정 요약과 ADR 안내
 
+## Current product decision — CLI session reports (2026-09-15)
+
+The user approved replacing manual collaboration/case/question onboarding with local CLI-derived playful session reports. New current semantics are [SESSION_REPORT](../Assessment/SESSION_REPORT.md), product [v0.4 master](../00_MASTER_PLAN.md), decision [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md). A model/API/GitHub repository is not required. The five-axis decisions below are historical compatibility rules and must not override the new primary flow. Raw records stay local; exported summaries use a strict numeric allowlist and fixed generated copy. [Phase 8](Sessions/Phase-08-CLI-Session-Reports.md).
+
 새 주요 설계 결정의 상세 기록은 [Architecture/ADR](../Architecture/ADR/README.md)에 둔다. 아래 1~7절의 과거 이력은 유지하며, 8~9절의 Phase 4 결정은 ADR-0001~0006으로 정리했다. 세션은 실행 이력, ADR은 선택 이유와 결과를 담당한다.
 
 정본: [마스터 플랜](../00_MASTER_PLAN.md). 과거 참고: [v0.2 원본 마스터](../../_archive/v0.2/00_MASTER_PLAN.original.md). v0.3 초안은 _archive/v0.3.1의 수정 전 ZIP에 보존돼 있다. 2026-09-14 확인 시 루트 v0.2 ZIP은 없어 현재 존재하는 원본 링크로 교체했다.

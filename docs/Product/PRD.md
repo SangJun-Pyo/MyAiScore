@@ -1,89 +1,28 @@
-# PRD — MyAiScore v0.3.1
+# PRD — MyAiScore session reports v0.4
 
-정본 허브: [`../00_MASTER_PLAN.md`](../00_MASTER_PLAN.md)
+Hub: [master](../00_MASTER_PLAN.md). Decision: [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md).
 
-## 첫 사용자
+## User and problem
 
-**AI로 개인 웹 서비스를 만드는 개발자·바이브코더.** 우선 지원 스택은 TypeScript/Next.js 웹 프로젝트다.
+An AI coding user is curious about their working style and wants an interesting result without writing a retrospective. The former assessment demanded a repository, optional essays/excerpts and follow-up answers before sufficient evidence existed. The user approved changing that premise.
 
-이 제품은 다음을 평가한다고 약속하지 **않는다**.
+## Experience
 
-- 모든 직장인의 범용 AI 활용 능력
-- 개인의 전체 엔지니어링 실력
-- 특정 언어·프레임워크 전반에 대한 숙련도 인증
+One local command should produce a useful report without a model account or manual explanation. The report contains a playful session score, style, three concise observations and an actionable next challenge. Every observation must be traceable to a documented log pattern. Missing data is visible; serious skill certification, comparison percentiles and invented success claims are out of scope.
 
-## 문제
+The CLI handles one Claude Code project/session. Current-project discovery is bounded and validates scope; explicit session selection is the fallback. The user can export a safe summary and view it in the browser. The website provides an example, setup instructions, report details and opt-in browser-local history. Raw transcripts are never uploaded by this flow.
 
-AI 코딩 도구로 프로젝트를 만드는 사람이 늘었지만, 다음 질문에 근거를 갖고 답하기 어렵다.
+## Required behavior
 
-- 나는 이번 프로젝트에서 AI를 어떤 방식으로 활용했는가? 그게 좋은 방식인가?
-- 단순히 토큰을 많이 쓰거나 도구를 많이 연결한 것과, 판단·검증을 통해 실제 문제를 해결한 것을 어떻게 구분하는가?
-- 다음에 무엇을 개선해야 실질적으로 나아지는가?
+1. Terminal output works without the website or network.
+2. Unknown format, malformed records, missing results and insufficient activity have explicit states.
+3. Report exports contain only validated structural counts and fixed labels. Imported scores are recomputed.
+4. Home/New session/Profile/Insights consistently describe the new product. Primary onboarding has no manual collaboration fields or interview questions.
+5. Example records do not become personal history. Saving/deleting a summary affects browser-local data only.
+6. Existing legacy private/public assessment results retain their access boundaries.
 
-자기평가형 설문은 실제 수행 근거를 반영하지 못하고, 코드만 보는 정적 분석은 AI 협업 과정을 알 수 없다.
+## Success hypotheses to test
 
-## 가치 제안
+Can a first user reach a meaningful report from a supported session without writing prose? Do they understand the style and why it was assigned? Do they choose to save/share it and try the next challenge? These are product hypotheses, not measured adoption or accuracy claims.
 
-**실제 프로젝트를 먼저 읽고, 확인이 필요한 부분만 프로젝트에 맞춰 묻는다.** 결과는 점수 하나로 끝나지 않고, 가장 중요한 다음 개선 행동을 구현자에게 바로 전달할 수 있는 개선 작업서로 제공한다.
-
-제품이 답하려는 질문은 "얼마나 많은 토큰을 썼는가?"가 아니라 **"어떤 판단과 검증으로 문제를 해결했는가?"**다.
-
-## 입력 부담
-
-사용자가 실제로 해야 하는 일:
-
-1. 공개 GitHub 저장소 URL 1개 입력 (분석 대상 커밋 지정 가능, 기본은 기본 브랜치 최신 커밋)
-2. 대표 AI 협업 사례 1개 서술 — 문제·제약·완료 조건, AI 제안, 채택/거절/수정, 검증 결과
-3. (선택) 관련 코드·PR·대화 발췌 등 근거 연결
-4. 저장소 맞춤 질문 3개에 답변
-
-전체 대화 기록이나 비밀정보를 요구하지 않는다. 과정 자료(사례·근거)를 전혀 제공하지 않아도 분석은 진행되지만, 해당 영역은 미확인으로 남고 [`../Assessment/SCORING_RUBRIC.md`](../Assessment/SCORING_RUBRIC.md)의 점수 발급/보류 정책이 적용된다.
-
-## 제품 약속
-
-- 결과에는 항상 확인된 항목, 근거, 미확인 사항, 점수 발급 또는 보류 이유가 함께 나온다.
-- 인터뷰 답변에 AI를 사용하는 것 자체를 부정행위로 간주하지 않는다. 답변과 실제 근거의 일치 여부를 평가한다.
-- 인터뷰만으로 본인 작성이나 개인 역량이 입증됐다고 주장하지 않는다.
-- 좋은 코드 자체가 높은 AI 활용 점수를 보장하지 않는다.
-- 가장 중요한 개선 행동 1개를 복사 가능한 개선 작업서로 제공하고, 사용자가 그 작업서로 실제 커밋을 만들면 전후 비교를 보여준다.
-- My AI Score는 **이번 프로젝트와 제출 근거에 한정된 실험적 진단**이며, 절대적 역량 인증이나 채용 적합성 판정이 아니다.
-
-## 핵심 사용자 흐름
-
-```text
-실제 분석 예시 체험(로그인 불필요, 출처·시점 표시)
-  → 공개 저장소 1개 입력
-  → AI 협업 사례 + 선택적 근거 입력
-  → 저장소 분석(커밋 SHA 고정)
-  → 맞춤 질문 3개
-  → 근거 기반 진단(확인/미확인/점수 발급 또는 보류)
-  → 개선 작업서 복사 → 사용자가 Claude Code 등으로 수정
-  → 새 커밋 재평가와 전후 비교
-```
-
-화면별 상세는 [`../UI/USER_FLOW.md`](../UI/USER_FLOW.md).
-
-## 성공 가설
-
-1. **이해 가설**: 처음 방문한 사용자가 예시 화면만 보고도 30초 안에 "내 프로젝트의 AI 협업 과정을 근거로 진단해준다"는 목적을 이해한다.
-2. **신뢰 가설**: 점수가 보류되거나 낮게 나와도, 사용자는 "왜 그런지 이해된다"고 느낀다. 근거 없이 낮게 평가됐다는 반응이 나오지 않는다.
-3. **행동 가설**: 개선 작업서를 받은 사용자 중 일부가 실제로 그 작업서로 커밋을 만들어 재평가를 시도한다.
-4. **차별 가설**: 사용자가 "코드만 봐도 알 수 있는 얘기"가 아니라 "내 프로젝트를 읽지 않으면 할 수 없는 지적"이라고 평가한다.
-
-이 가설들은 [`../Assessment/CALIBRATION_PLAN.md`](../Assessment/CALIBRATION_PLAN.md)의 외부 사용자 실험(3~5명)으로 초기 확인하며, MVP 시점에는 검증 전 가설로 남는다.
-
-## 비목표 (Non-goals)
-
-- 채용 합격/불합격 판정, 연봉 예측, 개인 역량 인증서·Verified 배지
-- IQ류 절대 지능/능력 측정
-- 모든 언어·프레임워크에 대한 완전한 정적 분석기
-- 여러 저장소 종합 평가, 팀 기여도 판정
-- 리더보드, 퍼센타일, 소셜 기능, 조직 평가, 학습 플랫폼
-- Private 저장소 연동, GitHub App 설치, 필수 로그인
-- 서버가 사용자 저장소를 자동 수정하거나 배포하는 기능
-
-전체 포함/보류 목록과 수용 조건은 [`MVP_SCOPE.md`](MVP_SCOPE.md) 참고.
-
-## v0.3.1 발급·비교 규칙
-
-다섯 축 모두 판정 가능할 때만 총점을 발급한다. 미확인 항목은 null이며 총점 보류 중에도 진단과 다음 행동을 제공한다. 과거 기록을 추가로 제출해 평가가 달라지는 것과 실제 행동의 변화는 별도로 설명한다.
+First implementation validates synthetic log handling and the complete local-to-browser path. Real Claude Code version coverage, cross-platform packaging and first-user feedback are follow-up validation.

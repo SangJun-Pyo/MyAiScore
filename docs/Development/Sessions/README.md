@@ -12,7 +12,8 @@
 | [Phase 4 — 웹 MVP 통합](Phase-04-Web-MVP.md) | 09-14 | 웹·API·provider 구현, 실제 모델 교정·계정 배포는 미실행 |
 | [Phase 5 — 프로필·실제 평가 준비](Phase-05-Profile-And-Live-Pilot.md) | 09-14 | 화면·이력·수집 보정 검증, 실제 모델은 API/예산 미정 |
 | [Phase 6 — 영어 Landing Page](Phase-06-English-Landing.md) | 09-15 | 전체 페이지 구성·영어 제품 UI 재설계 |
-| [Phase 7 — 저장소 기능 시뮬레이션](Phase-07-Repository-Walkthrough.md) | 09-15 | 실제 공개 수집 + 스크립트 판정, 통합 검증 대기 |
+| [Phase 7 — 저장소 기능 시뮬레이션](Phase-07-Repository-Walkthrough.md) | 09-15 | 실제 공개 수집·용량 수정 검증, PR #24/#25 통합 |
+| [Phase 8 — CLI 세션 리포트](Phase-08-CLI-Session-Reports.md) | 09-15 | CLI 기반 재미용 활동 리포트로 전환, 구현/검증 기록 |
 | [문서·Git 정리](Session-2026-09-14-Documentation-And-Git.md) | 09-14 | 이력 복원 및 로컬 형상 관리 도입 |
 
 ## 기록 원칙

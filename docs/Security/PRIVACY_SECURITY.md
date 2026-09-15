@@ -1,4 +1,14 @@
-# Privacy & Security v0.3.1
+# Privacy & Security — session reports and legacy assessments
+
+## Current primary CLI boundary (v0.4)
+
+The selected local Claude Code session is processed on the user's machine. Public GitHub availability is not required. Read only the current project's validated transcript directory or an explicit session with matching project scope. Reject discovery path redirection and mixed/unmatched project records. Never execute commands found in a transcript or read target project source merely because a log mentions it.
+
+New reports export only the numeric allowlist and fixed labels in [SESSION_REPORT](../Assessment/SESSION_REPORT.md). Raw conversations, thinking, commands, outputs, paths, identifiers and secrets do not enter stdout summaries, exported JSON, browser fragments, history or copy text. Generic errors must not echo source lines. No LLM/network request or automatic raw-log upload occurs. Format limits and missing results are explicit.
+
+Browser file imports are local parsing, not file uploads. Validate size/schema/metric consistency and recompute derived output. Strip consumed fragments. Store only validated summaries after an explicit save; handle malformed stored data without treating it as a report. Synthetic previews are never automatically saved as personal results. Sharing copies only safe summary text and does not publish a page or send messages.
+
+The sections below retain the **legacy repository assessment** privacy rules. Their owner tokens, public DTO restrictions and private submission boundaries still apply to old APIs/data; they are separate from the new browser-local session summaries. [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md).
 
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 접근 계약: [API_DATA_CONTRACTS](../Architecture/API_DATA_CONTRACTS.md). 수집: [GITHUB_INGESTION](../Architecture/GITHUB_INGESTION.md).
 

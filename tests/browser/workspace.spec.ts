@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
+import { resolve } from 'node:path';
 import { buildSessionReport, EMPTY_SESSION_METRICS, encodeSessionReportFragment } from '../../src/shared/sessionReport';
 
 const report = buildSessionReport({ ...EMPTY_SESSION_METRICS, userMessages: 3, assistantMessages: 6, toolCalls: 7, readCalls: 2, changeCalls: 3, verificationCalls: 1, toolResults: 5, explicitSuccesses: 3, explicitFailures: 1, unknownResults: 1 });
@@ -57,11 +59,14 @@ test('safe JSON import previews without network or storage then explicitly saves
   expect(requests).toEqual([]);
 });
 
-test('fragment report is decoded locally, removed from URL and never automatically saved', async ({ page }) => {
+test('actual CLI example reaches browser locally and never automatically saves', async ({ page }) => {
+  const cliReport = JSON.parse(execFileSync(process.execPath, [resolve('bin/myaiscore.mjs'), '--example', '--json'], { encoding: 'utf8' }));
   const requests: string[] = [];
   page.on('request', request => requests.push(request.url()));
-  await page.goto('/evaluate' + encodeSessionReportFragment(report));
-  await expect(page.locator('.session-report')).toContainText(report.style.title);
+  await page.goto('/evaluate' + encodeSessionReportFragment(cliReport));
+  await expect(page.locator('.session-report')).toContainText('Curious explorer');
+  await expect(page.locator('.session-score > strong')).toHaveText('65');
+  await expect(page.getByRole('button', { name: 'Save report locally' })).toBeDisabled();
   await expect(page).toHaveURL(/\/evaluate$/);
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
   expect(requests.some(url => url.includes('userMessages') || url.includes('report='))).toBe(false);
@@ -73,22 +78,22 @@ test('raw, forged, malformed and oversize imports reject without revealing or sa
   await page.goto('/evaluate');
   for (const content of [JSON.stringify({ ...report, events: ['PRIVATE_SENTINEL'] }), JSON.stringify({ ...report, score: { ...report.score, value: 100 } }), '{PRIVATE_SENTINEL', 'PRIVATE_SENTINEL'.repeat(2000)]) {
     await page.getByLabel('Open session report').setInputFiles({ name: 'bad.json', mimeType: 'application/json', buffer: Buffer.from(content) });
-    await expect(page.getByRole('alert')).toContainText('not a supported session summary');
+    await expect(page.locator('main').getByRole('alert')).toContainText('not a supported session summary');
     await expect(page.locator('main')).not.toContainText('PRIVATE_SENTINEL');
     await expect(page.locator('.session-report')).toHaveCount(0);
     expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
   }
   await page.goto('/evaluate#report=PRIVATE_SENTINEL');
-  await expect(page.getByRole('alert')).toContainText('not a supported session summary');
+  await expect(page.locator('main').getByRole('alert')).toContainText('not a supported session summary');
   await expect(page).toHaveURL(/\/evaluate$/);
 });
 
 test('corrupted saved history is recoverable and never renders untrusted text', async ({ page }) => {
   await page.addInitScript(storageKey => localStorage.setItem(storageKey, '[{"text":"PRIVATE_SENTINEL"}]'), key);
   await page.goto('/profile');
-  await expect(page.getByRole('alert')).toContainText('could not be read');
+  await expect(page.locator('main').getByRole('alert')).toContainText('could not be read');
   await expect(page.locator('main')).not.toContainText('PRIVATE_SENTINEL');
   await page.getByRole('button', { name: 'Clear saved summaries' }).click();
-  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(page.locator('main').getByRole('alert')).toHaveCount(0);
   expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBeNull();
 });
