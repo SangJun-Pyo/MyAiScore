@@ -6,14 +6,14 @@
 
 ## 현재 상태
 
-**Phase 7 기능 시뮬레이션 통합 중: 디자인 추가 작업을 보류하고 MyAiScore 실제 공개 저장소 수집을 3단계 walkthrough로 확인한다. 수집은 실제 GitHub API, 질문·판정은 명시적 스크립트이며 다섯 축과 총점은 근거 부족·부분 수집으로 보류한다. 실제 LLM API/모델/예산은 미정이다.**
+**Phase 7 기능 시뮬레이션 구현·로컬 검증 완료: 디자인 추가 작업을 보류하고 MyAiScore 실제 공개 저장소 수집을 3단계 walkthrough로 확인한다. 수집은 실제 GitHub API, 질문·판정은 명시적 스크립트이며 다섯 축과 총점은 근거 부족·부분 수집으로 보류한다. 실제 LLM API/모델/예산은 미정이다.**
 
 - 실행: [README](../../README.md), 최신 기록: [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md), 이전 디자인: [Phase 6](Sessions/Phase-06-English-Landing.md), 이전 구현: [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md), 웹 MVP 기반: [Phase 4](Sessions/Phase-04-Web-MVP.md).
 - 설계 결정: [ADR](../Architecture/ADR/README.md). Phase 4의 독립 ADR 누락은 [#7](https://github.com/SangJun-Pyo/MyAiScore/issues/7)에서 사후 기록·작업 규칙 보완으로 처리한다.
 - 현재 작업: [#22 MyAiScore 저장소 walkthrough](https://github.com/SangJun-Pyo/MyAiScore/issues/22), [ADR-0012](../Architecture/ADR/0012-repository-walkthrough.md). `/walkthrough/myaiscore`에서 저장된 수집·질문·결과를 확인한다. #20 디자인은 기준 상태로 유지하며 추가 시각 변경은 보류한다.
 - GitHub 작업: [#1 평가 경계](https://github.com/SangJun-Pyo/MyAiScore/issues/1), [#2 서비스](https://github.com/SangJun-Pyo/MyAiScore/issues/2), [#3 웹](https://github.com/SangJun-Pyo/MyAiScore/issues/3), [#4 실제 실험·배포](https://github.com/SangJun-Pyo/MyAiScore/issues/4).
 - Astra가 구현·통합을 맡고 서브에이전트가 독립 작업·핵심 검토를 수행한다. Claude 별도 세션 간 수동 전달은 기본 절차가 아니다.
-- 현재 브랜치: `codex/myaiscore-simulation`. 이번 기능의 검사·PR 기록 후 공용 main의 코드와 문서를 함께 동기화한다. 이전 디자인 통합은 [PR #21](https://github.com/SangJun-Pyo/MyAiScore/pull/21)에 있다.
+- 구현 브랜치: `codex/myaiscore-simulation`, 통합 및 최종 CI: [PR #24](https://github.com/SangJun-Pyo/MyAiScore/pull/24). merge 후 공용 main의 코드와 문서를 함께 동기화한다. 이전 디자인 통합은 [PR #21](https://github.com/SangJun-Pyo/MyAiScore/pull/21)에 있다.
 - UI·서버 안내·기준 설명·합성 예시는 영어를 사용한다. 언어 전환기는 없으며 사용자가 제출한 원문과 기존 개인 기록은 소급 번역하지 않는다. 내부 문서·교정 fixture의 한국어 이력은 보존한다.
 - 모델 API 키·정확한 모델·활성화 없이 fully synthetic starter와 실제 저장소 기반의 scripted walkthrough를 볼 수 있다. 두 예시 모두 실제 서비스 모델 평가가 아니다. 실제 평가 adapter가 있어도 검증된 평가 서비스로 간주하지 않는다.
 
