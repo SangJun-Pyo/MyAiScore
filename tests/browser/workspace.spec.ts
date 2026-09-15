@@ -3,10 +3,12 @@ import { test, expect } from '@playwright/test';
 test('empty profile and axis criteria never invent an assessment', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/profile');
+  await expect(page.getByRole('heading', { name: 'Profile', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'No assessments yet.' })).toBeVisible();
   await expect(page.locator('.history-entry')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   await page.getByRole('navigation').getByRole('link', { name: 'Insights', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Insights', exact: true })).toBeVisible();
   await expect(page.getByText('No completed assessments to show.')).toBeVisible();
   await expect(page.locator('.example-banner')).toHaveCount(0);
   const tabA = page.getByRole('tab', { name: /A Problem framing/ });
@@ -48,7 +50,7 @@ test('same-route query navigation updates the selected axis and source', async (
   await expect(page.locator('.insight-rationale')).toBeVisible();
 });
 
-test('profile loads owner summaries and selected detail with explicitly synthetic fixtures', async ({ page, request }) => {
+test('profile loads owner summaries and selected detail with explicitly synthetic fixtures', async ({ page, request }, testInfo) => {
   const example = await (await request.get('/api/examples/starter')).json();
   const token = 'y'.repeat(43);
   await page.addInitScript(value => sessionStorage.setItem('myaiscore_owner_token', value), token);
@@ -64,12 +66,20 @@ test('profile loads owner summaries and selected detail with explicitly syntheti
   await expect(page.locator('.history-entry')).toHaveCount(1);
   await expect(page.locator('.history-entry')).toContainText('Withheld');
   await expect(page.locator('.history-entry')).not.toContainText('/100');
-  await page.getByRole('link', { name: /Explore the evidence by dimension/ }).click();
+  await expect(page.locator('.history-entry').getByRole('link', { name: 'View report' })).toHaveAttribute('href', '/assessments/as_synthetic_history');
+  await page.screenshot({ path: testInfo.outputPath('profile-populated-synthetic.png'), fullPage: true });
+  await page.locator('.history-entry').getByRole('link', { name: 'Insights', exact: true }).click();
   await expect(page).toHaveURL(/insights\?assessment=as_synthetic_history/);
   await expect(page.locator('.insight-rationale')).toBeVisible();
   await page.getByRole('tab', { name: /D Verification/ }).click();
   await expect(page.getByRole('tabpanel')).toContainText('Verification');
   await expect(page.locator('.evidence-list')).toContainText('src/');
+  await expect(page.locator('.assessment-criteria')).not.toHaveAttribute('open', '');
+  await page.screenshot({ path: testInfo.outputPath('insights-populated-synthetic.png'), fullPage: true });
+  await page.locator('.assessment-criteria > summary').click();
+  await expect(page.locator('.assessment-criteria > ol > li')).toHaveCount(4);
+  await expect(page.locator('.assessment-criteria > ol')).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('insights-criteria-expanded-synthetic.png'), fullPage: true });
 });
 
 test('explicit missing assessment is never replaced by a different history result', async ({ page }) => {
@@ -85,4 +95,52 @@ test('explicit missing assessment is never replaced by a different history resul
   await expect(page.locator('main [role="alert"]')).toContainText('Assessment not found.');
   expect(requested).toEqual(['/api/assessments/as_deleted']);
   await expect(page.locator('.insight-rationale')).toHaveCount(0);
+});
+
+test('focused assessment form retains optional inputs and requires consent before submission', async ({ page }) => {
+  let submitted: Record<string, unknown> | undefined;
+  await page.route('**/api/config', route => route.fulfill({ json: { live_enabled: true, provider_configured: true } }));
+  await page.route('**/api/assessments', async route => {
+    expect(route.request().method()).toBe('POST');
+    expect(route.request().headers()['idempotency-key']).toBeTruthy();
+    submitted = route.request().postDataJSON();
+    await route.fulfill({ json: { assessment_id: 'as_synthetic_form', status: 'draft', owner_access_token: 'f'.repeat(43) } });
+  });
+  await page.route('**/api/assessments/as_synthetic_form', route => route.fulfill({ json: {
+    assessment_id: 'as_synthetic_form', status: 'draft', repo_url: 'https://github.com/example/synthetic-form', result: null,
+  } }));
+  await page.goto('/evaluate');
+  await expect(page.getByRole('heading', { level: 1, name: 'New assessment', exact: true })).toBeVisible();
+  await expect(page.locator('.case-details')).not.toHaveAttribute('open', '');
+  await expect(page.locator('.excerpt-details')).not.toHaveAttribute('open', '');
+  await page.getByLabel(/Public GitHub repository/).fill('https://github.com/example/synthetic-form');
+  await page.getByRole('button', { name: 'Start project assessment' }).click();
+  expect(submitted).toBeUndefined();
+  await page.locator('.case-details > summary').click();
+  await page.getByLabel('Include this case in the assessment').check();
+  const collaborationCase = {
+    problem: 'Synthetic problem', constraints: 'Synthetic constraints', done_criteria: 'Synthetic completion check',
+    ai_suggestion_summary: 'Synthetic AI suggestion', user_action_detail: 'Synthetic decision reasons',
+    verification_summary: 'Synthetic observed result', user_action: 'rejected',
+  };
+  for (const [name, value] of Object.entries(collaborationCase)) {
+    if (name === 'user_action') await page.getByLabel('Your decision', { exact: true }).selectOption(value);
+    else await page.locator(`[name="${name}"]`).fill(value);
+  }
+  await page.locator('.case-details > summary').click();
+  await page.locator('.excerpt-details > summary').click();
+  for (let index = 1; index <= 3; index++) {
+    await page.getByRole('button', { name: '+ Add excerpt', exact: true }).click();
+    await page.getByLabel(`Excerpt ${index}`, { exact: true }).fill(`Synthetic excerpt ${index}`);
+  }
+  await expect(page.getByRole('button', { name: '+ Add excerpt', exact: true })).toHaveCount(0);
+  await page.locator('.excerpt-details > summary').click();
+  await page.locator('input[name="consent"]').check();
+  await page.getByRole('button', { name: 'Start project assessment' }).click();
+  await expect(page).toHaveURL(/assessments\/as_synthetic_form/);
+  expect(submitted).toEqual({
+    repo_url: 'https://github.com/example/synthetic-form', collaboration_case: collaborationCase,
+    excerpts: ['Synthetic excerpt 1', 'Synthetic excerpt 2', 'Synthetic excerpt 3'], consent: true,
+  });
+  expect(await page.evaluate(() => sessionStorage.getItem('myaiscore_owner_token'))).toBe('f'.repeat(43));
 });

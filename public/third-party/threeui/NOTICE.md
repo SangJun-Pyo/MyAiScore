@@ -1,6 +1,10 @@
 # ThreeUI Community attribution
 
-Portions of `src/components/HeroScene.tsx` are adapted from ThreeUI Community Logic Core by Meng To, used under the [MIT license](LICENSE.txt).
+The current landing composition adapts ThreeUI Community Kage by Meng To under the [MIT license](LICENSE.txt), as described below. The former Logic Core renderer is retired; its attribution is retained here as implementation history. The current EvidencePreview is authored for MyAiScore and does not include Logic Core or Diagnostics Panel code.
+
+## Historical Logic Core adaptation (retired under issue #20)
+
+The former `src/components/HeroScene.tsx` adapted ThreeUI Community Logic Core by Meng To.
 
 - Project: https://github.com/MengTo/threeui
 - Component: https://threeui.com/three-js/structure-flow/logic-core
@@ -20,5 +24,8 @@ The chapter composition and typography/spacing concepts in `src/components/Landi
 - Reference: https://threeui.com/landing-pages/kage-landing-page
 - Source: `public/landing-pages/kage.html` at the pinned revision above.
 - HTML SHA-256: `c8e06b90397ac246baf0ab6f32f5f6b570acc6fe03c7009f711b579fb72d9f49`
-- Adaptation: English MyAiScore product journey, warm coral/cream palette, existing project illustration, assessment routes, reduced-motion and responsive behavior. No temple images, audio, external fonts or full-page iframe shipped.
+- Adaptation: English MyAiScore product journey, neutral charcoal surfaces, restrained coral actions/selection, an authored evidence-review preview, assessment routes, reduced-motion and responsive behavior. No temple images, audio, external fonts or full-page iframe shipped.
 - [Reference and adaptation prompt](https://github.com/SangJun-Pyo/MyAiScore/blob/main/docs/UI/References/THREEUI_KAGE_LANDING_ADAPTATION.md).
+
+
+Diagnostics Panel (`https://threeui.com/ui-elements/diagnostics-panel`) was reviewed as reference only. It contains three Canvas2D effect variants; no implementation was copied or shipped. The pinned Kage revision and hashes above remain unchanged.

@@ -1,6 +1,9 @@
 # ADR-0006 — Three.js 장식을 지연 로딩하고 정적 대체를 제공한다
 
-- 상태: Accepted
+2026-09-15 #20 후속: 현재 히어로는 자체 작성한 근거 검토 패널로 대체하며 HeroScene·WebGL·Three.js 의존성을 제거한다. 아래 선택·검증 기록은 당시 구현의 이력이다. 모션 감소·키보드 접근 등 일반 접근성 원칙은 유지한다.
+
+
+- 상태: Superseded by [ADR-0011](0011-consistent-assessment-design.md)
 - 기록일: 2026-09-14 (Phase 4 사후 기록)
 - 결정 주체: 사용자 디자인 요청에 따른 Astra 구현 선택
 - 기준: PR #6 / `db0edd7`; 대체 관계: 없음
@@ -27,4 +30,4 @@ React 선언형 3D 라이브러리 대신 renderer와 자원 수명 관리를 �
 
 ## 근거와 검증 상태
 
-[HeroScene](../../../src/components/HeroScene.tsx), [잠금 파일](../../../package-lock.json), [화면 원칙](../../UI/USER_FLOW.md), [브라우저 검사](../../../tests/browser/experience.spec.ts), [캡처/검증](../../Development/Sessions/Phase-04-Web-MVP.md). Chromium WebGL 렌더링, 모바일/데스크톱 대체 경로 및 가로 폭을 확인했다. 모든 GPU/브라우저의 성능을 보장하는 검증은 아니다.
+[퇴역 전 HeroScene](https://github.com/SangJun-Pyo/MyAiScore/blob/aca0d25ae5022d6dcfe1068cabfe566e2319060a/src/components/HeroScene.tsx), [잠금 파일](../../../package-lock.json), [화면 원칙](../../UI/USER_FLOW.md), [브라우저 검사](../../../tests/browser/experience.spec.ts), [캡처/검증](../../Development/Sessions/Phase-04-Web-MVP.md). Chromium WebGL 렌더링, 모바일/데스크톱 대체 경로 및 가로 폭을 확인했다. 모든 GPU/브라우저의 성능을 보장하는 검증은 아니다.

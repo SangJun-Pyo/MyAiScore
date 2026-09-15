@@ -1,89 +1,88 @@
 import { test, expect } from '@playwright/test';
-test('Logic Core retains one canvas through axis and motion changes and survives context loss', async ({ page }, testInfo) => {
-  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
+
+test('evidence preview exposes all five perspectives through one keyboard tab stop', async ({ page }) => {
   await page.goto('/');
-  const scene = page.getByTestId('hero-scene');
-  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
-  await page.screenshot({ path: testInfo.outputPath('logic-core.png'), fullPage: true });
-  const originalCanvas = await scene.locator('canvas').elementHandle();
-  await page.getByRole('button', { name: 'A Problem framing', exact: true }).click();
-  await expect(scene).toHaveAttribute('data-active-axis', 'A');
-  await expect(scene.locator('canvas')).toHaveCount(1);
-  expect(await scene.locator('canvas').evaluate((canvas, original) => canvas === original, originalCanvas)).toBe(true);
+  const preview = page.getByTestId('evidence-preview');
+  const tabs = preview.getByRole('tab');
+  const panel = preview.getByRole('tabpanel');
+  await expect(tabs).toHaveCount(5);
+  await expect(preview.getByRole('tab', { name: 'D Verification', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await preview.getByRole('tab', { name: 'D Verification', exact: true }).focus();
+  const moves = [
+    ['Home', 'A Problem framing'], ['ArrowRight', 'B Context & delegation'],
+    ['ArrowRight', 'C Tool choice'], ['ArrowRight', 'D Verification'],
+    ['ArrowRight', 'E Judgment & iteration'], ['ArrowRight', 'A Problem framing'],
+    ['ArrowLeft', 'E Judgment & iteration'], ['Home', 'A Problem framing'],
+    ['End', 'E Judgment & iteration'],
+  ];
+  for (const [key, name] of moves) {
+    await page.keyboard.press(key!);
+    const selected = preview.getByRole('tab', { name: name!, exact: true });
+    await expect(selected).toBeFocused();
+    await expect(selected).toHaveAttribute('aria-selected', 'true');
+    await expect(selected).toHaveAttribute('tabindex', '0');
+    await expect(preview.locator('[role="tab"][aria-selected="true"]')).toHaveCount(1);
+    await expect(preview.locator('[role="tab"][tabindex="-1"]')).toHaveCount(4);
+    await expect(panel).toHaveAttribute('aria-labelledby', (await selected.getAttribute('id'))!);
+    await expect(selected).toHaveAttribute('aria-controls', (await panel.getAttribute('id'))!);
+    await expect(panel.getByRole('heading', { level: 2 })).toHaveText(name!.slice(2));
+  }
+  await page.keyboard.press('Tab');
+  await expect(panel).toBeFocused();
+  await preview.getByRole('tab', { name: 'C Tool choice', exact: true }).click();
+  await expect(panel.getByRole('heading', { level: 2 })).toHaveText('Tool choice');
+});
+
+test('hero illustration never creates an assessment or presents a score or progress', async ({ page }) => {
+  const assessmentRequests: string[] = [];
+  const errors: string[] = [];
+  page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/assessments')) assessmentRequests.push(request.url()); });
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  const preview = page.getByTestId('evidence-preview');
+  await expect(preview).toContainText('Illustrative preview');
+  await expect(preview).toContainText('Example content. No project has been analyzed.');
+  for (const name of ['A Problem framing', 'B Context & delegation', 'C Tool choice', 'D Verification', 'E Judgment & iteration']) {
+    await preview.getByRole('tab', { name, exact: true }).click();
+    await expect(preview).toContainText('Project evidence');
+    await expect(preview).toContainText('Your decision');
+    await expect(preview).toContainText('Example content. No project has been analyzed.');
+    expect(await preview.innerText()).not.toMatch(/\bscore\b|\d+\s*%|\/\s*100|\bLevel\s*[1-4]\b/i);
+  }
+  await expect(preview.locator('canvas, progress, [role="progressbar"], [role="meter"]')).toHaveCount(0);
+  await expect(page.locator('.landing-hero canvas')).toHaveCount(0);
+  expect(assessmentRequests).toEqual([]);
+  expect(await page.evaluate(() => sessionStorage.getItem('myaiscore_owner_token'))).toBeNull();
+  expect(errors).toEqual([]);
+});
+
+test('reduced-motion preview and focused product pages remain usable at each viewport', async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const preview = page.getByTestId('evidence-preview');
+  await expect(preview).toBeVisible();
+  await expect(preview).toHaveCSS('animation-name', 'none');
+  await preview.getByRole('tab', { name: 'B Context & delegation', exact: true }).click();
+  await expect(preview.getByRole('tabpanel')).toContainText('Context & delegation');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect.poll(() => page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
-  await expect(scene).toHaveAttribute('data-renderer', 'static');
-  await expect(scene.locator('canvas')).toBeHidden();
-  await page.getByRole('button', { name: 'E Judgment & iteration', exact: true }).click();
-  await expect(scene.locator('svg [data-axis="E"]')).toHaveAttribute('data-active', 'true');
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await expect.poll(() => page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(false);
-  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
-  expect(await scene.locator('canvas').evaluate((canvas, original) => canvas === original, originalCanvas)).toBe(true);
-  await scene.locator('canvas').dispatchEvent('webglcontextlost', { cancelable: true });
-  await expect(scene).toHaveAttribute('data-renderer', 'static');
-  await expect(scene.locator('canvas')).toHaveCount(0);
-  await page.getByRole('link', { name: 'Profile', exact: true }).click();
-  await expect(page).toHaveURL(/\/profile$/);
+  await page.screenshot({ path: testInfo.outputPath('home-evidence-preview.png'), fullPage: true });
+  await page.screenshot({ path: testInfo.outputPath('home-hero.png') });
+  for (const [name, path, heading] of [
+    ['Profile', '/profile', 'Profile'], ['Insights', '/insights', 'Insights'],
+    ['New assessment', '/evaluate', 'New assessment'],
+  ]) {
+    await page.getByRole('navigation').getByRole('link', { name: name!, exact: false }).click();
+    await expect(page).toHaveURL(new RegExp(path! + '$'));
+    await expect(page.getByRole('heading', { level: 1, name: heading!, exact: true })).toBeVisible();
+    if (path === '/evaluate') await expect(page.getByLabel(/Public GitHub repository/)).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: testInfo.outputPath(path!.slice(1) + '.png'), fullPage: true });
+  }
   expect(errors).toEqual([]);
 });
 
-test('motion preference is reconciled even when the browser misses its change event', async ({ page }) => {
-  await page.addInitScript(() => {
-    const original = window.matchMedia.bind(window);
-    window.matchMedia = query => {
-      const media = original(query);
-      if (query.includes('prefers-reduced-motion')) media.addEventListener = () => {};
-      return media;
-    };
-  });
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.goto('/');
-  const scene = page.getByTestId('hero-scene');
-  await scene.scrollIntoViewIfNeeded();
-  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(scene).toHaveAttribute('data-renderer', 'static');
-  await expect(scene.locator('canvas')).toBeHidden();
-  await page.locator('footer').scrollIntoViewIfNeeded();
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await scene.scrollIntoViewIfNeeded();
-  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
-  await expect(scene.locator('canvas')).toHaveCount(1);
-});
-
-test('reduced motion keeps the decorative hero static and the form usable', async ({ page }) => {
-  const errors: string[] = []; page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
-  await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-renderer', 'static');
-  await expect(page.getByTestId('hero-scene').locator('canvas')).toHaveCount(0);
-  await page.getByRole('button', { name: 'C Tool choice', exact: true }).click();
-  await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-active-axis', 'C');
-  await page.goto('/evaluate');
-  await expect(page.getByLabel(/Public GitHub repository/)).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
-  expect(errors).toEqual([]);
-});
-test('unavailable WebGL falls back without blocking navigation', async ({ page }) => {
-  await page.addInitScript(() => {
-    const original = HTMLCanvasElement.prototype.getContext;
-    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, kind: string, ...args: unknown[]) {
-      if (kind === 'webgl' || kind === 'webgl2' || kind === 'experimental-webgl') return null;
-      return Reflect.apply(original, this, [kind, ...args]);
-    } as typeof original;
-  });
-  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/');
-  await page.waitForLoadState('networkidle');
-  await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-renderer', 'static');
-  await page.getByRole('button', { name: /Explore a sample/ }).click();
-  await expect(page.locator('#example')).toContainText('synthetic');
-  expect(errors).toEqual([]);
-});
 test('landing and real synthetic example render without a model key', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');

@@ -1,4 +1,4 @@
-# User Flow v0.5
+# User Flow v0.6
 
 ## 시각 방향과 언어 (2026-09-15)
 
@@ -6,9 +6,11 @@
 
 전체 랜딩은 ThreeUI Landing Pages의 무료 Community **Kage**를 참고한다. 넓은 첫 화면, 큰 타이포그래피, 번호별 장 안내, 여백이 있는 본문과 마지막 시작 안내를 MyAiScore의 근거 중심 제품 흐름으로 재구성한다. 어두운 배경·밝은 글자·따뜻한 코럴 강조를 홈뿐 아니라 프로필·분석·평가·결과에도 적용한다. Kage의 사원 정체성·이미지·음악이나 원본 HTML iframe은 사용하지 않는다. [참조·적용 프롬프트](References/THREEUI_KAGE_LANDING_ADAPTATION.md), [ADR-0010](../Architecture/ADR/0010-english-landing-page-experience.md).
 
-기존 ThreeUI Community **Logic Core**의 등각 플랫폼·중앙 코어·12개 큐브 렌더러는 5축을 설명하는 장식으로 유지한다. 5개 큐브는 A–E 선택에 대응하며 사용자 점수나 실제 분석 진행을 나타내지 않는다. WebGL 미지원·모션 감소 설정에서는 정적 대체를 제공한다. 모바일 가독성·키보드 조작·렌더러 정리와 context loss 대응을 유지한다. [Logic Core 적용 기록](References/THREEUI_LOGIC_CORE_ADAPTATION.md), [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md).
+현재 #20 디자인은 [DESIGN_SYSTEM](DESIGN_SYSTEM.md)과 [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md)을 따른다. 중립 차콜 `#111213`, 표면 `#18191b`/`#202123`, 글자 `#efeeeb`/`#a4a5a4`, 행동·선택용 코럴 `#e58c75`를 공통으로 사용한다. 이전 녹색 기운·보라·시안·glow 중심의 화면은 현재 기준이 아니다.
 
-이전 보라·시안 중심 시각 방향은 Phase 4~5의 이력이다. 현재 페이지 구성은 ADR-0010을 따르며 Three.js 직접 지연 로딩과 수명 관리 결정은 유지한다. 시각·언어 변경은 아래 평가·공개·동의 흐름과 점수 공식을 바꾸지 않는다.
+히어로는 자체 작성한 **EvidencePreview**로 교체한다. A–E 탭 중 D가 기본이며 Project evidence → Your decision → Review를 보여준다. “Illustrative preview”와 실제 프로젝트를 분석하지 않았다는 설명을 표시한다. 점수·진행률·실행 기록을 꾸며 넣지 않는다. 키보드 좌우/Home/End를 지원하고 모션 감소 시 등장 애니메이션을 생략한다.
+
+Logic Core·HeroScene·WebGL·Three.js 의존성은 퇴역하며 이전 적용과 검증은 [과거 참조](References/THREEUI_LOGIC_CORE_ADAPTATION.md)에 보존한다. ThreeUI Diagnostics Panel의 Canvas2D 효과 3종도 검토했지만 제품 근거 검토와 달라 코드를 복사하지 않았다. Approach 이후 랜딩 내용·영어 UI·평가·공개·동의 흐름과 공식은 유지한다.
 
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 상태·API: [API_DATA_CONTRACTS](../Architecture/API_DATA_CONTRACTS.md). 결과 필드: [EVIDENCE_SCHEMA](../Assessment/EVIDENCE_SCHEMA.md).
 
@@ -18,10 +20,10 @@
 
 ### 현재 화면 구성 (Phase 6)
 
-- `/`: “Build with AI. Know your part.” 첫 화면과 5축 선택형 장식, Approach → Process → Five lenses → 합성 결과 → 한계 FAQ → 시작 안내로 이어지는 전체 랜딩. 장 링크는 해당 섹션으로 이동하고 축별 링크는 `/insights?axis=A` 등으로 연결한다. 소개의 수치 1/5/1은 저장소·평가 축·개선 작업서의 제품 범위이며 사용 실적이 아니다.
-- `/evaluate`: 새 평가 URL·사례·동의 입력. 실제 모델 미설정 상태에서 실행이 불가능하다는 기존 안내를 유지한다.
-- `/profile`: 이 탭의 소유 토큰으로 찾은 평가 이력. 빈 상태/오류/진행 중/완료/보류를 구분한다. 만료되지 않은 최신 50개까지이며 더 있음 여부를 표시한다. GitHub 계정 인증이나 영구 계정 프로필이 아니다.
-- `/insights`: 평가 선택과 A~E 탭. 선택된 프로젝트의 관찰 상태·레벨·근거·설명과 공통 기준을 함께 읽는다. 기록이 없어도 기준을 볼 수 있고 synthetic 예시는 명시적 전환으로만 보여준다.
+- `/`: “Build with AI. Know your part.” 첫 화면과 명시적인 5축 근거 검토 예시, Approach → Process → Five lenses → 합성 결과 → 한계 FAQ → 시작 안내로 이어지는 전체 랜딩. 장 링크는 해당 섹션으로 이동하고 축별 링크는 `/insights?axis=A` 등으로 연결한다. 소개의 수치 1/5/1은 저장소·평가 축·개선 작업서의 제품 범위이며 사용 실적이 아니다.
+- `/evaluate`: URL·동의를 중심으로 한 단일 입력 폼. 선택적 협업 사례와 발췌를 펼쳐 입력하며 지원되는 필드는 유지한다. 실제 모델 미설정 상태에서 실행이 불가능하다는 기존 안내를 유지한다.
+- `/profile`: 이 탭의 소유 토큰으로 찾은 핵심 평가 이력 목록. 가상 계정 소개·빈 통계·중복 마케팅을 표시하지 않는다. 빈 상태/오류/진행 중/완료/보류를 구분한다. 만료되지 않은 최신 50개까지이며 더 있음 여부를 표시한다. GitHub 계정 인증이나 영구 계정 프로필이 아니다.
+- `/insights`: 평가 선택과 A~E 탭. 선택된 프로젝트의 관찰 상태·레벨·근거·설명·부족한 근거를 우선 표시하고 공통 기준은 필요할 때 펼쳐 읽는다. 기록이 없어도 기준을 볼 수 있고 synthetic 예시는 명시적 전환으로만 보여준다.
 - 기존 `/assessments/:id`, `/results/:share_id`의 처리·결과·공유 흐름은 유지한다. 홈의 `?view=example` 예시 링크도 지원한다.
 
 프로필/분석의 실기록은 인증된 서버 데이터이며 예시 결과로 채우지 않는다. sessionStorage를 잃으면 접근을 복구할 수 없고 평가 접근은 생성 후 7일에 만료한다. 축 선택은 키보드로 조작할 수 있어야 한다. 설계 근거: [ADR-0007](../Architecture/ADR/0007-anonymous-assessment-workspace.md).

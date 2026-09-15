@@ -1,9 +1,11 @@
 # ADR-0010 — English product UI and a complete narrative landing page
 
-- Status: Accepted
+- Status: Partially superseded by [ADR-0011](0011-consistent-assessment-design.md) (palette and hero); English UI and lower landing composition retained
 - Date: 2026-09-15, recorded before implementation
 - Context: user correction, [#18](https://github.com/SangJun-Pyo/MyAiScore/issues/18)
 - Relationship: updates the page composition in ADR-0009; retains ADR-0006 renderer lifecycle and all assessment boundaries.
+
+Follow-up on 2026-09-15: the current hero is an authored evidence-review panel without WebGL. Neutral charcoal tokens replace the earlier tinted surfaces. The renderer statements below describe the original #18 implementation.
 
 The user meant ThreeUI **Landing Pages**, not a replacement hero effect. The product interface is English-only for this phase; no Korean default, locale routing or language switcher. Internal planning history can remain Korean. Existing user-submitted content is not retrospectively translated.
 

@@ -2,9 +2,9 @@
 
 공개 GitHub 프로젝트와 AI 협업 근거를 읽고, 다섯 축의 진단과 다음 개선 행동을 제공합니다. 코드 품질이나 토큰 사용량으로 개인의 AI 실력을 인증하지 않습니다.
 
-현재 랜딩은 ThreeUI Community Kage의 전체 페이지 구성을 참고해 소개·평가 흐름·5축·합성 결과·다음 행동을 장별로 안내합니다. 따뜻한 코럴 강조와 어두운 배경을 관련 작업 공간에도 적용하며, 기존 Logic Core 장면은 실제 평가 상태를 나타내지 않는 장식으로 유지합니다. 모션 감소 설정에서는 정적 대체 그래픽을 표시합니다. [Kage 참조·적용 프롬프트](docs/UI/References/THREEUI_KAGE_LANDING_ADAPTATION.md), [설계 결정](docs/Architecture/ADR/0010-english-landing-page-experience.md), [MIT 출처와 라이선스](public/third-party/threeui/NOTICE.md).
+현재 랜딩은 ThreeUI Community Kage의 전체 페이지 구성을 참고해 소개·평가 흐름·5축·합성 결과·다음 행동을 장별로 안내합니다. 중립 차콜과 행동·선택용 코럴을 관련 작업 공간에도 적용하며, 자체 작성한 A–E 근거 검토 패널은 Illustrative preview로 표시합니다. 기존 Logic Core/WebGL은 퇴역하고 모션 감소 시 미리보기 등장 애니메이션도 생략합니다. [Kage 참조·적용 프롬프트](docs/UI/References/THREEUI_KAGE_LANDING_ADAPTATION.md), [현재 디자인 기준](docs/UI/DESIGN_SYSTEM.md) · [설계 결정](docs/Architecture/ADR/0011-consistent-assessment-design.md), [MIT 출처와 라이선스](public/third-party/threeui/NOTICE.md).
 
-[새 랜딩 데스크톱 화면](artifacts/phase6-english/home-desktop.png) · [모바일 화면](artifacts/phase6-english/home-mobile.png) · [구현·검증 기록](docs/Development/Sessions/Phase-06-English-Landing.md)
+[현재 화면 캡처](artifacts/phase6-consistency/README.md) · [이전 #18 랜딩 기록](artifacts/phase6-english/README.md) · [구현·검증 기록](docs/Development/Sessions/Phase-06-English-Landing.md)
 
 ## 지금 실행하기
 
@@ -17,7 +17,7 @@ npm run dev
 
 브라우저에서 `http://127.0.0.1:3000`을 엽니다. 키 없이 영어 웹 화면과 **synthetic 결과 예시**를 볼 수 있습니다. 예시는 실제 평가가 아니며, 모델 미설정 시 실제 평가 버튼은 비활성입니다.
 
-메뉴는 **Home / Profile / Insights / New assessment**로 나뉩니다. 프로필은 현재 탭의 평가 이력이며 로그인 계정이 아닙니다. 기록이 없으면 빈 상태를 보여주고, 항목별 분석에서 다섯 축의 기준과 선택한 평가의 근거를 확인할 수 있습니다. 예시는 실제 이력에 저장되지 않습니다. 제품 UI와 서버 안내는 영어 전용이며 언어 전환기는 없습니다. 사용자 입력과 기존 평가 기록은 소급 번역하지 않습니다.
+메뉴는 **Home / Profile / Insights / New assessment**로 나뉩니다. 프로필은 현재 탭의 평가 이력이며 로그인 계정이 아닙니다. 프로필은 핵심 이력과 빈 상태를 보여주며, Insights는 선택한 평가의 관찰·근거를 우선 보여주고 기준은 펼쳐 읽습니다. 새 평가는 단일 폼에서 선택적 사례를 입력합니다. 예시는 실제 이력에 저장되지 않습니다. 제품 UI와 서버 안내는 영어 전용이며 언어 전환기는 없습니다. 사용자 입력과 기존 평가 기록은 소급 번역하지 않습니다.
 
 프로덕션 빌드는 `npm run build`로 만듭니다. 환경 변수 `MYAISCORE_ALLOW_FILE_STORE=true`를 명시한 단일 프로세스 미리보기는 `npm start`로 실행합니다. `.env.local`을 사용하는 프로덕션 미리보기는 `node --env-file=.env.local scripts/start.mjs`로 실행해야 합니다. 운영 저장소는 아래 Supabase 설정을 권장합니다. Next 개발 서버는 환경 파일을 읽지만 standalone 시작 도구와 일반 Node CLI에는 자동 적용되지 않습니다.
 

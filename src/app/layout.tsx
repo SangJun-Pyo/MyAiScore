@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./landing.css";
+import "../components/evidence-preview.css";
 
 export const metadata: Metadata = {
   title: "MyAiScore — Build with AI. Know your part.",
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const viewport: Viewport = { themeColor: "#090d10", colorScheme: "dark" };
+export const viewport: Viewport = { themeColor: "#111213", colorScheme: "dark" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en"><body>{children}</body></html>;
