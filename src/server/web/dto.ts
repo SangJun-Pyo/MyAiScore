@@ -43,13 +43,13 @@ export function publicView(result: AssessmentResult, repoUrl: string) {
       score: result.score,
       criteria: result.criteria.map(c => ({ criterionCode: c.criterionCode, status: c.status, level: c.level,
         dimensionScore: c.dimensionScore, supportingEvidenceIds: [], contraryEvidenceIds: [],
-        rationale: c.status === 'observed' ? '소유자가 공유한 축별 진단입니다. 상세 근거는 비공개입니다.' : '이 축의 판단에 필요한 근거가 부족합니다.',
+        rationale: c.status === 'observed' ? 'This is the axis diagnosis shared by the owner. Detailed evidence remains private.' : 'There is not enough evidence to assess this axis.',
         missingEvidence: '', blockingConflict: c.blockingConflict })),
       confidence: { evidenceScope: result.confidence.evidenceScope, sourceVerification: result.confidence.sourceVerification,
-        processEvidence: result.confidence.processEvidence, remainingUncertainty: ['공유 요약에는 사례·답변·발췌와 개인화된 상세 설명을 포함하지 않습니다.', 'AI 활용 역량 인증이 아닌 단일 프로젝트 진단입니다.'] },
+        processEvidence: result.confidence.processEvidence, remainingUncertainty: ['Shared summaries exclude cases, answers, excerpts and personalized explanations.', 'This is a single-project diagnosis, not a certification of AI skills.'] },
       manifest: { mode: result.manifest.mode, providerId: result.manifest.providerId, versions: result.manifest.versions },
-      improvementTask: { title: '나의 검증 과정을 돌아보기', why: '개인화된 개선 작업서는 소유자에게만 표시됩니다.',
-        steps: ['완료 조건을 정하고 AI 결과를 확인한 과정을 기록해보세요.'], doneWhen: ['확인한 결과와 남은 불확실성을 구분합니다.'],
-        copyText: 'AI 결과를 확인한 과정과 남은 불확실성을 구분해 기록해주세요.' },
+      improvementTask: { title: 'Review your verification process', why: 'The personalized improvement task is visible only to the owner.',
+        steps: ['Define completion criteria and record how you checked the AI output.'], doneWhen: ['Separate verified results from remaining uncertainty.'],
+        copyText: 'Record how you checked the AI output and what remains uncertain.' },
     }, visibility: 'public' });
 }

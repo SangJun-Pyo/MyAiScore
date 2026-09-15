@@ -178,7 +178,7 @@ test("masks secret patterns in file content and flags the file", async () => {
   assert.equal(file.secretPatternMasked, true);
   assert.ok(!file.redactedContent.includes("sk-abcdefghijklmnopqrstuvwx"));
   assert.ok(file.redactedContent.includes("***masked***"));
-  assert.ok(snapshot.warnings.some((w) => w.includes("마스킹")));
+  assert.ok(snapshot.warnings.some((w) => w.includes("masked")));
 });
 
 test("prompt-injection style text in a file is treated as inert data, not executed or specially scored", async () => {

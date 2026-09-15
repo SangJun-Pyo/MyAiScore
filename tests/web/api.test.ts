@@ -162,3 +162,20 @@ test('Supabase adapter uses CAS revision and never falls back on a database fail
   const broken = new SupabaseStore('https://example.supabase.co', 'synthetic', async () => new Response('error', { status: 500 }));
   await assert.rejects(broken.read());
 });
+
+
+test('built-in API example, configuration, shared summary and errors use English', async () => {
+  const h = harness({ liveEnabled: false });
+  for (const path of ['example', 'config', 'shared/unknown-result', 'assessments']) {
+    const response = await h.request('GET', path);
+    assert.doesNotMatch(JSON.stringify(response.body), /[가-힣]/);
+  }
+  const invalid = await h.request('POST', 'assessments', { repo_url: 'not-a-url', consent: true });
+  assert.equal(invalid.status, 400);
+  assert.doesNotMatch(JSON.stringify(invalid.body), /[가-힣]/);
+  const { publicView } = await import('../../src/server/web/dto.js');
+  const example = syntheticExample();
+  example.criteria[0]!.rationale = '사용자가 제출한 비공개 설명';
+  const shared = publicView(example, 'https://github.com/example/reservation-form');
+  assert.doesNotMatch(JSON.stringify(shared), /[가-힣]/);
+});

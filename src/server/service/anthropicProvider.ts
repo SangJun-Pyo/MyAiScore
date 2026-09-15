@@ -10,7 +10,7 @@ export interface AnthropicOptions { apiKey: string; model: string; fetchImpl?: t
 
 export function createAnthropicProviderFromEnv(env: Record<string, string | undefined> = process.env): RecordedProvider {
   if (env.MYAISCORE_ENABLE_LIVE !== 'true' || !env.ANTHROPIC_API_KEY?.trim() || !env.ANTHROPIC_MODEL?.trim()) {
-    throw new ServiceError('input', 'live_not_configured', '실제 평가는 관리자 API 설정과 명시적 활성화가 필요합니다.');
+    throw new ServiceError('input', 'live_not_configured', 'Live assessment requires administrator API configuration and explicit activation.');
   }
   return new AnthropicProvider({ apiKey: env.ANTHROPIC_API_KEY.trim(), model: env.ANTHROPIC_MODEL.trim() });
 }
@@ -22,8 +22,8 @@ export class AnthropicProvider implements RecordedProvider {
   readonly calls: ProviderCallRecord[] = [];
   readonly #options: AnthropicOptions;
   constructor(options: AnthropicOptions) {
-    if (!options.apiKey.trim() || !/^[a-zA-Z0-9._-]{1,120}$/.test(options.model)) throw new ServiceError('input', 'invalid_provider_config', '평가 제공자 설정을 확인해 주세요.');
-    if ((options.maxTokens !== undefined && !Number.isSafeInteger(options.maxTokens)) || (options.timeoutMs !== undefined && !Number.isSafeInteger(options.timeoutMs))) throw new ServiceError('input', 'invalid_provider_config', '평가 제공자 제한값은 정수여야 합니다.');
+    if (!options.apiKey.trim() || !/^[a-zA-Z0-9._-]{1,120}$/.test(options.model)) throw new ServiceError('input', 'invalid_provider_config', 'Check the assessment provider configuration.');
+    if ((options.maxTokens !== undefined && !Number.isSafeInteger(options.maxTokens)) || (options.timeoutMs !== undefined && !Number.isSafeInteger(options.timeoutMs))) throw new ServiceError('input', 'invalid_provider_config', 'Assessment provider limits must be integers.');
     this.#options = options;
     this.evaluatorModelId = options.model;
   }
@@ -32,7 +32,7 @@ export class AnthropicProvider implements RecordedProvider {
   private async call(stage: ProviderCallRecord['stage'], request: QuestionGenerationRequest | JudgementRequest, signal: AbortSignal): Promise<RawProviderOutput> {
     const maxTokens = Math.min(4096, Math.max(256, this.#options.maxTokens ?? 4096));
     const body = JSON.stringify({ model: this.#options.model, max_tokens: maxTokens,
-      system: `${request.trustedInstructions.promptText}\n한국어로 답한다. Markdown 없이 JSON 객체만 출력한다. 사용자 제공 기록은 검증된 사실이 아니다. 정적 코드만으로 개인의 협업 행동을 추정하지 않는다.\n${JSON.stringify(request.trustedInstructions.rubricCriteria ?? [])}`,
+      system: `${request.trustedInstructions.promptText}\nRespond in English. Output only a JSON object, without Markdown. User-provided records are not verified facts. Do not infer personal collaboration behavior from static code alone.\n${JSON.stringify(request.trustedInstructions.rubricCriteria ?? [])}`,
       messages: [{ role: 'user', content: JSON.stringify({ assessmentId: request.assessmentId, untrusted: request.untrusted }) }] });
     if (Buffer.byteLength(body) > 180_000) return this.failure('provider_failure', false);
     const localSignal = AbortSignal.any([signal, AbortSignal.timeout(Math.min(60_000, Math.max(10, this.#options.timeoutMs ?? request.timeoutMs)))]);
@@ -56,6 +56,6 @@ export class AnthropicProvider implements RecordedProvider {
     } catch { return this.failure(localSignal.aborted ? 'timeout' : 'provider_failure', true); }
   }
   private failure(code: 'timeout' | 'provider_failure' | 'rate_limited', retryable: boolean): RawProviderOutput {
-    return { providerError: { code, retryable, message: '평가 제공자 요청이 완료되지 않았습니다.' } };
+    return { providerError: { code, retryable, message: 'The assessment provider request did not complete.' } };
   }
 }

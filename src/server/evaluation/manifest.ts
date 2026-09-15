@@ -36,8 +36,8 @@ export function buildManifest(params: {
     costUsd: null,
     costNote:
       params.mode === "mock"
-        ? "mode=mock -- 실제 LLM 호출이 없어 토큰/비용을 측정하지 않음"
-        : "실제 호출 기록이 이 값을 채우기 전이면 null로 남긴다",
+        ? "mode=mock -- no live LLM call; tokens and cost were not measured"
+        : "Remains null until an actual call record provides this value",
     executedAt: null,
     warnings: params.warnings,
   };
