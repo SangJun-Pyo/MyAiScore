@@ -1,3 +1,2 @@
-import { HomeExperience } from "../components/experience";
-
-export default function Home() { return <HomeExperience />; }
+import { SessionHomeExperience } from "../components/SessionExperience";
+export default function Home() { return <SessionHomeExperience />; }

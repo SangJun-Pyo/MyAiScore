@@ -1,3 +1,2 @@
-import { EvaluateExperience } from "../../components/experience";
-
-export default function Page() { return <EvaluateExperience />; }
+import { NewSessionExperience } from "../../components/SessionExperience";
+export default function Page() { return <NewSessionExperience />; }
