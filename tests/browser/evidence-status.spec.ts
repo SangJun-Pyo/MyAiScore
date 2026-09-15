@@ -36,14 +36,18 @@ test('evidence states stay distinct across private, comparison, and public views
   await page.route('**/api/results/synthetic-states', route => route.fulfill({ json: assessment }));
 
   await page.goto('/profile');
-  const profileLabels = page.locator('.latest-axes a small');
-  await expect(profileLabels).toHaveText(['Level 3', 'Insufficient evidence', 'Not observed', 'Not assessed', 'Not assessed']);
-
-  await page.goto(`/insights?assessment=${summary.assessment_id}&axis=B`);
+  const record = page.locator('.history-entry');
+  await expect(record).toContainText('Withheld');
+  await record.getByRole('link', { name: 'Insights', exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`insights\\?assessment=${summary.assessment_id}`));
+  await expect(page.locator('.insight-observation .level-badge')).toHaveText('3 / 4');
+  await page.getByRole('tab', { name: /B Context & delegation/ }).click();
   await expect(page.locator('.insight-observation .level-badge')).toHaveText('Insufficient evidence');
   await page.getByRole('tab', { name: /C Tool choice/ }).click();
   await expect(page.locator('.insight-observation .level-badge')).toHaveText('Not observed');
   await page.getByRole('tab', { name: /D Verification/ }).click();
+  await expect(page.locator('.insight-observation .level-badge')).toHaveText('Not assessed');
+  await page.getByRole('tab', { name: /E Judgment & iteration/ }).click();
   await expect(page.locator('.insight-observation .level-badge')).toHaveText('Not assessed');
 
   await page.goto(`/assessments/${summary.assessment_id}`);
