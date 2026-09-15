@@ -123,6 +123,9 @@ test("explicit selection requires current-project association and rejects mixed 
   assert.throws(() => collectSessionReport(file, project), errorCode("project_unconfirmed"));
   writeFileSync(file, fixture(project) + JSON.stringify({ type: "system", cwd: path.join(project, "other") }));
   assert.throws(() => collectSessionReport(file, project), errorCode("project_mismatch"));
+  assert.throws(() => analyzeSessionText([
+    { type: "system", sessionId: "first" }, { type: "system", sessionId: "second" },
+  ].map(item => JSON.stringify(item)).join("\n")), errorCode("mixed_sessions"));
 });
 
 test("discovery reads only the exact encoded project directory, picks newest and rejects ties", () => {
@@ -161,6 +164,8 @@ test("custom config directory stays scoped to exactly the selected project's fol
   const file = path.join(directory, "custom.jsonl");
   writeFileSync(file, fixture(project));
   assert.equal(discoverSession(project, temporary(), config), file);
+  for (let i = 0; i < 200; i++) writeFileSync(path.join(directory, `entry-${i}.txt`), "");
+  assert.throws(() => discoverSession(project, temporary(), config), errorCode("too_many_sessions"));
 });
 
 test("example CLI never needs project association or existing Claude config", () => {

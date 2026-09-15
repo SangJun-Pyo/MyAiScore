@@ -1,4 +1,4 @@
-import { closeSync, lstatSync, openSync, readSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { closeSync, lstatSync, openSync, opendirSync, readSync, realpathSync, statSync, type Dirent } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { buildSessionReport, EMPTY_SESSION_METRICS, type SessionReport } from "../../shared/sessionReport.js";
@@ -28,6 +28,7 @@ export function analyzeSessionText(text: string, options: { project?: string; li
   const assistantIds = new Set<string>();
   const tools = new Map<string, "read" | "change" | "verification" | "other">();
   const results = new Map<string, "success" | "failure" | "unknown">();
+  const sessionIds = new Set<string>();
   let associated = false;
   let supported = 0;
   let limited = options.limited ?? false;
@@ -39,6 +40,9 @@ export function analyzeSessionText(text: string, options: { project?: string; li
     let record: unknown;
     try { record = JSON.parse(line); } catch { metrics.malformedLines++; continue; }
     if (!obj(record) || typeof record.type !== "string") { metrics.malformedLines++; continue; }
+    const sessionId = identity(record.sessionId);
+    if (sessionId) sessionIds.add(sessionId);
+    if (sessionIds.size > 1) throw new SessionReportError("mixed_sessions", "This input contains multiple session identities. Select one session transcript.");
     if (options.project && typeof record.cwd === "string") {
       if (!path.isAbsolute(record.cwd) || !samePath(normalized(record.cwd), options.project)) {
         throw new SessionReportError("project_mismatch", "This transcript is not associated exclusively with the selected project. Choose a matching --session file.");
@@ -161,8 +165,15 @@ export function discoverSession(project: string, home = homedir(), configDirecto
   try {
     if (!samePath(realpathSync(directory), directory) || !statSync(directory).isDirectory()) throw new Error();
   } catch { throw new SessionReportError("session_not_found", "No safely matched Claude Code project directory was found. Use --session with a matching transcript."); }
-  const entries = readdirSync(directory, { withFileTypes: true });
-  if (entries.length > 200) throw new SessionReportError("too_many_sessions", "This project has too many session entries for automatic selection. Choose one with --session.");
+  const entries: Dirent[] = [];
+  const handle = opendirSync(directory);
+  try {
+    let entry: Dirent | null;
+    while ((entry = handle.readSync()) !== null) {
+      entries.push(entry);
+      if (entries.length > 200) throw new SessionReportError("too_many_sessions", "This project has too many session entries for automatic selection. Choose one with --session.");
+    }
+  } finally { handle.closeSync(); }
   const files = entries.filter(entry => entry.name.endsWith(".jsonl") && entry.isFile() && !entry.isSymbolicLink())
     .map(entry => {
       const file = regularCanonicalFile(path.join(directory, entry.name));
