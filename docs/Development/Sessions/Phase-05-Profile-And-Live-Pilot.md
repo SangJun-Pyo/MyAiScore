@@ -53,3 +53,26 @@ collector `ingestion-0.2.0`, 정책 `representative-categories-v2`. 실제 tree�
 ## 미검증·남은 작업·인계
 
 실제 LLM 평가에는 서비스 API·정확한 모델·비용 상한과 질문에 대한 사용자 답변이 필요하다. 저장소 수집만으로 협업 행동이나 점수를 추정하지 않는다. 실제 모델 타당성/인젝션 교정과 운영 배포 조건은 [#4](https://github.com/SangJun-Pyo/MyAiScore/issues/4)에 유지한다.
+
+## 2026-09-15 — ThreeUI 무료 스타일 적용
+
+사용자 요청: Chrome에 열린 ThreeUI 카탈로그에서 무료 스타일과 프롬프트를 확인하고 적용. Astra가 사용자 탭을 직접 확인해 Community Logic Core의 등각 플랫폼·코어·궤도 노드를 선택했다. Copy Prompt 성공 UI와 공개 Skill.md를 확인했고, 클립보드 도구가 빈 문자열을 반환해 화면에서 원문을 읽어 [외부 참조 프롬프트](../../UI/References/THREEUI_STRUCTURE_FLOW_REFERENCE.md)로 보존했다. 실제 적용 범위와 원본과의 차이는 [적용 프롬프트](../../UI/References/THREEUI_LOGIC_CORE_ADAPTATION.md)로 구분한다.
+
+공개 GitHub `68802d5`의 LICENSE와 StructureFlowCollection → NeuformIsolatedEffects → platform-core.html의 연결을 읽었다. MIT 고지와 원본 HTML 해시를 [public/third-party/threeui](../../../public/third-party/threeui/NOTICE.md)에 보존한다. [ADR-0009](../../Architecture/ADR/0009-threeui-community-logic-core.md)를 구현 착수 시 기록했다. 원문의 설치/모든 variant 열람 지시는 참조이며 이번 요청의 범위와 저장소 지침을 대체하지 않는다.
+
+서브에이전트는 히어로 렌더러만 포팅하고 Astra는 선택/원본 확보/문서/통합/브라우저 검증을 담당했다. Pro 접근·계정 생성·유료 리소스·실제 모델 호출·평가 변경 없이 진행했다. 관련 [#16](https://github.com/SangJun-Pyo/MyAiScore/issues/16).
+
+### 구현·독립 검토
+
+- 렌더러 원 작업 `c44005a` → 통합 `533ec61`. 등각 플랫폼/중앙 코어/12개 큐브·drift/pulse/orbit를 포팅하고 5개 큐브에 A–E 선택을 연결했다. 정적 SVG도 같은 구조다. 데스크톱에서는 설명 카드가 플랫폼을 가리지 않도록 장면 높이를 보정했다.
+- 다른 서브에이전트가 수명 관리·모션 전환·축 업데이트·자원 정리와 출처를 읽기 전용으로 검토했다. MIT 원문/HTML 해시는 일치했고 새 runtime blocker는 발견하지 못했다. 배포 고지 누락 1건은 단일 LICENSE/NOTICE 원본을 `public/third-party/threeui`로 옮겨 해결했다. standalone HTTP에서도 두 파일의 본문이 저장소와 정확히 일치함을 확인했다.
+- Chrome 개발 로그에서 서버/클라이언트 삼각함수의 마지막 소수점 차이로 SVG hydration 경고를 발견했다. SVG 좌표를 소수점 3자리로 고정해 해결하고 WebGL/모션 감소 경로 모두 console error 검사를 추가했다.
+- `next dev`가 AGENTS에 생성한 Next.js 지침 블록을 설치된 `generate-agent-files.js`와 대조했다. 공통 규칙 아래에 생성 블록을 보존했다. CLAUDE는 계속 AGENTS를 읽는다.
+
+### 실제 검증·화면
+
+- `npm run typecheck`, `npm test` **234/234**, 최종 `npm run build`, `npm run test:e2e` **24/24 통과**. 새 2건은 desktop/mobile에서 실제 WebGL 생성, 축 변경 시 동일 canvas 유지, 모션 설정 전환, context loss 후 정적 대체와 이동을 확인한다. 기존 22개 평가/프로필/분석 흐름도 통과했다. 캡처 위치 보정 후 해당 2건을 다시 실행해 통과했다.
+- [데스크톱 WebGL](../../../artifacts/phase5-threeui/home.png), [모바일 WebGL](../../../artifacts/phase5-threeui/home-mobile.png) 캡처를 열어 확인했다. 운영체제 모션 감소가 켜진 사용자 Chrome에서는 정적 대체와 축 선택을 확인했다. 390px 및 320px viewport 검사에서 가로 넘침 없었으며 임시 viewport는 복원했다. 사용자 모션 설정은 변경하지 않았다.
+- 문서 링크·배치 검사와 diff 검사는 통합 commit 전에 실행했다. 원격 검사/merge와 공용 checkout 동기화의 최종 기준은 이슈 #16 및 통합 PR/Git 이력이다.
+
+실제 모델 평가·배포는 이 시각 변경의 결과로 완료된 것이 아니다. 다음 기능 작업은 ROADMAP의 API/모델/예산 및 운영 검증 조건을 따른다.

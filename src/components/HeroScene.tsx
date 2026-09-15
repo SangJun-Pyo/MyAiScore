@@ -7,7 +7,7 @@ type Axis = typeof AXES[number];
 
 /**
  * Adapted from ThreeUI Logic Core / platform-core.html (MIT, © 2026 Meng To).
- * License and attribution: third-party/threeui/LICENSE.txt and NOTICE.md.
+ * License and attribution: public/third-party/threeui/LICENSE.txt and NOTICE.md.
  * Source revision: 68802d5428071ada5c20db8094b1649e6bb770ed.
  * https://threeui.com/three-js/structure-flow/logic-core
  * Preserves the (20,20,20) orthographic camera, 16×0.5×16 platform,
@@ -32,7 +32,9 @@ const NODE_LAYOUT = (() => {
 
 type Point3 = readonly [number, number, number];
 function project([x, y, z]: Point3): string {
-  return `${310 + (x - z) * Math.SQRT1_2 * 19},${210 + ((x + z) / Math.sqrt(6) - y * Math.sqrt(2 / 3)) * 19}`;
+  // Browser and server math can differ in their last floating-point digits.
+  // Stable SVG attributes prevent a hydration mismatch in the fallback scene.
+  return `${(310 + (x - z) * Math.SQRT1_2 * 19).toFixed(3)},${(210 + ((x + z) / Math.sqrt(6) - y * Math.sqrt(2 / 3)) * 19).toFixed(3)}`;
 }
 function StaticBox({ position: [x, y, z], size: [w, h, d], colors, stroke = '#596077', axis, selected = false }: {
   position: Point3; size: Point3; colors: readonly [string, string, string]; stroke?: string; axis?: Axis; selected?: boolean;

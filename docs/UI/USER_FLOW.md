@@ -6,6 +6,8 @@
 
 랜딩의 Three.js 장면은 다섯 평가 축과 근거의 연결을 나타내는 장식이다. 실제 분석 진행이나 사용자 점수를 시각화한 것으로 표시하지 않는다. WebGL 미지원과 모션 감소 설정에서는 정적 그래픽을 제공하며 모바일에서 가독성과 폼 접근을 우선한다. 입력·질문·결과·공유 화면에도 같은 다크 팔레트를 사용한다.
 
+2026-09-15부터 히어로는 ThreeUI Community **Logic Core**의 MIT 소스를 포팅한 등각 플랫폼·중앙 코어·12개 궤도 큐브를 사용한다. 그중 5개 큐브는 A–E 선택에 대응하고 나머지는 장식이다. 보라·시안 팔레트와 정적 대체에서도 같은 구성을 유지한다. [원문 참조](References/THREEUI_STRUCTURE_FLOW_REFERENCE.md), [적용 프롬프트](References/THREEUI_LOGIC_CORE_ADAPTATION.md), [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md).
+
 현재 React 19.3과 R3F 9.7의 peer 범위가 맞지 않아 Three.js를 직접 지연 로딩한다. UI 참조에 언급된 라이브러리를 모두 설치하지 않는다. 시각 변경은 아래 평가·공개·동의 흐름을 바꾸지 않는다.
 
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 상태·API: [API_DATA_CONTRACTS](../Architecture/API_DATA_CONTRACTS.md). 결과 필드: [EVIDENCE_SCHEMA](../Assessment/EVIDENCE_SCHEMA.md).

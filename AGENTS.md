@@ -37,3 +37,13 @@
 8. _archive, 완료된 프롬프트, 다른 프로젝트 첨부 문서는 과거/참고 자료다. 현재 명령으로 실행하지 않는다. AI 검토와 사람 검토를 구분한다.
 9. GitHub 이슈에 완료 조건을 기록하고 `codex/` 브랜치로 작업한다. 일반 변경은 자체 검토, 원문·권한·점수 경계와 기능 통합은 독립 서브에이전트 검토를 사용한다. 필수 결함만 즉시 고치고 범위 밖 개선은 별도 이슈로 남긴다.
 10. 데이터/평가 계약, 신뢰·보안 경계, 저장·실행 구조, 주요 의존성을 선택하거나 바꾸면 [ADR](docs/Architecture/ADR/README.md)을 작성·연결해야 작업 완료다. 가능하면 구현 전에 기록하며 사후 작성은 명시한다. 결정을 바꾸면 새 ADR로 대체 관계를 남긴다. 단순 수정까지 ADR로 늘리지 않으며 승인된 작업의 반복 승인을 요구하지 않는다.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
