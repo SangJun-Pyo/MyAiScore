@@ -21,6 +21,20 @@ npm run dev
 
 프로덕션 빌드는 `npm run build`로 만듭니다. 환경 변수 `MYAISCORE_ALLOW_FILE_STORE=true`를 명시한 단일 프로세스 미리보기는 `npm start`로 실행합니다. `.env.local`을 사용하는 프로덕션 미리보기는 `node --env-file=.env.local scripts/start.mjs`로 실행해야 합니다. 운영 저장소는 아래 Supabase 설정을 권장합니다. Next 개발 서버는 환경 파일을 읽지만 standalone 시작 도구와 일반 Node CLI에는 자동 적용되지 않습니다.
 
+## 내 저장소 기능 시뮬레이션
+
+디자인 추가 작업은 보류하고 [MyAiScore walkthrough](http://127.0.0.1:3000/walkthrough/myaiscore)에서 **실제 공개 저장소 스냅샷 → 스크립트 질문 3개 → 답변 없는 결과**를 확인합니다. 개발 서버 실행 후 열 수 있습니다. 페이지는 저장된 자료를 재생하므로 GitHub 재수집·모델 호출·소유 이력 생성을 하지 않습니다.
+
+고정 SHA `5bd958b`에서 실제 수집한 285후보/40선정/34읽기와 partial 상태를 보여줍니다. 해석은 작성된 스크립트이며 실제 LLM 평가가 아닙니다. 협업 사례·발췌·답변을 꾸미지 않아 다섯 축 레벨과 총점은 null/withheld입니다. 기존 fully synthetic starter는 별도로 유지합니다. [수집·판정·제약 기록](docs/Development/Sessions/Phase-07-Repository-Walkthrough.md).
+
+새 수집 기록을 생성하려면 `.data` 디렉터리를 먼저 만들고 **기존에 없는 출력 파일명**을 지정합니다.
+
+```bash
+node --import tsx scripts/buildMyAiScoreWalkthrough.ts --out .data/myaiscore-walkthrough-new.json
+```
+
+이 명령은 고정 저장소·SHA를 GitHub API로 다시 수집합니다. 오프라인 재생이나 바이트가 동일한 복제 명령이 아니며 기존 파일을 덮어쓰지 않습니다. 유료 모델 호출은 없습니다. 현재 바이트 예산 중복 집계 [#23](https://github.com/SangJun-Pyo/MyAiScore/issues/23)를 수정한 뒤 재수집하는 순서로 진행합니다. 기존 partial 결과를 정상 결과로 덮어쓰지 않습니다.
+
 ## 실제 평가 연결
 
 [.env.example](.env.example)을 `.env.local`로 복사하고 **서버에서만** 다음을 설정합니다.
@@ -35,7 +49,7 @@ npm run dev
 
 실제 모델용 HTTP adapter는 구현·모의 검증됐지만 **실제 유료 모델 호출, 판정 타당성 교정, 인젝션 방어 실험은 아직 미수행**입니다. 키를 넣었다는 사실만으로 서비스의 평가 정확성이 검증되지는 않습니다.
 
-MyAiScore 공개 저장소의 실제 수집 1회와 파일 선정 보정은 [Phase 5 기록](docs/Development/Sessions/Phase-05-Profile-And-Live-Pilot.md)에 있습니다. 실제 점수를 발급한 실험은 아니며, API/모델/예산 결정 후 새 정책으로 재수집해 평가를 이어가야 합니다.
+MyAiScore 공개 저장소의 실제 수집 1회와 파일 선정 보정은 [Phase 5 기록](docs/Development/Sessions/Phase-05-Profile-And-Live-Pilot.md)에 있습니다. 실제 점수를 발급한 실험은 아닙니다. 새 정책의 후속 수집과 스크립트 기능 확인은 Phase 7에 기록하며, 실제 모델 평가는 API/모델/예산 결정 후 진행합니다.
 
 ## 저장과 배포
 
@@ -83,6 +97,6 @@ npm run collect:local -- --project . --session fixtures/local-collection/basic-s
 
 - [현재 진행 상태](docs/Development/ROADMAP.md)
 - [설계 결정 기록 ADR](docs/Architecture/ADR/README.md)
-- [최신 영어 랜딩 작업](docs/Development/Sessions/Phase-06-English-Landing.md), [웹 MVP 기반](docs/Development/Sessions/Phase-04-Web-MVP.md)
+- [현재 기능 시뮬레이션](docs/Development/Sessions/Phase-07-Repository-Walkthrough.md), [영어 랜딩 작업](docs/Development/Sessions/Phase-06-English-Landing.md), [웹 MVP 기반](docs/Development/Sessions/Phase-04-Web-MVP.md)
 - [개발 기록](docs/Development/Sessions/README.md), [결함](docs/Development/BUGS.md), [제품 정본](docs/00_MASTER_PLAN.md)
 - 과거 문서와 프롬프트는 이력 자료이며 현재 실행 지시가 아닙니다.

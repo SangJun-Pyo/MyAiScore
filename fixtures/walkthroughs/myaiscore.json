@@ -1,0 +1,1480 @@
+{
+  "example_kind": "repository_walkthrough",
+  "repo_url": "https://github.com/SangJun-Pyo/MyAiScore",
+  "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+  "collected_at": "2026-09-15T07:43:01.194Z",
+  "collection": {
+    "read_files": 34,
+    "candidate_files": 285,
+    "selected_files": 40,
+    "http_requests": 38,
+    "duration_ms": 9560,
+    "fetched_bytes": 819270,
+    "selection_limited": false,
+    "context_truncated": true
+  },
+  "provenance": {
+    "generator_version": "myaiscore-repository-walkthrough-v1",
+    "generator_sha256": "a00ee0f31aea0db8a4b983f40893fdd3649f299c516881f02070ec884ca53959",
+    "scripted_responses_sha256": "a6b6e50ce20faed71f6eda887c31e866736fca0719fe0c96eaac4e0ae82721a0",
+    "collector_version": "ingestion-0.2.1-en",
+    "selection_digest": "62b80d503d3071af02d2744a9df191fa7a42c5b81d2accb831048345a03dabeb",
+    "ingestion_status": "partial",
+    "user_case_count": 0,
+    "user_excerpt_count": 0,
+    "user_answer_count": 0,
+    "service_model_calls": 0,
+    "submitted_code_executed": false,
+    "external_network": "GitHub API collection only"
+  },
+  "questions": [
+    {
+      "question_id": "q_eb20a6f3-1582-4bf8-b319-cf0c2ced2037",
+      "assessment_id": "walkthrough_myaiscore_5bd958b",
+      "text": "Choose one MyAiScore change you delegated to AI. What goal, constraints and completion criteria did you set, and which files or context did you include or deliberately exclude?",
+      "grounding_evidence_ids": [
+        "repo_0",
+        "repo_4"
+      ],
+      "target_criteria": [
+        "A",
+        "B"
+      ],
+      "created_at": "2026-09-15T07:43:01.203Z"
+    },
+    {
+      "question_id": "q_a1dcddc5-2dc1-4731-98d4-81bc8e29885d",
+      "assessment_id": "walkthrough_myaiscore_5bd958b",
+      "text": "package.json lists the project toolchain. For one implementation choice, which alternative did you consider, and why did you accept, reject or revise the AI suggestion? Link that decision to the resulting change.",
+      "grounding_evidence_ids": [
+        "repo_2",
+        "repo_4"
+      ],
+      "target_criteria": [
+        "C",
+        "E"
+      ],
+      "created_at": "2026-09-15T07:43:01.203Z"
+    },
+    {
+      "question_id": "q_6b0d2931-549a-4856-a040-37225ca35a15",
+      "assessment_id": "walkthrough_myaiscore_5bd958b",
+      "text": "The repository includes tests/browser/evidence-status.spec.ts and a CI workflow. For one important check, what input failed before the fix, what happened afterward, and which actual output or CI run supports your conclusion?",
+      "grounding_evidence_ids": [
+        "repo_13",
+        "repo_8"
+      ],
+      "target_criteria": [
+        "D"
+      ],
+      "created_at": "2026-09-15T07:43:01.203Z"
+    }
+  ],
+  "assessment": {
+    "assessment_id": "walkthrough_myaiscore_5bd958b",
+    "repo_url": "https://github.com/SangJun-Pyo/MyAiScore",
+    "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+    "status": "done",
+    "result": {
+      "assessment_id": "walkthrough_myaiscore_5bd958b",
+      "mode": "mock",
+      "source": "github_repository",
+      "repo": "SangJun-Pyo/MyAiScore",
+      "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+      "criteria": [
+        {
+          "criterion_result_id": "cr_c115f4d6-ec66-4c1f-a3ea-2a532fdfdbbd",
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "criterion_code": "A",
+          "status": "insufficient_evidence",
+          "level": null,
+          "dimension_score": null,
+          "supporting_evidence_ids": [
+            "repo_0"
+          ],
+          "contrary_evidence_ids": [],
+          "rationale": "README.md describes evidence-based, project-specific AI collaboration assessment and its scope. A current product description alone does not show when you set completion criteria or how you checked a particular AI-assisted task against them.",
+          "missing_evidence": "One concrete task with the original goal, constraints, completion criteria and the result checked against them.",
+          "blocking_conflict": false
+        },
+        {
+          "criterion_result_id": "cr_197dff85-d4e7-4925-ab68-2e2d9c8e3339",
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "criterion_code": "B",
+          "status": "insufficient_evidence",
+          "level": null,
+          "dimension_score": null,
+          "supporting_evidence_ids": [
+            "repo_4"
+          ],
+          "contrary_evidence_ids": [],
+          "rationale": "AGENTS.md defines shared agent instructions, ownership boundaries and review responsibilities. This demonstrates documented working rules, but does not establish how relevant context was actually delegated and corrected in one collaboration.",
+          "missing_evidence": "The delegated request, relevant files, scope boundaries and any clarification you gave after the AI misunderstood context.",
+          "blocking_conflict": false
+        },
+        {
+          "criterion_result_id": "cr_3de173df-b1d2-43c8-a634-dc2c4f510780",
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "criterion_code": "C",
+          "status": "insufficient_evidence",
+          "level": null,
+          "dimension_score": null,
+          "supporting_evidence_ids": [
+            "repo_2"
+          ],
+          "contrary_evidence_ids": [],
+          "rationale": "package.json records the Next.js/React/TypeScript toolchain. Installed tools and dependency count do not establish why a tool fit the problem, which alternative you considered, or what limitation you checked.",
+          "missing_evidence": "One tool or approach decision linked to a task requirement, an alternative and an observed outcome.",
+          "blocking_conflict": false
+        },
+        {
+          "criterion_result_id": "cr_a835cbda-85fa-4592-9c81-0d6f53725263",
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "criterion_code": "D",
+          "status": "insufficient_evidence",
+          "level": null,
+          "dimension_score": null,
+          "supporting_evidence_ids": [
+            "repo_13",
+            "repo_8"
+          ],
+          "contrary_evidence_ids": [],
+          "rationale": "The sample contains tests/browser/evidence-status.spec.ts and .github/workflows/ci.yml. This establishes the presence of checks and a CI definition. This collection did not execute them or retrieve a CI run, so their presence is not proof of successful verification or of your personal verification decisions.",
+          "missing_evidence": "A failing input or risk, the actual result before and after the change, and the record connecting the rerun to your decision.",
+          "blocking_conflict": false
+        },
+        {
+          "criterion_result_id": "cr_0d023b5f-9996-4450-9dd4-0ae634122153",
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "criterion_code": "E",
+          "status": "insufficient_evidence",
+          "level": null,
+          "dimension_score": null,
+          "supporting_evidence_ids": [
+            "repo_4"
+          ],
+          "contrary_evidence_ids": [],
+          "rationale": "AGENTS.md requires evidence-based decisions and independent review for important boundaries. A standing policy does not identify an original AI suggestion, your acceptance/rejection/revision, and its outcome in a particular task.",
+          "missing_evidence": "One original AI suggestion, your decision and reason, the resulting change and its observed outcome.",
+          "blocking_conflict": false
+        }
+      ],
+      "score": {
+        "status": "withheld",
+        "value": null,
+        "reasons": [
+          "ingestion_partial",
+          "insufficient_dimensions"
+        ],
+        "observed_dimensions": 0,
+        "total_dimensions": 5
+      },
+      "confidence": {
+        "evidence_scope": {
+          "read_files": 34,
+          "candidate_files": 285,
+          "selection_limited": false
+        },
+        "source_verification": "partial",
+        "process_evidence": "none",
+        "remaining_uncertainty": [
+          "These assessment criteria are experimental. They do not certify general personal ability.",
+          "Code existence does not prove successful execution or your collaboration behavior.",
+          "The authenticity of user-provided material and its causal link to code changes have not been independently verified.",
+          "Some file content was omitted from the model input due to length limits.",
+          "This example uses synthetic responses, not a real model assessment."
+        ]
+      },
+      "improvement_task": {
+        "criterion_code": "D",
+        "title": "Reproduce one failure and record the fix",
+        "why": "There is not enough evidence to assess axis D yet. A failing input or risk, the actual result before and after the change, and the record connecting the rerun to your decision.",
+        "action": "Choose an important behavior in the project. Create a failing input and record the result before the fix and the verification result afterward.",
+        "evidence_ids": [
+          "repo_13",
+          "repo_8"
+        ],
+        "done_checklist": [
+          "Record the expected result and reproduction input",
+          "Check the actual execution result",
+          "Link the change to the rerun result"
+        ],
+        "copy_text": "Reproduce one failure and record the fix\n\nThere is not enough evidence to assess axis D yet. A failing input or risk, the actual result before and after the change, and the record connecting the rerun to your decision.\n\nChoose an important behavior in the project. Create a failing input and record the result before the fix and the verification result afterward.\n\nCompletion checklist\n- [ ] Record the expected result and reproduction input\n- [ ] Check the actual execution result\n- [ ] Link the change to the rerun result\n\nAdding records is different from improving actual behavior.",
+        "steps": [
+          "Choose an important behavior in the project. Create a failing input and record the result before the fix and the verification result afterward."
+        ],
+        "done_when": [
+          "Record the expected result and reproduction input",
+          "Check the actual execution result",
+          "Link the change to the rerun result"
+        ]
+      },
+      "manifest": {
+        "mode": "mock",
+        "provider_id": "astra-scripted-myaiscore-walkthrough-v1",
+        "versions": {
+          "rubric_version": "scoring-rubric-v0.3.1",
+          "pipeline_version": "service-v2-en",
+          "question_prompt_version": "question-prompt-v2-en",
+          "evaluator_prompt_version": "judge-prompt-v2-en",
+          "inference_config_version": "service-v2-en"
+        },
+        "bundle_text_hash": "411421737ac4d42e785c543a3a3ae146b4638be9e372e01818e6995086ce93cb",
+        "model_input_hash": "93f2622e275c80ebb79e21c8ae325ccf28b76191d24ca886fba988bdd87e992c",
+        "stage_request_hashes": {
+          "questions": "e4c66ebc3faf1d22f8a9644616a5f60c8d4b9606a58b892b6c0491fc93ab4a54",
+          "judgement": "565d2ddd133f91c33dde31b65db413b39a0da3c02de7c4b85f1f2d86241f5978"
+        },
+        "question_prompt_text_hash": "72de0303950968fa4016a2e5aa9430e0f982250f19aeac45fe749916b92afa16",
+        "judge_prompt_text_hash": "172307cb7ad559f9e8fe3231faa89542f1ab3ea377ea1392554bbe5dfb0e1ea3",
+        "rubric_criteria_version": "scoring-rubric-v0.3.1-criteria-table-v2-en",
+        "rubric_criteria_hash": "56f29483da0ea3448ef4c4827c6ca55a7131ef0a11fcd566e17d9fac894afc0b",
+        "tokens_used": null,
+        "cost_usd": null,
+        "cost_note": "Cost is not shown because model pricing and billed amounts have not been verified.",
+        "executed_at": null,
+        "warnings": [
+          "These assessment criteria are experimental. They do not certify general personal ability.",
+          "Code existence does not prove successful execution or your collaboration behavior.",
+          "The authenticity of user-provided material and its causal link to code changes have not been independently verified.",
+          "Some file content was omitted from the model input due to length limits.",
+          "This example uses synthetic responses, not a real model assessment."
+        ],
+        "evaluator_model_id": null,
+        "wire_request_hashes": []
+      },
+      "evidence": [
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "README.md (89 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "0f78422f02b624a6f22d8815bf6f09ab59fc439729afd4e774bf8304671b06a8",
+          "collected_at": "2026-09-15T07:43:01.193Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "README.md",
+          "locator": {
+            "start_line": 1,
+            "end_line": 89
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_0"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "next.config.ts (20 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "40e350f58e165b192ef77f5249a4e160cf7fa6bec77087f2c26c1e821127f333",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "next.config.ts",
+          "locator": {
+            "start_line": 1,
+            "end_line": 20
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_1"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "package.json (35 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "84b95243c815ec87ecc2991619c94cf9f52f079fa84ff707e317a78447bd04f2",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "package.json",
+          "locator": {
+            "start_line": 1,
+            "end_line": 35
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_2"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "tsconfig.json (45 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "5e2fe3e356bbaf42bcc7df4e5b4cf4456be0118ec02a8a1e48df5486321b9c07",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "tsconfig.json",
+          "locator": {
+            "start_line": 1,
+            "end_line": 45
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_3"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "AGENTS.md (51 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "69d4a3d13fe00cb2dfa1c249821926e9758e1961f61e80c9cc625b506aeba751",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "AGENTS.md",
+          "locator": {
+            "start_line": 1,
+            "end_line": 51
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_4"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "CLAUDE.md (9 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "cb90886e5a00f9f56a6bfd3c5aac2075560c7277276fa4dcfeb60503153857be",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "CLAUDE.md",
+          "locator": {
+            "start_line": 1,
+            "end_line": 9
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_5"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/app/api/[...path]/route.ts (10 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "dfb02e496f9b418abeaaaec54f65942e7bffef29a64382958e8defe46f045bd9",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/app/api/[...path]/route.ts",
+          "locator": {
+            "start_line": 1,
+            "end_line": 10
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_6"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/app/assessments/[id]/page.tsx (7 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "ac3c0fb504ae5dd1bc7559f4c3e1ace5a4fd59f645c13d2907d8c6d3672d5477",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/app/assessments/[id]/page.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 7
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_7"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": ".github/workflows/ci.yml (34 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "e07ad04a6f9a5bc654895e596f723dee596f9d276de097723cf534bf0a6a4484",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": ".github/workflows/ci.yml",
+          "locator": {
+            "start_line": 1,
+            "end_line": 34
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_8"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "CLAUDE_PHASE2_FIX_PROMPT.md (42 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "9d0a0453ae12e7e751086b0cf73792bb2dfc271ce50a8f23fd76cb11c9ab7f41",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "CLAUDE_PHASE2_FIX_PROMPT.md",
+          "locator": {
+            "start_line": 1,
+            "end_line": 42
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_9"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": ".dockerignore (12 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "dd7e200423893e4ff5f9444ece9ecbe34445efc49a506a94fbf0c82fce4c94db",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": ".dockerignore",
+          "locator": {
+            "start_line": 1,
+            "end_line": 12
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_10"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/app/evaluate/page.tsx (4 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "dfa5902691f7627ab874fdcfc9ee2187952ca17d8366bd29309b31b73515e165",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/app/evaluate/page.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 4
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_11"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/app/insights/page.tsx (5 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "b6ba71c7cce447d119047d02deb7000565b7476281073eebed33c624ebeef405",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/app/insights/page.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 5
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_12"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "tests/browser/evidence-status.spec.ts (64 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "3b4b148f32cea0a6d7c49c9e874795bd8f84c45b328619f46a8fb2d4af537911",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "tests/browser/evidence-status.spec.ts",
+          "locator": {
+            "start_line": 1,
+            "end_line": 64
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_13"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "docs/00_MASTER_PLAN.md (95 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "c0efd277aa6292a1271ee17e3c17194899790b0a4efad9517841f63be3e4e56c",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "docs/00_MASTER_PLAN.md",
+          "locator": {
+            "start_line": 1,
+            "end_line": 95
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_14"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": ".gitignore (25 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "099baf1e14534169eb95900dd690c27fd156e4d7a7a4c394a1dbf8fb20ef4a5a",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": ".gitignore",
+          "locator": {
+            "start_line": 1,
+            "end_line": 25
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_15"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/app/layout.tsx (17 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "198f93db3fcacb99f215ebf732498708ab3cf52ffa557932eb2e4154f05edd2e",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/app/layout.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 17
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_16"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/app/page.tsx (4 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "f0e4194236b83d8e47e6045b4a3751c4993bda32876a76580ebbbacb0d36a493",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/app/page.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 4
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_17"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "tests/browser/experience.spec.ts (154 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "c4b26cc5a5b7ba8db902446a29315ae1054cf459df95fb191a4013aa3e04ccdc",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "tests/browser/experience.spec.ts",
+          "locator": {
+            "start_line": 1,
+            "end_line": 154
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_18"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "docs/Architecture/ADR/0001-opt-in-live-evaluation.md (29 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "88ecacbb860bd9c992165412e452222063c8543400fe9798c6d77a58dd568060",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "docs/Architecture/ADR/0001-opt-in-live-evaluation.md",
+          "locator": {
+            "start_line": 1,
+            "end_line": 29
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_19"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "Dockerfile (19 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "22cb7671f4cd0f5023739dc2cf6766451a541031d622a589552475ab850d4b8f",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "Dockerfile",
+          "locator": {
+            "start_line": 1,
+            "end_line": 19
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_20"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/app/profile/page.tsx (4 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "c1e5ed3de0df7f4de2d58fab9313ca2acea16c02db41e2b2ae8809992259da1b",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/app/profile/page.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 4
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_21"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/app/results/[id]/page.tsx (7 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "a193fb6f083d755a4e9cbdc425d32eb1148f6ff316a23e6d3ce36e4b01bac46a",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/app/results/[id]/page.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 7
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_22"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "tests/browser/workspace.spec.ts (147 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "0401cdad234ba1c060ab9e45c4dff178bf256add6b5f1bef0682a21383d3fe59",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "tests/browser/workspace.spec.ts",
+          "locator": {
+            "start_line": 1,
+            "end_line": 147
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_23"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "docs/Architecture/ADR/0002-request-bound-stages.md (29 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "efa9167c40c9032f2af224d5d78aa92f8f788f3abc7de0ba4c2151141174bf63",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "docs/Architecture/ADR/0002-request-bound-stages.md",
+          "locator": {
+            "start_line": 1,
+            "end_line": 29
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_24"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "railway.toml (10 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "ea32a4f54c30913556c5f2cdc497e2d37a75ef23f89856addcec228bbe6e901d",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "railway.toml",
+          "locator": {
+            "start_line": 1,
+            "end_line": 10
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_25"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/components/EvidencePreview.tsx (90 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "faca6d6eb64201a4e65f18ed6fe5d9ec1961459260520443a1df79e7172572f2",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/components/EvidencePreview.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 90
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_26"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/components/LandingPage.tsx (62 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "fca5634f3909f494617abe2d47e9232b51021cea7a408e27e5350db198f6ff29",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/components/LandingPage.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 62
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_27"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "tests/calibration/fixtures.test.ts (273 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "3fe17d0dff39a9dd3c3253e4319eb9ba5301f8dc1fbb4fead6cd8d5905646230",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "tests/calibration/fixtures.test.ts",
+          "locator": {
+            "start_line": 1,
+            "end_line": 273
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_28"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "docs/Architecture/ADR/0003-owner-and-public-boundaries.md (29 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "16d87bbc526287cf511af1aed3721e3f2fbdbfa4790e8dc0aabcff9537948f4a",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "docs/Architecture/ADR/0003-owner-and-public-boundaries.md",
+          "locator": {
+            "start_line": 1,
+            "end_line": 29
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_29"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "scripts/checkDocs.mjs (51 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "76d1587bf92cc7f7910757729690b64966d0aa631ac5afc6560faf17173168b9",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "scripts/checkDocs.mjs",
+          "locator": {
+            "start_line": 1,
+            "end_line": 51
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_30"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/components/experience.tsx (431 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "ce3485429de1aca0ee37fa3105b61b80de85c468d9a29ecd56836b38003e8cfa",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/components/experience.tsx",
+          "locator": {
+            "start_line": 1,
+            "end_line": 431
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_31"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "src/server/evaluation/criterionJudgement.ts (171 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "a1fec6e399a8755ff68e0f70c67d4e93c55be4fa0c3ec03adbbb5897c10f7e4d",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "src/server/evaluation/criterionJudgement.ts",
+          "locator": {
+            "start_line": 1,
+            "end_line": 171
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_32"
+        },
+        {
+          "assessment_id": "walkthrough_myaiscore_5bd958b",
+          "source_type": "repo_static",
+          "collection_method": "github_api",
+          "summary": "tests/calibration/localRepoToFixtures.ts (8 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+          "content_sha256": "a172745fc1b013368adc2b10b8f9d7fa227a4a618aab1075921c47293ea1039e",
+          "collected_at": "2026-09-15T07:43:01.194Z",
+          "repo": "SangJun-Pyo/MyAiScore",
+          "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+          "path": "tests/calibration/localRepoToFixtures.ts",
+          "locator": {
+            "start_line": 1,
+            "end_line": 8
+          },
+          "event_time": null,
+          "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+          "evidence_id": "repo_33"
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "README.md (89 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "0f78422f02b624a6f22d8815bf6f09ab59fc439729afd4e774bf8304671b06a8",
+        "collected_at": "2026-09-15T07:43:01.193Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "README.md",
+        "locator": {
+          "start_line": 1,
+          "end_line": 89
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_0"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "next.config.ts (20 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "40e350f58e165b192ef77f5249a4e160cf7fa6bec77087f2c26c1e821127f333",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "next.config.ts",
+        "locator": {
+          "start_line": 1,
+          "end_line": 20
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_1"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "package.json (35 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "84b95243c815ec87ecc2991619c94cf9f52f079fa84ff707e317a78447bd04f2",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "package.json",
+        "locator": {
+          "start_line": 1,
+          "end_line": 35
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_2"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "tsconfig.json (45 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "5e2fe3e356bbaf42bcc7df4e5b4cf4456be0118ec02a8a1e48df5486321b9c07",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "tsconfig.json",
+        "locator": {
+          "start_line": 1,
+          "end_line": 45
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_3"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "AGENTS.md (51 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "69d4a3d13fe00cb2dfa1c249821926e9758e1961f61e80c9cc625b506aeba751",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "AGENTS.md",
+        "locator": {
+          "start_line": 1,
+          "end_line": 51
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_4"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "CLAUDE.md (9 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "cb90886e5a00f9f56a6bfd3c5aac2075560c7277276fa4dcfeb60503153857be",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "CLAUDE.md",
+        "locator": {
+          "start_line": 1,
+          "end_line": 9
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_5"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/app/api/[...path]/route.ts (10 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "dfb02e496f9b418abeaaaec54f65942e7bffef29a64382958e8defe46f045bd9",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/app/api/[...path]/route.ts",
+        "locator": {
+          "start_line": 1,
+          "end_line": 10
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_6"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/app/assessments/[id]/page.tsx (7 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "ac3c0fb504ae5dd1bc7559f4c3e1ace5a4fd59f645c13d2907d8c6d3672d5477",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/app/assessments/[id]/page.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 7
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_7"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": ".github/workflows/ci.yml (34 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "e07ad04a6f9a5bc654895e596f723dee596f9d276de097723cf534bf0a6a4484",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": ".github/workflows/ci.yml",
+        "locator": {
+          "start_line": 1,
+          "end_line": 34
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_8"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "CLAUDE_PHASE2_FIX_PROMPT.md (42 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "9d0a0453ae12e7e751086b0cf73792bb2dfc271ce50a8f23fd76cb11c9ab7f41",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "CLAUDE_PHASE2_FIX_PROMPT.md",
+        "locator": {
+          "start_line": 1,
+          "end_line": 42
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_9"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": ".dockerignore (12 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "dd7e200423893e4ff5f9444ece9ecbe34445efc49a506a94fbf0c82fce4c94db",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": ".dockerignore",
+        "locator": {
+          "start_line": 1,
+          "end_line": 12
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_10"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/app/evaluate/page.tsx (4 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "dfa5902691f7627ab874fdcfc9ee2187952ca17d8366bd29309b31b73515e165",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/app/evaluate/page.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 4
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_11"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/app/insights/page.tsx (5 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "b6ba71c7cce447d119047d02deb7000565b7476281073eebed33c624ebeef405",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/app/insights/page.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 5
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_12"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "tests/browser/evidence-status.spec.ts (64 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "3b4b148f32cea0a6d7c49c9e874795bd8f84c45b328619f46a8fb2d4af537911",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "tests/browser/evidence-status.spec.ts",
+        "locator": {
+          "start_line": 1,
+          "end_line": 64
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_13"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "docs/00_MASTER_PLAN.md (95 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "c0efd277aa6292a1271ee17e3c17194899790b0a4efad9517841f63be3e4e56c",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "docs/00_MASTER_PLAN.md",
+        "locator": {
+          "start_line": 1,
+          "end_line": 95
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_14"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": ".gitignore (25 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "099baf1e14534169eb95900dd690c27fd156e4d7a7a4c394a1dbf8fb20ef4a5a",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": ".gitignore",
+        "locator": {
+          "start_line": 1,
+          "end_line": 25
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_15"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/app/layout.tsx (17 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "198f93db3fcacb99f215ebf732498708ab3cf52ffa557932eb2e4154f05edd2e",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/app/layout.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 17
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_16"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/app/page.tsx (4 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "f0e4194236b83d8e47e6045b4a3751c4993bda32876a76580ebbbacb0d36a493",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/app/page.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 4
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_17"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "tests/browser/experience.spec.ts (154 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "c4b26cc5a5b7ba8db902446a29315ae1054cf459df95fb191a4013aa3e04ccdc",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "tests/browser/experience.spec.ts",
+        "locator": {
+          "start_line": 1,
+          "end_line": 154
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_18"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "docs/Architecture/ADR/0001-opt-in-live-evaluation.md (29 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "88ecacbb860bd9c992165412e452222063c8543400fe9798c6d77a58dd568060",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "docs/Architecture/ADR/0001-opt-in-live-evaluation.md",
+        "locator": {
+          "start_line": 1,
+          "end_line": 29
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_19"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "Dockerfile (19 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "22cb7671f4cd0f5023739dc2cf6766451a541031d622a589552475ab850d4b8f",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "Dockerfile",
+        "locator": {
+          "start_line": 1,
+          "end_line": 19
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_20"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/app/profile/page.tsx (4 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "c1e5ed3de0df7f4de2d58fab9313ca2acea16c02db41e2b2ae8809992259da1b",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/app/profile/page.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 4
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_21"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/app/results/[id]/page.tsx (7 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "a193fb6f083d755a4e9cbdc425d32eb1148f6ff316a23e6d3ce36e4b01bac46a",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/app/results/[id]/page.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 7
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_22"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "tests/browser/workspace.spec.ts (147 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "0401cdad234ba1c060ab9e45c4dff178bf256add6b5f1bef0682a21383d3fe59",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "tests/browser/workspace.spec.ts",
+        "locator": {
+          "start_line": 1,
+          "end_line": 147
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_23"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "docs/Architecture/ADR/0002-request-bound-stages.md (29 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "efa9167c40c9032f2af224d5d78aa92f8f788f3abc7de0ba4c2151141174bf63",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "docs/Architecture/ADR/0002-request-bound-stages.md",
+        "locator": {
+          "start_line": 1,
+          "end_line": 29
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_24"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "railway.toml (10 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "ea32a4f54c30913556c5f2cdc497e2d37a75ef23f89856addcec228bbe6e901d",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "railway.toml",
+        "locator": {
+          "start_line": 1,
+          "end_line": 10
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_25"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/components/EvidencePreview.tsx (90 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "faca6d6eb64201a4e65f18ed6fe5d9ec1961459260520443a1df79e7172572f2",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/components/EvidencePreview.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 90
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_26"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/components/LandingPage.tsx (62 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "fca5634f3909f494617abe2d47e9232b51021cea7a408e27e5350db198f6ff29",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/components/LandingPage.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 62
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_27"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "tests/calibration/fixtures.test.ts (273 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "3fe17d0dff39a9dd3c3253e4319eb9ba5301f8dc1fbb4fead6cd8d5905646230",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "tests/calibration/fixtures.test.ts",
+        "locator": {
+          "start_line": 1,
+          "end_line": 273
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_28"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "docs/Architecture/ADR/0003-owner-and-public-boundaries.md (29 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "16d87bbc526287cf511af1aed3721e3f2fbdbfa4790e8dc0aabcff9537948f4a",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "docs/Architecture/ADR/0003-owner-and-public-boundaries.md",
+        "locator": {
+          "start_line": 1,
+          "end_line": 29
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_29"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "scripts/checkDocs.mjs (51 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "76d1587bf92cc7f7910757729690b64966d0aa631ac5afc6560faf17173168b9",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "scripts/checkDocs.mjs",
+        "locator": {
+          "start_line": 1,
+          "end_line": 51
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_30"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/components/experience.tsx (431 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "ce3485429de1aca0ee37fa3105b61b80de85c468d9a29ecd56836b38003e8cfa",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/components/experience.tsx",
+        "locator": {
+          "start_line": 1,
+          "end_line": 431
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_31"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "src/server/evaluation/criterionJudgement.ts (171 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "a1fec6e399a8755ff68e0f70c67d4e93c55be4fa0c3ec03adbbb5897c10f7e4d",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "src/server/evaluation/criterionJudgement.ts",
+        "locator": {
+          "start_line": 1,
+          "end_line": 171
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_32"
+      },
+      {
+        "assessment_id": "walkthrough_myaiscore_5bd958b",
+        "source_type": "repo_static",
+        "collection_method": "github_api",
+        "summary": "tests/calibration/localRepoToFixtures.ts (8 lines) collected from SangJun-Pyo/MyAiScore@5bd958bcbdfa",
+        "content_sha256": "a172745fc1b013368adc2b10b8f9d7fa227a4a618aab1075921c47293ea1039e",
+        "collected_at": "2026-09-15T07:43:01.194Z",
+        "repo": "SangJun-Pyo/MyAiScore",
+        "commit_sha": "5bd958bcbdfa1766a40052857d2641c1985cdd9c",
+        "path": "tests/calibration/localRepoToFixtures.ts",
+        "locator": {
+          "start_line": 1,
+          "end_line": 8
+        },
+        "event_time": null,
+        "verification_note": "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
+        "evidence_id": "repo_33"
+      }
+    ],
+    "is_example": true,
+    "example_kind": "repository_walkthrough",
+    "example_source": "Real public GitHub snapshot with Astra-authored scripted interpretation; no user answers or service-model evaluation.",
+    "executed_at": null
+  }
+}
