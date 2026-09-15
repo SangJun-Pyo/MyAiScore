@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-15 — MyAiScore 저장소 기능 시뮬레이션
+
+- 디자인 추가 작업을 보류하고 고정 SHA `5bd958b`의 실제 GitHub 수집을 바탕으로 저장형 3단계 walkthrough와 읽기 전용 예시 API를 구성한다. 285후보/40선정/34읽기, 38요청, partial·context truncation을 그대로 표시한다. HTTP 응답과 디코딩 파일을 같은 예산에 중복 집계하는 MAS-011/#23을 확인했다. 기존 fetched_bytes=819270은 혼합 집계이며 순수 다운로드량이 아니다. 개별 6파일 누락 사유는 보존되지 않아 미확인이다.
+- 질문·판정은 전용 스크립트 응답을 실제 검증기·점수 엔진에 통과시킨 결과다. 사례·발췌·답변을 꾸미지 않고 다섯 축 insufficient_evidence/level=null, 총점 withheld를 유지한다. 실제 모델 호출은 없다.
+- 사용자 제출 없는 서비스 결과는 source=github_repository로 구분한다. 예시 재생은 소유 토큰·이력·저장소·LLM 호출을 만들지 않는다. 기존 synthetic starter를 보존한다.
+- 실행 수집값과 재현 명령은 [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md), 결정은 [ADR-0012](../Architecture/ADR/0012-repository-walkthrough.md)에 기록한다. 239개 단위·typecheck/build·32개 브라우저 검사와 독립 출처 검사를 통과했다. 단계 이동 포커스 수정 후 관련 브라우저 2건을 재검증하고 6개 화면 캡처를 보존했다. 최종 원격 검사는 통합 PR Checks에서 확인한다. [#22](https://github.com/SangJun-Pyo/MyAiScore/issues/22).
+
 ## 2026-09-15 — 일관된 평가 작업 화면 (#20)
 
 - 화면 전반을 중립 차콜·밝은 중립 글자·행동/선택용 코럴로 통일한다. 겹친 테마를 정리하고 공통 규칙을 [DESIGN_SYSTEM](../UI/DESIGN_SYSTEM.md)에 기록했다.

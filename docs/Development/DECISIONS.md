@@ -109,3 +109,10 @@ Community 공개 프롬프트와 MIT 원본 소스를 확인하고 히어로의 
 [#20](https://github.com/SangJun-Pyo/MyAiScore/issues/20)에 따라 [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md)을 채택한다. 중립 차콜과 행동/선택용 코럴을 사용하고, 기존 Logic Core 대신 자체 작성한 근거 검토 예시를 둔다. Three.js 의존성과 전용 테스트는 기능 퇴역에 맞춰 정리하고 일반 키보드·모션 감소·평가 흐름 검사는 유지한다.
 
 프로필은 소유 평가 이력, Insights는 관찰과 연결 근거, 새 평가는 선택적 사례가 있는 입력에 집중한다. Kage의 Approach 이후 내용·영어 UI·근거 부족 상태 구분·평가와 공개 계약은 유지한다. Diagnostics Panel은 효과만 제공하여 채택하지 않았으며 코드를 복사하지 않았다. 공통 화면 계약은 [DESIGN_SYSTEM](../UI/DESIGN_SYSTEM.md), 검증 이력은 [Phase 6](Sessions/Phase-06-English-Landing.md)에서 관리한다.
+
+
+## 14. 실제 저장소 기반 스크립트 walkthrough (2026-09-15)
+
+디자인 작업을 보류하고 사용자 저장소의 실제 수집과 질문·판정·계산 흐름을 확인한다. 서비스 API/모델/예산 미정 상태이므로 전용 scripted provider를 사용하며 이를 실평가로 표현하지 않는다. 실제 GitHub 스냅샷과 작성된 해석을 분리하고 협업 사례·발췌·답변은 생성하지 않는다. 저장소만으로 관찰할 수 없는 다섯 축 레벨과 총점은 null/withheld다.
+
+고정 예시 API와 3단계 페이지는 소유 저장·이력 밖에서 저장된 자료를 재생한다. 페이지 방문은 재수집·LLM 호출을 실행하지 않는다. 입력 출처 source는 사용자 제출이 없으면 github_repository, 있으면 github_with_user_submissions이며 mock/live와 별개다. [ADR-0012](../Architecture/ADR/0012-repository-walkthrough.md), [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md).

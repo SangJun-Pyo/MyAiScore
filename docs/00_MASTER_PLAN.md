@@ -18,6 +18,8 @@
 
 과정 자료·답변을 생략해도 관찰 가능한 진단은 제공한다. 없는 과정을 추정하지 않고 총점 발급 조건을 충족하지 못하면 보류한다.
 
+2026-09-15 기능 확인: 추가 디자인 작업을 보류하고 MyAiScore 고정 공개 저장소의 실제 수집을 scripted walkthrough로 확인한다. 수집 자료와 작성된 질문·판정을 구분하고 사례·발췌·답변은 꾸미지 않는다. 저장된 페이지 재생은 모델 호출이나 개인 이력 생성을 하지 않는다. 이는 실제 평가 타당성 실험이 아니다. [ADR-0012](Architecture/ADR/0012-repository-walkthrough.md), [Phase 7](Development/Sessions/Phase-07-Repository-Walkthrough.md).
+
 ## 3. MVP
 
 포함: 공개 단일 저장소, TypeScript/Next.js 우선 지원, 명시적인 실제/synthetic 예시, 읽기 전용 수집, 개인 협업 사례, 질문 3개, 근거·미확인·점수 발급/보류, 개선 작업서 1개, 선택적 공개 요약, 동일 프로젝트 전후 비교, 실패/재시도/범위 제한.

@@ -53,6 +53,7 @@ test('answer evidence is assessment scoped and self-report is not linked records
   const model = provider(); const p = await generateAssessmentQuestions(await prep(), model);
   const result = await finalizeAssessment(p, [{ questionId: p.questions[0]!.questionId, text: '검증은 수동으로 확인했습니다.', linkedEvidenceIds: ['repo_0'] }], model);
   assert.equal(result.confidence.processEvidence, 'statements_only');
+  assert.equal(result.source, 'github_with_user_submissions');
   assert.ok(model.last?.untrusted.evidence.some(e => e.sourceType === 'interview_answer' && e.assessmentId === 'test'));
   assert.doesNotMatch(JSON.stringify(result), /검증은 수동으로 확인했습니다/);
 });
@@ -69,6 +70,7 @@ test('partial collection cannot issue even all-observed synthetic judgement', as
 test('complete all-observed mock response uses deterministic scorer, explicitly not live', async () => {
   const model = provider(true); const result = await finalizeAssessment(await generateAssessmentQuestions(await prep(), model), [], model);
   assert.equal(result.score.value, 75); assert.equal(result.mode, 'mock'); assert.equal(result.manifest.executedAt, null);
+  assert.equal(result.source, 'github_repository');
 });
 test('demo is deterministic, entirely synthetic, no API configuration required', () => {
   assert.deepEqual(syntheticExample(), syntheticExample());

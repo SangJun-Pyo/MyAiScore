@@ -34,7 +34,7 @@ export interface PreparedAssessment {
 export interface ImprovementTask { criterionCode: CriterionCode; title: string; why: string; action: string; evidenceIds: string[]; doneChecklist: string[]; copyText: string; }
 export interface ServiceManifest extends EvaluationManifest { evaluatorModelId: string | null; stageRequestHashes: { questions: string | null; judgement: string | null }; wireRequestHashes: string[]; }
 export interface AssessmentResult {
-  assessmentId: string; mode: 'mock' | 'live'; source: 'synthetic' | 'github_with_user_submissions';
+  assessmentId: string; mode: 'mock' | 'live'; source: 'synthetic' | 'github_repository' | 'github_with_user_submissions';
   repo: string; commitSha: string | null; criteria: CriterionResult[]; score: MyAiScore; confidence: ConfidenceSummary;
   improvementTask: ImprovementTask; manifest: ServiceManifest; evidence: Evidence[];
 }
@@ -161,7 +161,7 @@ export async function finalizeAssessment(prepared: PreparedAssessment, submissio
     tokensUsed: allCalls.length === 2 && allCalls.every(c => c.tokensUsed !== null) ? allCalls.reduce((sum, c) => sum + c.tokensUsed!, 0) : null,
     executedAt: provider.mode === 'live' ? allCalls.at(-1)?.executedAt ?? null : null,
     costUsd: null, costNote: 'Cost is not shown because model pricing and billed amounts have not been verified.' };
-  return { assessmentId: p.assessmentId, mode: provider.mode, source: 'github_with_user_submissions', repo: p.snapshot.repo, commitSha: p.snapshot.commitSha, criteria, score, confidence, improvementTask: buildImprovementTask(criteria), manifest, evidence: p.evidence };
+  return { assessmentId: p.assessmentId, mode: provider.mode, source: p.evidence.some(e => e.collectionMethod === 'user_submission') ? 'github_with_user_submissions' : 'github_repository', repo: p.snapshot.repo, commitSha: p.snapshot.commitSha, criteria, score, confidence, improvementTask: buildImprovementTask(criteria), manifest, evidence: p.evidence };
 }
 
 const ACTIONS: Record<CriterionCode, { title: string; action: string; checks: string[] }> = {

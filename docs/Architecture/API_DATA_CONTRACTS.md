@@ -1,19 +1,21 @@
-# API & Data Contracts v0.4
+# API & Data Contracts v0.5
 
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 필드: [EVIDENCE_SCHEMA](../Assessment/EVIDENCE_SCHEMA.md). 실행·캐시: [SYSTEM_ARCHITECTURE](SYSTEM_ARCHITECTURE.md). 보안: [PRIVACY_SECURITY](../Security/PRIVACY_SECURITY.md).
 
-웹·API는 구현됐으며 실제 모델/운영 DB 실험은 별도다. 아래 상태·보안 원칙은 유지하고 v0.4의 실제 wire 형태는 이 절을 우선한다. 기존 v0.3.1 JSON은 역사적 설계 예시다.
+웹·API는 구현됐으며 실제 모델/운영 DB 실험은 별도다. 아래 상태·보안 원칙은 유지하고 v0.5의 실제 wire 형태는 이 절을 우선한다. 기존 v0.3.1 JSON은 역사적 설계 예시다.
 
-## v0.4 실제 wire와 저장 경계
+## v0.5 실제 wire와 저장 경계
 
 - `GET /api/config`: live_enabled/provider_configured/storage_mode와 제한 안내. 키·모델 설정을 반환하지 않는다.
 - `GET /api/health`: liveness만 제공. DB·모델 readiness 인증은 아니다.
+- `GET /api/examples/starter`: 기존 fully synthetic 결과 예시.
+- `GET /api/examples/myaiscore`: 고정된 공개 저장소 기반 repository_walkthrough를 반환한다. GET만 허용하며 변경 메서드는 405, 하위 action 경로는 404다. 소유 인증·store 접근·토큰/이력 생성·GitHub 재수집·모델 호출 없이 저장 자료만 읽는다. 개인 결과의 공개 API와 별도인 curated 예시 경계다. [ADR-0012](ADR/0012-repository-walkthrough.md).
 - `GET /api/assessments`: Bearer 필수. 본인 소유이며 만료되지 않은 평가를 created_at 내림차순(동률 ID 순)으로 최대 50개 반환한다. 응답은 `{assessments, total, limit:50, has_more}`이며 total도 같은 소유·만료 필터를 적용한다. 목록 항목은 assessment_id/repo_url/commit_sha/status/created_at/expires_at/score({status,value} 또는 null)/criteria({criterion_code,status,level}[])/visibility만 포함한다. 미완료 결과는 score=null, criteria=[]다. 토큰 누락·형식 오류는 401, 유효 형식의 소유자에 기록이 없으면 빈 목록이다. 쿼리로 다른 owner나 상한을 지정할 수 없다. 원문·자유 서술·근거·답변·소유 해시·share_id는 목록에서 제외한다. [ADR-0007](ADR/0007-anonymous-assessment-workspace.md).
 - create는 `consent:true`, `repo_url`, 선택 `commit_ref`, `collaboration_case`, `excerpts:string[]`를 받는다. 발췌는 최대 3개/각 2,000자이며 파일 경로나 로컬 JSON 업로드를 받지 않는다.
 - owner DTO: assessment_id, repo_url, commit_sha, status, ingestion_status, input_revision, created_at, expires_at, questions, evidence, result, failure, visibility, share_id, previous_assessment_id, needs_retry.
-- `result`는 criteria/score/confidence/improvement_task/manifest/evidence를 포함한다. 예전 flat `my_ai_score`는 현재 `result.score`, `confidence_summary`는 `result.confidence`다. CriterionResult의 snake_case 필드·점수 공식·근거 참조 원칙은 유지한다.
+- `result`는 criteria/score/confidence/improvement_task/manifest/evidence와 입력 출처 `source`를 포함한다. `source=github_repository`는 실제 user_submission이 없는 저장소 입력, `github_with_user_submissions`는 사용자 제출 근거가 있는 입력, `synthetic`은 가상 starter다. source는 provider의 `mode:mock|live`와 별개이며 저장소 provenance만으로 실제 모델 평가를 뜻하지 않는다. 예전 flat `my_ai_score`는 현재 `result.score`, `confidence_summary`는 `result.confidence`다. CriterionResult의 snake_case 필드·점수 공식·근거 참조 원칙은 유지한다.
 - 작업서 wire는 title/why/action/steps/done_checklist/done_when/evidence_ids/copy_text/criterion_code다. 문서의 풍부한 작업서 템플릿을 모두 LLM으로 생성하는 기능은 아니다. 현재는 가장 필요한 한 축을 선택하는 결정적 행동·완료 체크 템플릿이다.
-- 공개 DTO는 repo_url/commit_sha와 result의 축별 상태·레벨·점수·파일 수 및 일반 안내만 포함한다. 모델 자유 서술 rationale/missing_evidence, 개인 작업서, 원문·답변·발췌·근거 상세는 공개하지 않는다. 예시 endpoint는 별도의 synthetic 데이터 전체를 제공한다.
+- 공개 DTO는 repo_url/commit_sha와 result의 축별 상태·레벨·점수·파일 수 및 일반 안내만 포함한다. 모델 자유 서술 rationale/missing_evidence, 개인 작업서, 원문·답변·발췌·근거 상세는 공개하지 않는다. 예시 endpoint는 별도의 curated starter 또는 repository_walkthrough 자료를 제공한다. 이 예외는 임의 개인 결과의 상세 공개를 허용하지 않는다.
 - `GET /api/assessments/:id/comparison`: reassess로 연결된 이전 평가도 동일 owner인지 검사하고 비교한다. comparison_allowed/score_delta/axes/explanations 및 behavior_change=not_established를 반환한다. 모델·버전·출처·범위·발급 조건이 다르면 delta=null이다.
 - manifest는 evaluator_model_id, stage_request_hashes, wire_request_hashes를 기록한다. model_input_hash는 단계별 실제 provider 요청 hash의 집계이며 hash에만 ID/시각을 제거하지 않는다. 실제 Anthropic envelope의 모델/설정은 별도 wire hash로 추적한다.
 - 운영 저장은 owner별 별도 SQL 행 대신 서버 전용 state JSON과 CAS를 사용한다. owner token hash로 소유를 판별하며 개인 자료를 다른 owner에게 재사용하지 않는다.
@@ -69,7 +71,8 @@ GET은 조회만 한다. 실행 시도와 deadline_at으로 needs_retry를 파�
 | PATCH /api/assessments/:id/visibility | done 결과의 공개 범위 선택/철회 | 200, 공개 시 share_id |
 | DELETE /api/assessments/:id | 즉시 접근 차단, 삭제 처리 예약 | 204 |
 | GET /api/results/:share_id | 유효한 공개 요약 | 200, PublicResultDTO. 철회됐으면 404 |
-| GET /api/examples/:slug | 명시적인 synthetic 또는 실제 예시 | 200, 예시 metadata·PublicResultDTO |
+| GET /api/examples/starter | 기존 fully synthetic 예시 | 200, curated 예시 metadata·결과 |
+| GET /api/examples/myaiscore | 실제 공개 수집 + scripted repository walkthrough | 200, 저장된 수집·provenance·질문·결과, store 접근 없음 |
 
 처리 요청에 무조건 202를 반환하고 별도 실행기를 전제하지 않는다. 호출한 단계는 같은 요청에서 await하며 프런트엔드는 성공 응답 뒤 다음 단계를 명시적으로 호출한다. 필요하면 별도 GET으로 진행을 표시한다.
 
@@ -138,4 +141,8 @@ create 요청:
 
 비교는 새 assessment가 done일 때 생성하며 EVIDENCE_SCHEMA의 Comparison을 그대로 따른다. 이전 평가 소유 권한을 확인하고, 점수 보류/버전 불일치/범위 차이가 있으면 총점 상승 화살표를 표시하지 않는다. 미확인 → 확인만으로 행동 개선을 선언하지 않는다.
 
-예시 metadata 필수: is_example=true, example_kind(synthetic/live), example_source, executed_at(실제 실행 전 null). synthetic 예시에 실제 분석 날짜를 지어내지 않는다.
+예시 assessment metadata: is_example=true, example_kind(synthetic/repository_walkthrough), example_source, executed_at. 아직 실행하지 않은 실제 모델 평가 날짜를 만들지 않는다. 저장소 walkthrough의 실제 수집 날짜 collected_at은 모델 executed_at=null과 구분한다.
+
+repository_walkthrough 응답의 최상위 필드는 example_kind/repo_url/commit_sha/collected_at/collection/provenance/questions/assessment다. collection은 read_files/candidate_files/selected_files/http_requests/duration_ms/fetched_bytes/selection_limited/context_truncated를 포함한다. provenance에는 generator_version/generator_sha256/scripted_responses_sha256/collector_version/selection_digest/ingestion_status 및 사용자 제출·모델 호출 수·코드 실행 여부·외부 네트워크 범위를 기록한다. 현재 저장 예시의 fetched_bytes는 HTTP 응답과 디코딩 파일을 합산한 기존 혼합 지표이며 순수 다운로드량으로 해석하지 않는다. [MAS-011/#23](https://github.com/SangJun-Pyo/MyAiScore/issues/23).
+
+assessment는 완료된 예시 DTO이며 raw file contents/PreparedAssessment/analysisContext/소유 토큰·해시는 포함하지 않는다. 질문과 해석은 scripted, 실제 모델 identity/tokens/cost/executed_at은 null이다. 저장된 예시의 5축 insufficient_evidence/level=null과 전체 withheld는 partial 수집·개인 과정 근거 부족을 반영한다. 페이지의 단계 이동은 저장된 화면 전환이며 실제 lifecycle 실행이 아니다.

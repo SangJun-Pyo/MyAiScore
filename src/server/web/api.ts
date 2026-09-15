@@ -6,6 +6,7 @@ import { prepareAssessment, generateAssessmentQuestions, finalizeAssessment, syn
 import { createAnthropicProviderFromEnv } from '../service/anthropicProvider.js';
 import type { EvaluationProvider } from '../evaluation/provider.js';
 import { compareAssessments } from '../service/comparison.js';
+import repositoryWalkthrough from '../../../fixtures/walkthroughs/myaiscore.json';
 
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
 const activeStates = new Set(['ingesting', 'generating_questions', 'scoring']);
@@ -74,6 +75,12 @@ export function createApi(deps: Dependencies = {}) {
         limitations: ['Assessment criteria and weights are still being calibrated.', 'GitHub collection checks code provenance. It does not certify personal ability.', 'You can paste selected excerpts from local records.'],
       });
       if (method === 'GET' && resource === 'health' && !id) return reply({ ok: true });
+      // Curated public snapshot + scripted interpretation, never a stored owner assessment.
+      if (resource === 'examples' && id === 'myaiscore') {
+        if (action) throw new HttpError(404, 'not_found', 'Route not found.');
+        if (method !== 'GET') throw new HttpError(405, 'invalid_input', 'The walkthrough is read-only.');
+        return reply(repositoryWalkthrough);
+      }
       if (method === 'GET' && resource === 'examples' && id === 'starter' && !action) {
         const result = syntheticExample();
         return reply({ assessment_id: 'example_starter', repo_url: 'https://github.com/example/taskboard', commit_sha: result.commitSha,
