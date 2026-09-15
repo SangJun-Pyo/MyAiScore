@@ -16,7 +16,8 @@
     "evaluate:offline": "tsx scripts/evaluateOffline.ts",
     "collect:local": "tsx scripts/collectLocalSession.ts",
     "test:e2e": "playwright test",
-    "evaluate": "tsx scripts/evaluateRepository.ts"
+    "evaluate": "tsx scripts/evaluateRepository.ts",
+    "session:report": "node bin/myaiscore.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
@@ -30,5 +31,8 @@
     "next": "16.3.5",
     "react": "19.3.0",
     "react-dom": "19.3.0"
+  },
+  "bin": {
+    "myaiscore": "bin/myaiscore.mjs"
   }
 }
