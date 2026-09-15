@@ -2,9 +2,9 @@
 
 공개 GitHub 프로젝트와 AI 협업 근거를 읽고, 다섯 축의 진단과 다음 개선 행동을 제공합니다. 코드 품질이나 토큰 사용량으로 개인의 AI 실력을 인증하지 않습니다.
 
-![MyAiScore ThreeUI Logic Core 히어로와 다섯 축 인터랙션](artifacts/phase5-threeui/home.png)
+현재 랜딩은 ThreeUI Community Kage의 전체 페이지 구성을 참고해 소개·평가 흐름·5축·합성 결과·다음 행동을 장별로 안내합니다. 따뜻한 코럴 강조와 어두운 배경을 관련 작업 공간에도 적용하며, 기존 Logic Core 장면은 실제 평가 상태를 나타내지 않는 장식으로 유지합니다. 모션 감소 설정에서는 정적 대체 그래픽을 표시합니다. [Kage 참조·적용 프롬프트](docs/UI/References/THREEUI_KAGE_LANDING_ADAPTATION.md), [설계 결정](docs/Architecture/ADR/0010-english-landing-page-experience.md), [MIT 출처와 라이선스](public/third-party/threeui/NOTICE.md).
 
-히어로는 MIT 라이선스의 ThreeUI Community Logic Core를 보라·시안 테마와 5축 선택에 맞춰 적용했다. [원문/적용 프롬프트](docs/UI/References/THREEUI_LOGIC_CORE_ADAPTATION.md), [출처와 라이선스](public/third-party/threeui/NOTICE.md). 모션 감소 설정에서는 정적 대체 그래픽이 표시된다.
+[새 랜딩 데스크톱 화면](artifacts/phase6-english/home-desktop.png) · [모바일 화면](artifacts/phase6-english/home-mobile.png) · [구현·검증 기록](docs/Development/Sessions/Phase-06-English-Landing.md)
 
 ## 지금 실행하기
 
@@ -15,9 +15,9 @@ npm ci
 npm run dev
 ```
 
-브라우저에서 `http://127.0.0.1:3000`을 엽니다. 키 없이 한국어 웹 화면과 **synthetic 결과 예시**를 볼 수 있습니다. 예시는 실제 평가가 아니며, 모델 미설정 시 실제 평가 버튼은 비활성입니다.
+브라우저에서 `http://127.0.0.1:3000`을 엽니다. 키 없이 영어 웹 화면과 **synthetic 결과 예시**를 볼 수 있습니다. 예시는 실제 평가가 아니며, 모델 미설정 시 실제 평가 버튼은 비활성입니다.
 
-메뉴는 **홈 / 프로필 / 항목별 분석 / 새 평가**로 나뉩니다. 프로필은 현재 탭의 평가 이력이며 로그인 계정이 아닙니다. 기록이 없으면 빈 상태를 보여주고, 항목별 분석에서 다섯 축의 기준과 선택한 평가의 근거를 확인할 수 있습니다. 예시는 실제 이력에 저장되지 않습니다.
+메뉴는 **Home / Profile / Insights / New assessment**로 나뉩니다. 프로필은 현재 탭의 평가 이력이며 로그인 계정이 아닙니다. 기록이 없으면 빈 상태를 보여주고, 항목별 분석에서 다섯 축의 기준과 선택한 평가의 근거를 확인할 수 있습니다. 예시는 실제 이력에 저장되지 않습니다. 제품 UI와 서버 안내는 영어 전용이며 언어 전환기는 없습니다. 사용자 입력과 기존 평가 기록은 소급 번역하지 않습니다.
 
 프로덕션 빌드는 `npm run build`로 만듭니다. 환경 변수 `MYAISCORE_ALLOW_FILE_STORE=true`를 명시한 단일 프로세스 미리보기는 `npm start`로 실행합니다. `.env.local`을 사용하는 프로덕션 미리보기는 `node --env-file=.env.local scripts/start.mjs`로 실행해야 합니다. 운영 저장소는 아래 Supabase 설정을 권장합니다. Next 개발 서버는 환경 파일을 읽지만 standalone 시작 도구와 일반 Node CLI에는 자동 적용되지 않습니다.
 
@@ -83,6 +83,6 @@ npm run collect:local -- --project . --session fixtures/local-collection/basic-s
 
 - [현재 진행 상태](docs/Development/ROADMAP.md)
 - [설계 결정 기록 ADR](docs/Architecture/ADR/README.md)
-- [통합 구현 세션](docs/Development/Sessions/Phase-04-Web-MVP.md)
+- [최신 영어 랜딩 작업](docs/Development/Sessions/Phase-06-English-Landing.md), [웹 MVP 기반](docs/Development/Sessions/Phase-04-Web-MVP.md)
 - [개발 기록](docs/Development/Sessions/README.md), [결함](docs/Development/BUGS.md), [제품 정본](docs/00_MASTER_PLAN.md)
 - 과거 문서와 프롬프트는 이력 자료이며 현재 실행 지시가 아닙니다.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-15 — 영어 전용 전체 랜딩
+
+- 사용자 정정에 따라 ThreeUI Landing Pages의 Kage를 전체 페이지 구성 참고로 채택했다. 넓은 첫 화면·번호별 섹션·근거 중심 소개·3단계 흐름·5축·합성 결과·마지막 시작 안내로 확장하고 관련 작업 공간의 시각 방향을 맞췄다.
+- 제품 내비게이션·입력·결과·공유·오류·기준 설명과 서버 생성 문구를 영어로 통일했다. 제출 원문·과거 기록·교정 fixture는 보존하고, 번역된 프롬프트/기준표/실행 설정의 버전을 구분했다. 점수 공식과 런타임 합성 예시 71점은 유지한다.
+- Kage 원본의 사원 페이지 복제 지시는 참고 자료로 구분하고 MyAiScore용 React/CSS로 적용했다. 출처·고정 revision·MIT 고지와 적용 프롬프트를 보존한다.
+- 236개 단위·회귀, 30개 브라우저 검사와 typecheck/build 통과. 근거 부족·미관찰 표시 혼동(MAS-010)을 독립 검토로 찾아 수정했다. 상세 결과는 [Phase 6](Sessions/Phase-06-English-Landing.md)에 기록한다. 실제 모델 호출·평가 타당성·운영 DB·배포 검증은 별도 대기다. [ADR-0010](../Architecture/ADR/0010-english-landing-page-experience.md), [#18](https://github.com/SangJun-Pyo/MyAiScore/issues/18).
+
 ## 2026-09-15 — ThreeUI Community Logic Core
 
 - 무료 Community 공개 프롬프트·MIT 소스를 확인하고 등각 플랫폼·중앙 코어·12개 큐브를 포팅했다. 5개 큐브에 기존 축 선택을 연결하고 보라·시안 테마와 정적 대체를 유지했다.

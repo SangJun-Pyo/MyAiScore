@@ -80,16 +80,16 @@ test('unavailable WebGL falls back without blocking navigation', async ({ page }
   await page.goto('/');
   await page.waitForLoadState('networkidle');
   await expect(page.getByTestId('hero-scene')).toHaveAttribute('data-renderer', 'static');
-  await page.getByRole('button', { name: /Preview a result/ }).click();
+  await page.getByRole('button', { name: /Explore a sample/ }).click();
   await expect(page.locator('#example')).toContainText('synthetic');
   expect(errors).toEqual([]);
 });
 test('landing and real synthetic example render without a model key', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: /Built with AI/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Build with AI/ })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
-  await page.getByRole('button', { name: /Preview a result/ }).click();
+  await page.getByRole('button', { name: /Explore a sample/ }).click();
   await expect(page.locator('#example')).toContainText('synthetic');
   await expect(page.locator('#example')).toContainText('improvement');
   await expect(page.locator('#example').getByRole('button', { name: /Copy/ })).toBeVisible();
@@ -134,4 +134,21 @@ test('browser completes input, questions and result with explicitly synthetic AP
   await page.getByRole('button', { name: /Review these answers/ }).click();
   await expect(page.locator('.result-view')).toContainText('synthetic example');
   expect(calls.map(p => p.split('/').at(-1))).toEqual(['assessments', 'ingest', 'questions', 'answers', 'finalize']);
+});
+
+test('English landing chapters, FAQ and product pages remain usable', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await page.locator('a[href="#process"]').click();
+  await expect(page).toHaveURL(/#process$/);
+  const faq = page.locator('details').first();
+  await faq.locator('summary').click();
+  await expect(faq).toHaveAttribute('open', '');
+  for (const path of ['/', '/profile', '/insights', '/evaluate', '/?view=example#example']) {
+    await page.goto(path);
+    if (path.includes('view=example')) await expect(page.locator('.result-view')).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    expect(await page.locator('main').innerText()).not.toMatch(/[가-힣]/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
 });
