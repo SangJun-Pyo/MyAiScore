@@ -18,7 +18,7 @@ Service translation original commit `c69cbdd`: error messages, built-in syntheti
 
 ## Verification and handoff
 
-Independent review checked translated rubric semantics, scoring/withholding, preserved user input, versioning and integrated routes. No grading change was found. It caught a UI labeling regression (MAS-010): insufficient evidence had been grouped as "Not observed". A shared status label now distinguishes "Not observed", "Insufficient evidence" and missing/unknown "Not assessed" across profile, insights, results, comparison and sharing. A synthetic browser regression covers those surfaces. Small chapter captions were lightened for contrast.
+Independent review checked translated rubric semantics, scoring/withholding, preserved user input, versioning and integrated routes. No grading change was found. It caught a UI labeling regression (MAS-010): insufficient evidence had been grouped as "Not observed". A shared status label now distinguishes "Not observed", "Insufficient evidence" and missing/unknown "Not assessed" across profile, insights, results, comparison and sharing. A synthetic browser regression covers those surfaces. Small chapter captions were lightened for contrast. Final visual inspection also scoped large chapter headings to the landing title class, so opening the embedded report does not inherit oversized marketing typography.
 
 Executed validation:
 - Typecheck and production build pass.
