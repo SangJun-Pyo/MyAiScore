@@ -13,7 +13,7 @@
 - 현재 디자인 작업: [#18 영어 전용 전체 랜딩](https://github.com/SangJun-Pyo/MyAiScore/issues/18), [ADR-0010](../Architecture/ADR/0010-english-landing-page-experience.md), [Kage 참조·적용 프롬프트](../UI/References/THREEUI_KAGE_LANDING_ADAPTATION.md). 히어로만 교체하는 범위를 전체 페이지 구성으로 확장한다. #13 화면 분리와 #16 Logic Core는 이전 완료 작업이다.
 - GitHub 작업: [#1 평가 경계](https://github.com/SangJun-Pyo/MyAiScore/issues/1), [#2 서비스](https://github.com/SangJun-Pyo/MyAiScore/issues/2), [#3 웹](https://github.com/SangJun-Pyo/MyAiScore/issues/3), [#4 실제 실험·배포](https://github.com/SangJun-Pyo/MyAiScore/issues/4).
 - Astra가 구현·통합을 맡고 서브에이전트가 독립 작업·핵심 검토를 수행한다. Claude 별도 세션 간 수동 전달은 기본 절차가 아니다.
-- 현재 통합 브랜치는 `codex/english-landing-pages`다. 검증·PR 이후 코드와 문서를 원격 main 및 공용 checkout에 함께 인계한다. 아직 수행하지 않은 최종 검사·배포는 완료로 기록하지 않는다.
+- 구현 브랜치: `codex/english-landing-pages`, 통합·원격 검사 기록: [PR #19](https://github.com/SangJun-Pyo/MyAiScore/pull/19). 인계 시 코드·문서를 함께 main에 반영하며 다음 에이전트는 공용 checkout의 main에서 시작한다.
 - UI·서버 안내·기준 설명·합성 예시는 영어를 사용한다. 언어 전환기는 없으며 사용자가 제출한 원문과 기존 개인 기록은 소급 번역하지 않는다. 내부 문서·교정 fixture의 한국어 이력은 보존한다.
 - 모델 API 키·정확한 모델·활성화 없이 합성 예시만 사용할 수 있다. 실제 평가 adapter가 있어도 검증된 평가 서비스로 간주하지 않는다.
 
@@ -35,8 +35,8 @@
 
 1. Phase 6 로컬 검증 완료. PR의 원격 CI를 확인하고 코드·문서를 공용 main에 함께 인계한다.
 2. 실제 서비스용 LLM 제공사/모델/예산 결정. 현재 Anthropic adapter는 구현 선택이며 모델 구매·선택 승인이 아니다.
-3. 지정된 MyAiScore 저장소를 새 선정 정책으로 재수집하고 실제 질문·답변·판정 1건 실행. 대표 fixture의 판정·근거·인젝션 검증과 비용·토큰 실측을 별도로 기록한다. [최초 수집/남은 조건](../../artifacts/phase5-pilot/README.md).
-4. Supabase 운영 저장과 배포 환경 설정. 실제 migration/권한·만료 정리/운영 로그 검증 후 배포한다.
-5. 로컬 세션은 사용자 지정 파일만 실제 호환성 실험한다. 자동 수집·업로드/CLI 배포는 아직 보류다.
+2. 지정된 MyAiScore 저장소를 새 선정 정책으로 재수집하고 실제 질문·답변·판정 1건 실행. 대표 fixture의 판정·근거·인젝션 검증과 비용·토큰 실측을 별도로 기록한다. [최초 수집/남은 조건](../../artifacts/phase5-pilot/README.md).
+3. Supabase 운영 저장과 배포 환경 설정. 실제 migration/권한·만료 정리/운영 로그 검증 후 배포한다.
+4. 로컬 세션은 사용자 지정 파일만 실제 호환성 실험한다. 자동 수집·업로드/CLI 배포는 아직 보류다.
 
 확인하지 않은 점수를 mock으로 대신 발급하거나 fixture의 humanReviewed를 변경하지 않는다. 오래된 대회 일정은 이 작업에서 재검증하지 않았으며 제출 완료를 주장하지 않는다.

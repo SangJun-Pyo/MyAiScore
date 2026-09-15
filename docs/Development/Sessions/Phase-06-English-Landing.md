@@ -29,4 +29,4 @@ Executed validation:
 - Document check: 51 files, 352 local links, zero problems.
 - [Captured full-page screenshots](../../../artifacts/phase6-english/README.md). Kage reference HTML was inspected as source only; no temple assets or executable external page were incorporated.
 
-GitHub PR/CI is the final integration gate. Code and docs are handed off together to main and the canonical checkout after it passes. Live model evaluation, Supabase operational verification and hosting deployment remain separate pending work under issue #4.
+Integration: [PR #19 and its exact-head CI checks](https://github.com/SangJun-Pyo/MyAiScore/pull/19). Implementation commits are `9289639` (service), `afe553f` (UI translation), and `9de6e0e` (complete landing, status fix and docs). Code and docs are handed off together to main and the canonical checkout only after the current PR head passes CI. The PR retains the merge revision and final remote verdict. Live model evaluation, Supabase operational verification and hosting deployment remain separate pending work under issue #4.
