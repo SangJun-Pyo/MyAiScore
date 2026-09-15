@@ -10,12 +10,10 @@ import { fileURLToPath } from 'node:url';
 import { prepareAssessment, generateAssessmentQuestions, finalizeAssessment } from '../src/server/service/assessment.js';
 import type { EvaluationProvider } from '../src/server/evaluation/provider.js';
 import { resultView, snakeCase } from '../src/server/web/dto.js';
-import { ingestRepository } from '../src/server/ingestion/ingest.js';
-import { boundedText } from '../src/server/service/safety.js';
 
 const repoUrl = 'https://github.com/SangJun-Pyo/MyAiScore';
 const commit = '5bd958bcbdfa1766a40052857d2641c1985cdd9c';
-const version = 'myaiscore-repository-walkthrough-v2';
+const version = 'myaiscore-repository-walkthrough-v1';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -25,16 +23,7 @@ async function main() {
   let exists = false;
   try { await access(destination); exists = true; } catch { /* exclusive write below remains authoritative */ }
   if (exists) throw new Error('Output already exists. Choose a new file; it will not be overwritten.');
-  const original = JSON.parse(await readFile(new URL('../fixtures/walkthroughs/myaiscore.json', import.meta.url), 'utf8'));
-  const prepared = await prepareAssessment({ assessmentId: 'walkthrough_myaiscore_5bd958b', repoUrl, commitRef: commit }, {
-    ingest: input => ingestRepository(input, { authToken: process.env.GITHUB_TOKEN?.trim() || undefined,
-      httpClient: { async request(url, init) {
-        if (new URL(url).origin !== 'https://api.github.com') throw new Error('invalid_destination');
-        const response = await fetch(url, { headers: init?.headers, redirect: 'manual', signal: AbortSignal.timeout(10_000) });
-        return { status: response.status, headers: Object.fromEntries(response.headers.entries()), bodyText: await boundedText(response, 2_000_000) };
-      } },
-    }),
-  });
+  const prepared = await prepareAssessment({ assessmentId: 'walkthrough_myaiscore_5bd958b', repoUrl, commitRef: commit });
   if (prepared.snapshot.commitSha !== commit) throw new Error('Unexpected repository revision.');
   function evidence(path: string) {
     const item = prepared.evidence.find(e => e.path === path);
@@ -76,15 +65,9 @@ async function main() {
     collection: { read_files: prepared.snapshot.coverage.readFiles, candidate_files: prepared.snapshot.coverage.candidateFiles,
       selected_files: prepared.snapshot.coverage.selectedFiles, http_requests: prepared.snapshot.metrics.httpRequests,
       duration_ms: prepared.snapshot.metrics.durationMs, fetched_bytes: prepared.snapshot.metrics.fetchedBytes,
-      content_bytes: prepared.snapshot.metrics.contentBytes ?? null,
       selection_limited: prepared.snapshot.coverage.selectionLimited, context_truncated: prepared.contextTruncated },
-    skipped_files: prepared.snapshot.skippedFiles.map(({ path, reason }) => ({ path, reason })),
-    comparison: { original_collected_at: original.collected_at, original_read_files: original.collection.read_files,
-      original_selected_files: original.collection.selected_files, original_ingestion_status: original.provenance.ingestion_status,
-      original_mixed_bytes: original.collection.fetched_bytes, original_collector_version: original.provenance.collector_version,
-      original_commit_sha: original.commit_sha },
     provenance: { generator_version: version,
-      generator_sha256: createHash('sha256').update((await readFile(fileURLToPath(import.meta.url), 'utf8')).replaceAll('\r\n', '\n')).digest('hex'),
+      generator_sha256: createHash('sha256').update(await readFile(fileURLToPath(import.meta.url))).digest('hex'),
       scripted_responses_sha256: createHash('sha256').update(JSON.stringify(scripted)).digest('hex'),
       collector_version: prepared.snapshot.collectorVersion, selection_digest: prepared.snapshot.selectionDigest,
       ingestion_status: prepared.snapshot.ingestionStatus, user_case_count: 0, user_excerpt_count: 0, user_answer_count: 0,

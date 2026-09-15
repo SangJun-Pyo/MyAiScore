@@ -116,3 +116,7 @@ Community 공개 프롬프트와 MIT 원본 소스를 확인하고 히어로의 
 디자인 작업을 보류하고 사용자 저장소의 실제 수집과 질문·판정·계산 흐름을 확인한다. 서비스 API/모델/예산 미정 상태이므로 전용 scripted provider를 사용하며 이를 실평가로 표현하지 않는다. 실제 GitHub 스냅샷과 작성된 해석을 분리하고 협업 사례·발췌·답변은 생성하지 않는다. 저장소만으로 관찰할 수 없는 다섯 축 레벨과 총점은 null/withheld다.
 
 고정 예시 API와 3단계 페이지는 소유 저장·이력 밖에서 저장된 자료를 재생한다. 페이지 방문은 재수집·LLM 호출을 실행하지 않는다. 입력 출처 source는 사용자 제출이 없으면 github_repository, 있으면 github_with_user_submissions이며 mock/live와 별개다. [ADR-0012](../Architecture/ADR/0012-repository-walkthrough.md), [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md).
+
+## 15. 수집 바이트 집계 분리 (2026-09-15)
+
+800 KiB는 채택한 디코딩 파일 내용만 제한한다. HTTP 응답 본문은 별도 지표로 기록하고 과거 혼합 값은 재해석하지 않는다. 누락 경로/사유를 새 walkthrough에 보존하며 같은 SHA의 재수집 결과와 원본을 구분한다. 표본 수집 완료도 개인 협업 근거를 대신하지 않는다. [ADR-0013](../Architecture/ADR/0013-separated-ingestion-byte-accounting.md), [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md).

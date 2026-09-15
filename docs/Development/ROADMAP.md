@@ -6,14 +6,14 @@
 
 ## 현재 상태
 
-**Phase 7 기능 시뮬레이션 구현·로컬 검증 완료: 디자인 추가 작업을 보류하고 MyAiScore 실제 공개 저장소 수집을 3단계 walkthrough로 확인한다. 수집은 실제 GitHub API, 질문·판정은 명시적 스크립트이며 다섯 축과 총점은 근거 부족·부분 수집으로 보류한다. 실제 LLM API/모델/예산은 미정이다.**
+**Phase 7 기능 확인 후속: 수집 용량 중복 계산을 수정하고 같은 SHA를 실제 재수집해 34/40 partial → 40/40 complete를 확인했다. complete는 선정 표본의 완료이며 전체 285파일 검증이 아니다. 질문·판정은 명시적 스크립트이고 총점은 개인 과정 근거 부족으로 보류한다. 디자인 작업은 보류, 실제 LLM API/모델/예산은 미정이다.**
 
 - 실행: [README](../../README.md), 최신 기록: [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md), 이전 디자인: [Phase 6](Sessions/Phase-06-English-Landing.md), 이전 구현: [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md), 웹 MVP 기반: [Phase 4](Sessions/Phase-04-Web-MVP.md).
 - 설계 결정: [ADR](../Architecture/ADR/README.md). Phase 4의 독립 ADR 누락은 [#7](https://github.com/SangJun-Pyo/MyAiScore/issues/7)에서 사후 기록·작업 규칙 보완으로 처리한다.
 - 현재 작업: [#22 MyAiScore 저장소 walkthrough](https://github.com/SangJun-Pyo/MyAiScore/issues/22), [ADR-0012](../Architecture/ADR/0012-repository-walkthrough.md). `/walkthrough/myaiscore`에서 저장된 수집·질문·결과를 확인한다. #20 디자인은 기준 상태로 유지하며 추가 시각 변경은 보류한다.
 - GitHub 작업: [#1 평가 경계](https://github.com/SangJun-Pyo/MyAiScore/issues/1), [#2 서비스](https://github.com/SangJun-Pyo/MyAiScore/issues/2), [#3 웹](https://github.com/SangJun-Pyo/MyAiScore/issues/3), [#4 실제 실험·배포](https://github.com/SangJun-Pyo/MyAiScore/issues/4).
 - Astra가 구현·통합을 맡고 서브에이전트가 독립 작업·핵심 검토를 수행한다. Claude 별도 세션 간 수동 전달은 기본 절차가 아니다.
-- 구현 브랜치: `codex/myaiscore-simulation`, 통합 및 최종 CI: [PR #24](https://github.com/SangJun-Pyo/MyAiScore/pull/24). merge 후 공용 main의 코드와 문서를 함께 동기화한다. 이전 디자인 통합은 [PR #21](https://github.com/SangJun-Pyo/MyAiScore/pull/21)에 있다.
+- 후속 구현 브랜치: `codex/ingestion-byte-accounting`, 작업 [#23](https://github.com/SangJun-Pyo/MyAiScore/issues/23). 최초 walkthrough 통합은 [PR #24](https://github.com/SangJun-Pyo/MyAiScore/pull/24). 후속 merge 후 공용 main의 코드와 문서를 함께 동기화한다.
 - UI·서버 안내·기준 설명·합성 예시는 영어를 사용한다. 언어 전환기는 없으며 사용자가 제출한 원문과 기존 개인 기록은 소급 번역하지 않는다. 내부 문서·교정 fixture의 한국어 이력은 보존한다.
 - 모델 API 키·정확한 모델·활성화 없이 fully synthetic starter와 실제 저장소 기반의 scripted walkthrough를 볼 수 있다. 두 예시 모두 실제 서비스 모델 평가가 아니다. 실제 평가 adapter가 있어도 검증된 평가 서비스로 간주하지 않는다.
 
@@ -22,21 +22,20 @@
 | 영역 | 구현/검증 상태 | 남은 조건 |
 |---|---|---|
 | 평가 계약·공식 | 코드/fixture 교정 초안 | 실제 모델·사람 검토로 타당성 확인 |
-| GitHub 수집 | 고정 SHA 5bd958b 실제 재수집: 285후보/40선정/34읽기, partial | MAS-011/#23 혼합 바이트 예산 수정 후 별도 재수집, 개별 누락 사유 보존 |
+| GitHub 수집 | MAS-011 수정, 고정 SHA 5bd958b 실제 재수집: 285후보/40선정/40읽기, complete | 원본34파일 기록 보존; 파일별 제외·미선정 사유 제공. 표본 대표성·모델 컨텍스트 제한은 별도 |
 | MAS-002/004/005 | 회귀 테스트와 경계 수정 완료 | 기존 회귀 유지 |
 | 로컬 수집/MAS-006 | synthetic 범위 출력·진단 메시지 경계 수정 | 지정한 실제 세션 호환성 검증 |
 | 모델 provider | Anthropic opt-in adapter + transport mock 검증 | 서비스 키·모델·예산 결정 후 실제 호출 |
 | 질문/판정/점수/작업서 | 서비스·CLI·웹 통합, mock 흐름 테스트 | 실제 판단 정확성·인젝션 실험 |
 | API/소유권/저장 | file + Supabase CAS adapter, 소유/공개/재시도/삭제 검사 | 실제 Supabase migration·RLS 실증 |
-| 웹/공유/비교 | #20 기존 검사 완료, #22 저장형 walkthrough/API 추가 | 239단위·typecheck/build·32브라우저 확인, 최종 원격 검사는 PR Checks |
+| 웹/공유/비교 | #23 후속 비교·제외사유 표시 및 수정 후 수집 API | 248단위·typecheck/build·32브라우저 확인, 최종 원격 검사는 PR Checks |
 | CI/배포 준비 | GitHub Actions, Docker/Railway 설정, [통합 PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6) | 원격 CI 결과는 PR Checks, 실제 계정 배포는 #4에서 확인 |
 
 ## 다음 작업
 
-1. [MAS-011/#23](https://github.com/SangJun-Pyo/MyAiScore/issues/23)의 HTTP 응답/디코딩 파일 바이트 중복 예산을 수정한 뒤 별도 파일로 재수집한다. 원본 partial 기록은 보존하고, 남겨지지 않은 개별 6파일 누락 사유는 단정하지 않는다.
-2. 실제 MyAiScore 협업 사례·답변에 필요한 근거를 확인한다. 스크립트 질문·판정은 흐름 설명용이며 실제 모델 판단 타당성 증거가 아니다.
-3. 실제 서비스용 LLM 제공사/모델/예산 결정 후 실평가를 진행한다. 현재 Anthropic adapter는 구현 선택이며 모델 구매·선택 승인이 아니다. 대표 fixture·인젝션·비용·토큰 실측은 별도다.
-4. Supabase 운영 저장과 배포 환경 설정. 실제 migration/권한·만료 정리/운영 로그 검증 후 배포한다.
-5. 로컬 세션은 사용자 지정 파일만 실제 호환성 실험한다. 자동 수집·업로드/CLI 배포는 아직 보류다.
+1. 실제 MyAiScore 협업 사례·답변에 필요한 근거를 확인한다. 스크립트 질문·판정은 흐름 설명용이며 실제 모델 판단 타당성 증거가 아니다. 사례 입력은 사용자의 실제 판단·수정·검증 기록을 사용한다.
+2. 실제 서비스용 LLM 제공사/모델/예산 결정 후 실평가를 진행한다. 현재 Anthropic adapter는 구현 선택이며 모델 구매·선택 승인이 아니다. 대표 fixture·인젝션·비용·토큰 실측은 별도다.
+3. Supabase 운영 저장과 배포 환경 설정. 실제 migration/권한·만료 정리/운영 로그 검증 후 배포한다.
+4. 로컬 세션은 사용자 지정 파일만 실제 호환성 실험한다. 자동 수집·업로드/CLI 배포는 아직 보류다.
 
 확인하지 않은 점수를 mock으로 대신 발급하거나 fixture의 humanReviewed를 변경하지 않는다. 오래된 대회 일정은 이 작업에서 재검증하지 않았으며 제출 완료를 주장하지 않는다.

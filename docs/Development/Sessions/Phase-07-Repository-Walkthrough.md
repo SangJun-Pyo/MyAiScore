@@ -56,3 +56,41 @@ Executed locally: 239 unit/regression tests, typecheck, production build and all
 Independent review found no walkthrough blocker and verified the generator hash, scripted-response hash and all 34 collected Git blob hashes. The example returned GET 200 with zero store access; mutations returned 405 and unsupported action paths 404. Browser checks also verify no owner history, access token or assessment creation. These checks do not establish model accuracy. The UI subtask was integrated as commit `3a495a1`; the generator, API, curated artifact and verification were committed as `a4fdbae`. `npm run check:docs` checked 55 documents and 392 local links with zero problems; `git diff --check` passed. Final integration and exact-head remote checks are recorded in [PR #24](https://github.com/SangJun-Pyo/MyAiScore/pull/24). The test preview runs locally at [port 3104](http://127.0.0.1:3104/walkthrough/myaiscore); this is not a deployment.
 
 Next: fix MAS-011 byte accounting before rerunning collection, then review which real collaboration case and answers are needed. API/provider/model/budget decisions still precede any live evaluation. Supabase operational validation and deployment remain separate pending work under issue #4. Further design changes are paused; canonical checkout synchronization follows integration.
+
+## 2026-09-15 — MAS-011 fix and same-commit recollection
+
+The user authorized fixing the collector and rerunning the same repository after the explanation of partial collection. [ADR-0013](../../Architecture/ADR/0013-separated-ingestion-byte-accounting.md) records the accounting change. Core implementation commit `ca4a2f2` was integrated as `d65963b` on `codex/ingestion-byte-accounting`; independent review was performed by a separate subagent. No design redesign, service-model call, invented collaboration case/answer, deployment or submitted-code execution was included.
+
+### Implementation
+
+Collector `ingestion-0.3.0` counts accepted decoded file bytes against 800 KiB atomically, separately from UTF-8 HTTP response-body telemetry. Error/retry bodies are counted when returned by the transport. Bodies interrupted before return are not measurable by this counter; it is not exact wire traffic. File size is checked after decoding even when upstream sizes are absent/wrong. Selected unread paths retain time/request/content/file-size/binary/fetch reasons. Old snapshots remain readable with optional `contentBytes`; missing old values remain unknown.
+
+The generator records curated path/reason metadata, original-run comparison and both new byte metrics. The old [34-file JSON](../../../fixtures/walkthroughs/myaiscore.json) is unchanged (original Windows file SHA256 `1e8dac2f51c36677f186b5644a2d8def9023b34ef8a4a61c1312c8d5c880f704`); its generator is preserved as source text under the original artifacts directory. The API now serves [the separate new record](../../../fixtures/walkthroughs/myaiscore-recollected.json). The page displays complete **selected sample**, old/new coverage, and expandable excluded/unselected path reasons. It does not claim the entire repository was read.
+
+### Actual network run
+
+The unauthenticated core allowance had 22 requests left, below the 43 needed. The existing configured GitHub Git credential was reused in memory for authorized public-repository API reads; it was not printed, saved or passed as a command-line argument. The generator accepts optional `GITHUB_TOKEN`, continues to reject private repositories, and retains the service's bounded response reader and timeout. The local credential launcher is ignored and not shipped. No new credential or permission scope was created. Authentication changes response metadata, so before/after body bytes and duration are not a controlled performance comparison.
+
+| Field | New actual record |
+|---|---|
+| Repository / commit | `SangJun-Pyo/MyAiScore@5bd958bcbdfa1766a40052857d2641c1985cdd9c` |
+| Collected at | `2026-09-15T08:17:29.740Z` |
+| Candidates / selected / read | 285 / 40 / 40 |
+| Status | `complete` (planned sample only) |
+| HTTP requests / duration | 43 / 12,603 ms |
+| Returned response-body UTF-8 bytes | 692,198 |
+| Accepted decoded file bytes | 188,778 |
+| Skipped path records | 272: 245 not_selected, 25 binary, 2 excluded |
+| Context truncated | true; collection completeness does not remove evaluator input bounds |
+| Score | withheld, value=null, reasons=[insufficient_dimensions], 0/5 observed |
+
+The original run's six individual failure reasons remain unknown. All six additional paths were read in the new run. No original record was edited to turn partial into complete, and no personal score was invented after collection succeeded.
+
+### Executed validation
+
+- Core agent reproduced the same offline 40×18 KiB fixture on the old and corrected collector: 18/40 partial (mixed counter 803,017) → 40/40 complete (response 988,569 / content 737,280). True content exhaustion remains partial without overshooting. No external network in this reproduction.
+- Root ran typecheck and 248 unit/regression tests: all passed. Production build initially hit an `EBUSY` lock from the existing preview; stopping that owned process and rebuilding succeeded. Production preview restarted at the same port 3104.
+- All 32 desktop/mobile browser tests passed against that production build using the ignored port-3104 config. After adjusting capture scroll position and adding a mobile overflow check while skip details are expanded, both walkthrough tests passed again. [Six new screenshots](../../../artifacts/phase7-recollection/README.md) preserve the revised flow; initial off-scroll captures were regenerated, not image-edited.
+- Independent reviewer executed 11 focused accounting tests and 4 API tests. All 40 evidence content hashes match Git blobs at the pinned SHA; accepted content totals 188,778 bytes. 40 read + 272 skipped covers all 312 Git paths exactly once. Both generator hashes and scripted response hash match; the original JSON is unchanged. No raw source context/credentials or owner-store/provider accesses were found. No required fixes.
+
+Next: select a real collaboration case and its evidence, then choose a service provider/model/budget before live evaluation. Collection is working for this sample; real model accuracy, process-evidence quality and private-session compatibility are still unverified. Final integration/CI is recorded in the follow-up PR.

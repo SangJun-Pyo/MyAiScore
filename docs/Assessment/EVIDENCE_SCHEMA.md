@@ -27,10 +27,12 @@
 | static_signals | 관찰된 언어 파일 수, dependencies, test_paths, ci_paths, ai_config_paths, basis=selected_files |
 | evidence_candidates | 아래 Evidence 형식에서 assessment_id를 아직 배정하지 않은 후보. LLM 판정은 없음 |
 | coverage | tree_truncated:boolean, candidate_files:정수 또는 null, selected_files:정수, read_files:정수, selection_limited:boolean |
-| skipped_files | path, reason 배열. binary / symlink / submodule / excluded / file_too_large / total_budget / request_budget / fetch_failed 등 |
+| skipped_files | path, reason 배열. binary / symlink / submodule / excluded / file_too_large / total_budget / request_budget / time_budget / fetch_failed / not_selected 등 |
 | warnings | 코드·사용자용 설명 배열 |
 | failure | 실패 시 code, message, retryable; 그 외 null |
-| metrics | duration_ms, http_requests, fetched_bytes, cache_hits. 측정하지 않은 값은 null |
+| metrics | duration_ms, http_requests, fetched_bytes, cache_hits 및 선택적 content_bytes. 측정하지 않은 값은 null; 과거 content_bytes 누락도 미측정 |
+
+수집기 `ingestion-0.3.0`부터 fetched_bytes는 반환된 HTTP 응답 bodyText의 UTF-8 바이트 합(오류·재시도 포함), content_bytes는 채택한 디코딩 파일 바이트 합이다. 800 KiB 한도는 content_bytes에만 적용한다. 이전 버전의 혼합 fetched_bytes는 소급 변환하지 않는다. 추가 필드는 기존 스냅샷을 읽을 수 있도록 선택적으로 정의했다. [ADR-0013](../Architecture/ADR/0013-separated-ingestion-byte-accounting.md).
 
 redacted_content는 일시적 분석 자료다. 영구 Assessment 저장과 공통 공개 응답으로 직렬화하지 않는다. 수집 후보에 assessment_id를 부여할 때 소유자별 새 Evidence ID를 만들고 개인 자료와 분리한다.
 
