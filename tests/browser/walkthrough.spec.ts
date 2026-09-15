@@ -1,0 +1,56 @@
+import { test, expect } from '@playwright/test';
+
+test('real repository walkthrough replays unanswered questions without creating an assessment', async ({ page, request }, testInfo) => {
+  const response = await request.get('/api/examples/myaiscore');
+  expect(response.ok()).toBeTruthy();
+  const data = await response.json();
+  expect(data.example_kind).toBe('repository_walkthrough');
+  expect(data.repo_url).toBe('https://github.com/SangJun-Pyo/MyAiScore');
+  expect(data.commit_sha).toMatch(/^[a-f0-9]{40}$/);
+  expect(data.questions).toHaveLength(3);
+  expect(data.collection.read_files).toBeGreaterThan(0);
+  expect(data.assessment.example_kind).toBe('repository_walkthrough');
+  expect(data.assessment.result.score.status).toBe('withheld');
+  expect(data.assessment.result.score.value).toBeNull();
+  expect(data.assessment.result.criteria).toHaveLength(5);
+  for (const criterion of data.assessment.result.criteria) {
+    expect(criterion.level).toBeNull();
+    expect(criterion.status).not.toBe('observed');
+  }
+  const forbiddenRequests: string[] = [];
+  const errors: string[] = [];
+  page.on('request', req => {
+    if (new URL(req.url()).pathname.startsWith('/api/assessments') || !['GET', 'HEAD'].includes(req.method())) forbiddenRequests.push(`${req.method()} ${req.url()}`);
+  });
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/walkthrough/myaiscore');
+  await expect(page.getByRole('heading', { level: 1, name: 'MyAiScore repository walkthrough' })).toBeVisible();
+  await expect(page.locator('.example-banner').first()).toContainText('Real public repository snapshot; scripted walkthrough; no user answers or service-model evaluation.');
+  await expect(page.getByRole('link', { name: data.commit_sha.slice(0, 12), exact: true })).toHaveAttribute('href', `${data.repo_url}/commit/${data.commit_sha}`);
+  await expect(page.locator('time')).toHaveAttribute('datetime', data.collected_at);
+  await expect(page.locator('.evidence-scope')).toContainText(`Files read ${data.collection.read_files}`);
+  await expect(page.locator('.evidence-scope')).toContainText(`Eligible files ${data.collection.candidate_files}`);
+  await expect(page.locator('.result-view')).toHaveCount(0);
+  await expect(page.locator('textarea, input')).toHaveCount(0);
+  await page.getByRole('button', { name: 'View scripted questions' }).click();
+  await expect(page.locator('.question-card')).toHaveCount(3);
+  for (const question of data.questions) await expect(page.getByRole('heading', { name: question.text, exact: true })).toBeVisible();
+  await expect(page.getByText('No answer provided. The walkthrough does not invent your decisions or verification.', { exact: true })).toHaveCount(3);
+  await expect(page.locator('textarea, input')).toHaveCount(0);
+  await page.getByRole('button', { name: 'View report without answers' }).click();
+  await expect(page.locator('.withheld-title')).toContainText('Score withheld');
+  await expect(page.locator('.score-number')).toHaveCount(0);
+  await expect(page.locator('.score-observation')).toHaveText('0/5 dimensions observed');
+  await expect(page.locator('.finding')).toHaveCount(5);
+  await expect(page.locator('.result-view .example-banner')).toContainText('REPOSITORY WALKTHROUGH');
+  await expect(page.locator('main')).not.toContainText('SYNTHETIC EXAMPLE');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  const screenshot = await page.screenshot({ path: testInfo.outputPath('myaiscore-walkthrough-report.png'), fullPage: true });
+  await testInfo.attach('MyAiScore scripted report', { body: screenshot, contentType: 'image/png' });
+  expect(await page.evaluate(() => ({ session: Object.keys(sessionStorage), local: Object.keys(localStorage) }))).toEqual({ session: [], local: [] });
+  await page.goto('/profile');
+  await expect(page.getByRole('heading', { name: 'No assessments yet.' })).toBeVisible();
+  await expect(page.locator('.history-entry')).toHaveCount(0);
+  expect(forbiddenRequests).toEqual([]);
+  expect(errors).toEqual([]);
+});
