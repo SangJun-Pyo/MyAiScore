@@ -14,11 +14,13 @@ test('Logic Core retains one canvas through axis and motion changes and survives
   expect(await scene.locator('canvas').evaluate((canvas, original) => canvas === original, originalCanvas)).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect.poll(() => page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
   await expect(scene).toHaveAttribute('data-renderer', 'static');
   await expect(scene.locator('canvas')).toBeHidden();
   await page.getByRole('button', { name: 'E 판단과 수정', exact: true }).click();
   await expect(scene.locator('svg [data-axis="E"]')).toHaveAttribute('data-active', 'true');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await expect.poll(() => page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(false);
   await expect(scene).toHaveAttribute('data-renderer', 'webgl');
   expect(await scene.locator('canvas').evaluate((canvas, original) => canvas === original, originalCanvas)).toBe(true);
   await scene.locator('canvas').dispatchEvent('webglcontextlost', { cancelable: true });
@@ -27,6 +29,30 @@ test('Logic Core retains one canvas through axis and motion changes and survives
   await page.getByRole('link', { name: '프로필', exact: true }).click();
   await expect(page).toHaveURL(/\/profile$/);
   expect(errors).toEqual([]);
+});
+
+test('motion preference is reconciled even when the browser misses its change event', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = window.matchMedia.bind(window);
+    window.matchMedia = query => {
+      const media = original(query);
+      if (query.includes('prefers-reduced-motion')) media.addEventListener = () => {};
+      return media;
+    };
+  });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/');
+  const scene = page.getByTestId('hero-scene');
+  await scene.scrollIntoViewIfNeeded();
+  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(scene).toHaveAttribute('data-renderer', 'static');
+  await expect(scene.locator('canvas')).toBeHidden();
+  await page.locator('footer').scrollIntoViewIfNeeded();
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await scene.scrollIntoViewIfNeeded();
+  await expect(scene).toHaveAttribute('data-renderer', 'webgl');
+  await expect(scene.locator('canvas')).toHaveCount(1);
 });
 
 test('reduced motion keeps the decorative hero static and the form usable', async ({ page }) => {

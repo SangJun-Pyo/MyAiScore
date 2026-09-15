@@ -80,7 +80,7 @@ export default function HeroScene({ activeAxis = 'D' }: { activeAxis?: Axis } = 
         frame = requestAnimationFrame(renderFrame);
       }
     };
-    const onVisibility = () => { if (document.hidden) stop(); else resume(); };
+    const onVisibility = () => { if (document.hidden) stop(); else onMotion(); };
     const onMotion = () => {
       if (motion.matches) { stop(); if (sceneCanvas) sceneCanvas.style.visibility = 'hidden'; setReady(false); }
       else if (disposeScene && contextAvailable) { if (sceneCanvas) sceneCanvas.style.visibility = 'visible'; setReady(true); resume(); }
@@ -88,7 +88,7 @@ export default function HeroScene({ activeAxis = 'D' }: { activeAxis?: Axis } = 
     };
     const intersection = typeof IntersectionObserver === 'undefined' ? null : new IntersectionObserver(([entry]) => {
       visible = entry?.isIntersecting ?? false;
-      if (visible) resume(); else stop();
+      if (visible) onMotion(); else stop();
     }, { rootMargin: '0px' });
     intersection?.observe(element);
     document.addEventListener('visibilitychange', onVisibility);
@@ -231,7 +231,11 @@ export default function HeroScene({ activeAxis = 'D' }: { activeAxis?: Axis } = 
         let elapsed = 0, previousTime = 0;
         renderFrame = (time) => {
           frame = 0;
-          if (cancelled || !visible || document.hidden || motion.matches || !contextAvailable) return;
+          if (cancelled || !contextAvailable) return;
+          // A browser can expose the new media preference before delivering its
+          // change event. Switch the view as well as stopping animation.
+          if (motion.matches) { onMotion(); return; }
+          if (!visible || document.hidden) return;
           const delta = Math.min((time - previousTime) / 1000, 0.035);
           elapsed += delta; previousTime = time;
           const drift = Math.sin(elapsed * 0.1) * 0.15;

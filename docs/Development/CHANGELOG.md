@@ -4,7 +4,7 @@
 
 - 무료 Community 공개 프롬프트·MIT 소스를 확인하고 등각 플랫폼·중앙 코어·12개 큐브를 포팅했다. 5개 큐브에 기존 축 선택을 연결하고 보라·시안 테마와 정적 대체를 유지했다.
 - 원문 참조/적용 프롬프트, 고정 revision·해시와 배포물의 라이선스 고지를 보존했다. 독립 검토에서 발견한 배포 고지 누락과 브라우저에서 발견한 SVG 부동소수점 hydration 차이를 수정했다.
-- typecheck/build, 234개 단위·회귀, 24개 브라우저 검사 통과. [Phase 5 후속](Sessions/Phase-05-Profile-And-Live-Pilot.md), [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md), [#16](https://github.com/SangJun-Pyo/MyAiScore/issues/16).
+- typecheck/build, 234개 단위·회귀, 최종 26개 브라우저 검사 통과. 원격 검사에서 발견한 MAS-009 모션 감소 전환 누락도 재현·수정했다. [Phase 5 후속](Sessions/Phase-05-Profile-And-Live-Pilot.md), [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md), [#16](https://github.com/SangJun-Pyo/MyAiScore/issues/16).
 
 ## 2026-09-14 — 프로필·항목별 분석과 실제 저장소 수집
 
