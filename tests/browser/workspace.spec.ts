@@ -92,4 +92,3 @@ test('corrupted saved history is recoverable and never renders untrusted text', 
   await expect(page.getByRole('alert')).toHaveCount(0);
   expect(await page.evaluate(storageKey => localStorage.getItem(storageKey), key)).toBeNull();
 });
-

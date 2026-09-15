@@ -73,4 +73,3 @@ test('real repository walkthrough replays unanswered questions without creating 
   expect(forbiddenRequests).toEqual([]);
   expect(errors).toEqual([]);
 });
-

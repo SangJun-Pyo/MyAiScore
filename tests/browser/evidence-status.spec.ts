@@ -46,4 +46,3 @@ test('evidence states stay distinct across private, comparison, and public views
   await page.goto('/results/synthetic-states');
   await expect(page.locator('.finding .level-badge')).toHaveText(['3 / 4', 'Insufficient evidence', 'Not observed', 'Not assessed', 'Not assessed']);
 });
-
