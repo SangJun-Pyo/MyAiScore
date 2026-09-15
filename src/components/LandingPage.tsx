@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import HeroScene from "./HeroScene";
+import EvidencePreview from "./EvidencePreview";
 
 const perspectives = [
   { code: "A", name: "Problem framing", question: "Start with the right problem.", detail: "Make the goal, constraints and definition of done clear before asking AI to build.", weight: 15 },
@@ -14,8 +13,6 @@ const perspectives = [
 
 /** Kage-inspired chapter composition. Attribution: /third-party/threeui/NOTICE.md. */
 export default function LandingPage({ onExample, children }: { onExample: () => void; children: React.ReactNode }) {
-  const [axis, setAxis] = useState<(typeof perspectives)[number]["code"]>("D");
-  const selected = perspectives.find(item => item.code === axis)!;
   return <div className="landing-editorial" data-testid="english-landing">
     <section className="landing-hero" aria-labelledby="landing-title">
       <div className="landing-hero-grid" aria-hidden="true" />
@@ -26,14 +23,7 @@ export default function LandingPage({ onExample, children }: { onExample: () => 
         <div className="landing-actions"><Link className="landing-primary" href="/evaluate">Assess a project <span aria-hidden="true">↗</span></Link><button className="landing-text-action" onClick={onExample}>Explore a sample <span aria-hidden="true">↗</span></button></div>
         <p className="landing-availability">Experimental beta <span>·</span> No account required</p>
       </div>
-      <div className="landing-world" aria-label="An interactive illustration of five assessment perspectives">
-        <div className="landing-world-halo" aria-hidden="true" />
-        <span className="landing-world-label">PROJECT / PERSPECTIVES</span>
-        <div className="landing-world-scene"><HeroScene activeAxis={axis} /></div>
-        <div className="landing-world-note" aria-live="polite"><span>{selected.code} / {selected.name}</span><p>{selected.question}</p></div>
-        <div className="landing-axis-controls" role="group" aria-label="Choose an assessment perspective">{perspectives.map(item => <button key={item.code} aria-label={`${item.code} ${item.name}`} aria-pressed={axis === item.code} onClick={() => setAxis(item.code)}><span>{item.code}</span><i /></button>)}</div>
-        <span className="landing-world-caption">An illustration, not a live assessment.</span>
-      </div>
+      <div className="landing-world"><EvidencePreview /></div>
       <div className="landing-wordmark" aria-hidden="true">HUMAN IN THE LOOP.</div>
       <div className="landing-chapters"><a href="#approach"><span>01</span><div><b>The approach</b><p>Evidence over assumptions.</p></div></a><a href="#process"><span>02</span><div><b>The process</b><p>From project to perspective.</p></div></a><a href="#perspectives"><span>03</span><div><b>The five lenses</b><p>Decisions worth examining.</p></div></a><a href="#example"><span>04</span><div><b>The next step</b><p>A report you can act on.</p></div></a></div>
     </section>
