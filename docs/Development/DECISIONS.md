@@ -102,3 +102,10 @@ Community 공개 프롬프트와 MIT 원본 소스를 확인하고 히어로의 
 제품 UI와 서버 생성 설명은 영어 전용이며 언어 전환기는 추가하지 않는다. 사용자 원문·과거 개인 기록·내부 문서·교정 fixture는 소급 번역하지 않는다. 기준표와 프롬프트의 영어 출력 지시는 번역 버전으로 구분하고 기존 rubricVersion·가중치·레벨·총점 조건·공개 경계를 유지한다. 번역이 실제 모델의 판단 타당성이나 영어 응답 준수를 검증한 것은 아니다.
 
 이 결정은 ADR-0009의 페이지 구성을 확장하며 ADR-0006의 렌더러 수명·정적 대체 원칙을 유지한다. 상세 버전과 실제 검사 결과는 [Phase 6](Sessions/Phase-06-English-Landing.md)에서 관리한다. API/모델/예산·운영 Supabase·배포의 남은 조건을 해제하지 않는다.
+
+
+## 13. 중립 색상과 근거 검토 중심 작업 화면 (2026-09-15)
+
+[#20](https://github.com/SangJun-Pyo/MyAiScore/issues/20)에 따라 [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md)을 채택한다. 중립 차콜과 행동/선택용 코럴을 사용하고, 기존 Logic Core 대신 자체 작성한 근거 검토 예시를 둔다. Three.js 의존성과 전용 테스트는 기능 퇴역에 맞춰 정리하고 일반 키보드·모션 감소·평가 흐름 검사는 유지한다.
+
+프로필은 소유 평가 이력, Insights는 관찰과 연결 근거, 새 평가는 선택적 사례가 있는 입력에 집중한다. Kage의 Approach 이후 내용·영어 UI·근거 부족 상태 구분·평가와 공개 계약은 유지한다. Diagnostics Panel은 효과만 제공하여 채택하지 않았으며 코드를 복사하지 않았다. 공통 화면 계약은 [DESIGN_SYSTEM](../UI/DESIGN_SYSTEM.md), 검증 이력은 [Phase 6](Sessions/Phase-06-English-Landing.md)에서 관리한다.

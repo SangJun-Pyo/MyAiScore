@@ -1,5 +1,8 @@
 # MyAiScore 적용 프롬프트 — ThreeUI Logic Core
 
+> Historical application record. Superseded on 2026-09-15 by [ADR-0011](../../Architecture/ADR/0011-consistent-assessment-design.md): the current hero is an authored evidence-review panel. Logic Core/WebGL are retired; the prompt and pinned provenance below are preserved as history.
+
+
 2026-09-15 사용자 요청에 따른 Astra의 프로젝트 적용 지시다. [외부 원문](THREEUI_STRUCTURE_FLOW_REFERENCE.md)의 13개 variant 전체/원본 런타임 유지 지시와 구분한다. 사용자는 무료 스타일을 우리 제품에 맞춰 적용하도록 요청했다.
 
 ## 선택 근거와 원본

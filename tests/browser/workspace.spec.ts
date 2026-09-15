@@ -50,7 +50,7 @@ test('same-route query navigation updates the selected axis and source', async (
   await expect(page.locator('.insight-rationale')).toBeVisible();
 });
 
-test('profile loads owner summaries and selected detail with explicitly synthetic fixtures', async ({ page, request }) => {
+test('profile loads owner summaries and selected detail with explicitly synthetic fixtures', async ({ page, request }, testInfo) => {
   const example = await (await request.get('/api/examples/starter')).json();
   const token = 'y'.repeat(43);
   await page.addInitScript(value => sessionStorage.setItem('myaiscore_owner_token', value), token);
@@ -67,6 +67,7 @@ test('profile loads owner summaries and selected detail with explicitly syntheti
   await expect(page.locator('.history-entry')).toContainText('Withheld');
   await expect(page.locator('.history-entry')).not.toContainText('/100');
   await expect(page.locator('.history-entry').getByRole('link', { name: 'View report' })).toHaveAttribute('href', '/assessments/as_synthetic_history');
+  await page.screenshot({ path: testInfo.outputPath('profile-populated-synthetic.png'), fullPage: true });
   await page.locator('.history-entry').getByRole('link', { name: 'Insights', exact: true }).click();
   await expect(page).toHaveURL(/insights\?assessment=as_synthetic_history/);
   await expect(page.locator('.insight-rationale')).toBeVisible();
@@ -74,9 +75,11 @@ test('profile loads owner summaries and selected detail with explicitly syntheti
   await expect(page.getByRole('tabpanel')).toContainText('Verification');
   await expect(page.locator('.evidence-list')).toContainText('src/');
   await expect(page.locator('.assessment-criteria')).not.toHaveAttribute('open', '');
+  await page.screenshot({ path: testInfo.outputPath('insights-populated-synthetic.png'), fullPage: true });
   await page.locator('.assessment-criteria > summary').click();
   await expect(page.locator('.assessment-criteria > ol > li')).toHaveCount(4);
   await expect(page.locator('.assessment-criteria > ol')).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('insights-criteria-expanded-synthetic.png'), fullPage: true });
 });
 
 test('explicit missing assessment is never replaced by a different history result', async ({ page }) => {

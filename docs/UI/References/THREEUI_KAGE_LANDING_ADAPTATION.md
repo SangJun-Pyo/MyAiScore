@@ -22,3 +22,10 @@ Redesign the complete MyAiScore landing experience using Kage's narrative page c
 Write all product interface copy in natural English. Use no language switcher or Korean fallback. Keep the actual capabilities precise: one public repository, optional collaboration evidence, unknowns remain unknown, all five criteria needed for an overall score, explicit synthetic examples and private-by-default results. Do not invent testimonials, customer logos, performance claims, personal certification, demo user history or live evaluations.
 
 Adapt the page's composition and authored design concepts in native React/CSS. Keep links/buttons useful, the existing evaluation routes functional and 3D decorative. Preserve reduced motion, narrow layouts, keyboard access and cleanup. Do not embed the original temple page, copy its identity/audio/images or install the entire library. Record attribution and this adaptation decision alongside the implementation.
+
+
+## Current adaptation after issue #20
+
+[ADR-0011](../../Architecture/ADR/0011-consistent-assessment-design.md) updates the palette and hero while retaining the Approach-through-closing composition. The page now uses neutral charcoal surfaces and coral only for action/selection, with an authored A–E EvidencePreview instead of Logic Core/WebGL. The original project prompt above records the #18 implementation scope; it is not an instruction to restore the retired renderer.
+
+ThreeUI browse and [Diagnostics Panel](https://threeui.com/ui-elements/diagnostics-panel) were also reviewed. Its three Canvas2D effects (layers, nodes, mesh) do not provide the product evidence workflow, so no code was copied. Kage source revision, hash and MIT attribution above remain unchanged. Shared current rules are in [DESIGN_SYSTEM](../DESIGN_SYSTEM.md).

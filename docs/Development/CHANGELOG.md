@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-15 — 일관된 평가 작업 화면 (#20)
+
+- 화면 전반을 중립 차콜·밝은 중립 글자·행동/선택용 코럴로 통일한다. 겹친 테마를 정리하고 공통 규칙을 [DESIGN_SYSTEM](../UI/DESIGN_SYSTEM.md)에 기록했다.
+- 히어로를 자체 작성한 A–E 근거 검토 예시로 대체하며 HeroScene/WebGL/Three.js 의존성을 제거한다. Approach 이후의 랜딩 본문은 유지한다.
+- 프로필은 평가 이력, Insights는 관찰·근거·부족한 근거, 새 평가는 선택적 사례가 있는 단일 폼에 집중한다. 공통 기준은 펼쳐 읽으며 가상 계정·빈 통계·중복 소개를 줄인다.
+- ThreeUI Diagnostics Panel은 Canvas2D 효과 3종임을 확인한 참고 대상이며 코드를 복사하지 않았다. Kage 고정 원본·MIT 출처는 보존하고 Logic Core 기록은 과거 적용으로 구분한다.
+- 이번 변경에서 typecheck/build, 236개 단위·회귀, 30개 데스크톱·모바일 브라우저 검사를 실제 통과했다. 키보드·모션 감소·예시 분리·모든 선택 입력과 동의를 검증하고 독립 검토 및 화면 캡처 확인을 완료했다. [Phase 6 후속](Sessions/Phase-06-English-Landing.md), [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md), [#20](https://github.com/SangJun-Pyo/MyAiScore/issues/20).
+
 ## 2026-09-15 — 영어 전용 전체 랜딩
 
 - 사용자 정정에 따라 ThreeUI Landing Pages의 Kage를 전체 페이지 구성 참고로 채택했다. 넓은 첫 화면·번호별 섹션·근거 중심 소개·3단계 흐름·5축·합성 결과·마지막 시작 안내로 확장하고 관련 작업 공간의 시각 방향을 맞췄다.

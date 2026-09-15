@@ -1,6 +1,9 @@
 # ADR-0009 — ThreeUI Community Logic Core의 로컬 포팅
 
-- 상태: Accepted
+2026-09-15 #20 후속: 현재 히어로는 자체 작성한 근거 검토 패널로 대체하며 HeroScene·WebGL·Three.js 의존성을 제거한다. 아래 선택·검증 기록은 당시 구현의 이력이다. 모션 감소·키보드 접근 등 일반 접근성 원칙은 유지한다.
+
+
+- 상태: Superseded by [ADR-0011](0011-consistent-assessment-design.md)
 - 기록일: 2026-09-15
 - 결정 주체: 사용자 무료 ThreeUI 스타일 요청에 따른 Astra 선택, [#16](https://github.com/SangJun-Pyo/MyAiScore/issues/16)
 - 기록 성격: 구현 착수 시 기록

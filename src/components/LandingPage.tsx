@@ -15,7 +15,6 @@ const perspectives = [
 export default function LandingPage({ onExample, children }: { onExample: () => void; children: React.ReactNode }) {
   return <div className="landing-editorial" data-testid="english-landing">
     <section className="landing-hero" aria-labelledby="landing-title">
-      <div className="landing-hero-grid" aria-hidden="true" />
       <div className="landing-hero-copy">
         <p className="chapter-label"><i /> 00 / A clearer view of your work</p>
         <h1 id="landing-title">Build with AI.<br /><span>Know your part.</span></h1>
@@ -24,7 +23,6 @@ export default function LandingPage({ onExample, children }: { onExample: () => 
         <p className="landing-availability">Experimental beta <span>·</span> No account required</p>
       </div>
       <div className="landing-world"><EvidencePreview /></div>
-      <div className="landing-wordmark" aria-hidden="true">HUMAN IN THE LOOP.</div>
       <div className="landing-chapters"><a href="#approach"><span>01</span><div><b>The approach</b><p>Evidence over assumptions.</p></div></a><a href="#process"><span>02</span><div><b>The process</b><p>From project to perspective.</p></div></a><a href="#perspectives"><span>03</span><div><b>The five lenses</b><p>Decisions worth examining.</p></div></a><a href="#example"><span>04</span><div><b>The next step</b><p>A report you can act on.</p></div></a></div>
     </section>
 

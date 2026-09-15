@@ -24,7 +24,7 @@
 
 2026-09-14 화면 확장: 홈·새 평가·프로필·항목별 분석을 분리한다. 프로필은 기존 익명 소유 토큰으로 조회하는 탭 단위 평가 이력이며 계정 로그인이나 개인 역량 인증을 뜻하지 않는다. [ADR-0007](Architecture/ADR/0007-anonymous-assessment-workspace.md).
 
-2026-09-15 화면 구성: ThreeUI Kage의 장별 랜딩을 참고해 소개·평가 흐름·5축·합성 결과·시작 안내를 한 페이지로 구성하고 작업 공간의 시각 방향을 맞춘다. 제품 UI·기준 설명·서버 안내는 영어를 사용한다. 시각·언어 변경으로 평가 방법이나 실제 모델 검증 상태가 바뀌지는 않는다. [ADR-0010](Architecture/ADR/0010-english-landing-page-experience.md).
+2026-09-15 화면 구성: ThreeUI Kage의 장별 랜딩을 참고해 소개·평가 흐름·5축·합성 결과·시작 안내를 한 페이지로 구성하고 작업 공간의 시각 방향을 맞춘다. 제품 UI·기준 설명·서버 안내는 영어를 사용한다. 시각·언어 변경으로 평가 방법이나 실제 모델 검증 상태가 바뀌지는 않는다. [ADR-0010](Architecture/ADR/0010-english-landing-page-experience.md). 현재 #20 후속은 중립 차콜·행동/선택용 코럴과 자체 근거 검토 히어로를 사용하며 WebGL 장식을 퇴역시킨다. 프로필은 핵심 이력, Insights는 관찰·근거와 접힌 기준, 새 평가는 선택적 사례가 있는 단일 폼에 집중한다. [ADR-0011](Architecture/ADR/0011-consistent-assessment-design.md), [DESIGN_SYSTEM](UI/DESIGN_SYSTEM.md).
 
 보류: Private/GitHub App/필수 로그인, 다중 저장소/팀 기여도 판정, Local Mode/CLI 배포/IDE 플러그인, 개인 숙련도 등급/인증서/Verified 배지, 리더보드/백분위/소셜/조직 평가, Project Quality 별도 총점, 사용자 저장소 자동 수정/실행/배포.
 
