@@ -15,7 +15,7 @@ import type {
 } from "../../shared/contracts/ingestion.js";
 import { INGESTION_LIMITS } from "../../shared/contracts/ingestion.js";
 
-export const COLLECTOR_VERSION = "ingestion-0.2.1-en";
+export const COLLECTOR_VERSION = "ingestion-0.3.0";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -120,9 +120,10 @@ function failureSnapshot(
       // Only reported when we actually measured them (i.e. failed after at
       // least one real HTTP attempt) -- a pre-network validation failure
       // (invalid URL, bad commit_ref) truly measured nothing, so those stay null.
-      durationMs: context?.startedAt !== undefined ? Date.now() - context.startedAt : null,
+      durationMs: context?.budget?.elapsedMs() ?? null,
       httpRequests: context?.budget?.requestsUsed() ?? null,
-      fetchedBytes: context?.budget?.bytesUsed() ?? null,
+      fetchedBytes: context?.budget?.responseBodyBytesUsed() ?? null,
+      contentBytes: context?.budget?.contentBytesUsed() ?? null,
       cacheHits: 0,
     },
   };
@@ -132,6 +133,8 @@ export interface IngestOptions {
   httpClient: HttpClient;
   authToken?: string;
   onProgress?: (message: string) => void;
+  /** Injectable clock for deterministic deadline checks in offline tests. */
+  clock?: () => number;
 }
 
 /**
@@ -144,7 +147,8 @@ export interface IngestOptions {
  */
 export async function ingestRepository(input: IngestionInput, options: IngestOptions): Promise<IngestionSnapshot> {
   const progress = options.onProgress ?? (() => {});
-  const startedAt = Date.now();
+  const clock = options.clock ?? Date.now;
+  const startedAt = clock();
 
   const urlResult = normalizeAndValidateRepoUrl(input.repoUrl);
   if (!urlResult.ok) {
@@ -157,7 +161,7 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
 
   const { owner, repo } = urlResult.ref;
   const repoSlug = `${owner}/${repo}`;
-  const budget = new IngestionBudget();
+  const budget = new IngestionBudget(clock);
   const api = new GithubApiClient(options.httpClient, budget, options.authToken);
   const ctx = { repo: repoSlug, startedAt, budget };
 
@@ -207,17 +211,17 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
   }
 
   for (const candidate of selection.selected) {
+    if (budget.timeExceeded()) {
+      skipped.push({ path: candidate.entry.path, reason: "time_budget" });
+      ingestionStatus = "partial";
+      continue;
+    }
     if (!budget.canMakeRequest()) {
       skipped.push({ path: candidate.entry.path, reason: "request_budget" });
       ingestionStatus = "partial";
       continue;
     }
-    if (budget.timeExceeded()) {
-      skipped.push({ path: candidate.entry.path, reason: "request_budget", detail: "time budget exceeded" });
-      ingestionStatus = "partial";
-      continue;
-    }
-    if (typeof candidate.entry.size === "number" && !budget.canAddBytes(candidate.entry.size)) {
+    if (typeof candidate.entry.size === "number" && !budget.canAddContentBytes(candidate.entry.size)) {
       skipped.push({ path: candidate.entry.path, reason: "total_budget" });
       ingestionStatus = "partial";
       continue;
@@ -226,28 +230,40 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     progress(`Reading file: ${candidate.entry.path}`);
     const blobResult = await api.getBlob(owner, repo, candidate.entry.sha);
     if (!blobResult.ok) {
-      skipped.push({ path: candidate.entry.path, reason: "fetch_failed", detail: blobResult.error.kind });
+      skipped.push({ path: candidate.entry.path,
+        reason: blobResult.error.kind === "budget_exceeded" ? blobResult.error.reason : "fetch_failed",
+        detail: blobResult.error.kind });
       ingestionStatus = "partial";
       continue;
     }
 
     const blob = blobResult.value;
+    if (!blob || typeof blob.content !== "string") {
+      skipped.push({ path: candidate.entry.path, reason: "fetch_failed", detail: "invalid blob body" });
+      ingestionStatus = "partial";
+      continue;
+    }
     if (blob.encoding !== "base64") {
-      skipped.push({ path: candidate.entry.path, reason: "fetch_failed", detail: `unsupported encoding: ${blob.encoding}` });
+      skipped.push({ path: candidate.entry.path, reason: "fetch_failed", detail: "unsupported encoding" });
       ingestionStatus = "partial";
       continue;
     }
     const buffer = Buffer.from(blob.content, "base64");
-    if (isProbablyBinaryContent(buffer)) {
-      skipped.push({ path: candidate.entry.path, reason: "binary" });
+    if (buffer.byteLength > INGESTION_LIMITS.maxFileBytes) {
+      skipped.push({ path: candidate.entry.path, reason: "file_too_large", detail: `${buffer.byteLength} decoded bytes` });
+      ingestionStatus = "partial";
       continue;
     }
-    if (!budget.canAddBytes(buffer.byteLength)) {
+    if (isProbablyBinaryContent(buffer)) {
+      skipped.push({ path: candidate.entry.path, reason: "binary" });
+      ingestionStatus = "partial";
+      continue;
+    }
+    if (!budget.tryAcceptContentBytes(buffer.byteLength)) {
       skipped.push({ path: candidate.entry.path, reason: "total_budget" });
       ingestionStatus = "partial";
       continue;
     }
-    budget.recordBytes(buffer.byteLength);
 
     const contentSha256 = createHash("sha256").update(buffer).digest("hex");
     const text = buffer.toString("utf8");
@@ -302,9 +318,10 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     warnings,
     failure: null,
     metrics: {
-      durationMs: Date.now() - startedAt,
+      durationMs: budget.elapsedMs(),
       httpRequests: budget.requestsUsed(),
-      fetchedBytes: budget.bytesUsed(),
+      fetchedBytes: budget.responseBodyBytesUsed(),
+      contentBytes: budget.contentBytesUsed(),
       cacheHits: 0,
     },
   };
