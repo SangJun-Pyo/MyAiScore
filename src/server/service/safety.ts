@@ -15,7 +15,7 @@ export function safeText(value: string, limit = 2000): string {
     .slice(0, limit);
 }
 export function inputText(value: unknown, field: string, limit = 2000): string {
-  if (typeof value !== 'string' || value.length > limit) throw new ServiceError('input', 'invalid_input', `${field}: 문자열 길이 제한은 ${limit}자입니다.`);
+  if (typeof value !== 'string' || value.length > limit) throw new ServiceError('input', 'invalid_input', `${field}: text must not exceed ${limit} characters.`);
   return safeText(value.trim(), limit);
 }
 export async function boundedText(response: Response, maxBytes: number): Promise<string> {

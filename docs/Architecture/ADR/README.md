@@ -15,6 +15,7 @@
 | [0007](0007-anonymous-assessment-workspace.md) | 익명 소유자의 평가 이력과 항목별 작업 공간 | Accepted |
 | [0008](0008-balanced-repository-sampling.md) | 실제 수집에서 확인한 파일 선정 편향 보완 | Accepted |
 | [0009](0009-threeui-community-logic-core.md) | 무료 ThreeUI Logic Core 소스를 히어로에 포팅 | Accepted |
+| [0010](0010-english-landing-page-experience.md) | 전체 Landing Page 재구성과 영어 전용 제품 화면 | Accepted |
 
 0001~0006은 2026-09-14 사용자의 ADR 누락 지적 후 작성한 **사후 기록**이다. 기준은 [PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6), merge `db0edd7`, [Phase 4](../../Development/Sessions/Phase-04-Web-MVP.md)다. 작성자는 Astra이며 구현 시점에 ADR이 있었다고 소급하지 않는다. 대안은 당시 요약과 현재 코드를 바탕으로 정리했고, 대안별 실험을 수행했다는 뜻이 아니다.
 

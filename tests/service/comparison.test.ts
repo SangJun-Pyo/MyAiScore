@@ -46,7 +46,7 @@ test('adding evidence may change scores but never establishes behavior improveme
   const before = completed(), after = completed(); after.evidence.push({ ...after.evidence[0]!, evidenceId: 'additional', contentSha256: 'different', summary: 'PRIVATE_RAW_CONTENT' });
   const result = compareAssessments(before, after);
   assert.equal(result.comparisonAllowed, true); assert.equal(result.evidenceChanged, true); assert.equal(result.behaviorChange, 'not_established');
-  assert.match(result.explanations.join(' '), /과거 기록/); assert.doesNotMatch(JSON.stringify(result), /PRIVATE_RAW_CONTENT/);
+  assert.match(result.explanations.join(' '), /historical records/); assert.doesNotMatch(JSON.stringify(result), /PRIVATE_RAW_CONTENT/);
 });
 test('same file counts with different collected paths do not establish comparable coverage', () => {
   const before = completed(), after = completed();

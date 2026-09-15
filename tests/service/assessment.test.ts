@@ -47,7 +47,7 @@ test('unobserved axes produce withheld and no raw context in final result', asyn
   assert.equal(result.confidence.processEvidence, 'none');
   assert.equal(result.manifest.stageRequestHashes.judgement, hash(JSON.stringify(model.last)));
   assert.doesNotMatch(JSON.stringify(result), /export const x|analysisContext|collaborationCase/);
-  assert.match(result.improvementTask.copyText, /완료 체크/);
+  assert.match(result.improvementTask.copyText, /Completion checklist/);
 });
 test('answer evidence is assessment scoped and self-report is not linked records', async () => {
   const model = provider(); const p = await generateAssessmentQuestions(await prep(), model);
@@ -85,7 +85,7 @@ test('demo ties tailored diagnoses and computed score to explicit synthetic evid
   const weighted = example.criteria.reduce((sum, c, i) => sum + c.level! * 25 * [15,20,15,30,20][i]!, 0);
   assert.equal(example.score.value, Math.floor((weighted + 50) / 100));
   assert.equal(example.score.value, 71); assert.equal(example.improvementTask.criterionCode, 'C');
-  assert.match(example.improvementTask.why, /정규식/);
+  assert.match(example.improvementTask.why, /regex/);
   assert.equal(example.manifest.executedAt, null); assert.equal(example.manifest.costUsd, null);
 });
 test('changed evaluator model between question and judgement stages fails before provider invocation', async () => {
@@ -93,4 +93,18 @@ test('changed evaluator model between question and judgement stages fails before
   const changed = { ...model, mode: 'live' as const, evaluatorModelId: 'different-model' };
   await assert.rejects(finalizeAssessment({ ...p, evaluatorModelId: 'original-model' }, [], changed), (e: unknown) => e instanceof ServiceError && e.code === 'provider_changed');
   assert.equal(changed.last, undefined);
+});
+
+
+test('built-in demo and rubric are English while submitted source text stays intact', async () => {
+  const { RUBRIC_CRITERIA } = await import('../../src/server/evaluation/rubricCriteria.js');
+  assert.doesNotMatch(JSON.stringify(syntheticExample()), /[가-힣]/);
+  assert.doesNotMatch(JSON.stringify(RUBRIC_CRITERIA), /[가-힣]/);
+  assert.deepEqual(RUBRIC_CRITERIA.map(c => c.title), ['Problem framing', 'Context & delegation', 'Tool choice', 'Verification', 'Judgment & iteration']);
+  assert.deepEqual(RUBRIC_CRITERIA.map(c => c.weight), [15, 20, 15, 30, 20]);
+  const submitted = '서버 검증을 추가하고 경계값을 확인했습니다.';
+  const p = await prepareAssessment({ assessmentId: 'test', repoUrl: 'https://github.com/example/project', excerpts: [submitted] }, { ingest: async () => snapshot() });
+  assert.ok(Object.values(p.analysisContext).includes(submitted));
+  assert.equal(p.evidence.find(e => e.evidenceId === 'repo_0')?.summary, '정적 파일');
+  assert.doesNotMatch(p.evidence.at(-1)!.summary + p.evidence.at(-1)!.verificationNote, /[가-힣]/);
 });

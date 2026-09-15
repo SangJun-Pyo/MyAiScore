@@ -1,14 +1,14 @@
-# User Flow v0.4
+# User Flow v0.5
 
-## 시각 방향 (2026-09-14)
+## 시각 방향과 언어 (2026-09-15)
 
-사용자 요청에 따라 Linear 계열의 다크 화면, 보라·시안 glow, 얇은 카드 경계와 hover/focus 피드백을 적용한다. 참고는 [Linear](https://linear.app/), [Tokscale](https://tokscale.ai/), [Aceternity Glowing Effect](https://ui.aceternity.com/components/glowing-effect)다. 다른 서비스의 로고·실적·순위·에셋을 복제하지 않는다.
+현재 제품 UI는 영어 전용이다. 내비게이션·입력·질문 생성 지시·결과 안내·공유·오류·기준표 설명·합성 예시를 영어로 제공하며 언어 전환기나 한국어 fallback을 두지 않는다. 사용자 제출 원문·기존 개인 평가 기록·원문 인용은 소급 번역하지 않는다. 내부 기획·실행 이력과 교정 fixture의 한국어는 보존한다.
 
-랜딩의 Three.js 장면은 다섯 평가 축과 근거의 연결을 나타내는 장식이다. 실제 분석 진행이나 사용자 점수를 시각화한 것으로 표시하지 않는다. WebGL 미지원과 모션 감소 설정에서는 정적 그래픽을 제공하며 모바일에서 가독성과 폼 접근을 우선한다. 입력·질문·결과·공유 화면에도 같은 다크 팔레트를 사용한다.
+전체 랜딩은 ThreeUI Landing Pages의 무료 Community **Kage**를 참고한다. 넓은 첫 화면, 큰 타이포그래피, 번호별 장 안내, 여백이 있는 본문과 마지막 시작 안내를 MyAiScore의 근거 중심 제품 흐름으로 재구성한다. 어두운 배경·밝은 글자·따뜻한 코럴 강조를 홈뿐 아니라 프로필·분석·평가·결과에도 적용한다. Kage의 사원 정체성·이미지·음악이나 원본 HTML iframe은 사용하지 않는다. [참조·적용 프롬프트](References/THREEUI_KAGE_LANDING_ADAPTATION.md), [ADR-0010](../Architecture/ADR/0010-english-landing-page-experience.md).
 
-2026-09-15부터 히어로는 ThreeUI Community **Logic Core**의 MIT 소스를 포팅한 등각 플랫폼·중앙 코어·12개 궤도 큐브를 사용한다. 그중 5개 큐브는 A–E 선택에 대응하고 나머지는 장식이다. 보라·시안 팔레트와 정적 대체에서도 같은 구성을 유지한다. [원문 참조](References/THREEUI_STRUCTURE_FLOW_REFERENCE.md), [적용 프롬프트](References/THREEUI_LOGIC_CORE_ADAPTATION.md), [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md).
+기존 ThreeUI Community **Logic Core**의 등각 플랫폼·중앙 코어·12개 큐브 렌더러는 5축을 설명하는 장식으로 유지한다. 5개 큐브는 A–E 선택에 대응하며 사용자 점수나 실제 분석 진행을 나타내지 않는다. WebGL 미지원·모션 감소 설정에서는 정적 대체를 제공한다. 모바일 가독성·키보드 조작·렌더러 정리와 context loss 대응을 유지한다. [Logic Core 적용 기록](References/THREEUI_LOGIC_CORE_ADAPTATION.md), [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md).
 
-현재 React 19.3과 R3F 9.7의 peer 범위가 맞지 않아 Three.js를 직접 지연 로딩한다. UI 참조에 언급된 라이브러리를 모두 설치하지 않는다. 시각 변경은 아래 평가·공개·동의 흐름을 바꾸지 않는다.
+이전 보라·시안 중심 시각 방향은 Phase 4~5의 이력이다. 현재 페이지 구성은 ADR-0010을 따르며 Three.js 직접 지연 로딩과 수명 관리 결정은 유지한다. 시각·언어 변경은 아래 평가·공개·동의 흐름과 점수 공식을 바꾸지 않는다.
 
 정본 허브: [마스터 플랜](../00_MASTER_PLAN.md). 상태·API: [API_DATA_CONTRACTS](../Architecture/API_DATA_CONTRACTS.md). 결과 필드: [EVIDENCE_SCHEMA](../Assessment/EVIDENCE_SCHEMA.md).
 
@@ -16,9 +16,9 @@
 
 예시 체험 → URL 입력 → 사례 입력/건너뛰기 → 수집 → 맞춤 질문 생성 → 답변/건너뛰기 → 진단·점수 발급 또는 보류 → 개선 작업서 → 사용자의 개선 → 새 평가 비교.
 
-### Phase 5 화면 구성
+### 현재 화면 구성 (Phase 6)
 
-- `/`: 소개와 5축 선택형 hero. 선택한 축을 텍스트·3D 및 정적 대체 그래픽에서 강조한다. 실제 점수나 처리 상태를 나타내지 않는다.
+- `/`: “Build with AI. Know your part.” 첫 화면과 5축 선택형 장식, Approach → Process → Five lenses → 합성 결과 → 한계 FAQ → 시작 안내로 이어지는 전체 랜딩. 장 링크는 해당 섹션으로 이동하고 축별 링크는 `/insights?axis=A` 등으로 연결한다. 소개의 수치 1/5/1은 저장소·평가 축·개선 작업서의 제품 범위이며 사용 실적이 아니다.
 - `/evaluate`: 새 평가 URL·사례·동의 입력. 실제 모델 미설정 상태에서 실행이 불가능하다는 기존 안내를 유지한다.
 - `/profile`: 이 탭의 소유 토큰으로 찾은 평가 이력. 빈 상태/오류/진행 중/완료/보류를 구분한다. 만료되지 않은 최신 50개까지이며 더 있음 여부를 표시한다. GitHub 계정 인증이나 영구 계정 프로필이 아니다.
 - `/insights`: 평가 선택과 A~E 탭. 선택된 프로젝트의 관찰 상태·레벨·근거·설명과 공통 기준을 함께 읽는다. 기록이 없어도 기준을 볼 수 있고 synthetic 예시는 명시적 전환으로만 보여준다.
@@ -30,13 +30,13 @@
 
 ### 2.1 랜딩
 
-로그인 없이 예시를 보여준다. example_kind=synthetic이면 “형식을 보여주는 가상 예시입니다”와 executed_at=null을 사용한다. 실제 실행 자료는 출처와 실제 실행 시각을 표시한다. 고정된 가짜 실행 날짜를 넣지 않는다.
+로그인 없이 전체 소개와 명시적인 합성 예시를 제공한다. 예시에는 “SYNTHETIC EXAMPLE”과 실제 사용자의 결과나 모델 평가가 아니라는 설명을 표시하고 executed_at=null을 유지한다. 현재 런타임 예시는 가상의 예약 폼에 대한 5개 근거와 71점([3,3,2,3,3])이다. 실제 실행 자료는 출처와 실제 실행 시각을 표시한다. 고정된 가짜 실행 날짜를 넣지 않는다.
 
 ### 2.2 URL·사례
 
 URL 제출로 draft를 만들고 소유 토큰을 저장한다. 사례는 문제·제약·완료조건·AI 제안·사람의 판단·검증 결과를 간단히 받는다. 선택적 발췌는 사용자가 직접 고른다.
 
-“사례 없이도 프로젝트 관찰 결과를 볼 수 있습니다. 필요한 과정 근거가 없으면 해당 항목은 미확인이고 종합점수는 보류됩니다.”
+영어 안내는 사례와 답변이 선택임을 설명하고, 없는 협업 행동을 추정하지 않으며 근거가 부족하면 해당 축과 총점을 보류한다는 사실을 명시한다.
 
 사례 제출/건너뛰기 후 ingest → questions 요청을 차례로 호출한다. 사례를 수정하면 파생 수집·질문이 다시 필요하다는 점을 알린다.
 
@@ -52,7 +52,7 @@ URL 제출로 draft를 만들고 소유 토큰을 저장한다. 사례는 문제
 | done | 발급 또는 보류 결과 |
 | failed | 사유와 가능한 재시도 |
 
-각 처리 요청은 단계 완료를 기다린다. 보조 GET 폴링은 조회만 한다. 새로고침하면 토큰과 ID로 상태를 복원하지만, 중단 작업이 자동 완료됐다고 표시하지 않는다. needs_retry=true이면 “작업이 중단됐습니다. 이 단계부터 다시 시도할 수 있습니다”를 노출한다.
+각 처리 요청은 단계 완료를 기다린다. 보조 GET 폴링은 조회만 한다. 새로고침하면 토큰과 ID로 상태를 복원하지만, 중단 작업이 자동 완료됐다고 표시하지 않는다. needs_retry=true이면 “The process was interrupted.”와 해당 단계 재시도 안내를 노출한다.
 
 ### 2.4 질문
 
@@ -65,15 +65,16 @@ URL 제출로 draft를 만들고 소유 토큰을 저장한다. 사례는 문제
 ### 3.1 발급 예시 (synthetic)
 
 ~~~text
-My AI Score 73 / 100
-5개 평가 항목을 판정할 근거가 확인됐습니다.
-이번 프로젝트와 제출 근거에 한정된 실험적 진단입니다.
+SYNTHETIC EXAMPLE
+My AI Score 71 / 100
+5/5 dimensions observed
+An experimental review limited to this project and the submitted evidence.
 
-A 3단계(75) · B 4단계(100) · C 3단계(75)
-D 2단계(50) · E 3단계(75)
+A Level 3 (75) · B Level 3 (75) · C Level 2 (50)
+D Level 3 (75) · E Level 3 (75)
 
-다음 행동: 중요한 실패 상황을 재현해 검증하기
-[근거 보기] [개선 작업서 복사]
+Next action: Record your tool choice and alternatives
+[View evidence] [Copy improvement task]
 ~~~
 
 현재 척도는 1~4단계이므로 발급 범위는 25~100이다. 점수 해설에서 이 규칙을 확인할 수 있게 한다.
@@ -81,14 +82,14 @@ D 2단계(50) · E 3단계(75)
 ### 3.2 일부 항목 미확인 (synthetic)
 
 ~~~text
-My AI Score: 점수 보류
-5개 중 4개 항목을 확인했습니다. C의 근거가 부족합니다.
+My AI Score: Score withheld
+4/5 dimensions observed. Evidence for C is missing.
 
-A 2단계 · B 3단계 · C 미확인 · D 3단계 · E 2단계
+A Level 2 · B Level 3 · C Not observed · D Level 3 · E Level 2
 
-확인된 강점과 개선 행동은 아래에서 볼 수 있습니다.
-C를 확인하려면: 선택한 접근과 제약을 연결하는 작업 자료
-[근거 보기] [개선 작업서 복사]
+Supported observations and next actions remain available.
+To assess C: connect the chosen approach to the task constraints.
+[View evidence] [Copy improvement task]
 ~~~
 
 4/5 결과를 55점 등으로 발급하지 않는다. 미확인 값을 0점으로 그리거나 레이더 차트의 최저점에 배치하지 않는다.
@@ -110,9 +111,9 @@ partial 수집이면 선정/읽은 파일 수와 누락 이유를 보여주고 �
 EVIDENCE_SCHEMA의 Comparison을 따른다. 두 평가의 버전·범위와 총점 발급 여부가 맞지 않으면 점수 상승률을 표시하지 않는다.
 
 ~~~text
-D: 미확인 → 3단계
-새로 확인한 근거: 과거의 검증 로그
-행동 변화: 이번 제출만으로는 판단할 수 없습니다.
+D: Not observed → Level 3
+Added evidence: historical verification records
+Behavior change: not established by this submission alone.
 ~~~
 
 위 예시는 evidence_change=added, behavior_change=not_established다. 실제 전후 검증 행동/결과가 근거로 연결될 때만 그 범위에서 개선 또는 악화를 설명한다. 레벨이 같아도 행동 변화는 따로 설명할 수 있다.
@@ -125,8 +126,9 @@ partial 수집은 결과의 경고이며 무조건 전체 실패 화면으로 �
 
 ## 6. 문구 원칙
 
-- 태그라인: “제 AI 활용 점수는요?”
-- 범위: “이번 프로젝트와 제출 근거에 한정된 실험적 진단입니다.”
-- 보류: “모든 평가 항목을 판정할 근거가 충분하지 않아 종합점수를 보류합니다.”
-- 개선: “가장 중요한 다음 행동을 작업서로 준비했습니다.”
-- 과거 근거 추가: “이전에 수행한 행동의 근거가 이번에 추가로 확인됐습니다.”
+- 대표 문구: “Build with AI. Know your part.”
+- 범위: “An experimental review limited to this project and the submitted evidence.”
+- 보류: “Score withheld” / “Unobserved dimensions are not counted as zero.”
+- 개선: “One next move” / “Copy improvement task”
+- 과거 근거 추가: “Adding historical records is different from performing new actions.”
+- 축 이름: A “Problem framing”, B “Context & delegation”, C “Tool choice”, D “Verification”, E “Judgment & iteration”.

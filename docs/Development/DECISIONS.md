@@ -93,3 +93,12 @@
 ## 11. ThreeUI 무료 Logic Core 적용 (2026-09-15)
 
 Community 공개 프롬프트와 MIT 원본 소스를 확인하고 히어로의 3D 부분만 기존 React 컴포넌트에 포팅한다. 시각 구조의 출처·고정 revision·원문과 적용 프롬프트·배포 라이선스를 함께 보존한다. [ADR-0009](../Architecture/ADR/0009-threeui-community-logic-core.md). 평가 계약과 API 흐름은 바꾸지 않는다.
+
+
+## 12. 영어 전용 제품과 전체 랜딩 재구성 (2026-09-15)
+
+사용자 요청은 히어로 효과 추가가 아닌 ThreeUI Landing Pages를 참고한 전체 페이지 구성이다. Kage의 장별 전개를 MyAiScore 소개·실제 평가 흐름·5축·합성 예시·시작 안내로 적용하고, 프로필·분석·평가 화면에도 동일한 시각 방향을 사용한다. [ADR-0010](../Architecture/ADR/0010-english-landing-page-experience.md), [참조·적용 프롬프트](../UI/References/THREEUI_KAGE_LANDING_ADAPTATION.md).
+
+제품 UI와 서버 생성 설명은 영어 전용이며 언어 전환기는 추가하지 않는다. 사용자 원문·과거 개인 기록·내부 문서·교정 fixture는 소급 번역하지 않는다. 기준표와 프롬프트의 영어 출력 지시는 번역 버전으로 구분하고 기존 rubricVersion·가중치·레벨·총점 조건·공개 경계를 유지한다. 번역이 실제 모델의 판단 타당성이나 영어 응답 준수를 검증한 것은 아니다.
+
+이 결정은 ADR-0009의 페이지 구성을 확장하며 ADR-0006의 렌더러 수명·정적 대체 원칙을 유지한다. 상세 버전과 실제 검사 결과는 [Phase 6](Sessions/Phase-06-English-Landing.md)에서 관리한다. API/모델/예산·운영 Supabase·배포의 남은 조건을 해제하지 않는다.

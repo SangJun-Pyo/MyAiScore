@@ -21,16 +21,16 @@ export interface AssessmentComparison {
 }
 const AXES: CriterionCode[] = ['A', 'B', 'C', 'D', 'E'];
 const EXPLANATIONS: Record<ComparisonReason, string> = {
-  different_repository: '서로 다른 저장소의 평가는 직접 비교하지 않습니다.',
-  invalid_result: '완료된 다섯 축 판정과 유효한 점수 상태가 필요합니다.',
-  mode_mismatch: '실제 평가와 예시 평가는 직접 비교하지 않습니다.',
-  synthetic_result: '합성 예시는 실제 평가의 전후 변화로 비교하지 않습니다.',
-  version_mismatch: '평가 기준·프롬프트·실행 설정 버전이 달라 총점 차이를 표시하지 않습니다.',
-  provider_mismatch: '평가 제공자 또는 모델이 달라 총점 차이를 표시하지 않습니다.',
-  model_identity_unavailable: '실제 평가 모델 식별자가 기록되지 않아 같은 모델인지 확인할 수 없습니다.',
-  source_mismatch: '자료 출처의 종류 또는 과정 근거 수준이 달라 총점 차이를 표시하지 않습니다.',
-  coverage_mismatch: '수집 범위가 다르거나 불완전해 총점 차이를 표시하지 않습니다.',
-  score_withheld: '한쪽 이상의 총점이 보류되어 총점 차이를 계산하지 않습니다.',
+  different_repository: 'Assessments from different repositories are not directly comparable.',
+  invalid_result: 'Completed judgments for all five axes and a valid score status are required.',
+  mode_mismatch: 'Live assessments and examples are not directly comparable.',
+  synthetic_result: 'Synthetic examples cannot establish changes between real assessments.',
+  version_mismatch: 'The criteria, prompt or execution settings versions differ, so no score difference is shown.',
+  provider_mismatch: 'The assessment provider or model differs, so no score difference is shown.',
+  model_identity_unavailable: 'The live model identifier was not recorded, so matching models cannot be confirmed.',
+  source_mismatch: 'Source types or process evidence levels differ, so no score difference is shown.',
+  coverage_mismatch: 'Collection coverage differs or is incomplete, so no score difference is shown.',
+  score_withheld: 'At least one score is withheld, so no score difference is calculated.',
 };
 
 function versionFingerprint(result: AssessmentResult): string {
@@ -94,9 +94,9 @@ export function compareAssessments(previous: AssessmentResult, current: Assessme
     evidenceChanged, codeRevisionChanged: previous.commitSha !== current.commitSha,
     explanations: [
       ...reasons.map(r => EXPLANATIONS[r]),
-      ...(evidenceChanged ? ['제출된 근거 내용이 달라졌습니다. 과거 기록을 추가한 것과 새로운 행동을 수행한 것은 구분합니다.'] : []),
-      '숫자 차이는 두 평가 결과의 차이입니다. 실제 행동 변화나 개인의 AI 활용 능력 향상을 증명하지 않습니다.',
-      '미관찰에서 관찰로 바뀌거나 자료가 추가된 것만으로 실력 향상을 선언하지 않습니다.',
+      ...(evidenceChanged ? ['The submitted evidence has changed. Adding historical records is different from performing new actions.'] : []),
+      'A numerical difference describes two assessment results. It does not prove behavior change or improved AI skills.',
+      'A change from unobserved to observed, or added material alone, does not establish improved skills.',
     ],
   };
 }

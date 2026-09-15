@@ -15,7 +15,7 @@ import type {
 } from "../../shared/contracts/ingestion.js";
 import { INGESTION_LIMITS } from "../../shared/contracts/ingestion.js";
 
-export const COLLECTOR_VERSION = "ingestion-0.2.0";
+export const COLLECTOR_VERSION = "ingestion-0.2.1-en";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -89,7 +89,7 @@ function buildEvidenceCandidates(files: IngestedFile[], repo: string, commitSha:
     path: file.path,
     locator: { startLine: 1, endLine: file.lineCount ?? 1 },
     eventTime: null,
-    verificationNote: "정적 존재 확인. 런타임 동작, 실행 성공, AI 사용 과정은 확인되지 않음.",
+    verificationNote: "Static existence confirmed. Runtime behavior, successful execution and the AI collaboration process have not been verified.",
   }));
 }
 
@@ -161,49 +161,49 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
   const api = new GithubApiClient(options.httpClient, budget, options.authToken);
   const ctx = { repo: repoSlug, startedAt, budget };
 
-  progress(`저장소 메타데이터 조회: ${repoSlug}`);
+  progress(`Reading repository metadata: ${repoSlug}`);
   const metaResult = await api.getRepoMeta(owner, repo);
   if (!metaResult.ok) {
     if (metaResult.error.kind === "not_found") {
-      return failureSnapshot(input, "repo_not_found_or_private", "저장소를 찾을 수 없거나 비공개 저장소입니다.", false, ctx);
+      return failureSnapshot(input, "repo_not_found_or_private", "The repository was not found or is private.", false, ctx);
     }
-    return failureSnapshot(input, `github_api_${metaResult.error.kind}`, "저장소 메타데이터 조회에 실패했습니다.", metaResult.error.kind !== "budget_exceeded", ctx);
+    return failureSnapshot(input, `github_api_${metaResult.error.kind}`, "Repository metadata could not be retrieved.", metaResult.error.kind !== "budget_exceeded", ctx);
   }
   if (metaResult.value.isPrivate) {
-    return failureSnapshot(input, "repo_not_found_or_private", "비공개 저장소는 분석하지 않습니다.", false, ctx);
+    return failureSnapshot(input, "repo_not_found_or_private", "Private repositories are not analyzed.", false, ctx);
   }
 
   const ref = refResult.ref ?? metaResult.value.defaultBranch;
-  progress(`커밋 SHA 고정 중: ${ref}`);
+  progress(`Resolving commit SHA: ${ref}`);
   const shaResult = await api.resolveCommitSha(owner, repo, ref);
   if (!shaResult.ok) {
     if (shaResult.error.kind === "not_found") {
-      return failureSnapshot(input, "ref_not_found", `참조 '${ref}'를 찾을 수 없습니다.`, false, ctx);
+      return failureSnapshot(input, "ref_not_found", `Reference '${ref}' was not found.`, false, ctx);
     }
-    return failureSnapshot(input, `github_api_${shaResult.error.kind}`, "커밋 조회에 실패했습니다.", shaResult.error.kind !== "budget_exceeded", ctx);
+    return failureSnapshot(input, `github_api_${shaResult.error.kind}`, "The commit could not be retrieved.", shaResult.error.kind !== "budget_exceeded", ctx);
   }
   const commitSha = shaResult.value;
 
-  progress(`파일 트리 스캔 중: ${commitSha}`);
+  progress(`Scanning the file tree: ${commitSha}`);
   const treeResult = await api.getTree(owner, repo, commitSha);
   if (!treeResult.ok) {
-    return failureSnapshot(input, `github_api_${treeResult.error.kind}`, "파일 트리 조회에 실패했습니다.", treeResult.error.kind !== "budget_exceeded", ctx);
+    return failureSnapshot(input, `github_api_${treeResult.error.kind}`, "The file tree could not be retrieved.", treeResult.error.kind !== "budget_exceeded", ctx);
   }
 
   const selection = selectFiles(treeResult.value.entries, input.relevantPaths ?? []);
-  progress(`후보 ${selection.candidates.length}개 중 ${selection.selected.length}개 파일 선정`);
+  progress(`Selected ${selection.selected.length} of ${selection.candidates.length} candidate files`);
 
   const files: IngestedFile[] = [];
   const skipped: SkippedFile[] = [...selection.skipped];
   const warnings: string[] = [];
   let ingestionStatus: "complete" | "partial" = "complete";
   if (selection.selected.length < selection.candidates.length) {
-    warnings.push(`선별 표본 ${selection.selected.length}/${selection.candidates.length}개 파일입니다 (${SELECTION_POLICY_VERSION}). 저장소 전체 내용이나 개인의 AI 활용 역량을 확인한 것이 아닙니다.`);
+    warnings.push(`Selected sample: ${selection.selected.length}/${selection.candidates.length} files (${SELECTION_POLICY_VERSION}). This does not verify the entire repository or personal AI skills.`);
   }
 
   if (treeResult.value.truncated || selection.selectionLimited) {
     ingestionStatus = "partial";
-    warnings.push("저장소 트리가 매우 커서 일부만 스캔했습니다 (tree truncated 또는 자체 상한 도달).");
+    warnings.push("Only part of the large repository tree was scanned (tree truncated or scan limit reached).");
   }
 
   for (const candidate of selection.selected) {
@@ -223,7 +223,7 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
       continue;
     }
 
-    progress(`파일 읽는 중: ${candidate.entry.path}`);
+    progress(`Reading file: ${candidate.entry.path}`);
     const blobResult = await api.getBlob(owner, repo, candidate.entry.sha);
     if (!blobResult.ok) {
       skipped.push({ path: candidate.entry.path, reason: "fetch_failed", detail: blobResult.error.kind });
@@ -253,7 +253,7 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     const text = buffer.toString("utf8");
     const { redacted, masked } = redactSecrets(text);
     if (masked) {
-      warnings.push(`비밀 패턴이 감지되어 마스킹했습니다: ${candidate.entry.path}`);
+      warnings.push(`Detected secret patterns were masked: ${candidate.entry.path}`);
     }
 
     files.push({
@@ -276,7 +276,7 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     .digest("hex");
 
   if (files.length === 0 && ingestionStatus === "complete") {
-    warnings.push("선정된 파일이 없습니다 (지원 스택 신호 부족 또는 빈 저장소일 수 있음).");
+    warnings.push("No files were selected (the repository may be empty or lack supported stack signals).");
   }
 
   return {
