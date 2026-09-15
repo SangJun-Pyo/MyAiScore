@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-15 — 수집 용량 계산 수정과 같은 SHA 재검사 (#23)
+
+- 응답 본문과 채택 파일 내용 집계를 분리해 MAS-011 조기 partial을 수정했다. 디코딩 후 파일 크기·내용 한도를 지키고 선정 후 미수집 경로별 사유를 남긴다. 새 contentBytes는 과거 스냅샷과 호환되는 선택 필드다.
+- 같은 MyAiScore 커밋을 실제 재수집해 34/40 partial → 40/40 complete를 확인했다. 43요청, 12,603ms, 응답 692,198/내용 188,778바이트. 원본은 보존하고 화면에 새 표본 범위·비교·제외 사유를 표시한다. 개인 협업 근거가 없어 총점은 계속 보류한다.
+- 248단위·회귀, typecheck/build, 32브라우저 검사 통과. 독립 검토에서 40개 Git 원문 해시와 312경로의 읽음/제외 분류를 확인했다. [Phase 7 후속](Sessions/Phase-07-Repository-Walkthrough.md), [ADR-0013](../Architecture/ADR/0013-separated-ingestion-byte-accounting.md).
+
 ## 2026-09-15 — MyAiScore 저장소 기능 시뮬레이션
 
 - 디자인 추가 작업을 보류하고 고정 SHA `5bd958b`의 실제 GitHub 수집을 바탕으로 저장형 3단계 walkthrough와 읽기 전용 예시 API를 구성한다. 285후보/40선정/34읽기, 38요청, partial·context truncation을 그대로 표시한다. HTTP 응답과 디코딩 파일을 같은 예산에 중복 집계하는 MAS-011/#23을 확인했다. 기존 fetched_bytes=819270은 혼합 집계이며 순수 다운로드량이 아니다. 개별 6파일 누락 사유는 보존되지 않아 미확인이다.

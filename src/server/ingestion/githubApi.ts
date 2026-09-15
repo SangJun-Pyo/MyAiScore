@@ -31,7 +31,7 @@ export type GithubApiError =
   | { kind: "not_found" }
   | { kind: "rate_limited"; retryAfterSeconds: number | null }
   | { kind: "server_error"; status: number }
-  | { kind: "budget_exceeded" }
+  | { kind: "budget_exceeded"; reason: "time_budget" | "request_budget" }
   | { kind: "unexpected_status"; status: number }
   | { kind: "network_error"; message: string };
 
@@ -67,7 +67,7 @@ export class GithubApiClient {
 
   private async requestJson<T>(path: string): Promise<GithubApiResult<T>> {
     if (!this.budget.canMakeRequest()) {
-      return { ok: false, error: { kind: "budget_exceeded" } };
+      return { ok: false, error: { kind: "budget_exceeded", reason: this.budget.timeExceeded() ? "time_budget" : "request_budget" } };
     }
     const url = `${API_BASE}${path}`;
     let attempt = 0;
@@ -75,14 +75,22 @@ export class GithubApiClient {
     // never past the overall request/time budget.
     for (;;) {
       if (!this.budget.canMakeRequest()) {
-        return { ok: false, error: { kind: "budget_exceeded" } };
+        return { ok: false, error: { kind: "budget_exceeded", reason: this.budget.timeExceeded() ? "time_budget" : "request_budget" } };
       }
       this.budget.recordRequest();
       let res;
       try {
         res = await this.http.request(url, { headers: this.buildHeaders() });
       } catch (err) {
+        if (this.budget.timeExceeded()) {
+          return { ok: false, error: { kind: "budget_exceeded", reason: "time_budget" } };
+        }
         return { ok: false, error: { kind: "network_error", message: String(err) } };
+      }
+
+      this.budget.recordResponseBodyBytes(Buffer.byteLength(res.bodyText, "utf8"));
+      if (this.budget.timeExceeded()) {
+        return { ok: false, error: { kind: "budget_exceeded", reason: "time_budget" } };
       }
 
       if (res.status === 404) {
@@ -115,7 +123,6 @@ export class GithubApiClient {
         return { ok: false, error: { kind: "unexpected_status", status: res.status } };
       }
 
-      this.budget.recordBytes(Buffer.byteLength(res.bodyText, "utf8"));
       try {
         return { ok: true, value: JSON.parse(res.bodyText) as T };
       } catch (err) {

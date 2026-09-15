@@ -40,6 +40,7 @@ export type SkipReason =
   | "file_too_large"
   | "total_budget"
   | "request_budget"
+  | "time_budget"
   | "fetch_failed"
   | "not_selected";
 
@@ -102,7 +103,10 @@ export interface CoverageInfo {
 export interface IngestionMetrics {
   durationMs: number | null;
   httpRequests: number | null;
+  /** Since ingestion-0.3.0: UTF-8 bytes of received response bodyText, including errors/retries; not wire bytes. Earlier collectors mixed content and response bytes. */
   fetchedBytes: number | null;
+  /** Accepted decoded file bytes. Missing/null on older or unmeasured snapshots means unknown. */
+  contentBytes?: number | null;
   cacheHits: number | null;
 }
 

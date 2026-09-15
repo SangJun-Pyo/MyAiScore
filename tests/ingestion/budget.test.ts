@@ -14,9 +14,16 @@ test("allows requests until the request cap, then blocks", () => {
 
 test("allows bytes until the total content cap, then blocks", () => {
   const budget = new IngestionBudget();
-  assert.equal(budget.canAddBytes(INGESTION_LIMITS.maxTotalContentBytes), true);
-  budget.recordBytes(INGESTION_LIMITS.maxTotalContentBytes);
-  assert.equal(budget.canAddBytes(1), false);
+  budget.recordResponseBodyBytes(2 * INGESTION_LIMITS.maxTotalContentBytes);
+  assert.equal(budget.canAddContentBytes(INGESTION_LIMITS.maxTotalContentBytes), true);
+  assert.equal(budget.tryAcceptContentBytes(INGESTION_LIMITS.maxTotalContentBytes), true);
+  assert.equal(budget.tryAcceptContentBytes(1), false);
+  assert.equal(budget.contentBytesUsed(), INGESTION_LIMITS.maxTotalContentBytes);
+  assert.equal(budget.responseBodyBytesUsed(), 2 * INGESTION_LIMITS.maxTotalContentBytes);
+  for (const invalid of [-1, NaN, Infinity, 0.5]) {
+    assert.equal(budget.tryAcceptContentBytes(invalid), false);
+  }
+  assert.equal(budget.contentBytesUsed(), INGESTION_LIMITS.maxTotalContentBytes);
 });
 
 test("reports time exceeded once the injected clock passes the duration cap", () => {

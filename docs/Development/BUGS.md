@@ -16,7 +16,7 @@
 | MAS-008 | P2 | 분석 자료 재클릭 시 결과 소실 및 query 상태 불일치 | closed — 같은 mode 유지·search params 연동·실제 브라우저 회귀. [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md) |
 | MAS-009 | P2 | 모션 감소 이벤트 누락 시 WebGL 화면 잔류 | closed — 실제 preference를 프레임/화면 복귀에서 재반영. 원격 실패를 로컬 재현하고 이벤트 누락 회귀·모바일 반복 검증. [Phase 5](Sessions/Phase-05-Profile-And-Live-Pilot.md) |
 | MAS-010 | P2 | 영어 UI에서 근거 부족을 미관찰로 표시 | closed — 상태별 공통 라벨과 프로필·분석·결과·비교·공유 브라우저 회귀. [Phase 6](Sessions/Phase-06-English-Landing.md) |
-| MAS-011 | P2 | GitHub HTTP 응답과 디코딩 파일 바이트를 같은 800 KiB 예산에 중복 집계하여 조기 partial 발생 | open — [#23](https://github.com/SangJun-Pyo/MyAiScore/issues/23), [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md). 응답 집계는 상한을 70바이트 초과하기도 함. 원본 수집은 보존하고 예산 수정 후 별도 재수집 |
+| MAS-011 | P2 | GitHub HTTP 응답과 디코딩 파일 바이트를 같은 800 KiB 예산에 중복 집계하여 조기 partial 발생 | fixed — 응답/채택 내용 집계 분리 및 원자적 내용 한도 검사. 같은 SHA 실제 재수집 34/40 partial → 40/40 complete; 원본 보존. [#23](https://github.com/SangJun-Pyo/MyAiScore/issues/23), [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md)에서 검증·통합 상태 확인 |
 
 수정·독립 검토는 [Phase 2](Sessions/Phase-02-Fixes.md), [Phase 3](Sessions/Phase-03-Local-Collection-PoC.md), [Phase 4](Sessions/Phase-04-Web-MVP.md)에 있다. 추가 검토에서 분석 중 삭제·인증 create idempotency·provider 재시도 코드·질문/판정 모델 변경 경계도 보정했다.
 

@@ -25,7 +25,7 @@ npm run dev
 
 디자인 추가 작업은 보류하고 [MyAiScore walkthrough](http://127.0.0.1:3000/walkthrough/myaiscore)에서 **실제 공개 저장소 스냅샷 → 스크립트 질문 3개 → 답변 없는 결과**를 확인합니다. 개발 서버 실행 후 열 수 있습니다. 페이지는 저장된 자료를 재생하므로 GitHub 재수집·모델 호출·소유 이력 생성을 하지 않습니다.
 
-고정 SHA `5bd958b`에서 실제 수집한 285후보/40선정/34읽기와 partial 상태를 보여줍니다. 해석은 작성된 스크립트이며 실제 LLM 평가가 아닙니다. 협업 사례·발췌·답변을 꾸미지 않아 다섯 축 레벨과 총점은 null/withheld입니다. 기존 fully synthetic starter는 별도로 유지합니다. [수집·판정·제약 기록](docs/Development/Sessions/Phase-07-Repository-Walkthrough.md).
+고정 SHA `5bd958b`에서 용량 계산 수정 전 34/40 partial과 수정 후 40/40 complete를 비교합니다. 후보 285개 전체가 아닌 계획된 40개 표본의 수집 완료입니다. 파일별 제외·미선정 사유도 펼쳐 볼 수 있습니다. 해석은 작성된 스크립트이며 실제 LLM 평가가 아닙니다. 협업 사례·발췌·답변을 꾸미지 않아 다섯 축 레벨과 총점은 null/withheld입니다. 기존 fully synthetic starter는 별도로 유지합니다. [수집·판정·제약 기록](docs/Development/Sessions/Phase-07-Repository-Walkthrough.md).
 
 새 수집 기록을 생성하려면 `.data` 디렉터리를 먼저 만들고 **기존에 없는 출력 파일명**을 지정합니다.
 
@@ -33,7 +33,7 @@ npm run dev
 node --import tsx scripts/buildMyAiScoreWalkthrough.ts --out .data/myaiscore-walkthrough-new.json
 ```
 
-이 명령은 고정 저장소·SHA를 GitHub API로 다시 수집합니다. 오프라인 재생이나 바이트가 동일한 복제 명령이 아니며 기존 파일을 덮어쓰지 않습니다. 유료 모델 호출은 없습니다. 현재 바이트 예산 중복 집계 [#23](https://github.com/SangJun-Pyo/MyAiScore/issues/23)를 수정한 뒤 재수집하는 순서로 진행합니다. 기존 partial 결과를 정상 결과로 덮어쓰지 않습니다.
+이 명령은 고정 저장소·SHA를 GitHub API로 다시 수집합니다. 오프라인 재생이나 바이트가 동일한 복제 명령이 아니며 기존 파일을 덮어쓰지 않습니다. 필요하면 기존 `GITHUB_TOKEN` 환경 변수로 조회 한도를 확보할 수 있으며 키를 출력·저장하지 않습니다. 공개 저장소 제한은 유지합니다. 유료 모델 호출은 없습니다. 기존 partial 결과는 `fixtures/walkthroughs/myaiscore.json`, 수정 후 결과는 `myaiscore-recollected.json`에 별도로 보존합니다. [집계 수정 결정](docs/Architecture/ADR/0013-separated-ingestion-byte-accounting.md).
 
 ## 실제 평가 연결
 

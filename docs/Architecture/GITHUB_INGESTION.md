@@ -31,12 +31,14 @@ repo_url은 https://github.com/{owner}/{repo}만 허용한다. 선택적으로 �
 | 최대 검사 tree 항목 | 2,000 | 초과/truncated면 제한된 목록만 사용하고 partial |
 | 계획된 선정 파일 | 40 | 우선순위에 따른 샘플. 제외·미선정 내역/범위를 기록 |
 | 파일당 원문 한도 | 60 KiB | 초과하면 읽지 않고 이유 기록 |
-| 누적 내용 한도 | 800 KiB | 초과 전에 중단, 남은 선정 파일이 있으면 partial |
+| 누적 내용 한도 | 800 KiB | 채택한 디코딩 파일 내용만 집계. 초과 전 해당 파일을 생략하고 partial |
 | HTTP 요청 예산 | 48회 | 재시도 포함, 소진 시 partial 또는 failed |
 | 전체 수집 시간 | 45초 | 시스템 단계 예산과 같은 값. 중단·사유 기록 |
 | HTTP 일시 오류 재시도 | 최대 1회/요청 | 전체 요청·시간 예산을 넘기지 않음 |
 
 800 KiB를 특정 토큰 수와 동일시하지 않는다. LLM 컨텍스트 제한은 후속 evaluator가 실제 토크나이저/모델 제한에 맞춰 별도 적용한다. GitHub의 실제 rate limit 응답을 존중하고 불필요한 반복 요청으로 우회하지 않는다.
+
+`ingestion-0.3.0`부터 `metrics.fetchedBytes`는 HTTP 응답 bodyText의 UTF-8 바이트 합(메타데이터·base64·오류·재시도 응답 포함), `metrics.contentBytes`는 채택한 디코딩 파일 바이트 합이다. HTTP 응답을 800 KiB 파일 예산에 다시 더하지 않는다. 응답 바이트는 압축된 wire traffic의 실측이 아니며, transport가 본문을 반환하기 전에 중단된 경우 그 부분 수신량은 집계하지 못한다. 서비스 transport의 응답당 2,000,000바이트/10초 제한과 수집 요청·시간 한도는 별개다. 과거 버전의 fetchedBytes는 혼합 집계이므로 새 값과 직접 다운로드량으로 비교하지 않는다. [ADR-0013](ADR/0013-separated-ingestion-byte-accounting.md).
 
 ## 5. 정적 신호와 근거
 

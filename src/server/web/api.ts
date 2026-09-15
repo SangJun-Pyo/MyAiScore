@@ -6,7 +6,7 @@ import { prepareAssessment, generateAssessmentQuestions, finalizeAssessment, syn
 import { createAnthropicProviderFromEnv } from '../service/anthropicProvider.js';
 import type { EvaluationProvider } from '../evaluation/provider.js';
 import { compareAssessments } from '../service/comparison.js';
-import repositoryWalkthrough from '../../../fixtures/walkthroughs/myaiscore.json';
+import repositoryWalkthrough from '../../../fixtures/walkthroughs/myaiscore-recollected.json';
 
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
 const activeStates = new Set(['ingesting', 'generating_questions', 'scoring']);

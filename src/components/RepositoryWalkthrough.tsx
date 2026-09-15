@@ -11,7 +11,10 @@ type Walkthrough = {
   collection: {
     read_files: number; candidate_files: number; selected_files: number;
     http_requests: number; duration_ms: number; selection_limited: boolean; context_truncated: boolean;
+    fetched_bytes?: number; content_bytes?: number;
   };
+  skipped_files?: { path: string; reason: string }[];
+  comparison?: { original_read_files: number; original_selected_files: number; original_ingestion_status: string };
   provenance: { ingestion_status: "complete" | "partial" };
   questions: { question_id: string; text: string; grounding_evidence_ids: string[]; target_criteria: string[] }[];
   assessment: Assessment;
@@ -50,6 +53,7 @@ export default function RepositoryWalkthrough() {
     {data && <>
       <p className="repo-label">{data.repo_url.replace("https://github.com/", "")} <code>{data.commit_sha.slice(0, 12)}</code></p>
       {data.provenance.ingestion_status === "partial" && <div className="notice"><strong>Partial collection</strong><p>{data.collection.read_files} of {data.collection.selected_files} selected files were read from {data.collection.candidate_files} eligible files. Collection was incomplete; this is an additional reason the total score is withheld.</p></div>}
+      {data.provenance.ingestion_status === "complete" && <div className="notice"><strong>Selected sample collected</strong><p>{data.collection.read_files} of {data.collection.selected_files} selected files were read from {data.collection.candidate_files} eligible files. This completes the planned sample, not the entire repository. Collaboration evidence is still needed for a score.</p></div>}
       {stage === 0 && <section className="product-panel assessment-form" aria-labelledby="snapshot-heading">
         <h2 id="snapshot-heading" tabIndex={-1}>Repository snapshot</h2>
         <p><a href={data.repo_url} target="_blank" rel="noreferrer">{data.repo_url.replace("https://github.com/", "")}</a></p>
@@ -57,8 +61,10 @@ export default function RepositoryWalkthrough() {
         <p>Collected: <time dateTime={data.collected_at}>{new Date(data.collected_at).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC</time></p>
         <div className="evidence-scope"><span>Files read <strong>{data.collection.read_files}</strong></span><span>Eligible files <strong>{data.collection.candidate_files}</strong></span><span>Selected files <strong>{data.collection.selected_files}</strong></span></div>
         <p className="caption">This page replays saved material. It does not collect the repository again or run its code.</p>
+        {data.comparison && <p className="collection-comparison">Same commit, corrected collection: {data.comparison.original_read_files}/{data.comparison.original_selected_files} ({data.comparison.original_ingestion_status}) → {data.collection.read_files}/{data.collection.selected_files} ({data.provenance.ingestion_status}). Response bytes and accepted file bytes are now counted separately.</p>}
         {(data.collection.selection_limited || data.collection.selected_files < data.collection.candidate_files || data.collection.context_truncated) && <div className="notice"><strong>Limited evidence coverage</strong><p>{data.collection.selected_files < data.collection.candidate_files && "Only a sample of eligible files was selected. "}{data.collection.selection_limited && "The repository tree scan was limited. "}{data.collection.context_truncated && "Some collected content was shortened for the assessment context."}</p></div>}
-        <details className="score-explanation"><summary>Collection record</summary><p>The recorded collection used {data.collection.http_requests} HTTP requests and took {data.collection.duration_ms.toLocaleString("en-US")} ms. These are saved measurements, not activity happening now.</p></details>
+        <details className="score-explanation"><summary>Collection record</summary><p>The recorded collection used {data.collection.http_requests} HTTP requests and took {data.collection.duration_ms.toLocaleString("en-US")} ms. These are saved measurements, not activity happening now.</p>{data.collection.content_bytes !== undefined && <p>Accepted file content: {data.collection.content_bytes.toLocaleString("en-US")} bytes. HTTP response bodies: {data.collection.fetched_bytes?.toLocaleString("en-US")} bytes (including metadata and encoding overhead; not compressed network traffic).</p>}</details>
+        {data.skipped_files && <details className="score-explanation"><summary>Files not read, including planned exclusions ({data.skipped_files.length})</summary><p>Not selected means outside the planned sample. Other reasons identify exclusions or collection failures.</p><ul>{data.skipped_files.map((file, index) => <li key={`${file.path}-${index}`}><code>{file.path}</code> — {file.reason.replaceAll('_', ' ')}</li>)}</ul></details>}
         <div className="button-row"><button type="button" className="button button-primary" onClick={() => setStage(1)}>View scripted questions <span aria-hidden="true">→</span></button></div>
       </section>}
       {stage === 1 && <section className="questions-panel" aria-labelledby="walkthrough-questions-heading">
