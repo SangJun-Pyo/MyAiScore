@@ -37,6 +37,8 @@ The review subagent read integrated 45a1b8c/web e1528c7 and later the final 53d3
 
 ## Limitations and next work
 
+Integration: [PR #27](https://github.com/SangJun-Pyo/MyAiScore/pull/27), implementation/documentation checkpoint d95757d. The PR Checks tab records CI against the final head, and GitHub records the actual merge commit; no future result is assumed in this session record.
+
 No actual private session was read; real Claude Code version compatibility is unverified. Supported check-shaped commands are heuristics, not proof that verification succeeded. Long or unsupported records lower coverage; unsupported/empty activity cannot invent a grade. Identical safe summaries deduplicate in browser history. The activity-mix score is deliberately simple and not calibrated for skill, rankings or quality.
 
 Next: one explicitly selected real session compatibility/utility check, then improve the playful rules from observed feedback. The npm package remains private/unpublished; use the installed checkout command in README. No paid model, deployment, raw-log upload or other-provider adapter was added.

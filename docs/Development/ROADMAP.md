@@ -6,7 +6,7 @@ Updated: 2026-09-15. Shared entrypoint: C:/Users/sangj/MyAiScore/AGENTS.md → t
 
 The user approved a CLI-first, fun session report. Remove manual collaboration/excerpt/question inputs from primary routes. Read a scoped Claude Code log locally; produce a rule-based session score/style/highlights/challenge. No model key, paid call or GitHub collection is required for this new flow. Existing design colors stay intact.
 
-Active issue: [#26](https://github.com/SangJun-Pyo/MyAiScore/issues/26). Integration branch: codex/cli-session-pivot. Decision: [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md). New contract: [SESSION_REPORT](../Assessment/SESSION_REPORT.md).
+Tracking issue: [#26](https://github.com/SangJun-Pyo/MyAiScore/issues/26). Integration: [PR #27](https://github.com/SangJun-Pyo/MyAiScore/pull/27), branch codex/cli-session-pivot. Use the PR's live Checks/merge state for remote integration status. Decision: [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md). New contract: [SESSION_REPORT](../Assessment/SESSION_REPORT.md).
 
 ## Work and checks
 
