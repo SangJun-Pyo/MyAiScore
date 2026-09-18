@@ -105,6 +105,29 @@ test("local standalone requests accept equivalent loopback aliases but reject ot
   assert.equal(calls, 3);
 });
 
+test("same-origin requests behind an HTTPS deployment proxy use the public host without trusting malformed forwarding headers", async () => {
+  let calls = 0;
+  const handle = createApi({ repositoryReport: async () => { calls += 1; return report; }, githubToken: "configured" });
+  const invoke = async (headers: Record<string, string>) => handle(new Request("http://myaiscore.railway.internal:8080/api/repository-report", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...headers },
+    body: JSON.stringify({ repo_url: "https://github.com/example/project" }),
+  }), ["repository-report"]);
+
+  assert.equal((await invoke({ origin: "https://myaiscore-production.up.railway.app", host: "myaiscore-production.up.railway.app", "x-forwarded-proto": "https" })).status, 200);
+  assert.equal((await invoke({ origin: "https://evil.example", host: "myaiscore-production.up.railway.app", "x-forwarded-proto": "https" })).status, 403);
+  assert.equal((await invoke({ origin: "http://myaiscore.railway.internal:8080", host: "myaiscore-production.up.railway.app", "x-forwarded-proto": "https" })).status, 403);
+  assert.equal((await invoke({ origin: "http://localhost:8080", host: "myaiscore-production.up.railway.app", "x-forwarded-proto": "https" })).status, 403);
+  assert.equal((await invoke({ origin: "http://127.0.0.1:8080", host: "myaiscore-production.up.railway.app", "x-forwarded-proto": "https" })).status, 403);
+  assert.equal((await invoke({ origin: "https://myaiscore-production.up.railway.app", host: "myaiscore-production.up.railway.app", "x-forwarded-proto": "http" })).status, 403);
+  assert.equal((await invoke({ origin: "https://myaiscore-production.up.railway.app", host: "myaiscore-production.up.railway.app", "x-forwarded-proto": "https,http" })).status, 403);
+  assert.equal((await invoke({ origin: "https://myaiscore-production.up.railway.app", host: "user@myaiscore-production.up.railway.app", "x-forwarded-proto": "https" })).status, 403);
+  for (const host of ["myaiscore-production.up.railway.app?", "myaiscore-production.up.railway.app#", "myaiscore-production.up.railway.app:443?", "@myaiscore-production.up.railway.app", ":@myaiscore-production.up.railway.app"]) {
+    assert.equal((await invoke({ origin: "https://myaiscore-production.up.railway.app", host, "x-forwarded-proto": "https" })).status, 403);
+  }
+  assert.equal(calls, 1);
+});
+
 test("repository-report maps private repository rejection without leaking collector details", async () => {
   const handle = createApi({
     store: forbiddenStore,
