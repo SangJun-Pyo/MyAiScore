@@ -1,6 +1,18 @@
-# Privacy & Security — session reports and legacy assessments
+# Privacy & Security — repository/session reports and legacy assessments
 
-## Current primary CLI boundary (v0.4)
+## Current anonymous repository report boundary (v0.5)
+
+- Accept only a validated public `github.com/{owner}/{repo}` URL and resolve a fixed public commit through the existing GitHub API client. Never fetch user-provided arbitrary URLs or follow repository links.
+- Apply tree, selected-file, per-file, total-content, request and duration bounds. Do not execute install/build/test/scripts/hooks/MCP from the submitted repository. Symlinks, submodules, binaries, environment/key files and detected secret patterns are excluded or masked by the collector.
+- An optional Railway `GITHUB_TOKEN` is a server secret for public API allowance. Do not serialize it, log request headers, return raw upstream errors or use it to enable private repository reports. User GitHub OAuth is not part of this flow.
+- Add bounded in-memory admission/concurrency control before collection so repeated anonymous requests cannot immediately consume the shared upstream allowance. This is one-instance abuse resistance, not a distributed quota guarantee.
+- Return repo slug, commit, coverage, fixed generated Korean interpretation and validated relative evidence paths. Do not return file bodies, raw GitHub payloads, upstream warnings/errors or arbitrary repository text.
+- The repository report endpoint is stateless and must not require or touch FileStore/Supabase. The browser does not auto-save results; explicit history remains local to that browser and is bounded/deduplicated.
+- A repository report describes observable project signals. It is not proof of personal identity, authorship, AI conversation quality, code correctness, task success or professional skill. Keep this limitation adjacent to the score.
+
+Decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). Exact report fields: [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md).
+
+## Optional CLI session boundary (v0.4)
 
 The selected local Claude Code session is processed on the user's machine. Public GitHub availability is not required. Read only the current project's validated transcript directory or an explicit session with matching project scope. Reject discovery path redirection and mixed/unmatched project records. Never execute commands found in a transcript or read target project source merely because a log mentions it.
 

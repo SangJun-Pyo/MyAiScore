@@ -1,6 +1,12 @@
 # MyAiScore — shared product design
 
-Visual decision: [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md). Primary product flow now follows [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md): Home, Profile, Insights and New session. [User flow](USER_FLOW.md) owns behavior; [SESSION_REPORT](../Assessment/SESSION_REPORT.md) owns session scores. Old assessment contracts apply only to historical result screens.
+Visual decision: [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md). Primary product flow follows [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md): Korean Home, Profile, Insights and New analysis. [User flow](USER_FLOW.md) owns behavior; [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md) owns repository-signal scores. CLI session reports are optional and old assessment contracts apply only to historical result screens.
+
+## v0.5 content language and primary action
+
+Preserve the charcoal/coral visual system below. The Home hero and `/evaluate` prioritize one public GitHub URL field and `내 저장소 분석하기`; account, GitHub login and CLI are not primary CTAs. Results place the repository-signal limitation beside the score, show actual evidence paths as code-like labels and distinguish complete/partial coverage without relying on color alone.
+
+Profile means reports explicitly saved in this browser, not an authenticated person. Insights explains the selected report's deterministic axes and evidence. Empty states use real absence and a new-analysis link; do not fabricate user names, rankings or aggregate statistics.
 
 ## Color and hierarchy
 
