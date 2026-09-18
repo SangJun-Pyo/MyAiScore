@@ -6,7 +6,7 @@ Status: accepted by user direction. Date: 2026-09-18. [Issue #28](https://github
 
 배포된 CLI 중심 흐름은 원문을 로컬에 두는 장점이 있지만, 처음 방문한 사용자가 저장소 설치와 터미널 명령을 이해해야 한다. 공모전 제출은 로그인 없이 바로 작동하는 기능을 요구하고 심사 시간이 짧다. 사용자는 공개 GitHub 소스 접근과 한국어 데모를 제안했고, CLI 부담을 낮추는 방향을 명시적으로 채택했다.
 
-GitHub 공개 저장소는 인증 없이 읽을 수 있지만 비인증 API 허용량은 서버 IP당 시간당 60요청이다. 현재 bounded 수집은 저장소 하나에 수십 요청을 사용할 수 있으므로 배포 서버는 선택적으로 읽기용 `GITHUB_TOKEN`을 사용한다. 토큰은 Railway 서버 환경에만 두고 응답·로그·브라우저에 노출하지 않는다. 사용자의 GitHub 로그인과는 별개다.
+GitHub [공개 Contents API](https://docs.github.com/en/rest/repos/contents?apiVersion=2022-11-28)는 인증 없이 읽을 수 있지만 [비인증 REST 허용량](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api)은 서버 IP당 시간당 60요청이다. 현재 bounded 수집은 저장소 하나에 수십 요청을 사용할 수 있으므로 배포 서버는 선택적으로 읽기용 `GITHUB_TOKEN`을 사용한다. 토큰은 Railway 서버 환경에만 두고 응답·로그·브라우저에 노출하지 않는다. 사용자의 GitHub 로그인과는 별개다.
 
 ## 결정
 
