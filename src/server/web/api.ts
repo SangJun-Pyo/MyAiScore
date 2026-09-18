@@ -35,16 +35,29 @@ function effectivePort(url: URL): string {
   if (url.port) return url.port;
   return url.protocol === 'https:' ? '443' : url.protocol === 'http:' ? '80' : '';
 }
+function publicRequestOrigin(request: Request): URL | null {
+  const authority = request.headers.get('host');
+  if (authority === null) return new URL(request.url);
+  if (!authority || /[\s,\\/?#@]/.test(authority)) return null;
+  const forwardedProtocol = request.headers.get('x-forwarded-proto');
+  const protocol = forwardedProtocol === null ? new URL(request.url).protocol : `${forwardedProtocol}:`;
+  if (protocol !== 'http:' && protocol !== 'https:') return null;
+  try {
+    const publicUrl = new URL(`${protocol}//${authority}`);
+    if (publicUrl.username || publicUrl.password || publicUrl.pathname !== '/' || publicUrl.search || publicUrl.hash) return null;
+    return publicUrl;
+  } catch { return null; }
+}
 function allowsRequestOrigin(request: Request): boolean {
   const origin = request.headers.get('origin');
   if (origin === null) return true;
   try {
     const supplied = new URL(origin);
-    const target = new URL(request.url);
+    const target = publicRequestOrigin(request);
     // Browser Origin headers are serialized origins, never arbitrary URLs.
     // Validate this before comparing URL.origin so credentials, paths and blob:
     // URLs cannot collapse to an otherwise matching origin.
-    if (!['http:', 'https:'].includes(supplied.protocol) || origin !== supplied.origin) return false;
+    if (!target || !['http:', 'https:'].includes(supplied.protocol) || origin !== supplied.origin) return false;
     if (supplied.origin === target.origin) return true;
     return supplied.protocol === target.protocol && effectivePort(supplied) === effectivePort(target) &&
       LOOPBACK_HOSTS.has(supplied.hostname.toLowerCase()) && LOOPBACK_HOSTS.has(target.hostname.toLowerCase());
