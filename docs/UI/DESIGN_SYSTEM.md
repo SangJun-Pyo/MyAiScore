@@ -6,7 +6,7 @@ Visual decision: [ADR-0011](../Architecture/ADR/0011-consistent-assessment-desig
 
 Preserve the charcoal/coral visual system below. The Home hero and `/evaluate` prioritize one public GitHub URL field and `내 저장소 분석하기`; account, GitHub login and CLI are not primary CTAs. Results place the repository-signal limitation beside the score, show actual evidence paths as code-like labels and distinguish complete/partial coverage without relying on color alone.
 
-Profile means reports explicitly saved in this browser, not an authenticated person. Insights explains the selected report's deterministic axes and evidence. Empty states use real absence and a new-analysis link; do not fabricate user names, rankings or aggregate statistics.
+Profile means reports explicitly saved in this browser, not an authenticated person. Insights always exposes the deterministic signal matrix and style rules, then highlights the selected report's style and evidence when present. Empty states use real absence and a new-analysis link; do not fabricate user names, rankings or aggregate statistics.
 
 ## Color and hierarchy
 
@@ -25,7 +25,7 @@ Use neutral borders to separate rows and sections. Other colors require a meanin
 
 - **Home:** explain public repository analysis, show a labeled synthetic repository preview, and lead to one working URL input. No fake processing or population ranks.
 - **Reports:** show only explicitly saved browser-local repository summaries with honest empty/error states. No account identity or automatic example history.
-- **Guide:** explain the selected repository's four capped signal axes, evidence and limits.
+- **Guide:** show all signal values in a horizontally scrollable semantic table, all six style rules in classification order, and the explicit dominant-axis tie priority. Highlight one current style only when a report is selected.
 - **Analysis:** accept one public GitHub URL, show progress or localized coded errors, then present coverage, evidence paths, gaps and one next challenge. CLI setup remains a secondary disclosure.
 - **Historical results:** preserve the original private/public rules and mark retained English body regions with the correct language semantics.
 

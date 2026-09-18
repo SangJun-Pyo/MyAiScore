@@ -1,9 +1,7 @@
-import { REPOSITORY_AXIS_ORDER, REPOSITORY_REPORT_COPY, type RepositoryReport, type RepositoryReportAxis, type RepositoryReportEvidenceId } from "../shared/repositoryReport";
+import { REPOSITORY_AXIS_ORDER, REPOSITORY_REPORT_COPY, repositoryStyleCopy, type RepositoryReport, type RepositoryReportAxis, type RepositoryReportEvidenceId, type RepositoryReportStyleId } from "../shared/repositoryReport";
 import type { Messages } from "./messages";
 
-type RepositoryStyleId = (typeof REPOSITORY_REPORT_COPY.styles)[keyof typeof REPOSITORY_REPORT_COPY.styles]["id"];
-
-const englishStyles: Record<RepositoryStyleId, { title: string; description: string }> = {
+const englishStyles: Record<RepositoryReportStyleId, { title: string; description: string }> = {
   "first-signals": { title: "First-signal explorer", description: "This repository has a few early clues. Recording one more working practice would make its collaboration foundation clearer." },
   "balanced-builder": { title: "Balanced builder", description: "Context, verification, traceability, and automation signals appear in a relatively even mix." },
   "context-cartographer": { title: "Context cartographer", description: "Context signals such as READMEs and working instructions stand out." },
@@ -44,6 +42,14 @@ const englishChallenges: Record<RepositoryReportAxis, { title: string; descripti
   automation: { title: "Automate one repeated check", description: "Connect one repeated command to CI and explain where to look when it fails." },
 };
 
+export function repositoryStylePresentation(id: RepositoryReportStyleId, locale: "ko" | "en") {
+  return locale === "ko" ? repositoryStyleCopy(id) : { id, ...englishStyles[id] };
+}
+
+export function repositoryEvidencePresentation(id: RepositoryReportEvidenceId, locale: "ko" | "en") {
+  return locale === "ko" ? REPOSITORY_REPORT_COPY.evidence[id] : { axis: REPOSITORY_REPORT_COPY.evidence[id].axis, ...englishEvidence[id] };
+}
+
 function lowestAxis(report: RepositoryReport): RepositoryReportAxis {
   return REPOSITORY_AXIS_ORDER.reduce((lowest, axis) => report.score.axes[axis].value < report.score.axes[lowest].value ? axis : lowest, REPOSITORY_AXIS_ORDER[0]!);
 }
@@ -58,7 +64,7 @@ export function repositoryPresentation(report: RepositoryReport, locale: "ko" | 
   if (report.coverage.status === "partial") gaps.push(englishGaps.partial);
   return {
     scoreLabel: copy.presentation.scoreLabel, scoreExplanation: copy.presentation.scoreExplanation,
-    style: englishStyles[report.style.id as RepositoryStyleId],
+    style: repositoryStylePresentation(report.style.id as RepositoryReportStyleId, locale),
     evidence: englishEvidence,
     gaps,
     coverageNote: report.coverage.status === "complete"
