@@ -1,6 +1,6 @@
 # MyAiScore — shared product design
 
-Visual decision: [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md). Primary product flow follows [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md): Korean Home, Profile, Insights and New analysis. [User flow](USER_FLOW.md) owns behavior; [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md) owns repository-signal scores. CLI session reports are optional and old assessment contracts apply only to historical result screens.
+Visual decision: [ADR-0011](../Architecture/ADR/0011-consistent-assessment-design.md). Primary product flow follows [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md) and [ADR-0016](../Architecture/ADR/0016-persistent-korean-english-interface.md): Korean-default Home, Reports, Guide and repository analysis with a persistent English option. [User flow](USER_FLOW.md) owns behavior; [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md) owns repository-signal scores. CLI session reports are optional and old assessment contracts apply only to historical result screens.
 
 ## v0.5 content language and primary action
 
@@ -23,13 +23,13 @@ Use neutral borders to separate rows and sections. Other colors require a meanin
 
 ## Content by surface
 
-- **Home:** explain local CLI session reports, show a labeled synthetic preview, offer working setup/command instructions. No fake processing or population ranks.
-- **Profile:** show only explicitly saved browser-local summaries with honest empty/error states. No account identity or automatic example history.
-- **Insights:** explain the selected session's numeric signals and capped rule components. Distinguish recorded calls, returned results and verified outcomes.
-- **New session:** CLI instructions and local safe-summary consumption. No collaboration-case, excerpt or interview forms; no service-model gate.
-- **Results and sharing:** present score/style/three highlights/one challenge. Label synthetic and partial data. Copy only a safe summary. Historical assessment/result pages keep their original private/public rules.
+- **Home:** explain public repository analysis, show a labeled synthetic repository preview, and lead to one working URL input. No fake processing or population ranks.
+- **Reports:** show only explicitly saved browser-local repository summaries with honest empty/error states. No account identity or automatic example history.
+- **Guide:** explain the selected repository's four capped signal axes, evidence and limits.
+- **Analysis:** accept one public GitHub URL, show progress or localized coded errors, then present coverage, evidence paths, gaps and one next challenge. CLI setup remains a secondary disclosure.
+- **Historical results:** preserve the original private/public rules and mark retained English body regions with the correct language semantics.
 
-Product copy is English. Preserve submitted source text and historical personal records without retrospective translation. Synthetic examples remain separate from actual history.
+Product copy supports Korean and English, with Korean as the default. Keep API responses and saved repository reports in their canonical contract language; translate presentation from semantic IDs. Preserve submitted source text and historical personal records without retrospective translation. Synthetic examples remain separate from actual history.
 
 ## Interaction and accessibility
 

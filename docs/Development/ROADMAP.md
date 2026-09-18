@@ -4,9 +4,9 @@ Updated: 2026-09-18. Shared entrypoint: C:/Users/sangj/MyAiScore/AGENTS.md → t
 
 ## Current direction
 
-The user approved a Korean, no-login public GitHub repository report as the contest entry flow. A visitor pastes one public repository URL and receives a deterministic, playful summary of observable AI-collaboration readiness signals, evidence paths, coverage and one next challenge. It does not claim personal AI ability or task success.
+The user approved a Korean-default, bilingual no-login public GitHub repository report as the contest entry flow. A visitor pastes one public repository URL and receives a deterministic, playful summary of observable AI-collaboration readiness signals, evidence paths, coverage and one next challenge. It does not claim personal AI ability or task success. The selected Korean/English interface language persists in a validated cookie while the report contract stays canonical.
 
-Tracking issue: [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28). Integration branch: codex/public-repo-korean-flow. Decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). Contract: [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md).
+Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). Language decision: [ADR-0016](../Architecture/ADR/0016-persistent-korean-english-interface.md). Contract: [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md).
 
 ## Released state
 
@@ -14,7 +14,7 @@ Tracking issue: [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28). Integ
 |---|---|
 | Core | Strict report contract, four capped repository-signal axes, actual evidence paths |
 | API | Stateless bounded public GitHub collection; optional server token; no DB/model/login |
-| Web | Korean Home/분석/Profile/Insights, progress/errors, opt-in browser history |
+| Web | Korean-default bilingual Home/분석/Profile/Insights, persistent locale, progress/errors, opt-in browser history |
 | Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
 | Privacy | No repository code execution, no private repository, no token/raw response exposure |
 | Validation | 281 unit/API tests, docs/type/build, 24 browser checks, independent PASS, Railway live smoke complete |

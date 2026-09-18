@@ -24,6 +24,7 @@ test('real repository walkthrough replays unanswered questions without creating 
   });
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/walkthrough/myaiscore');
+  await expect(page.locator('main')).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('heading', { level: 1, name: 'MyAiScore repository walkthrough' })).toBeVisible();
   await expect(page.locator('.example-banner').first()).toContainText('Real public repository snapshot; scripted walkthrough; no user answers or service-model evaluation.');
   await expect(page.getByRole('link', { name: data.commit_sha.slice(0, 12), exact: true })).toHaveAttribute('href', `${data.repo_url}/commit/${data.commit_sha}`);

@@ -46,8 +46,10 @@ test('주요 메뉴는 데스크톱과 모바일에서 한국어로 탐색되고
 
 test('기존 비공개 결과와 공유 결과의 접근 경계는 유지된다', async ({ page }) => {
   await page.goto('/assessments/as_missing');
+  await expect(page.locator('main')).toHaveAttribute('lang', 'en');
   await expect(page.locator('main [role="alert"]')).toContainText('access token');
   await page.goto('/results/not-a-share');
+  await expect(page.locator('main')).toHaveAttribute('lang', 'en');
   await expect(page.locator('main [role="alert"]')).toContainText('not found');
 });
 

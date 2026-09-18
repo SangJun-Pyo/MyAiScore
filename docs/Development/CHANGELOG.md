@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-18 — 한국어 기본·영어 전환
+
+- 공통 헤더에 한국어·영어 전환을 추가하고 검증된 쿠키로 선택을 보존한다. 서버 첫 응답부터 HTML 언어와 메타데이터를 맞춰 새로고침 때 언어가 바뀌지 않는다.
+- Home/저장소 분석/내 리포트/해석 가이드와 저장소 리포트 전체를 의미 ID로 번역한다. `repository-report-v1` API와 브라우저 이력은 정본 한국어 계약을 그대로 유지하며 API 실패는 안정된 오류 코드로 현지화한다.
+- 과거 영어 평가·공유·walkthrough는 본문 언어를 명시하고 공통 탐색만 선택 언어와 맞춘다. 결정은 [ADR-0016](../Architecture/ADR/0016-persistent-korean-english-interface.md), 실행 기록은 [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md)에 있다.
+
 ## 2026-09-18 — 로컬 standalone 출처 판정 수정 (#31)
 
 - Next.js standalone이 요청 URL을 `localhost`로 정규화해, `127.0.0.1`로 연 브라우저의 POST를 외부 출처로 오인하던 403을 수정했다. 동일 scheme·port의 loopback 별칭만 허용하며 다른 host·port의 차단은 유지한다.

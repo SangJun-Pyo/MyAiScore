@@ -25,7 +25,7 @@
 - 제출 저장소의 install/build/test/hooks/MCP를 실행하지 않는다. MyAiScore 자체 테스트는 실행한다.
 - 개발 도구 구독과 서비스 LLM API는 별개다. 승인된 작업 범위에서 진행하고 미승인 비용·배포를 만들지 않는다.
 - 작은 구현 선택은 근거를 남기고 진행한다. 미실행·미검증·사람 검토를 꾸미지 않는다.
-- 기본 제품 화면·예시·안내·메타데이터는 한국어로 작성한다. 사용자 제출 원문과 과거 기록은 일괄 번역하지 않는다. 영어 전용 규칙은 [ADR-0015](docs/Architecture/ADR/0015-anonymous-korean-repository-reports.md)가 대체한다.
+- 기본 제품 화면·예시·안내·메타데이터는 한국어를 기본으로 하고 영어 전환을 함께 유지한다. 화면 번역은 의미 ID에서 만들며 `repository-report-v1` 응답·저장 이력을 번역해 바꾸지 않는다. 사용자 제출 원문과 과거 기록은 일괄 번역하지 않는다. [ADR-0016](docs/Architecture/ADR/0016-persistent-korean-english-interface.md).
 
 ## 공통 규칙
 

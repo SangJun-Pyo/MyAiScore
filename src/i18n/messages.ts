@@ -1,0 +1,88 @@
+import type { RepositoryReportAxis } from "../shared/repositoryReport";
+import type { Locale } from "./locale";
+
+const ko = {
+  meta: { title: "MyAiScore — 공개 저장소의 AI 협업 신호", description: "로그인 없이 공개 GitHub 저장소의 맥락, 검증, 기록, 자동화 신호를 살펴보세요." },
+  language: { label: "언어 선택", ko: "한국어", en: "EN" },
+  shell: {
+    skip: "본문으로 건너뛰기", brandHome: "MyAiScore 홈", beta: "데모", navLabel: "주요 메뉴",
+    home: "홈", profile: "내 리포트", insights: "해석 가이드", evaluate: "저장소 분석",
+    footerLead: "공개 저장소에서 AI 협업의 흔적을 살펴봅니다.", footerLimit: "개인의 AI 실력 인증이 아닙니다.",
+  },
+  report: {
+    aria: "저장소 분석 리포트", demoTag: "가상 예시", demoDescription: "화면 구성을 보여주기 위한 데이터입니다. 실제 저장소 분석 결과가 아닙니다.",
+    styleEyebrow: "저장소에서 보이는 협업 스타일", repository: "저장소", commit: "커밋",
+    boundaryStrong: "이 결과는 저장소에 남은 신호이며 개인 AI 실력 인증이 아닙니다.", boundaryMore: "실제 대화의 판단 과정이나 작업 성과 전체를 증명하지 않습니다.",
+    axesEyebrow: "네 가지 저장소 신호", axesHeading: "어떤 흔적이 점수에 반영됐나요?", candidateUnknown: "후보 수 미확인",
+    candidate: (count: number) => `후보 ${count}개`, selected: (count: number) => `${count}개 선택`, read: (count: number) => `${count}개 확인`,
+    complete: "수집 완료", partial: "일부 수집", staticOnly: "파일에 남은 정적 신호만 반영",
+    evidenceFiles: (count: number) => `근거 파일 ${count}개`, noSignal: "선택된 표본에서 이 축의 신호를 확인하지 못했어요.",
+    gapsEyebrow: "확인할 수 없었던 것", gapsHeading: "빈칸도 결과의 일부입니다.", noGaps: "이번 규칙에서 별도로 표시된 빈칸이 없습니다.",
+    coverageDetails: "수집 범위 설명", treeTruncated: "GitHub가 파일 트리를 일부만 반환했어요.", selectionLimited: "후보가 많아 정해진 표본 한도 안에서 골라 읽었어요.",
+    nextChallenge: "다음 도전", saveIntro: "저장은 선택 사항입니다. 원문이나 GitHub 계정 정보 없이 이 요약만 현재 브라우저에 저장됩니다.",
+    save: "이 브라우저에 저장", insightsLink: "점수 해석 보기 →", saved: "이 브라우저의 내 리포트에 저장했습니다.", saveError: "브라우저 저장 공간에 리포트를 저장하지 못했습니다.",
+  },
+  home: {
+    kicker: "로그인 없이 바로 시작", title1: "공개 저장소에서", title2: "AI 협업의 흔적을 찾습니다.", lead1: "GitHub 공개 저장소 주소 하나로", lead2: "맥락·검증·기록·자동화 신호를 살펴보세요.",
+    primary: "내 저장소 분석하기 ↗", example: "예시 리포트 보기 ↘", availability: "회원가입 없음 · 공개 저장소만 · AI 모델 호출 없음",
+    demoTag: "가상 화면 예시", demoCaption: "실제 개인 평가가 아닌 저장소 신호 예시입니다.",
+    chapters: [{ label: "분석 방법", text: "주소 입력, 신호 확인." }, { label: "확인 범위", text: "코드에 남은 흔적만." }, { label: "리포트 예시", text: "근거와 빈칸을 함께." }],
+    flowLabel: "01 / 분석 방법", flowSide: "공개 GITHUB 저장소", flowTitle1: "주소 하나면", flowTitle2: "바로 확인할 수 있어요.", flowIntro: "GitHub 로그인이나 CLI 설치 없이 공개 저장소 URL을 입력합니다.",
+    steps: [{ title: "주소를 붙여 넣어요.", text: "github.com/소유자/저장소 형식의 공개 저장소 주소만 있으면 됩니다." }, { title: "네 가지 신호를 찾아요.", text: "맥락, 검증, 추적 가능성, 자동화에 해당하는 파일과 설정을 살펴봅니다." }, { title: "근거와 빈칸을 같이 봐요.", text: "점수뿐 아니라 반영된 파일 경로와 확인할 수 없었던 항목을 함께 보여줍니다." }],
+    scopeLabel: "02 / 확인 범위", scopeSide: "해석의 경계", scopeTitle1: "코드에 남은 신호를", scopeTitle2: "정직하게 읽습니다.", scopeLead1: "확인할 수 있는 것과", scopeLead2: "없는 것을 구분합니다.", scopeBody1: "README, 작업 지침, 테스트, CI, 결정 기록처럼 저장소에 남아 있는 협업 기반을 찾습니다.", scopeBody2: "실제 AI 대화에서 무엇을 판단했고 어떤 제안을 거절했는지는 저장소만으로 알 수 없습니다. 이 결과는 개인의 AI 실력이나 작업 성과를 인증하지 않습니다.",
+    demoLabel: "03 / 리포트 예시", demoSide: "가상 데이터", demoTitle1: "점수보다 먼저", demoTitle2: "근거를 확인하세요.", demoIntro: "아래 내용은 화면 설명을 위한 가상 예시이며 저장되지 않습니다.",
+    profileCardLabel: "내 리포트", profileCardTitle: "선택한 결과만 저장합니다.", profileCardText: "현재 브라우저에 최대 20개까지 보관합니다.", insightsCardLabel: "해석 가이드", insightsCardTitle: "네 축의 의미를 살펴봅니다.", insightsCardText: "점수의 범위와 한계를 투명하게 설명합니다.",
+    closingKicker: "공개 저장소로 시작하기", closingTitle1: "주소를 붙여 넣고", closingTitle2: "협업 신호를 만나보세요.", closingCta: "저장소 분석하기 ↗", closingText: "회원가입 없이, 공개 저장소의 신호만 분석합니다.",
+  },
+  evaluate: {
+    title: "공개 저장소 분석", description: "GitHub 주소 하나로 저장소에 남은 AI 협업 신호를 확인합니다.", label: "공개 GitHub 저장소 URL", placeholder: "https://github.com/owner/repository", submit: "저장소 분석하기", submitting: "분석 중…", help: "공개 저장소만 분석할 수 있습니다. GitHub 로그인이나 별도 계정은 필요하지 않습니다.",
+    progressTitle: "저장소의 협업 신호를 찾고 있습니다.", progressText: "파일 목록을 고르고 맥락·검증·기록·자동화 흔적을 확인합니다.", complete: "분석이 완료되었습니다.", genericError: "서버 응답을 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+    cliSummary: "Claude Code 세션 리포트 CLI가 필요하다면", cliText: "선택한 로컬 Claude Code 세션의 활동 구성은 기존 CLI에서 별도로 만들 수 있습니다. 브라우저가 로컬 대화 기록을 자동으로 읽지는 않습니다.", cliCaption: "이 기능은 공개 저장소 분석과 다른 리포트이며, 설치된 MyAiScore 체크아웃과 Node.js가 필요합니다.",
+    errors: {
+      invalid_url: "공개 GitHub 저장소 주소 형식을 확인해 주세요.", unsupported_host: "공개 GitHub 저장소 주소 형식을 확인해 주세요.", invalid_commit_ref: "공개 GitHub 저장소 주소 형식을 확인해 주세요.",
+      repo_not_found_or_private: "공개 저장소를 찾을 수 없어요. 비공개 저장소는 분석하지 않아요.", github_api_rate_limited: "GitHub 요청 한도에 도달했어요. 잠시 뒤 다시 시도해 주세요.", repository_report_rate_limited: "요청이 잠시 많아요. 잠시 뒤 다시 시도해 주세요.", repository_report_busy: "다른 저장소를 읽고 있어요. 잠시 뒤 다시 시도해 주세요.", repository_collection_failed: "공개 저장소를 읽지 못했어요. 잠시 뒤 다시 시도해 주세요.", repository_report_failed: "저장소 리포트를 만들지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+    },
+  },
+  profile: {
+    title: "내 리포트", description: "직접 저장한 공개 저장소 분석 결과입니다.", newReport: "새 저장소 분석 →", privacy: "계정 없이 현재 브라우저에만 저장됩니다. 브라우저 데이터를 지우면 함께 삭제됩니다.", historyError: "저장된 리포트를 읽을 수 없습니다. 목록을 비우고 다시 시작해 주세요.", updateError: "브라우저 저장 공간을 업데이트하지 못했습니다.", emptyTitle: "저장한 리포트가 없습니다.", emptyText: "공개 저장소를 분석한 뒤 ‘이 브라우저에 저장’을 선택하면 여기에 표시됩니다.", emptyCta: "저장소 분석하기 →", historyAria: "저장된 저장소 리포트", files: (read: number, selected: number) => `${read}/${selected}개 파일`, view: "리포트 보기 →", remove: "삭제", clear: "저장된 리포트 모두 삭제", footnote: "같은 저장소와 커밋은 한 번만 저장되며 최근 결과를 최대 20개까지 보관합니다.", points: (value: number) => `${value}점`,
+  },
+  insights: {
+    title: "해석 가이드", description: "저장소 리포트의 네 축과 한계를 설명합니다.", savedReport: "저장된 리포트", choose: "저장소 선택", emptyTitle: "선택한 리포트가 없습니다.", emptyText: "저장소 분석 결과에서 ‘점수 해석 보기’를 선택하거나 저장된 리포트를 골라 주세요.", emptyCta: "저장소 분석하기 →", guideEyebrow: "점수 읽는 법", guideTitle: "각 축은 최대 25점입니다.", range: "0–25점", guideText: "총점은 저장소에 확인 가능한 신호의 구성을 설명합니다. 점수가 높다고 작업 결과가 더 좋거나 개인의 AI 활용 능력이 더 뛰어나다는 뜻은 아닙니다.",
+  },
+  presentation: {
+    scoreLabel: "저장소 기반 AI 협업 준비도", scoreExplanation: "선택된 공개 저장소 파일에서 확인한 협업 준비 신호를 더한 재미용 점수예요. 개인의 AI 활용 능력, 코드 품질, 실행 성공을 평가하지 않아요.",
+    axes: { context: { label: "맥락", question: "AI가 프로젝트의 목표와 규칙을 이해할 단서가 있는가" }, verification: { label: "검증 기반", question: "결과를 확인하는 테스트와 점검 장치가 있는가" }, traceability: { label: "추적 가능성", question: "결정과 변경 이유를 나중에 따라갈 수 있는가" }, automation: { label: "자동화", question: "반복 점검을 자동으로 실행할 기반이 있는가" } } satisfies Record<RepositoryReportAxis, { label: string; question: string }>,
+  },
+} as const;
+
+type DeepWiden<T> = T extends (...args: infer A) => string ? (...args: A) => string : T extends string ? string : T extends readonly (infer U)[] ? readonly DeepWiden<U>[] : T extends object ? { [K in keyof T]: DeepWiden<T[K]> } : T;
+export type Messages = DeepWiden<typeof ko>;
+
+const en: Messages = {
+  meta: { title: "MyAiScore — AI collaboration signals in public repositories", description: "Explore context, verification, traceability, and automation signals in a public GitHub repository without signing in." },
+  language: { label: "Choose language", ko: "한국어", en: "EN" },
+  shell: { skip: "Skip to content", brandHome: "MyAiScore home", beta: "DEMO", navLabel: "Main navigation", home: "Home", profile: "Reports", insights: "Guide", evaluate: "Analyze", footerLead: "Explore traces of AI collaboration in a public repository.", footerLimit: "Not a certification of personal AI ability." },
+  report: {
+    aria: "Repository analysis report", demoTag: "SYNTHETIC EXAMPLE", demoDescription: "Invented data that demonstrates the report layout. This is not a real repository result.", styleEyebrow: "Collaboration style visible in this repository", repository: "Repository", commit: "Commit",
+    boundaryStrong: "This result describes signals left in a repository; it does not certify personal AI ability.", boundaryMore: "It cannot establish the decisions made in real conversations or the quality of the whole project.",
+    axesEyebrow: "Four repository signals", axesHeading: "Which traces contributed to the score?", candidateUnknown: "Candidate count unavailable", candidate: count => `${count} candidates`, selected: count => `${count} selected`, read: count => `${count} read`, complete: "Collection complete", partial: "Partial collection", staticOnly: "Based only on static file signals",
+    evidenceFiles: count => `${count} evidence ${count === 1 ? "file" : "files"}`, noSignal: "No signal for this axis was found in the selected sample.", gapsEyebrow: "What could not be established", gapsHeading: "Unknowns belong in the result.", noGaps: "No additional gap was identified by this rule.", coverageDetails: "Collection scope", treeTruncated: "GitHub returned only part of the repository tree.", selectionLimited: "The repository had more candidates than the bounded sample could read.", nextChallenge: "Next challenge", saveIntro: "Saving is optional. Only this summary is stored in this browser, without source content or GitHub account data.", save: "Save in this browser", insightsLink: "Read the score guide →", saved: "Saved to My reports in this browser.", saveError: "The report could not be saved in browser storage.",
+  },
+  home: {
+    kicker: "Start without signing in", title1: "Find AI collaboration traces", title2: "in a public repository.", lead1: "Paste one public GitHub repository URL", lead2: "to inspect context, verification, records, and automation signals.", primary: "Analyze my repository ↗", example: "View an example report ↘", availability: "No account · Public repositories only · No AI model call", demoTag: "SYNTHETIC PREVIEW", demoCaption: "An example of repository signals, not a personal evaluation.",
+    chapters: [{ label: "How it works", text: "Paste a URL. Inspect signals." }, { label: "What it sees", text: "Only traces left in files." }, { label: "The report", text: "Evidence and gaps together." }],
+    flowLabel: "01 / HOW IT WORKS", flowSide: "PUBLIC GITHUB REPOSITORY", flowTitle1: "One URL is", flowTitle2: "enough to begin.", flowIntro: "Paste a public repository URL without GitHub login or CLI setup.", steps: [{ title: "Paste the URL.", text: "Use a public repository address in the form github.com/owner/repository." }, { title: "Find four kinds of signals.", text: "We inspect files and settings related to context, verification, traceability, and automation." }, { title: "Review evidence and gaps.", text: "The report shows file paths that contributed and what the repository could not establish." }],
+    scopeLabel: "02 / SCOPE", scopeSide: "INTERPRETATION BOUNDARY", scopeTitle1: "Read the traces", scopeTitle2: "with honest limits.", scopeLead1: "Separate what is visible", scopeLead2: "from what remains unknown.", scopeBody1: "We look for collaboration foundations such as READMEs, working instructions, tests, CI, and decision records.", scopeBody2: "A repository cannot show every decision made in an AI conversation or prove who contributed. This result does not certify personal ability or project quality.",
+    demoLabel: "03 / EXAMPLE REPORT", demoSide: "SYNTHETIC DATA", demoTitle1: "Start with the evidence,", demoTitle2: "then read the score.", demoIntro: "The report below uses invented data and is never added to your history.", profileCardLabel: "MY REPORTS", profileCardTitle: "Keep only the results you choose.", profileCardText: "Store up to 20 reports in this browser.", insightsCardLabel: "GUIDE", insightsCardTitle: "Understand the four axes.", insightsCardText: "See what the score can and cannot say.", closingKicker: "START WITH A PUBLIC REPOSITORY", closingTitle1: "Paste a URL and", closingTitle2: "meet its collaboration signals.", closingCta: "Analyze a repository ↗", closingText: "No account. Only signals from a public repository.",
+  },
+  evaluate: {
+    title: "Analyze a public repository", description: "Use one GitHub URL to inspect the AI collaboration signals left in its files.", label: "Public GitHub repository URL", placeholder: "https://github.com/owner/repository", submit: "Analyze repository", submitting: "Analyzing…", help: "Only public repositories are supported. No GitHub login or MyAiScore account is required.", progressTitle: "Looking for collaboration signals.", progressText: "Selecting files and checking context, verification, records, and automation traces.", complete: "Analysis complete.", genericError: "The server response could not be validated. Please try again shortly.", cliSummary: "Need the Claude Code session report CLI?", cliText: "The existing CLI can separately summarize activity in a selected local Claude Code session. The browser cannot automatically read local conversation records.", cliCaption: "This is separate from repository analysis and requires Node.js plus an installed MyAiScore checkout.",
+    errors: { invalid_url: "Check the public GitHub repository URL format.", unsupported_host: "Check the public GitHub repository URL format.", invalid_commit_ref: "Check the public GitHub repository URL format.", repo_not_found_or_private: "The public repository could not be found. Private repositories are not supported.", github_api_rate_limited: "The GitHub request limit was reached. Please try again later.", repository_report_rate_limited: "There are too many requests right now. Please try again shortly.", repository_report_busy: "Another repository is being read. Please try again shortly.", repository_collection_failed: "The public repository could not be read. Please try again shortly.", repository_report_failed: "The repository report could not be created. Please try again shortly." },
+  },
+  profile: { title: "My reports", description: "Public repository reports you chose to save.", newReport: "Analyze another repository →", privacy: "Reports are stored only in this browser, without an account. Clearing browser data removes them.", historyError: "Saved reports could not be read. Clear the list to start again.", updateError: "Browser storage could not be updated.", emptyTitle: "No saved reports yet.", emptyText: "Analyze a public repository, then choose Save in this browser to keep the result here.", emptyCta: "Analyze a repository →", historyAria: "Saved repository reports", files: (read, selected) => `${read}/${selected} files`, view: "View report →", remove: "Remove", clear: "Clear saved reports", footnote: "The same repository and commit are stored once. This browser keeps up to 20 recent reports.", points: value => `${value} points` },
+  insights: { title: "Guide", description: "Understand the four repository-report axes and their limits.", savedReport: "Saved report", choose: "Choose a repository", emptyTitle: "No report selected.", emptyText: "Open the score guide from a result or choose one of your saved reports.", emptyCta: "Analyze a repository →", guideEyebrow: "HOW TO READ THE SCORE", guideTitle: "Each axis contributes up to 25 points.", range: "0–25 points", guideText: "The total describes the mix of signals visible in the repository. A higher score does not prove better work or stronger personal AI ability." },
+  presentation: { scoreLabel: "Repository AI collaboration readiness", scoreExplanation: "A playful sum of collaboration-readiness signals found in selected public repository files. It does not evaluate personal AI ability, code quality, or successful execution.", axes: { context: { label: "Context", question: "Are there clues that help AI understand the project's goals and rules?" }, verification: { label: "Verification basis", question: "Are there tests or checks intended to examine the result?" }, traceability: { label: "Traceability", question: "Can later readers follow decisions and changes?" }, automation: { label: "Automation", question: "Is there a foundation for running repeated checks automatically?" } } },
+};
+
+const messages: Record<Locale, Messages> = { ko, en };
+export function messagesFor(locale: Locale): Messages { return messages[locale]; }
