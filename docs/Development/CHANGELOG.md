@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-18 — 로그인 없는 한국어 공개 저장소 리포트 (#28)
+
+- 기본 진입점을 CLI에서 공개 GitHub 저장소 URL 하나로 바꿨다. 회원가입·GitHub 로그인·질문·LLM 호출 없이 고정 commit의 제한된 정적 표본에서 맥락·검증 기반·기록·자동화 신호를 계산한다.
+- `repository-report-v1` 응답은 14개 고정 신호와 실제 수집 경로만 포함한다. 서버와 브라우저가 같은 strict parser로 점수·스타일·gap·다음 도전을 다시 계산하며 개인 AI 실력·코드 품질·테스트 성공으로 표현하지 않는다.
+- 한국어 Home/저장소 분석/내 리포트/해석 가이드를 제공한다. 결과 저장은 선택 사항이며 요약만 현재 브라우저 localStorage에 최대 20개 보관한다. Claude Code 세션 CLI는 선택 기능으로 유지한다.
+- 공개 GitHub transport를 고정 origin·redirect 거부·10초 abort·2MB 응답 제한으로 분리했다. private 여부와 metadata를 fail-closed로 확인하고, 서버 토큰 유무별 시작 제한을 적용한다. 상세는 [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md), 결정은 [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md)에서 관리한다.
+
 ## 2026-09-15 — CLI 세션 리포트로 기본 제품 전환 (#26)
 
 - 협업 사례·발췌·질문 입력을 기본 화면에서 제거했다. Claude Code 기록을 프로젝트 범위 안에서 읽고 활동 점수·유형·특징 3개·다음 도전을 로컬에서 생성한다. API 키나 GitHub 수집이 필요하지 않다.

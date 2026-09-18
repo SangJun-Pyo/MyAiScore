@@ -1,2 +1,2 @@
-import { SessionHomeExperience } from "../components/SessionExperience";
-export default function Home() { return <SessionHomeExperience />; }
+import { RepositoryHomeExperience } from "../components/RepositoryExperience";
+export default function Home() { return <RepositoryHomeExperience />; }

@@ -6,6 +6,9 @@ import { prepareAssessment, generateAssessmentQuestions, finalizeAssessment, syn
 import { createAnthropicProviderFromEnv } from '../service/anthropicProvider.js';
 import type { EvaluationProvider } from '../evaluation/provider.js';
 import { compareAssessments } from '../service/comparison.js';
+import { parseRepositoryReportRequest, type RepositoryReport } from '../../shared/repositoryReport.js';
+import { generateRepositoryReport, repositoryReportAdmission, RepositoryReportAdmission, RepositoryReportError, type RepositoryReportServiceOptions } from '../repositoryReport/service.js';
+import { normalizeAndValidateRepoUrl } from '../ingestion/urlValidation.js';
 import repositoryWalkthrough from '../../../fixtures/walkthroughs/myaiscore-recollected.json';
 
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -18,6 +21,9 @@ interface Dependencies {
   provider?: () => EvaluationProvider;
   now?: () => number;
   liveEnabled?: boolean;
+  repositoryReport?: (input: { repoUrl: string }, options?: RepositoryReportServiceOptions) => Promise<RepositoryReport>;
+  githubToken?: string | null;
+  repositoryReportAdmission?: RepositoryReportAdmission;
 }
 function reply(body: unknown, status = 200) {
   return new Response(status === 204 ? null : JSON.stringify(body), { status, headers: {
@@ -69,6 +75,27 @@ export function createApi(deps: Dependencies = {}) {
       }
       const [resource, id, action] = segments;
       if (segments.length > 3) throw new HttpError(404, 'not_found', 'Route not found.');
+      if (resource === 'repository-report') {
+        if (id || action) throw new HttpError(404, 'not_found', 'Route not found.');
+        if (method !== 'POST') throw new HttpError(405, 'invalid_input', '이 경로는 POST 요청만 지원해요.');
+        const rawInput = await bodyOf(request);
+        let input;
+        try { input = parseRepositoryReportRequest(rawInput); }
+        catch { throw new HttpError(400, 'invalid_input', 'repo_url 하나만 JSON 문자열로 보내 주세요.'); }
+        const normalized = normalizeAndValidateRepoUrl(input.repo_url);
+        if (!normalized.ok) throw new HttpError(400, normalized.code, 'https://github.com/소유자/저장소 형식의 공개 저장소 주소를 입력해 주세요.');
+        const repoUrl = `https://github.com/${normalized.ref.owner}/${normalized.ref.repo}`;
+        const configuredToken = deps.githubToken === undefined ? process.env.GITHUB_TOKEN?.trim() : deps.githubToken?.trim();
+        let release: (() => void) | undefined;
+        try {
+          release = (deps.repositoryReportAdmission ?? repositoryReportAdmission).acquire(Boolean(configuredToken));
+          const report = await (deps.repositoryReport ?? generateRepositoryReport)({ repoUrl }, { authToken: configuredToken || undefined });
+          return reply(report);
+        } catch (error) {
+          if (error instanceof RepositoryReportError) throw new HttpError(error.status, error.code, error.message, error.retryable);
+          throw error;
+        } finally { release?.(); }
+      }
       if (method === 'GET' && resource === 'config' && !id) return reply({
         live_enabled: deps.liveEnabled ?? liveConfiguration(), provider_configured: !!process.env.ANTHROPIC_API_KEY && !!process.env.ANTHROPIC_MODEL,
         storage_mode: process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY ? 'supabase' : 'file', local_evidence_mode: 'pasted_excerpts',

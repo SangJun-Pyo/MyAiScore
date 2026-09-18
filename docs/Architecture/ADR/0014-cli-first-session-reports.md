@@ -1,6 +1,6 @@
 # ADR-0014: CLI-first playful session reports
 
-Status: accepted by user direction. Date: 2026-09-15. [Issue #26](https://github.com/SangJun-Pyo/MyAiScore/issues/26).
+Status: accepted as optional detail; primary onboarding superseded by [ADR-0015](0015-anonymous-korean-repository-reports.md). Date: 2026-09-15. [Issue #26](https://github.com/SangJun-Pyo/MyAiScore/issues/26).
 
 ## Context
 

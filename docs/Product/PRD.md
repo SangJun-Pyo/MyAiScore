@@ -1,28 +1,26 @@
-# PRD — MyAiScore session reports v0.4
+# PRD — 공개 저장소 리포트 v0.5
 
-Hub: [master](../00_MASTER_PLAN.md). Decision: [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md).
+Hub: [master](../00_MASTER_PLAN.md). Decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md).
 
 ## User and problem
 
-An AI coding user is curious about their working style and wants an interesting result without writing a retrospective. The former assessment demanded a repository, optional essays/excerpts and follow-up answers before sufficient evidence existed. The user approved changing that premise.
+AI 코딩 도구를 쓰는 사람과 공모전 심사위원은 설치·로그인·긴 회고 없이 제품 가치를 바로 보고 싶다. CLI 기반 흐름은 안전하지만 첫 체험 비용이 높다. 공개 저장소에는 실제 대화 전체가 없지만 AI 작업 지침, 테스트, CI, 결정 기록과 자동화 같은 확인 가능한 협업 준비 신호가 남는다.
 
 ## Experience
 
-One local command should produce a useful report without a model account or manual explanation. The report contains a playful session score, style, three concise observations and an actionable next challenge. Every observation must be traceable to a documented log pattern. Missing data is visible; serious skill certification, comparison percentiles and invented success claims are out of scope.
-
-The CLI handles one Claude Code project/session. Current-project discovery is bounded and validates scope; explicit session selection is the fallback. The user can export a safe summary and view it in the browser. The website provides an example, setup instructions, report details and opt-in browser-local history. Raw transcripts are never uploaded by this flow.
+사용자는 한국어 화면에 공개 GitHub URL 하나를 넣는다. 수집 진행 후 점수와 스타일, 네 축, 실제 근거 경로, 확인하지 못한 항목과 다음 도전을 받는다. 결과는 저장소 신호의 재미있는 요약이며 개인 실력 인증이 아님을 결과 가까이 설명한다. 저장은 명시적이고 해당 브라우저에만 적용된다.
 
 ## Required behavior
 
-1. Terminal output works without the website or network.
-2. Unknown format, malformed records, missing results and insufficient activity have explicit states.
-3. Report exports contain only validated structural counts and fixed labels. Imported scores are recomputed.
-4. Home/New session/Profile/Insights consistently describe the new product. Primary onboarding has no manual collaboration fields or interview questions.
-5. Example records do not become personal history. Saving/deleting a summary affects browser-local data only.
-6. Existing legacy private/public assessment results retain their access boundaries.
+1. 로그인·계정·질문·모델 키 없이 공개 저장소를 분석한다.
+2. URL/private/수집 한도·부분 실패를 구분해 한국어 오류 또는 coverage로 표시한다.
+3. 저장소 코드를 실행하지 않고 GitHub API의 고정 commit 정적 자료만 읽는다.
+4. 근거 카드가 실제 수집된 안전한 경로를 가리키고, 없는 신호나 성공을 꾸미지 않는다.
+5. 점수·스타일·설명은 버전 고정 규칙으로 재현 가능하다.
+6. Home/새 분석/Profile/Insights가 같은 용어와 한계를 사용한다.
+7. 서버 토큰·원문 응답·비밀 패턴을 브라우저에 노출하지 않는다.
+8. 예시 또는 과거 평가를 사용자 결과로 저장하지 않는다.
 
-## Success hypotheses to test
+## Success hypotheses
 
-Can a first user reach a meaningful report from a supported session without writing prose? Do they understand the style and why it was assigned? Do they choose to save/share it and try the next challenge? These are product hypotheses, not measured adoption or accuracy claims.
-
-First implementation validates synthetic log handling and the complete local-to-browser path. Real Claude Code version coverage, cross-platform packaging and first-user feedback are follow-up validation.
+첫 방문자가 1분 안에 URL을 제출하고 결과의 성격을 이해하는가? 근거 경로를 보고 점수 이유를 설명할 수 있는가? 다음 도전을 유용하거나 재미있다고 느끼는가? 이것은 검증할 제품 가설이며 실제 채택·정확도를 주장하지 않는다.

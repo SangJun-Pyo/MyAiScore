@@ -1,6 +1,14 @@
-# System Architecture — session reports and legacy v0.3.1
+# System Architecture — repository reports, session reports and legacy v0.3.1
 
-## Current primary flow (v0.4)
+## Current primary flow — anonymous repository reports (v0.5)
+
+`Home/Evaluate (Korean client) → POST /api/repository-report → URL validation → bounded GitHub API collection → deterministic repositoryReport builder → response → optional browser localStorage`. The endpoint is stateless and does not call the assessment store, Supabase, a model provider or user authentication. `GITHUB_TOKEN` may be read only on the server transport to raise public API allowance; it never changes the public-only product boundary or enters the response.
+
+The report exposes validated repo/commit/coverage, four capped scores, fixed Korean copy and evidence paths belonging to the collected snapshot. It excludes file contents and arbitrary repository prose. The client validates the response, does not auto-save it, and keeps chosen reports only in the current browser. [ADR-0015](ADR/0015-anonymous-korean-repository-reports.md), [contract](../Assessment/REPOSITORY_REPORT.md).
+
+The CLI section below remains an optional detail path. Later assessment/API sections are compatibility architecture rather than current onboarding.
+
+## Optional CLI session flow (v0.4)
 
 [ADR-0014](ADR/0014-cli-first-session-reports.md): local CLI → bounded scoped Claude Code parser → numeric metrics → shared deterministic SessionReport → terminal/new summary file/explicit summary-only fragment → browser validation and recomputation → optional browser-local history/copy summary. No backend assessment, GitHub call, LLM, database or raw-log upload is needed for this flow. [SESSION_REPORT](../Assessment/SESSION_REPORT.md) owns the new contract.
 

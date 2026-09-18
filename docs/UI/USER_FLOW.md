@@ -1,23 +1,23 @@
-# User flow — CLI session reports
+# User flow — 로그인 없는 공개 저장소 리포트
 
-Decision: [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md). Report fields/rules: [SESSION_REPORT](../Assessment/SESSION_REPORT.md).
+Decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). Contract: [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md).
 
-## First use
+## 첫 방문
 
-Home explains the report and offers a clearly synthetic example or New session. New session shows the actual installed-checkout CLI command; it does not claim an unpublished npm package exists. There are no collaboration-case, excerpt or interview fields.
+홈의 첫 화면에서 제품이 공개 저장소에 남은 AI 협업 준비 신호를 분석한다고 설명한다. URL 입력과 `내 저장소 분석하기`가 기본 CTA다. 로그인·CLI·질문이 필요 없고 public 저장소만 지원함을 입력 가까이에 표시한다. 결과의 한계를 숨긴 과장된 능력 문구를 사용하지 않는다.
 
-Run the CLI from the project directory. It selects only a matching current-project Claude session, or explains how to pass an explicit session when discovery cannot establish scope. It prints a useful terminal result immediately. No GitHub or service-model call is needed.
+## 분석
 
-## Browser report
+`/evaluate`는 GitHub URL 하나만 받는다. 제출 후 단계가 진행 중임을 표시하고 중복 제출을 막는다. 오류는 잘못된 URL, 공개 접근 불가/private, GitHub 제한, 수집 범위/일시 장애를 구분하되 서버 비밀이나 원문을 출력하지 않는다.
 
-Optionally export the generated safe summary or use an explicit browser URL handoff. Import parses JSON in the browser, bounds size, validates the schema and recomputes derived labels/score. A report in a fragment is consumed and the fragment cleared. Raw session files are not accepted as summary reports and are not posted to a server.
+성공 화면은 저장소/commit/coverage, 총점과 스타일, 네 축, 실제 근거 경로, 확인하지 못한 항목, 다음 도전을 이 순서로 보여준다. 총점 가까이에 `저장소 신호 점수이며 개인 AI 실력 인증이 아님`을 둔다. 부분 수집은 경고와 읽은 파일 수로 설명한다.
 
-Show session score, style, three highlights and one challenge. Details explain raw counters and scoring rules. Complete means the available supported session data was processed, not that user intent or competence was proven.
+## 저장과 상세
 
-## History and sharing
+결과 미리보기는 자동 저장하지 않는다. `이 브라우저에 저장`을 누른 결과만 Profile에 최대 20개 보관한다. 같은 repo/commit/rule 버전은 중복하지 않는다. Profile에서 보기·삭제·전체 삭제가 가능하며 계정 또는 기기 동기화를 암시하지 않는다.
 
-Save report locally is an explicit action. Profile describes browser-local summary history and has an honest empty state, with no fabricated identity or population ranking. Insights explains the selected report and its limits. Copying a summary exports only the rendered safe summary; no raw transcript or automatic public posting occurs.
+Insights는 선택한 결과의 네 축 규칙과 연결된 근거 경로를 설명한다. 저장된 결과가 없으면 명확한 빈 상태와 새 분석 CTA를 보여준다. 임의의 인구 비교나 가짜 통계를 만들지 않는다.
 
-## Compatibility
+## 선택적 세션 분석
 
-The historical GitHub walkthrough and old direct assessment/result routes remain separate. New session reports never inherit old owner tokens or assessment scores. Older five-axis screens follow their original security contracts when directly accessed; they are not the normal v0.4 onboarding.
+Claude Code CLI는 기본 CTA가 아니다. 저장소만으로 실제 대화·판단을 확인할 수 없음을 설명하는 보조 영역에서 로컬 세션 리포트 문서로 안내할 수 있다. 향후 브라우저 파일 분석을 추가해도 원문은 로컬에서 처리하고 명시적 선택 없이 읽지 않는다.
