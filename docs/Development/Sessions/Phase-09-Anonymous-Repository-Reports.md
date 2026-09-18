@@ -28,16 +28,19 @@ Root는 제품 계약·ADR·문서·통합·배포 검증을 맡는다. Core 서
 
 API는 `POST /api/repository-report`에 정확히 `{ "repo_url": "https://github.com/owner/repo" }`만 받는다. storage/provider 초기화 전에 처리하며 DB·로그인·모델을 사용하지 않는다. 고정 `api.github.com`, manual redirect, 10초 abort, 응답 2MB 제한과 private/metadata fail-closed 검사를 적용한다. 시작 제한은 토큰 사용 시 5분당 5회, 비토큰이면 시간당 1회, 동시 2회다.
 
-## 통합 전 검증
+## 최종 통합 검증
 
 - `npm run typecheck` 통과
-- `npm test` 279/279 통과. 이후 네 축 25점·총점 100 도달 회귀 1건을 추가했다.
+- `npm test` 281/281 통과. 네 축 각각 25점·총점 100 도달과 잘못된 URL이 익명 요청 슬롯을 소모하지 않는 회귀 검사를 포함한다.
+- `npm run check:docs` 62파일·상대 링크 399개, 문제 0건
 - `npm run build` 통과
 - `npm run test:e2e` desktop/mobile 24/24 통과
 
 ## 독립 검토와 배포
 
-설계 사전 검토는 quota, transport, endpoint 초기화, private fail-closed, 검증 신호 표현을 필수 조건으로 제시했고 구현에 반영했다. 최종 통합 commit의 독립 코드 검토, PR CI, Railway 배포와 실제 MyAiScore 공개 저장소 1건 smoke 결과는 이어서 기록한다.
+설계 사전 검토는 quota, transport, endpoint 초기화, private fail-closed, 검증 신호 표현을 필수 조건으로 제시했고 구현에 반영했다. 구현에 참여하지 않은 서브에이전트가 통합 `c500468`을 검토해, 잘못된 host URL도 admission을 먼저 소모해 비토큰 서버의 유일한 시간당 슬롯을 막는 P1 결함을 발견했다. `1103187`에서 URL 검증·정규화를 admission 앞으로 옮기고 invalid URL 뒤 정상 `.git` URL이 수집기로 한 번만 전달되는 검사를 추가했다.
+
+독립 재검토는 정확한 `11031871d20ab8ae302c087d76d3a419607fa335`에서 **PASS, 출시 차단 사항 없음**으로 결론 내렸다. reviewer가 별도로 실행한 repository-report/API/session CLI 집중 검사 33개도 전부 통과했다. PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29)의 CI, Railway 배포와 실제 MyAiScore 공개 저장소 1건 smoke 결과는 병합 뒤 기록한다.
 
 ## 현재 한계
 
