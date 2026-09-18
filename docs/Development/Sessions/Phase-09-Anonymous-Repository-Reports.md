@@ -61,6 +61,14 @@ Railway `https://myaiscore-production.up.railway.app/`에서 health 200과 한�
 
 구현 후 `npm test` 285/285, `npm run typecheck`, `npm run check:docs` 63파일·상대 링크 409개, `npm run build`를 통과했다. Home·공개 네 경로·리포트 원본 보존·오류 코드 번역·과거 영어 화면을 포함한 Playwright 집중 검사는 desktop/mobile 26/26을 통과했다.
 
+## 점수·협업 스타일 해석 가이드
+
+`/insights`의 빈 상태가 축별 범위만 보여주던 한계를 보완했다. 이제 결과 선택 여부와 관계없이 네 축의 14개 근거 ID, 개별 점수, 축별 25점 합계를 표로 보여준다. 여섯 스타일은 총점 20 미만, 균형 조건, 최고 축 순서로 설명하고 최고 축 동점은 맥락→검증 기반→추적 가능성→자동화 순서라고 명시한다. 선택된 리포트가 있으면 현재 스타일 카드 하나를 강조한다.
+
+UI용 규칙을 다시 작성하지 않도록 공유 모듈이 근거 순서, 스타일 순서, 임계값, 동점 우선순위와 분류 함수를 제공한다. 기존 파생 함수는 같은 분류 함수를 호출하므로 점수·스타일 동작은 유지된다. 한국어·영어 가이드는 같은 근거·스타일 ID에서 제목을 가져온다.
+
+검증은 `npm test` 288/288, `npm run typecheck`, `npm run check:docs` 63파일·상대 링크 409개, `npm run build`, 전체 Playwright desktop/mobile 30/30을 통과했다. 단위 검사는 14개 점수와 축별 합계, 여섯 스타일 경계와 동점 우선순위, 선택 스타일 강조 데이터를 확인한다. 브라우저 검사는 빈 상태에서도 규칙을 표시하고, 저장된 리포트에서 현재 스타일을 하나만 강조하며, 한국어·영어와 모바일 레이아웃을 확인한다.
+
 ## 배포 후 로컬 403 수정 (#31)
 
 사용자가 `http://127.0.0.1:3104`에서 저장소 분석을 실행했을 때 `Requests from other sites are not allowed.`가 재현됐다. 실행 중인 3104 서버가 과거 worktree를 가리킨 문제를 먼저 바로잡았지만, 최신 standalone에서도 Next.js가 내부 request URL을 `http://localhost:3104`로 정규화해 strict 문자열 비교가 127.0.0.1 Origin을 거부했다.

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
 import {
   REPOSITORY_AXIS_ORDER,
@@ -195,6 +196,25 @@ export function RepositoryProfileExperience() {
   </main></RepositoryShell>;
 }
 
+function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | null }) {
+  const { locale, copy } = useLocale();
+  const guide = buildRepositoryGuide(locale, copy, report?.style.id);
+  return <div className="repo-interpretation-guide">
+    <section className="repo-guide product-panel" aria-labelledby="score-matrix-heading">
+      <span className="eyebrow">{copy.insights.matrixEyebrow}</span><h2 id="score-matrix-heading">{copy.insights.matrixTitle}</h2><p>{copy.insights.matrixIntro}</p>
+      <div className="repo-score-table-wrap" role="region" aria-label={copy.insights.matrixScrollLabel} tabIndex={0}><table className="repo-score-table"><caption>{copy.insights.matrixCaption}</caption><thead><tr><th scope="col">{copy.insights.axisHeader}</th><th scope="col">{copy.insights.signalHeader}</th><th scope="col">{copy.insights.pointsHeader}</th></tr></thead>
+        {guide.axes.map(axis => <tbody key={axis.id}>{axis.signals.map((signal, index) => <tr key={signal.id}>{index === 0 && <th scope="rowgroup" rowSpan={axis.signals.length + 1}>{axis.label}</th>}<th scope="row">{signal.title}</th><td>{copy.insights.points(signal.points)}</td></tr>)}<tr className="repo-axis-total"><th scope="row">{copy.insights.axisTotal}</th><td>{copy.insights.points(axis.total)}</td></tr></tbody>)}
+      </table></div><p className="repo-guide-limit">{copy.insights.guideText}</p>
+    </section>
+    <section className="repo-style-guide" aria-labelledby="style-guide-heading">
+      <div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.stylesEyebrow}</span><h2 id="style-guide-heading">{copy.insights.stylesTitle}</h2></div><p>{copy.insights.stylesIntro}</p></div>
+      <ol className="repo-style-rules">{guide.styles.map(style => <li key={style.id} className={style.active ? "is-active" : undefined} aria-current={style.active ? "true" : undefined}><div className="repo-style-rule-label"><span>{copy.insights.ruleStep(style.step)}</span>{style.active && <strong>{copy.insights.activeStyle}</strong>}</div><h3>{style.title}</h3><p>{style.rule}</p><small>{style.description}</small></li>)}</ol>
+      <p className="repo-tie-priority">{guide.tiePriority}</p>
+      {report && <p className="repo-current-style-note"><strong>{copy.insights.activeStyle}: {guide.styles.find(style => style.active)?.title}</strong><span>{copy.insights.distributionNote}</span></p>}
+    </section>
+  </div>;
+}
+
 export function RepositoryInsightsExperience() {
   const { copy } = useLocale();
   const [report, setReport] = useState<RepositoryReport | null>(currentReport);
@@ -204,6 +224,7 @@ export function RepositoryInsightsExperience() {
   return <RepositoryShell><main id="main" className="page-width product-page">
     <header className="product-heading"><div><h1>{copy.insights.title}</h1><p>{copy.insights.description}</p></div></header>
     {reports.length > 0 && <div className="product-toolbar"><label className="repo-select">{copy.insights.savedReport}<select value={selectedIndex} onChange={event => { setSelectedIndex(event.target.value); const selected = reports[Number(event.target.value)]; if (selected) { currentReport = selected; setReport(selected); } }}><option value="" disabled>{copy.insights.choose}</option>{reports.map((item, index) => <option key={`${item.repo}@${item.commitSha}`} value={index}>{repoName(item.repo)} · {copy.profile.points(item.score.value)}</option>)}</select></label></div>}
-    {report ? <RepositoryReportView report={report} actions={false} /> : <><section className="product-empty"><h2>{copy.insights.emptyTitle}</h2><p>{copy.insights.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.insights.emptyCta}</Link></section><section className="repo-guide product-panel"><span className="eyebrow">{copy.insights.guideEyebrow}</span><h2>{copy.insights.guideTitle}</h2><div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{copy.insights.range}</strong><p>{copy.presentation.axes[axis].question}</p></div>)}</div><p>{copy.insights.guideText}</p></section></>}
+    {report ? <RepositoryReportView report={report} actions={false} /> : <section className="product-empty"><h2>{copy.insights.emptyTitle}</h2><p>{copy.insights.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.insights.emptyCta}</Link></section>}
+    <RepositoryInterpretationGuide report={report} />
   </main></RepositoryShell>;
 }

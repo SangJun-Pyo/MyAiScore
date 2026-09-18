@@ -42,14 +42,26 @@ async function interceptReport(page: Page, payload = report()) {
   return bodies;
 }
 
-test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 꾸며내지 않는다', async ({ page }) => {
+test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 꾸며내지 않는다', async ({ page }, testInfo) => {
   const requests: string[] = [];
   page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/')) requests.push(request.url()); });
   await page.goto('/profile');
   await expect(page.getByRole('heading', { name: '저장한 리포트가 없습니다.' })).toBeVisible();
   await page.getByRole('navigation').getByRole('link', { name: '해석 가이드', exact: true }).click();
   await expect(page.getByRole('heading', { name: '선택한 리포트가 없습니다.' })).toBeVisible();
-  await expect(page.locator('.repo-guide')).toContainText('각 축은 최대 25점입니다.');
+  await expect(page.getByRole('heading', { name: '신호별 점수를 모두 공개합니다.' })).toBeVisible();
+  await expect(page.locator('.repo-score-table tbody')).toHaveCount(4);
+  await expect(page.getByRole('region', { name: '네 축의 신호별 배점표' })).toHaveAttribute('tabindex', '0');
+  await expect(page.locator('.repo-score-table')).toContainText('시작 안내7점');
+  await expect(page.locator('.repo-score-table')).toContainText('테스트 흔적21점');
+  await expect(page.locator('.repo-score-table')).toContainText('결정 기록9점');
+  await expect(page.locator('.repo-score-table')).toContainText('자동 검사15점');
+  await expect(page.locator('.repo-axis-total')).toHaveText(['축 합계25점', '축 합계25점', '축 합계25점', '축 합계25점']);
+  await expect(page.locator('.repo-style-rules > li')).toHaveCount(6);
+  await expect(page.locator('.repo-style-rules').first()).toContainText('총점이 20점 미만');
+  await expect(page.locator('.repo-style-rules').first()).toContainText('네 축이 모두 10점 이상');
+  await expect(page.locator('.repo-tie-priority')).toContainText('맥락 → 검증 기반 → 추적 가능성 → 자동화');
+  await page.screenshot({ path: testInfo.outputPath('repository-guide.png'), fullPage: true });
   expect(requests).toEqual([]);
 });
 
@@ -107,6 +119,9 @@ test('저장은 명시적이며 같은 저장소와 커밋을 중복 없이 보�
   await expect(page.locator('.history-entry')).toContainText('example/public-repo');
   await page.getByRole('button', { name: '리포트 보기' }).click();
   await expect(page.locator('.repo-report')).toContainText('검증 레이더');
+  await expect(page.locator('.repo-style-rules > li.is-active')).toHaveCount(1);
+  await expect(page.locator('.repo-style-rules > li.is-active')).toContainText('검증 레이더');
+  await expect(page.locator('.repo-current-style-note')).toContainText('총점 구간이 아니라 네 축의 분포');
   await page.getByRole('navigation').getByRole('link', { name: '내 리포트', exact: true }).click();
   await page.getByRole('button', { name: '삭제', exact: true }).click();
   await expect(page.getByRole('heading', { name: '저장한 리포트가 없습니다.' })).toBeVisible();
@@ -149,6 +164,10 @@ test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 
   await expect(page.getByRole('heading', { name: 'No saved reports yet.' })).toBeVisible();
   await page.getByRole('navigation').getByRole('link', { name: 'Guide', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'No report selected.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Every signal and point value is visible.' })).toBeVisible();
+  await expect(page.locator('.repo-score-table')).toContainText('Test traces21 points');
+  await expect(page.locator('.repo-style-rules')).toContainText('Use this style when the total is below 20.');
+  await expect(page.locator('.repo-tie-priority')).toContainText('Context → Verification basis → Traceability → Automation');
   await page.getByRole('navigation').getByRole('link', { name: 'Analyze', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Analyze a public repository' })).toBeVisible();
   await page.getByLabel('Public GitHub repository URL').fill('https://github.com/example/public-repo');

@@ -65,6 +65,35 @@
 .repo-guide { margin-top:28px; padding:28px; }
 .repo-guide > p { max-width:850px; color:var(--muted); }
 .repo-guide .session-breakdown p { margin:4px 0 0; color:var(--muted); font-size:11px; text-transform:none; }
+.repo-interpretation-guide { margin-top:42px; }
+.repo-interpretation-guide .repo-guide { margin-top:0; }
+.repo-score-table-wrap { overflow-x:auto; margin-top:24px; border:1px solid var(--line); border-radius:var(--radius); }
+.repo-score-table { width:100%; min-width:620px; border-collapse:collapse; text-align:left; }
+.repo-score-table caption { padding:15px 18px; border-bottom:1px solid var(--line); color:var(--muted); font-size:10px; letter-spacing:.08em; text-align:left; text-transform:uppercase; }
+.repo-score-table th,.repo-score-table td { padding:13px 16px; border-bottom:1px solid var(--line); font-size:12px; }
+.repo-score-table thead th { background:var(--surface-raised); color:var(--muted); font-size:10px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; }
+.repo-score-table tbody:last-child tr:last-child th,.repo-score-table tbody:last-child tr:last-child td { border-bottom:0; }
+.repo-score-table th[scope=rowgroup] { width:22%; border-right:1px solid var(--line); color:var(--accent); font-size:13px; font-weight:500; vertical-align:top; }
+.repo-score-table th[scope=row] { font-weight:400; }
+.repo-score-table td { width:110px; color:var(--muted); text-align:right; white-space:nowrap; }
+.repo-score-table .repo-axis-total th,.repo-score-table .repo-axis-total td { background:#ffffff08; color:var(--ink); font-weight:600; }
+.repo-guide-limit { margin:20px 0 0; }
+.repo-style-guide { margin-top:38px; }
+.repo-style-guide-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:36px; margin-bottom:20px; }
+.repo-style-guide-heading h2 { margin:0; }
+.repo-style-guide-heading > p { max-width:520px; margin:0; color:var(--muted); font-size:12px; }
+.repo-style-rules { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin:0; padding:0; list-style:none; }
+.repo-style-rules > li { min-width:0; padding:22px; border:1px solid var(--line); border-radius:var(--radius); background:var(--white); }
+.repo-style-rules > li.is-active { border-color:var(--accent); box-shadow:inset 3px 0 0 var(--accent); }
+.repo-style-rule-label { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; color:var(--muted); font-size:10px; letter-spacing:.07em; text-transform:uppercase; }
+.repo-style-rule-label strong { padding:4px 6px; border-radius:3px; background:var(--accent); color:#251713; font-size:9px; font-weight:600; }
+.repo-style-rules h3 { margin-bottom:9px; font-size:20px; }
+.repo-style-rules p { margin-bottom:12px; color:var(--ink); font-size:12px; }
+.repo-style-rules small { display:block; color:var(--muted); font-size:11px; line-height:1.65; }
+.repo-tie-priority { margin:17px 0 0; padding:14px 16px; border-left:2px solid var(--accent); background:var(--accent-soft); color:var(--muted); font-size:12px; }
+.repo-current-style-note { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-top:15px; padding:18px 20px; border:1px solid var(--accent); border-radius:var(--radius); }
+.repo-current-style-note strong { color:var(--accent); font-size:13px; }
+.repo-current-style-note span { color:var(--muted); font-size:11px; text-align:right; }
 @media(max-width:760px) {
   .repo-form { padding:22px 18px; }
   .repo-form-row { grid-template-columns:1fr; }
@@ -81,4 +110,12 @@
   .repo-select { align-items:stretch; flex-direction:column; }
   .repo-select select { width:100%; min-width:0; }
   .repo-landing-hero .landing-chapters { grid-template-columns:1fr 1fr; }
+  .repo-guide { padding:22px 18px; }
+  .repo-score-table-wrap { margin-inline:-4px; }
+  .repo-style-guide-heading { display:block; }
+  .repo-style-guide-heading > p { margin-top:12px; }
+  .repo-style-rules { grid-template-columns:1fr; }
+  .repo-style-rules > li { padding:19px 17px; }
+  .repo-current-style-note { align-items:flex-start; flex-direction:column; gap:8px; }
+  .repo-current-style-note span { text-align:left; }
 }

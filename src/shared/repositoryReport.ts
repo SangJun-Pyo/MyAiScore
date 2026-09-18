@@ -57,6 +57,22 @@ export interface RepositoryReport {
 }
 
 export const REPOSITORY_AXIS_ORDER: RepositoryReportAxis[] = ["context", "verification", "traceability", "automation"];
+export const REPOSITORY_EVIDENCE_ORDER: RepositoryReportEvidenceId[] = [
+  "context-readme",
+  "context-guidance",
+  "context-docs",
+  "context-metadata",
+  "verification-tests",
+  "verification-config",
+  "traceability-changelog",
+  "traceability-decisions",
+  "traceability-templates",
+  "traceability-migrations",
+  "automation-ci",
+  "automation-dependencies",
+  "automation-delivery",
+  "automation-scripts",
+];
 
 export const REPOSITORY_REPORT_COPY = {
   scoreExplanation: "선택된 공개 저장소 파일에서 확인한 협업 준비 신호를 더한 재미용 점수예요. 개인의 AI 활용 능력, 코드 품질, 실행 성공을 평가하지 않아요.",
@@ -109,6 +125,26 @@ export const REPOSITORY_REPORT_COPY = {
   },
 } as const;
 
+export type RepositoryReportStyleId = (typeof REPOSITORY_REPORT_COPY.styles)[keyof typeof REPOSITORY_REPORT_COPY.styles]["id"];
+
+export const REPOSITORY_STYLE_ORDER: RepositoryReportStyleId[] = [
+  "first-signals",
+  "balanced-builder",
+  "context-cartographer",
+  "verification-radar",
+  "trace-collector",
+  "automation-tamer",
+];
+
+export const REPOSITORY_STYLE_THRESHOLDS = {
+  firstSignalsTotalExclusive: 20,
+  balancedAxisMinimum: 10,
+  balancedSpreadMaximum: 6,
+} as const;
+
+/** Dominant-axis ties follow the same stable order used throughout the report contract. */
+export const REPOSITORY_STYLE_TIE_PRIORITY = REPOSITORY_AXIS_ORDER;
+
 const FIXED_EVIDENCE_POINTS: Record<RepositoryReportEvidenceId, number> = {
   "context-readme": 7,
   "context-guidance": 7,
@@ -130,16 +166,27 @@ export function repositoryEvidencePoints(id: RepositoryReportEvidenceId): number
   return FIXED_EVIDENCE_POINTS[id];
 }
 
+export function repositoryStyleCopy(id: RepositoryReportStyleId) {
+  const style = Object.values(REPOSITORY_REPORT_COPY.styles).find(item => item.id === id);
+  if (!style) throw new Error("Unknown repository report style.");
+  return style;
+}
+
+export function classifyRepositoryReportStyle(axes: Record<RepositoryReportAxis, number>): RepositoryReportStyleId {
+  const total = REPOSITORY_AXIS_ORDER.reduce((sum, axis) => sum + axes[axis], 0);
+  if (total < REPOSITORY_STYLE_THRESHOLDS.firstSignalsTotalExclusive) return "first-signals";
+  const values = REPOSITORY_AXIS_ORDER.map(axis => axes[axis]);
+  if (Math.min(...values) >= REPOSITORY_STYLE_THRESHOLDS.balancedAxisMinimum &&
+      Math.max(...values) - Math.min(...values) <= REPOSITORY_STYLE_THRESHOLDS.balancedSpreadMaximum) return "balanced-builder";
+  const dominantAxis = REPOSITORY_STYLE_TIE_PRIORITY.reduce((best, axis) => axes[axis] > axes[best] ? axis : best, REPOSITORY_STYLE_TIE_PRIORITY[0]!);
+  return REPOSITORY_REPORT_COPY.styles[dominantAxis].id;
+}
+
 export function deriveRepositoryReportPresentation(cards: Array<Pick<RepositoryReportEvidenceCard, "id" | "axis">>, coverage: "complete" | "partial") {
   const axes: Record<RepositoryReportAxis, number> = { context: 0, verification: 0, traceability: 0, automation: 0 };
   for (const card of cards) axes[card.axis] = Math.min(25, axes[card.axis] + repositoryEvidencePoints(card.id));
   const value = REPOSITORY_AXIS_ORDER.reduce((sum, axis) => sum + axes[axis], 0);
-  const values = REPOSITORY_AXIS_ORDER.map(axis => axes[axis]);
-  const style = value < 20
-    ? REPOSITORY_REPORT_COPY.styles.firstSignals
-    : Math.min(...values) >= 10 && Math.max(...values) - Math.min(...values) <= 6
-      ? REPOSITORY_REPORT_COPY.styles.balanced
-      : REPOSITORY_REPORT_COPY.styles[REPOSITORY_AXIS_ORDER.reduce((best, axis) => axes[axis] > axes[best] ? axis : best, REPOSITORY_AXIS_ORDER[0]!)];
+  const style = repositoryStyleCopy(classifyRepositoryReportStyle(axes));
   const gaps: string[] = REPOSITORY_AXIS_ORDER.filter(axis => axes[axis] < 10).map(axis => REPOSITORY_REPORT_COPY.gaps[axis]);
   if (coverage === "partial") gaps.push(REPOSITORY_REPORT_COPY.gaps.partial);
   const challengeAxis = REPOSITORY_AXIS_ORDER.reduce((lowest, axis) => axes[axis] < axes[lowest] ? axis : lowest, REPOSITORY_AXIS_ORDER[0]!);

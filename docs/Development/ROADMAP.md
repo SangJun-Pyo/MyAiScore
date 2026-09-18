@@ -14,7 +14,7 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 |---|---|
 | Core | Strict report contract, four capped repository-signal axes, actual evidence paths |
 | API | Stateless bounded public GitHub collection; optional server token; no DB/model/login |
-| Web | Korean-default bilingual Home/분석/Profile/Insights, persistent locale, progress/errors, opt-in browser history |
+| Web | Korean-default bilingual Home/분석/Profile/Insights, persistent locale, transparent score/style guide, progress/errors, opt-in browser history |
 | Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
 | Privacy | No repository code execution, no private repository, no token/raw response exposure |
 | Validation | 281 unit/API tests, docs/type/build, 24 browser checks, independent PASS, Railway live smoke complete |
