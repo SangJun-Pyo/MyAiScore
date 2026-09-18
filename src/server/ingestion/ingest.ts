@@ -173,7 +173,7 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     }
     return failureSnapshot(input, `github_api_${metaResult.error.kind}`, "Repository metadata could not be retrieved.", metaResult.error.kind !== "budget_exceeded", ctx);
   }
-  if (metaResult.value.isPrivate) {
+  if (metaResult.value.isPrivate !== false) {
     return failureSnapshot(input, "repo_not_found_or_private", "Private repositories are not analyzed.", false, ctx);
   }
 

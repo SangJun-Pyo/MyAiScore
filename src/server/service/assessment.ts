@@ -1,7 +1,7 @@
 import type { Answer, CollaborationCase, ConfidenceSummary, CriterionCode, CriterionResult, Evidence, EvaluationManifest, MyAiScore, Question, UserAction } from '../../shared/contracts/evaluation.js';
 import type { IngestionInput, IngestionSnapshot } from '../../shared/contracts/ingestion.js';
-import { ingestRepository } from '../ingestion/ingest.js';
-import { boundedText, hash, inputText, safeText, ServiceError } from './safety.js';
+import { hash, inputText, safeText, ServiceError } from './safety.js';
+import { collectPublicRepository } from '../repositoryReport/service.js';
 import { assembleEvaluationInput } from '../evaluation/inputAssembly.js';
 import type { EvaluationProvider, RawProviderOutput } from '../evaluation/provider.js';
 import type { JudgementRequest, QuestionGenerationRequest } from '../evaluation/providerRequest.js';
@@ -41,12 +41,8 @@ export interface AssessmentResult {
 export interface PrepareDependencies { ingest?: (input: IngestionInput) => Promise<IngestionSnapshot>; }
 
 async function collect(input: IngestionInput): Promise<IngestionSnapshot> {
-  return ingestRepository(input, { httpClient: { async request(url, init) {
-    // Ingestion is URL-validated; enforce the transport destination too. No private-repo token.
-    if (new URL(url).origin !== 'https://api.github.com') throw new Error('invalid_destination');
-    const response = await fetch(url, { headers: init?.headers, redirect: 'manual', signal: AbortSignal.timeout(10_000) });
-    return { status: response.status, headers: Object.fromEntries(response.headers.entries()), bodyText: await boundedText(response, 2_000_000) };
-  } } });
+  // Legacy assessments keep their original unauthenticated public-only behavior.
+  return collectPublicRepository(input);
 }
 function submittedEvidence(p: PreparedAssessment, id: string, sourceType: Evidence['sourceType'], text: string): Evidence {
   return { evidenceId: id, assessmentId: p.assessmentId, sourceType, collectionMethod: 'user_submission',

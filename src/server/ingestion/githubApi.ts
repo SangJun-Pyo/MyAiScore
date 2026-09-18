@@ -38,6 +38,8 @@ export type GithubApiError =
 export type GithubApiResult<T> = { ok: true; value: T } | { ok: false; error: GithubApiError };
 
 const API_BASE = "https://api.github.com";
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
 
 /**
  * Thin, testable wrapper over the subset of the GitHub REST API this PoC
@@ -136,6 +138,11 @@ export class GithubApiClient {
       `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
     );
     if (!result.ok) return result;
+    if (typeof result.value.default_branch !== "string" || !result.value.default_branch || result.value.default_branch.length > 512 ||
+        CONTROL_CHARS.test(result.value.default_branch) || result.value.default_branch.includes("..") || result.value.default_branch.includes(" ") ||
+        (result.value.private !== false && result.value.private !== true)) {
+      return { ok: false, error: { kind: "network_error", message: "invalid repository metadata" } };
+    }
     return {
       ok: true,
       value: { defaultBranch: result.value.default_branch, isPrivate: result.value.private },
@@ -148,6 +155,9 @@ export class GithubApiClient {
       `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${encodeURIComponent(ref)}`,
     );
     if (!result.ok) return result;
+    if (typeof result.value.sha !== "string" || !/^[a-f0-9]{40}$/i.test(result.value.sha)) {
+      return { ok: false, error: { kind: "network_error", message: "invalid commit metadata" } };
+    }
     return { ok: true, value: result.value.sha };
   }
 
@@ -157,6 +167,13 @@ export class GithubApiClient {
       `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees/${commitSha}?recursive=1`,
     );
     if (!result.ok) return result;
+    if (typeof result.value.truncated !== "boolean" || !Array.isArray(result.value.tree) || result.value.tree.some(entry =>
+      !entry || typeof entry.path !== "string" || entry.path.length < 1 || entry.path.length > 4_096 || CONTROL_CHARS.test(entry.path) ||
+      typeof entry.mode !== "string" || !["blob", "tree", "commit"].includes(entry.type) ||
+      typeof entry.sha !== "string" || entry.sha.length < 1 || entry.sha.length > 100 ||
+      (entry.size !== undefined && (!Number.isSafeInteger(entry.size) || entry.size < 0)))) {
+      return { ok: false, error: { kind: "network_error", message: "invalid tree metadata" } };
+    }
     return { ok: true, value: { truncated: result.value.truncated, entries: result.value.tree } };
   }
 
