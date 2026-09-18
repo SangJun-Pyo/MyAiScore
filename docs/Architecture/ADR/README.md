@@ -19,7 +19,8 @@
 | [0011](0011-consistent-assessment-design.md) | 중립 색상·근거 검토 히어로·핵심 작업 중심 화면 | Accepted |
 | [0012](0012-repository-walkthrough.md) | 실제 저장소 수집과 스크립트 판정을 분리한 저장형 walkthrough | Accepted |
 | [0013](0013-separated-ingestion-byte-accounting.md) | HTTP 응답 바이트와 수집 파일 내용 예산 분리 | Accepted |
-| [0014](0014-cli-first-session-reports.md) | CLI 기반 재미용 세션 리포트로 기본 제품 흐름 전환 | Accepted; supersedes primary v0.3 onboarding |
+| [0014](0014-cli-first-session-reports.md) | CLI 기반 재미용 세션 리포트로 기본 제품 흐름 전환 | Accepted as optional detail; primary flow superseded by 0015 |
+| [0015](0015-anonymous-korean-repository-reports.md) | 로그인 없는 한국어 공개 저장소 리포트를 기본 흐름으로 채택 | Accepted; supersedes 0010 language and 0014 primary onboarding |
 
 0001~0006은 2026-09-14 사용자의 ADR 누락 지적 후 작성한 **사후 기록**이다. 기준은 [PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6), merge `db0edd7`, [Phase 4](../../Development/Sessions/Phase-04-Web-MVP.md)다. 작성자는 Astra이며 구현 시점에 ADR이 있었다고 소급하지 않는다. 대안은 당시 요약과 현재 코드를 바탕으로 정리했고, 대안별 실험을 수행했다는 뜻이 아니다.
 

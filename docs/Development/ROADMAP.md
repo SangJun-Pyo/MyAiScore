@@ -1,35 +1,37 @@
 # Roadmap — current task and handoff
 
-Updated: 2026-09-15. Shared entrypoint: C:/Users/sangj/MyAiScore/AGENTS.md → this file → [master](../00_MASTER_PLAN.md) → [Phase 8](Sessions/Phase-08-CLI-Session-Reports.md). CLAUDE.md imports the same files.
+Updated: 2026-09-18. Shared entrypoint: C:/Users/sangj/MyAiScore/AGENTS.md → this file → [master](../00_MASTER_PLAN.md) → [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md). CLAUDE.md imports the same files.
 
 ## Current direction
 
-The user approved a CLI-first, fun session report. Remove manual collaboration/excerpt/question inputs from primary routes. Read a scoped Claude Code log locally; produce a rule-based session score/style/highlights/challenge. No model key, paid call or GitHub collection is required for this new flow. Existing design colors stay intact.
+The user approved a Korean, no-login public GitHub repository report as the contest entry flow. A visitor pastes one public repository URL and receives a deterministic, playful summary of observable AI-collaboration readiness signals, evidence paths, coverage and one next challenge. It does not claim personal AI ability or task success.
 
-Tracking issue: [#26](https://github.com/SangJun-Pyo/MyAiScore/issues/26). Integration: [PR #27](https://github.com/SangJun-Pyo/MyAiScore/pull/27), branch codex/cli-session-pivot. Use the PR's live Checks/merge state for remote integration status. Decision: [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md). New contract: [SESSION_REPORT](../Assessment/SESSION_REPORT.md).
+Tracking issue: [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28). Integration branch: codex/public-repo-korean-flow. Decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). Contract: [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md).
 
-## Work and checks
+## Active work
 
 | Area | Current scope |
 |---|---|
-| CLI | One-project scoped discovery/explicit session, bounded parsing, safe local output |
-| Report engine | Strict numeric summary, deterministic capped rules, no personal skill claims |
-| Web | CLI onboarding, local report consumption, example, opt-in local history, transparent insights |
-| Privacy | No raw log upload/export, no unrelated project discovery, no submitted-code execution |
-| Governance | Shared instructions, master/PRD/MVP/flow/ADR/session updated for v0.4 |
-| Validation | Synthetic CLI and browser path, boundary regressions and independent review; exact execution results in Phase 8 |
+| Core | Strict report contract, four capped repository-signal axes, actual evidence paths |
+| API | Stateless bounded public GitHub collection; optional server token; no DB/model/login |
+| Web | Korean Home/분석/Profile/Insights, progress/errors, opt-in browser history |
+| Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
+| Privacy | No repository code execution, no private repository, no token/raw response exposure |
+| Validation | Synthetic unit/API/browser checks, independent score/source review, Railway smoke |
 
-## Next after this implementation
+## Release order
 
-Local implementation and independent review are complete: 263 unit/regression tests, 24 desktop/mobile browser tests, typecheck and production build passed. Actual CLI-to-browser synthetic handoff was verified. See Phase 8 for limitations and the integration PR for final remote CI/merge status.
+1. Integrate core and Korean web branches into the issue branch.
+2. Run typecheck, unit/API, docs, production build and desktop/mobile browser suites.
+3. Independently review source collection, token, scoring and storage boundaries; fix mandatory findings.
+4. Merge reviewed PR, sync canonical checkout, then verify the Railway production URL and one public MyAiScore analysis.
 
-1. Validate compatibility on one explicitly selected real Claude Code session and review whether the result is fun/useful.
-2. Refine session score/style rules from feedback; do not turn uncalibrated numbers into certification or percentiles.
-3. Decide packaging/distribution and only then publish an actual CLI package. Current package remains private.
-4. Add other providers and hosted summary sharing only when specifically prioritized. LLM/paid services are optional future work, not a current blocker.
+## Deferred
+
+GitHub login/private repositories, Supabase/account history, hosted public result links, leaderboard, LLM advice and other providers. If private access becomes a priority, design a GitHub App with repository-scoped minimum permissions rather than making login mandatory. Browser-local Claude session-file parsing is a possible secondary usability improvement after the public URL flow works.
 
 ## Historical work
 
-[Phase 7](Sessions/Phase-07-Repository-Walkthrough.md): MAS-011 fixed and same-SHA public sample recollected 40/40, [PR #25](https://github.com/SangJun-Pyo/MyAiScore/pull/25). That workflow remains a historical repository assessment demonstration. Phases 0–7 five-axis scoring, live-provider setup and Supabase deployment plans no longer define the v0.4 primary user flow; retain their code, data boundaries and records for compatibility.
+[Phase 8](Sessions/Phase-08-CLI-Session-Reports.md) and [ADR-0014](../Architecture/ADR/0014-cli-first-session-reports.md) remain the implemented optional Claude Code session path. Phases 0–7 five-axis assessment/API flows remain compatibility history and do not define the current onboarding.
 
-Before finishing, run appropriate tests/docs checks, record actual commits/CI, merge the reviewed branch, then fast-forward the clean canonical checkout with code and docs together. Do not reset or copy docs over divergent code.
+Before finishing, record actual commits/tests/review/CI, merge the PR, and fast-forward the clean canonical checkout with code and docs together. Do not reset or copy docs over divergent code.

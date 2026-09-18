@@ -1,38 +1,35 @@
-# MyAiScore — master plan v0.4
+# MyAiScore — master plan v0.5
 
-> Discover how you build with AI, one session at a time.
+> 저장소에 남은 신호로 만나는 나의 AI 협업 스타일.
 
-Current execution: [ROADMAP](Development/ROADMAP.md). Decision: [ADR-0014](Architecture/ADR/0014-cli-first-session-reports.md). History: [Sessions](Development/Sessions/README.md).
+Current execution: [ROADMAP](Development/ROADMAP.md). Decision: [ADR-0015](Architecture/ADR/0015-anonymous-korean-repository-reports.md). History: [Sessions](Development/Sessions/README.md).
 
 ## Product
 
-MyAiScore turns a local Claude Code session into a playful, explainable report: a session score, collaboration style, three highlights and one next challenge. The user explicitly chose low input burden and fun as the primary goals on 2026-09-15. English is the only product UI language for now.
+MyAiScore는 로그인이나 회고 작성 없이 공개 GitHub 저장소 URL 하나를 분석해 재미있고 설명 가능한 리포트를 제공한다. 핵심 결과는 저장소 신호 점수, 협업 스타일, 네 축의 근거, 확인하지 못한 부분과 다음 도전이다. 공모전용 기본 UI는 한국어다.
 
-First audience: people building with AI coding tools. The report describes patterns in the supplied log, not general engineering ability, verified human judgment, hiring suitability or a population percentile. Claude Code is the first supported source; arbitrary provider compatibility is not promised.
+점수는 저장소에 남은 AI 맥락·검증·결정 추적·자동화 신호를 요약한다. 실제 대화에서 누가 어떤 판단을 했는지, 코드가 정답인지, 개인의 일반 능력이나 생산성이 높은지를 인증하지 않는다. 결과는 채용 등급이나 백분위가 아니다.
 
 ## Primary flow
 
-Run the CLI in a project → scoped session discovery or explicit session selection → local parsing and deterministic rules → immediate terminal report → optional safe summary file/browser report → optional local history or summary sharing.
+공개 GitHub URL 입력 → 서버의 제한된 read-only 수집 → 버전 고정 규칙 → 한국어 리포트 → 선택적 브라우저 로컬 저장 → 근거/규칙 상세 확인.
 
-No repository URL, collaboration essay, pasted excerpt or three-question interview is required. GitHub collection is not a prerequisite. The old repository walkthrough and existing assessment result APIs remain historical compatibility features; they do not define the new default onboarding.
+사용자 GitHub 로그인, 회원가입, Supabase, 서비스 LLM, 협업 사례, 질문 답변 또는 CLI가 필요하지 않다. 서버는 분석 결과를 DB에 보존하지 않는다. 비공개 저장소와 계정 동기화는 제출 뒤 범위다.
 
-## Scope and rules
+## Trust boundaries
 
-- Read one selected session for one project. Never execute project commands or scan unrelated project histories.
-- Compute from observable structural events. A tool invocation, a returned result and successful verification are distinct claims.
-- Export allowlisted counts and fixed generated labels, never transcript text, commands, result excerpts, file paths or credentials.
-- Version deterministic, capped scoring rules. Empty/unsupported data cannot receive a fabricated positive or zero ability grade. Partial inputs show their limitation.
-- Recompute scores and copy from validated metrics on browser import. Treat local reports as user-supplied and modifiable.
-- Clearly identify synthetic examples. Saving to browser history and sharing are explicit user choices; the new report flow needs no server upload or paid LLM.
+- `github.com/{owner}/{repo}` 공개 저장소와 고정 commit만 허용한다. private 저장소, redirect, symlink/submodule, 비밀 파일과 용량·시간·요청 한도 밖의 입력을 거부하거나 제외한다.
+- 제출 저장소의 install/build/test/hook/MCP를 실행하지 않는다. 정적 파일을 제한적으로 읽는다.
+- 서버 `GITHUB_TOKEN`은 허용량을 높이는 비밀 설정이다. 사용자 인증이나 private 접근 기능으로 쓰지 않고 응답·로그·클라이언트에 내보내지 않는다.
+- 점수와 한국어 설명은 서버가 수집한 구조 신호로 다시 계산한다. 임의의 클라이언트 점수나 저장소 문구를 결과 설명으로 신뢰하지 않는다.
+- partial coverage와 제외 범위를 표시한다. 관찰되지 않은 항목을 실패나 낮은 개인 능력으로 표현하지 않는다.
 
-New report contract: [SESSION_REPORT](Assessment/SESSION_REPORT.md). Product requirements: [PRD](Product/PRD.md). Boundaries: [MVP_SCOPE](Product/MVP_SCOPE.md). Flow: [USER_FLOW](UI/USER_FLOW.md).
+## Secondary and historical paths
+
+Claude Code 세션 CLI와 [SESSION_REPORT](Assessment/SESSION_REPORT.md)는 원문을 로컬에 둔 선택적 상세 분석으로 유지한다. 현재 기본 진입점은 아니다. 과거 다섯 축 평가, owner token, 공개 결과 DTO와 walkthrough는 기존 데이터·테스트 호환을 위해 유지하며 새 저장소 점수와 혼합하지 않는다.
 
 ## Delivery
 
-Keep Next.js/React/TypeScript and the existing charcoal/coral visual system. Implement a working local CLI and browser consumer before distribution. The npm package remains private; do not advertise an unavailable npx package as installed. Publishing, cloud hosting and a real-session compatibility study are separate follow-up work.
+Next.js/React/TypeScript와 기존 차콜·코럴 시각 체계를 유지한다. Railway의 현재 공개 배포를 사용하고 DB는 추가하지 않는다. 코드·문서·ADR·세션 기록을 같은 Git PR로 통합한 뒤 desktop/mobile과 실제 공개 URL을 검증한다.
 
-AGENTS.md is the shared instruction entrypoint; CLAUDE.md imports it and ROADMAP. Canonical local checkout is C:/Users/sangj/MyAiScore. Code and docs must be integrated together through Git and synchronized there after merge.
-
-## Historical assessment
-
-The v0.3 five-axis rubric, GitHub evidence collector, owner-authenticated assessment storage and strict public DTOs remain documented for old records. Their API/model/budget requirements do not gate the v0.4 local report. Preserve their tests and user data; do not silently convert old scores into session scores. See [SCORING_RUBRIC](Assessment/SCORING_RUBRIC.md) and Phases 0–7 for that history.
+Requirements: [PRD](Product/PRD.md). Scope: [MVP_SCOPE](Product/MVP_SCOPE.md). Flow: [USER_FLOW](UI/USER_FLOW.md). Report contract: [REPOSITORY_REPORT](Assessment/REPOSITORY_REPORT.md).

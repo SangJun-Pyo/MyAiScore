@@ -19,13 +19,13 @@
 
 ## 공통 구현 원칙
 
-- 현재 기본 제품은 Claude Code CLI 세션 리포트다. 한 프로젝트/세션을 로컬에서 읽고 재미용 활동 점수·유형·특징·다음 도전을 제공한다. 협업 사례/발췌/질문 입력은 기본 흐름에서 제거한다. [ADR-0014](docs/Architecture/ADR/0014-cli-first-session-reports.md).
-- 새 공식·요약 계약은 [SESSION_REPORT](docs/Assessment/SESSION_REPORT.md)가 정본이다. 기존 SCORING_RUBRIC/EVIDENCE_SCHEMA/API_DATA_CONTRACTS의 5축·총점 보류·소유권 규칙은 과거 평가 결과와 API에 적용하며 세션 점수로 혼합하지 않는다.
+- 현재 기본 제품은 로그인 없는 한국어 공개 GitHub 저장소 리포트다. URL 하나로 관찰 가능한 AI 협업 준비 신호·근거 경로·다음 도전을 제공한다. 계정·추가 질문·LLM은 기본 흐름에 없다. [ADR-0015](docs/Architecture/ADR/0015-anonymous-korean-repository-reports.md).
+- 저장소 리포트 계약은 [REPOSITORY_REPORT](docs/Assessment/REPOSITORY_REPORT.md)가 정본이다. [SESSION_REPORT](docs/Assessment/SESSION_REPORT.md)와 CLI는 선택적 상세 분석으로 유지한다. 과거 SCORING_RUBRIC/EVIDENCE_SCHEMA/API_DATA_CONTRACTS의 5축·소유권 규칙을 새 점수와 혼합하지 않는다.
 - 현재 프로젝트에 한정된 CLI 탐색과 명시적 파일 선택을 지원한다. 다른 프로젝트/홈 전체 기록을 읽지 않고 원문·명령·파일 경로·세션 ID를 새 리포트에 내보내지 않는다. 개발 검증은 synthetic 입력으로 진행하고 실제 개인 세션 실험은 지정된 범위로 별도 기록한다.
 - 제출 저장소의 install/build/test/hooks/MCP를 실행하지 않는다. MyAiScore 자체 테스트는 실행한다.
 - 개발 도구 구독과 서비스 LLM API는 별개다. 승인된 작업 범위에서 진행하고 미승인 비용·배포를 만들지 않는다.
 - 작은 구현 선택은 근거를 남기고 진행한다. 미실행·미검증·사람 검토를 꾸미지 않는다.
-- 제품 화면·기본 예시·안내·메타데이터는 영어로 작성한다. 현재 한국어 UI/언어 전환은 범위 밖이다. 사용자 제출 원문과 내부 기획·과거 기록을 일괄 번역하지 않는다. [ADR-0010](docs/Architecture/ADR/0010-english-landing-page-experience.md).
+- 기본 제품 화면·예시·안내·메타데이터는 한국어로 작성한다. 사용자 제출 원문과 과거 기록은 일괄 번역하지 않는다. 영어 전용 규칙은 [ADR-0015](docs/Architecture/ADR/0015-anonymous-korean-repository-reports.md)가 대체한다.
 
 ## 공통 규칙
 

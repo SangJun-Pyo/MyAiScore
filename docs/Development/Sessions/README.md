@@ -14,6 +14,7 @@
 | [Phase 6 — 영어 Landing Page](Phase-06-English-Landing.md) | 09-15 | 전체 페이지 구성·영어 제품 UI 재설계 |
 | [Phase 7 — 저장소 기능 시뮬레이션](Phase-07-Repository-Walkthrough.md) | 09-15 | 실제 공개 수집·용량 수정 검증, PR #24/#25 통합 |
 | [Phase 8 — CLI 세션 리포트](Phase-08-CLI-Session-Reports.md) | 09-15 | CLI 기반 재미용 활동 리포트로 전환, 구현/검증 기록 |
+| [Phase 9 — 공개 저장소 리포트](Phase-09-Anonymous-Repository-Reports.md) | 09-18~ | 로그인 없는 한국어 URL 분석 구현·검증 진행 |
 | [문서·Git 정리](Session-2026-09-14-Documentation-And-Git.md) | 09-14 | 이력 복원 및 로컬 형상 관리 도입 |
 
 ## 기록 원칙

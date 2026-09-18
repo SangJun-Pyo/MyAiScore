@@ -1,6 +1,6 @@
 # ADR-0010 — English product UI and a complete narrative landing page
 
-- Status: Partially superseded by [ADR-0011](0011-consistent-assessment-design.md) (palette and hero); English UI and lower landing composition retained
+- Status: Superseded by [ADR-0015](0015-anonymous-korean-repository-reports.md) for product language; [ADR-0011](0011-consistent-assessment-design.md) retains palette and hero rules
 - Date: 2026-09-15, recorded before implementation
 - Context: user correction, [#18](https://github.com/SangJun-Pyo/MyAiScore/issues/18)
 - Relationship: updates the page composition in ADR-0009; retains ADR-0006 renderer lifecycle and all assessment boundaries.
