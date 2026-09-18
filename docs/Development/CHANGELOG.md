@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-18 — 공개 README와 저장소 정리 (#39)
+
+- README를 실제 배포 주소, 로그인 없는 공개 저장소 분석, 네 축·여섯 스타일, 브라우저 저장 범위, 신뢰 경계와 Railway 설정 기준으로 다시 작성했다. `.env.example`은 기본 흐름의 선택적 `GITHUB_TOKEN`과 레거시 평가 설정을 구분한다.
+- 약 15MB의 과거 캡처·실행 산출물, 완료된 Claude 지시문과 사용되지 않는 Phase 1 스냅샷 스크립트·세션 화면 컴포넌트를 로컬 `_archive/`로 옮기고 현재 Git 트리에서 제거했다. `_archive/`와 `artifacts/`는 전체 ignore하며 기존 Git 이력은 보존한다.
+- walkthrough 회귀 검사가 읽는 생성기 원문 하나는 `fixtures/walkthroughs/`로 이동했다. 역사 문서의 산출물 링크는 정리 전 고정 commit `f108be3`으로 연결해 새 clone에서도 확인할 수 있게 했다.
+
 ## 2026-09-18 — 점수·협업 스타일 해석 가이드
 
 - `/insights`에 맥락·검증 기반·추적 가능성·자동화의 14개 고정 신호와 개별 점수, 축별 25점 합계를 항상 표시한다.
@@ -177,7 +183,7 @@ CLAUDE_PHASE1_PROMPT.md 지시에 따라 실제 코드·fixture·테스트를 �
 - 이전 풀린 폴더·루트 안내·완료된 프롬프트를 _archive로 이동. 영구 삭제는 자동 승인 검토의 정책 차단으로 수행하지 않음.
 - 수정 전 루트 Markdown과 docs 전체를 _archive/v0.3.1의 ZIP으로 보존.
 
-문서 검사 기록: [document-validation.json](../../_archive/v0.3.1/document-validation.json). 실제 검사 결과와 한계는 [ASTRA_REVIEW_BRIEF](Sessions/Phase-00-Planning.md#planning-review)에 기록한다.
+문서 검사 기록: [document-validation.json](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/_archive/v0.3.1/document-validation.json). 실제 검사 결과와 한계는 [ASTRA_REVIEW_BRIEF](Sessions/Phase-00-Planning.md#planning-review)에 기록한다.
 
 이번 작업에서 앱/fixture/수집 코드 구현, 패키지 설치, GitHub 데이터 수집, 모델 API 호출, DB 연결, 배포, 외부 사용자 실험은 수행하지 않았다. 공식 기술 문서를 참고한 설계와 실제 런타임 검증을 구분한다.
 
@@ -187,4 +193,4 @@ CLAUDE_PHASE1_PROMPT.md 지시에 따라 실제 코드·fixture·테스트를 �
 
 ## v0.2 — 과거 참고
 
-[이전 마스터](../../_archive/v0.2/00_MASTER_PLAN.original.md)를 보존한다. 현재 요구사항의 정본은 아니다.
+[이전 마스터](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/_archive/v0.2/00_MASTER_PLAN.original.md)를 보존한다. 현재 요구사항의 정본은 아니다.

@@ -7,7 +7,7 @@
 
 ## 목표와 범위
 
-[당시 지시문](Prompts/CLAUDE_PHASE2_OFFLINE_PROMPT.md)에 따른 fixture 보정·Task 2a mock 평가 구조·Task 3 계산 엔진.
+[당시 지시문](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/docs/Development/Sessions/Prompts/CLAUDE_PHASE2_OFFLINE_PROMPT.md)에 따른 fixture 보정·Task 2a mock 평가 구조·Task 3 계산 엔진.
 
 ## 구현·검증 요약
 
@@ -30,7 +30,7 @@ Claude가 108개 테스트 통과를 보고했고 Astra도 당시 typecheck·108
 
 # Phase 2 (Offline) Report — fixture 보정 + Task 2a 오프라인 구조 + Task 3 점수 엔진
 
-정본 허브: [`../00_MASTER_PLAN.md`](../../00_MASTER_PLAN.md). 지시문: [`CLAUDE_PHASE2_OFFLINE_PROMPT.md`](Prompts/CLAUDE_PHASE2_OFFLINE_PROMPT.md). 설계 판단: [`ASTRA_PHASE1_REVIEW.md`](Phase-01-Fixtures-And-Ingestion.md#astra-review).
+정본 허브: [`../00_MASTER_PLAN.md`](../../00_MASTER_PLAN.md). 지시문: [`CLAUDE_PHASE2_OFFLINE_PROMPT.md`](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/docs/Development/Sessions/Prompts/CLAUDE_PHASE2_OFFLINE_PROMPT.md). 설계 판단: [`ASTRA_PHASE1_REVIEW.md`](Phase-01-Fixtures-And-Ingestion.md#astra-review).
 
 **완료 기준은 "Task 2a와 Task 3 오프라인 구현·검증 완료"다.** 실제 평가 정확도, 사람 검토, 인젝션 방어, Task 2 전체 완료를 주장하지 않는다. 실제 LLM 호출·유료 리소스·배포는 이번 범위에 없다. 아래 모든 "질문/판정" 결과는 MockProvider가 테스트 코드가 직접 넣어준 값을 그대로 반환한 것이며, expected.json에서 읽어온 것이 아니다.
 
@@ -238,8 +238,8 @@ fixture 보정(evidence_map.json 6개, case-04 variant 분리, case-08 계약 �
 - `npm run typecheck` 통과. `npm test`를 재실행해 108 pass / 0 fail 확인.
 - case-02 CLI도 기존 고정 답변/정상 mock으로 재실행했다. stdout JSON 파싱 성공, exit=0, mode=mock, 질문/판정 성공, 정상 withheld 확인.
 - 별도 synthetic 경계 입력으로 아래 네 동작을 재현했다. 네트워크/유료 호출 없음.
-- 재현 출력 원본: [observed-before-fix.json](../../../artifacts/phase2-review/observed-before-fix.json).
-- 재현 스크립트: [astra-probes.mjs](../../../artifacts/phase2-review/astra-probes.mjs). 루트에서 `node --import tsx artifacts/phase2-review/astra-probes.mjs` 실행. 기존 버그 관찰용 스크립트이며 수정 후 고정된 회귀 테스트를 대신하지 않는다.
+- 재현 출력 원본: [observed-before-fix.json](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase2-review/observed-before-fix.json).
+- 재현 스크립트: [astra-probes.mjs](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase2-review/astra-probes.mjs). 루트에서 `node --import tsx artifacts/phase2-review/astra-probes.mjs` 실행. 기존 버그 관찰용 스크립트이며 수정 후 고정된 회귀 테스트를 대신하지 않는다.
 
 ```json
 {
@@ -286,4 +286,4 @@ Evidence 영구 메타데이터와 일시적인 분석 원문을 분리한다. �
 
 ## 다음 범위
 
-[CLAUDE_PHASE2_FIX_PROMPT](../../../CLAUDE_PHASE2_FIX_PROMPT.md)로 위 문제를 수정한다. 기존 108개에 더해 회귀 테스트와 실제 요청을 기록하는 mock 통합 테스트를 수행한다. API/예산은 사용자 답변 '미정'을 유지한다. 이번에는 문서 정리만 반복하지 않고 재현 결함의 코드 수정을 완료한다.
+[CLAUDE_PHASE2_FIX_PROMPT](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/CLAUDE_PHASE2_FIX_PROMPT.md)로 위 문제를 수정한다. 기존 108개에 더해 회귀 테스트와 실제 요청을 기록하는 mock 통합 테스트를 수행한다. API/예산은 사용자 답변 '미정'을 유지한다. 이번에는 문서 정리만 반복하지 않고 재현 결함의 코드 수정을 완료한다.

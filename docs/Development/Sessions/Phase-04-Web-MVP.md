@@ -46,7 +46,7 @@ Astra root가 API/저장·인증·예산·통합 테스트·문서를 담당했�
 
 사용자 후속 디자인 요청에 따라 Linear/Tokscale 계열의 다크 UI와 Three.js 장면을 추가했다. UI와 3D 컴포넌트는 별도 담당으로 나누었다. 3D는 자체 제작한 근거 연결망 장식이며 실제 분석 진행 표시가 아니다. 정적 SVG 대체, 모션 감소 설정, 화면 밖/탭 비활성 정지와 자원 정리를 포함한다. React 19.3과 R3F 9.7 peer 불일치 때문에 Three.js 0.186을 직접 지연 로딩한다. 기능/API 흐름은 유지한다.
 
-통합 commit: Three.js `cd32573`, 다크 UI `6170bbf`. production build 통과 후 Chromium에서 실제 `data-renderer=webgl`을 확인했다. 기존 8개 브라우저 흐름에 모바일/데스크톱 모션 감소 및 WebGL 미지원 검사 4건을 더해 총 12건 통과했다. 최종 [데스크톱](../../../artifacts/web-mvp/desktop.png), [모바일](../../../artifacts/web-mvp/mobile.png), [합성 결과](../../../artifacts/web-mvp/example.png) 캡처를 직접 확인했다. 실제 모델 호출 없이 수행했다.
+통합 commit: Three.js `cd32573`, 다크 UI `6170bbf`. production build 통과 후 Chromium에서 실제 `data-renderer=webgl`을 확인했다. 기존 8개 브라우저 흐름에 모바일/데스크톱 모션 감소 및 WebGL 미지원 검사 4건을 더해 총 12건 통과했다. 최종 [데스크톱](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/web-mvp/desktop.png), [모바일](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/web-mvp/mobile.png), [합성 결과](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/web-mvp/example.png) 캡처를 직접 확인했다. 실제 모델 호출 없이 수행했다.
 
 ## 미실행과 다음 조건
 

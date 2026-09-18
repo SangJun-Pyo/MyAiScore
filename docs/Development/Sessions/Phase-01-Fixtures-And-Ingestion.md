@@ -7,7 +7,7 @@
 
 ## 목표와 작업 범위
 
-Task 0 synthetic fixture와 Task 1 읽기 전용 GitHub 수집 PoC. [당시 지시문](Prompts/CLAUDE_PHASE1_PROMPT.md)은 완료된 기록이다.
+Task 0 synthetic fixture와 Task 1 읽기 전용 GitHub 수집 PoC. [당시 지시문](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/docs/Development/Sessions/Prompts/CLAUDE_PHASE1_PROMPT.md)은 완료된 기록이다.
 
 ## 구현·검증 요약
 
@@ -30,7 +30,7 @@ Claude의 후속 기대안 중 코드로 과정 능력을 역추론하거나 과
 
 # Phase 1 Report — Task 0 교정 fixture · Task 1 읽기 전용 GitHub 수집 PoC
 
-정본 허브: [`../00_MASTER_PLAN.md`](../../00_MASTER_PLAN.md). 지시문: [`CLAUDE_PHASE1_PROMPT.md`](Prompts/CLAUDE_PHASE1_PROMPT.md). 이 보고서는 이번 세션에서 **실제로 실행하고 확인한 것만** 기록한다. 모델 채점, DB, 웹 UI, 배포는 이번 범위에 없으며 수행하지 않았다.
+정본 허브: [`../00_MASTER_PLAN.md`](../../00_MASTER_PLAN.md). 지시문: [`CLAUDE_PHASE1_PROMPT.md`](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/docs/Development/Sessions/Prompts/CLAUDE_PHASE1_PROMPT.md). 이 보고서는 이번 세션에서 **실제로 실행하고 확인한 것만** 기록한다. 모델 채점, DB, 웹 UI, 배포는 이번 범위에 없으며 수행하지 않았다.
 
 ## 1. 구현한 파일
 
@@ -378,7 +378,7 @@ Task 2(질문·축 판정 PoC)는 `IMPLEMENTATION_TASKS.md`에서 "선행: Task 
 
 ## 5. 실행 결정
 
-다음 작업은 [Phase 2 오프라인 지시](Prompts/CLAUDE_PHASE2_OFFLINE_PROMPT.md)의 Task 2a + Task 3이다. Task 2 전체를 완료했다고 보고하지 않는다.
+다음 작업은 [Phase 2 오프라인 지시](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/docs/Development/Sessions/Prompts/CLAUDE_PHASE2_OFFLINE_PROMPT.md)의 Task 2a + Task 3이다. Task 2 전체를 완료했다고 보고하지 않는다.
 
 | 항목 | 결정 |
 |---|---|

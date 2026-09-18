@@ -41,7 +41,7 @@
 | BUGS | 열린 결함·해결 검증 상태 |
 | CHANGELOG | 작업별 변경 요약과 세션 링크 |
 | Sessions/Phase-*.md | 목표, 실제 변경, 실행 결과, 검토, 미해결, 인계, 실제 commit |
-| Sessions/Prompts | 완료된 지시문 원문 |
+| Git 이력 / 로컬 `_archive` | 완료된 지시문·실행 산출물. 현재 명령이나 정본으로 사용하지 않음 |
 
 REPORT/REVIEW/FOLLOWUP 문서를 Development 최상위에 추가하지 않는다. 같은 Phase의 구현 보고와 후속 검토를 해당 세션에 날짜·작성자와 함께 이어 쓴다. 큰 독립 Phase만 새 세션을 만든다. 정본에 과거 '현재 작업' 배너를 계속 쌓지 않는다.
 
