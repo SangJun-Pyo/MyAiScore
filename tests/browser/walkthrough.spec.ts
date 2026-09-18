@@ -68,7 +68,7 @@ test('real repository walkthrough replays unanswered questions without creating 
   await testInfo.attach('MyAiScore scripted report', { body: screenshot, contentType: 'image/png' });
   expect(await page.evaluate(() => ({ session: Object.keys(sessionStorage), local: Object.keys(localStorage) }))).toEqual({ session: [], local: [] });
   await page.goto('/profile');
-  await expect(page.getByRole('heading', { name: 'No saved sessions yet.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '저장한 리포트가 없습니다.' })).toBeVisible();
   await expect(page.locator('.history-entry')).toHaveCount(0);
   expect(forbiddenRequests).toEqual([]);
   expect(errors).toEqual([]);

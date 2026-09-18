@@ -1,2 +1,2 @@
-import { SessionInsightsExperience } from "../../components/SessionExperience";
-export default function Page() { return <SessionInsightsExperience />; }
+import { RepositoryInsightsExperience } from "../../components/RepositoryExperience";
+export default function Page() { return <RepositoryInsightsExperience />; }

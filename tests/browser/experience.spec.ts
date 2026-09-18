@@ -1,49 +1,57 @@
 import { test, expect } from '@playwright/test';
 
-// The primary product is now a local session summary. Legacy private/shared boundaries remain.
-test('English local-first landing does not create an assessment or fake personal history', async ({ page }) => {
-  const requests: string[] = [], errors: string[] = [];
-  page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/')) requests.push(request.url()); });
+test('한국어 홈은 로그인 없는 공개 저장소 흐름과 가상 예시를 설명하며 API를 호출하지 않는다', async ({ page }) => {
+  const apiRequests: string[] = [], errors: string[] = [];
+  page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/')) apiRequests.push(request.url()); });
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: /Discover your rhythm/ })).toBeVisible();
-  await expect(page.locator('.session-hero-card')).toContainText('SYNTHETIC PREVIEW');
-  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await page.getByRole('link', { name: 'See an example' }).click();
-  await expect(page.locator('#example .session-report')).toContainText('SYNTHETIC EXAMPLE');
-  await expect(page.locator('#example .session-report')).toContainText('ONE NEXT CHALLENGE');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+  await expect(page.getByRole('heading', { level: 1, name: /공개 저장소에서/ })).toBeVisible();
+  await expect(page.getByText('회원가입 없음', { exact: false })).toBeVisible();
+  await expect(page.getByRole('link', { name: '내 저장소 분석하기' })).toHaveAttribute('href', '/evaluate');
+  await page.getByRole('link', { name: '예시 리포트 보기' }).click();
+  await expect(page.locator('#demo')).toContainText('가상 예시');
+  await expect(page.locator('#demo')).toContainText('저장소에 남은 신호이며 개인 AI 실력 인증이 아닙니다.');
+  await expect(page.locator('#demo code')).toContainText(['README.md', 'AGENTS.md']);
   expect(await page.evaluate(() => ({ local: Object.keys(localStorage), session: Object.keys(sessionStorage) }))).toEqual({ local: [], session: [] });
-  expect(requests).toEqual([]); expect(errors).toEqual([]);
-});
-
-test('product navigation and CLI instructions work at desktop/mobile with reduced motion', async ({ page }, testInfo) => {
-  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
-  for (const [name, path] of [['Home', '/'], ['Profile', '/profile'], ['Insights', '/insights'], ['New session', '/evaluate']]) {
-    await page.getByRole('navigation').getByRole('link', { name: name!, exact: true }).click();
-    await expect(page.getByRole('navigation').getByRole('link', { name: name!, exact: true })).toHaveAttribute('aria-current', 'page');
-    if (path !== '/') await expect(page.getByRole('heading', { level: 1, name: name!, exact: true })).toBeVisible();
-    expect(await page.locator('main').innerText()).not.toMatch(/[가-힣]/);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: testInfo.outputPath((name ?? 'page').replace(' ', '-') + '.png'), fullPage: true });
-  }
-  await expect(page.locator('textarea,input[name="consent"],input[name="repo_url"]')).toHaveCount(0);
-  await expect(page.locator('main')).toContainText('npm run session:report');
-  await expect(page.locator('main')).toContainText('An npm package is not published yet.');
-  await page.getByText('Choose one session instead', { exact: true }).click();
-  await expect(page.locator('details[open]')).toContainText('--session');
+  expect(apiRequests).toEqual([]);
   expect(errors).toEqual([]);
 });
 
-test('legacy missing owner and revoked shared results retain honest boundaries', async ({ page }) => {
+test('주요 메뉴는 데스크톱과 모바일에서 한국어로 탐색되고 키보드 초점이 보인다', async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  for (const [name, path, heading] of [
+    ['홈', '/', /공개 저장소에서/],
+    ['내 리포트', '/profile', '내 리포트'],
+    ['해석 가이드', '/insights', '해석 가이드'],
+    ['저장소 분석', '/evaluate', '공개 저장소 분석'],
+  ] as const) {
+    await page.getByRole('navigation').getByRole('link', { name, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`${path === '/' ? '/$' : `${path}$`}`));
+    await expect(page.getByRole('navigation').getByRole('link', { name, exact: true })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await page.goto('/evaluate');
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link', { name: '본문으로 건너뛰기' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#main')).toBeFocused();
+  await page.screenshot({ path: testInfo.outputPath('korean-repository-evaluate.png'), fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test('기존 비공개 결과와 공유 결과의 접근 경계는 유지된다', async ({ page }) => {
   await page.goto('/assessments/as_missing');
   await expect(page.locator('main [role="alert"]')).toContainText('access token');
   await page.goto('/results/not-a-share');
   await expect(page.locator('main [role="alert"]')).toContainText('not found');
 });
 
-test('legacy owned assessment still completes its question/result pipeline', async ({ page, request }) => {
+test('기존 소유 평가의 질문과 결과 파이프라인은 유지된다', async ({ page, request }) => {
   const example = await (await request.get('/api/examples/starter')).json();
   let status = 'draft', ingestion = 'not_started';
   const calls: string[] = [];
