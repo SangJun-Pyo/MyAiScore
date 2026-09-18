@@ -45,7 +45,7 @@
 
 문서 23개, 상대 링크 137개, JSON 예시 9개를 검사했다. 끊긴 링크/JSON 오류/지정 계약 불일치 0건. 축별 레벨 20개, 가중치 합계 100, 점수 예시 73·100·25와 보류 예시 4건을 재확인했다. 보관한 v0.2 파일 18개도 원본 ZIP과 해시가 일치했다.
 
-검사 기록: [document-validation.json](../../../_archive/v0.3.1/document-validation.json). 이 검사는 문서의 파일·링크·JSON·정의·예시 계산을 확인하며, 실제 모델 교정·앱 테스트·실제 GitHub 수집 성공을 뜻하지 않는다.
+검사 기록: [document-validation.json](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/_archive/v0.3.1/document-validation.json). 이 검사는 문서의 파일·링크·JSON·정의·예시 계산을 확인하며, 실제 모델 교정·앱 테스트·실제 GitHub 수집 성공을 뜻하지 않는다.
 
 ## 4. 원본과 정리
 
@@ -59,4 +59,4 @@
 
 ## 6. 다음 지시
 
-[CLAUDE_PHASE1_PROMPT](Prompts/CLAUDE_PHASE1_PROMPT.md)를 전달한다. Task 0·1을 실제 구현·검증하고 PHASE1_REPORT를 제출한 뒤 종료한다. LLM 호출·DB·UI·배포는 이어지는 별도 작업이다.
+[CLAUDE_PHASE1_PROMPT](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/docs/Development/Sessions/Prompts/CLAUDE_PHASE1_PROMPT.md)를 전달한다. Task 0·1을 실제 구현·검증하고 PHASE1_REPORT를 제출한 뒤 종료한다. LLM 호출·DB·UI·배포는 이어지는 별도 작업이다.

@@ -4,16 +4,13 @@ dist/
 .env
 .env.*
 !.env.example
-artifacts/phase1/*.tmp
+# Local historical backups and generated review outputs
+_archive/
+artifacts/
+synthetic-demo.json
+test-results-production/
 
-# Local historical backups / generated runtime data
-_archive/*
-!_archive/v0.2/
-_archive/v0.2/*
-!_archive/v0.2/00_MASTER_PLAN.original.md
-!_archive/v0.3.1/
-_archive/v0.3.1/*
-!_archive/v0.3.1/document-validation.json
+# Generated runtime data
 .next/
 coverage/
 .vercel/

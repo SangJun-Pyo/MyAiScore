@@ -8,7 +8,7 @@
 
 ## 목표와 범위
 
-[현재 수정 지시](../../../CLAUDE_PHASE2_FIX_PROMPT.md)에 따라 MAS-001~004 및 과정 자료 표시·fixture 기대·실험 계획을 보정한다. 실제 LLM 호출·DB·UI·배포는 포함하지 않는다.
+[현재 수정 지시](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/CLAUDE_PHASE2_FIX_PROMPT.md)에 따라 MAS-001~004 및 과정 자료 표시·fixture 기대·실험 계획을 보정한다. 실제 LLM 호출·DB·UI·배포는 포함하지 않는다.
 
 ## 인수한 문제
 
@@ -49,7 +49,7 @@ Claude의 새 보고를 문서 정리 도중 수신했다. Astra가 현재 파�
 
 # Phase 2 Fix Report — R1~R4 코드 수정과 회귀 검증
 
-정본 허브: [`../00_MASTER_PLAN.md`](../../00_MASTER_PLAN.md). 지시문: [`CLAUDE_PHASE2_FIX_PROMPT.md`](../../../CLAUDE_PHASE2_FIX_PROMPT.md). 검토 대상: [`ASTRA_PHASE2_REVIEW.md`](Phase-02-Offline-Evaluation.md#astra-review)(R1~R4, MAS-001~004). 이전 산출물: [`PHASE2_OFFLINE_REPORT.md`](Phase-02-Offline-Evaluation.md#implementation-report).
+정본 허브: [`../00_MASTER_PLAN.md`](../../00_MASTER_PLAN.md). 지시문: [`CLAUDE_PHASE2_FIX_PROMPT.md`](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/CLAUDE_PHASE2_FIX_PROMPT.md). 검토 대상: [`ASTRA_PHASE2_REVIEW.md`](Phase-02-Offline-Evaluation.md#astra-review)(R1~R4, MAS-001~004). 이전 산출물: [`PHASE2_OFFLINE_REPORT.md`](Phase-02-Offline-Evaluation.md#implementation-report).
 
 **이 문서는 코드 수정 완료 보고다. Astra의 재검토는 아직 받지 않았다.** 실제 LLM 호출·유료 리소스·배포는 이번 범위에서 하지 않았다. 아래 108개(Phase 2 오프라인) → 142개(이번 수정 후)로 늘어난 테스트 통과는 계약/구조 검증이며, 실제 질문 품질·판정 타당성·인젝션 방어가 검증됐다는 뜻이 아니다.
 
@@ -276,7 +276,7 @@ R1~R4를 모두 실제 코드에서 수정했다(문서 제안에 그치지 않�
 2. **MAS-004 — 질문 배열 생략 시 고아 답변 허용.** `validateBundleInvariants`의 `if (questions && ...)` 때문에 questions가 undefined일 때 임의 questionId를 가진 답변을 허용한다. 질문 기본값을 빈 집합으로 다루고 유효한 질문이 없는 모든 답변을 거부한다. 직접 조립한 빈 답변/잘못된 질문 grounding 참조도 입력 경계에서 검사한다.
 3. **MAS-005 — modelInputHash가 실제 모델 입력의 동일성을 보증하지 못함.** 동일 fixture 두 번을 실제 실행하면 hash가 바뀐다(중첩 snapshot 메타데이터 등 잔존). 시각을 고정하면 hash가 같아지지만 provider가 받은 실제 판정 요청은 random question ID 때문에 다르다. 모델이 해당 필드를 의미 없게 취급할 것이라고 가정해 다른 입력을 같은 반복 실험으로 분류해서는 안 된다.
 
-재현: [astra-rereview.mjs](../../../artifacts/phase2-fix/astra-rereview.mjs), 실행 출력: [astra-rereview.json](../../../artifacts/phase2-fix/astra-rereview.json). 루트에서 `node --import tsx artifacts/phase2-fix/astra-rereview.mjs`. 과거 재현처럼 문법 오류/스크립트 중단을 해결 증거로 삼지 말고 수정된 경계의 회귀 테스트를 추가한다.
+재현: [astra-rereview.mjs](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase2-fix/astra-rereview.mjs), 실행 출력: [astra-rereview.json](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase2-fix/astra-rereview.json). 루트에서 `node --import tsx artifacts/phase2-fix/astra-rereview.mjs`. 과거 재현처럼 문법 오류/스크립트 중단을 해결 증거로 삼지 말고 수정된 경계의 회귀 테스트를 추가한다.
 
 ### 이번 결정과 다음 범위
 

@@ -74,3 +74,15 @@ UI용 규칙을 다시 작성하지 않도록 공유 모듈이 근거 순서, �
 사용자가 `http://127.0.0.1:3104`에서 저장소 분석을 실행했을 때 `Requests from other sites are not allowed.`가 재현됐다. 실행 중인 3104 서버가 과거 worktree를 가리킨 문제를 먼저 바로잡았지만, 최신 standalone에서도 Next.js가 내부 request URL을 `http://localhost:3104`로 정규화해 strict 문자열 비교가 127.0.0.1 Origin을 거부했다.
 
 동일 protocol·effective port이고 양쪽 hostname이 `localhost`/`127.0.0.1`/IPv6 loopback인 경우만 같은 로컬 출처로 인정한다. 다른 port, 외부 hostname, 잘못된 Origin은 계속 403이다. 전용 API 회귀 검사와 실제 3104 standalone 요청으로 확인한다.
+
+## 공개 README와 저장소 정리 (#39)
+
+GitHub 첫 화면이 현재 제품보다 뒤처지고 과거 검증 캡처·실행 JSON 약 15MB가 소스 트리의 대부분을 차지해 정리했다. README는 실제 Railway 데모, 로그인 없는 URL 흐름, 결정론적 네 축·여섯 스타일, 근거·수집 범위·부족 신호, 브라우저 로컬 저장과 신뢰 경계를 설명한다. 한국어 기본·영어 전환과 서비스 LLM·저장소 코드 실행·서버 DB가 기본 흐름에 없다는 점도 명시한다.
+
+`_archive/`와 `artifacts/`를 전체 ignore하고 기존에 예외로 추적하던 `_archive` 파일 두 개도 현재 Git 트리에서 제거했다. 완료된 Phase 1·2 지시문, 과거 `artifacts/`, 한 번만 사용한 `dumpCase02Snapshot.ts`와 참조되지 않는 `SessionExperience.tsx`는 로컬 `_archive/repository-cleanup-20260918/`로 이동했다. 이는 로컬 보존 위치이며 새 clone의 정본이 아니다. GitHub에서 다시 볼 수 있도록 역사 문서 링크는 정리 전 commit `f108be37d0df9a8e23a65794ccef0cc367256e0b`의 immutable URL로 바꿨다.
+
+walkthrough 출처 해시 회귀 검사가 실제로 읽는 `buildMyAiScoreWalkthrough.v1.ts.txt`만 `fixtures/walkthroughs/`로 이동해 버전 관리와 검사를 유지한다. 현재 리포트 계약·교정 fixture·호환 API와 화면·ADR·Phase 세션은 삭제하지 않았다. 새 산출물은 필요할 때 로컬 `artifacts/`에 만들되 Git에 추가하지 않는다.
+
+정리 전후 generator fixture의 Git blob 해시는 모두 `61523fcff9b652bfec0e99d144b1ce7d44cd251e`로 일치했다. `npm run check:docs`는 60개 Markdown·364개 로컬 링크 문제 0건, `npm run typecheck`, `npm test` 288/288, `npm run build`, `npm run test:e2e` desktop/mobile 30/30을 통과했다. 첫 build는 실행 중이던 로컬 3104 서버가 `.next/standalone`을 잠가 `EBUSY`로 중단됐고 해당 서버만 종료한 뒤 같은 명령이 통과했다. 정리 결과 현재 Git index는 301개 파일이며 로컬 archive에는 기존 무시 파일을 포함한 91개 파일 약 17.4MB가 남아 있다.
+
+구현에 참여하지 않은 서브에이전트의 독립 검토는 **PASS, 차단 사항 없음**으로 판정했다. 삭제 71개 각각의 로컬 archive 사본, 역사 링크가 가리키는 27개 고유 Git object, 제거 코드의 활성 참조 부재와 `_archive` ignore를 확인했다. reviewer가 별도로 실행한 walkthrough/session 집중 검사 19/19와 tracked 문서 검사도 통과했다.

@@ -1,1 +1,0 @@
-[collect-local-session] session_parse_failed: no line in fixtures/local-collection/unsupported-format.jsonl matched a known Claude Code session record type -- this does not look like a supported session transcript

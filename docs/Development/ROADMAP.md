@@ -17,13 +17,13 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 | Web | Korean-default bilingual Home/분석/Profile/Insights, persistent locale, transparent score/style guide, progress/errors, opt-in browser history |
 | Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
 | Privacy | No repository code execution, no private repository, no token/raw response exposure |
-| Validation | 281 unit/API tests, docs/type/build, 24 browser checks, independent PASS, Railway live smoke complete |
+| Validation | 288 unit/API tests, docs/type/build, 30 browser checks, independent PASS, Railway live smoke complete |
 
 ## Immediate operation
 
-Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. The production health, Korean home and one real public MyAiScore report passed. Add a server-only `GITHUB_TOKEN` in Railway Variables before inviting multiple judges; the current non-token guard permits only one analysis start per hour per process. Never place the token in client variables, repository files, chat or logs.
+Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. Production health, Korean/English pages and a real public MyAiScore report passed. Railway now has a server-only `GITHUB_TOKEN`; two consecutive public-repository reports returned 200 without token or raw file content in the response. The token only raises the public API allowance and private repositories remain rejected.
 
-After setting it, confirm two consecutive public-repository reports succeed and that the response contains no token or raw file content. The token only raises the public API allowance; private repository reports remain rejected.
+Issue [#39](https://github.com/SangJun-Pyo/MyAiScore/issues/39) refreshes the public README and removes historical prompts, screenshots and run outputs from the current Git tree. Local copies stay under ignored `_archive/`; stable historical links point to pre-cleanup commit `f108be3`. Current product contracts, fixtures and compatibility routes remain versioned.
 
 ## Deferred
 

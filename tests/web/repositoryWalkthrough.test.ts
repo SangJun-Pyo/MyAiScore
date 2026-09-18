@@ -52,7 +52,7 @@ test('original partial run and its exact generator remain available as historica
   assert.equal(original.collection.read_files, 34);
   assert.equal(original.collection.fetched_bytes, 819270);
   assert.equal(original.provenance.ingestion_status, 'partial');
-  const generator = (await readFile(new URL('../../artifacts/phase7-walkthrough/buildMyAiScoreWalkthrough.v1.ts.txt', import.meta.url), 'utf8')).replaceAll('\r\n', '\n');
+  const generator = (await readFile(new URL('../../fixtures/walkthroughs/buildMyAiScoreWalkthrough.v1.ts.txt', import.meta.url), 'utf8')).replaceAll('\r\n', '\n');
   assert.equal(original.provenance.generator_sha256, createHash('sha256').update(generator).digest('hex'));
 });
 

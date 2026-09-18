@@ -24,11 +24,11 @@
 
 ### 실제 수집과 MAS-007
 
-사용자가 지정한 `SangJun-Pyo/MyAiScore@39c6c81a310122ca7e71a923b4550aa11e9e6a37`를 `prepareAssessment`의 실제 GitHub transport로 읽었다. 2026-09-14T13:14:10Z, 43회 요청, 10,327ms, 388,706 bytes, 후보 258개 중 40개 읽기 완료. 키/모델 호출 없이 진행했고 토큰·비용을 임의 산정하지 않았다. [메타데이터](../../../artifacts/phase5-pilot/myaiscore-collection.json), [범위와 재개 조건](../../../artifacts/phase5-pilot/README.md).
+사용자가 지정한 `SangJun-Pyo/MyAiScore@39c6c81a310122ca7e71a923b4550aa11e9e6a37`를 `prepareAssessment`의 실제 GitHub transport로 읽었다. 2026-09-14T13:14:10Z, 43회 요청, 10,327ms, 388,706 bytes, 후보 258개 중 40개 읽기 완료. 키/모델 호출 없이 진행했고 토큰·비용을 임의 산정하지 않았다. [메타데이터](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-pilot/myaiscore-collection.json), [범위와 재개 조건](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-pilot/README.md).
 
 최초 샘플은 fixtures 20개/tests 13개 등에 편중되어 제품 src가 0개였다. 독립 검토자가 같은 SHA의 Git tree로 재현했고 [MAS-007 / #14](https://github.com/SangJun-Pyo/MyAiScore/issues/14)로 기록했다. [ADR-0008](../../Architecture/ADR/0008-balanced-repository-sampling.md)을 추가하고 루트 설정/AI 지침 슬롯, 파일군 순환 선정, 예제·생성 자료 후순위를 적용했다. 사용자 명시 relevantPaths와 기존 제외·상한은 유지한다.
 
-새 규칙의 같은 SHA 로컬 Git tree 재현은 **src 14개, tests 6개, CI 1개, AGENTS/CLAUDE 2개, fixtures/artifacts 0개**, 총 40개다. [선정 전후 기록](../../../artifacts/phase5-pilot/selection-replay.json). 첫 API 수집 뒤 비인증 잔여 한도는 17회였으므로 43회 전체 수집을 반복하지 않았다. 이 재현은 두 번째 실제 API 전송이 아니다. 최초 수집 원문을 저장하지 않았으므로 실제 모델 평가를 재개할 때 새 정책으로 재수집해야 한다.
+새 규칙의 같은 SHA 로컬 Git tree 재현은 **src 14개, tests 6개, CI 1개, AGENTS/CLAUDE 2개, fixtures/artifacts 0개**, 총 40개다. [선정 전후 기록](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-pilot/selection-replay.json). 첫 API 수집 뒤 비인증 잔여 한도는 17회였으므로 43회 전체 수집을 반복하지 않았다. 이 재현은 두 번째 실제 API 전송이 아니다. 최초 수집 원문을 저장하지 않았으므로 실제 모델 평가를 재개할 때 새 정책으로 재수집해야 한다.
 
 collector `ingestion-0.2.0`, 정책 `representative-categories-v2`. 실제 tree에서 새 digest는 `72bfca24aa0e2eba15a01f0b6248c11c85dd0643fc6de70d287b3e54713dcc00`이다. `complete`는 선정한 샘플 수집 완료이며 전체 코드 분석을 뜻하지 않는다. `context_truncated=true`도 최초 기록에 유지했다. 파일 내용/사용자 세션 원문·임시 모델 문맥은 artifact에 저장하지 않았다.
 
@@ -43,7 +43,7 @@ collector `ingestion-0.2.0`, 정책 `representative-categories-v2`. 실제 tree�
 - `npm run typecheck` 통과. 최종 `npm run build`의 TypeScript와 새 경로 생성도 통과.
 - `npm test`: **234/234 통과**. 기준 224개에 history/수집 회귀 10개 추가. 실제 LLM 판정 정확도를 뜻하지 않는다.
 - `npm run test:e2e`: **22/22 통과**(데스크톱·모바일). 홈, 입력부터 질문/결과까지 명시적 synthetic API 흐름, 소유 이력/보류, 빈 상태, 예시 전환, 잘못된 ID, 키보드 탭, query 이동·뒤로가기, 모션 감소, WebGL 실패를 확인했다.
-- Chromium에서 실제 `data-renderer=webgl`, 1440px/390px 레이아웃 가로 넘침 없음 확인. [홈](../../../artifacts/phase5-workspace/home.png), [프로필 빈 상태](../../../artifacts/phase5-workspace/profile.png), [항목 분석 합성 예시](../../../artifacts/phase5-workspace/insights.png), [모바일](../../../artifacts/phase5-workspace/home-mobile.png) 화면을 캡처·열람했다. 실제 사용자의 점수를 넣은 스크린샷이 아니다.
+- Chromium에서 실제 `data-renderer=webgl`, 1440px/390px 레이아웃 가로 넘침 없음 확인. [홈](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-workspace/home.png), [프로필 빈 상태](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-workspace/profile.png), [항목 분석 합성 예시](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-workspace/insights.png), [모바일](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-workspace/home-mobile.png) 화면을 캡처·열람했다. 실제 사용자의 점수를 넣은 스크린샷이 아니다.
 - `node scripts/checkDocs.mjs`: 문서 링크 검사 통과. 최종 tracked 검사/원격 CI는 통합 PR과 Git 기록을 따른다.
 
 ### 구현 commit 근거
@@ -72,7 +72,7 @@ collector `ingestion-0.2.0`, 정책 `representative-categories-v2`. 실제 tree�
 ### 실제 검증·화면
 
 - `npm run typecheck`, `npm test` **234/234**, 최종 `npm run build`, `npm run test:e2e` **24/24 통과**. 새 2건은 desktop/mobile에서 실제 WebGL 생성, 축 변경 시 동일 canvas 유지, 모션 설정 전환, context loss 후 정적 대체와 이동을 확인한다. 기존 22개 평가/프로필/분석 흐름도 통과했다. 캡처 위치 보정 후 해당 2건을 다시 실행해 통과했다.
-- [데스크톱 WebGL](../../../artifacts/phase5-threeui/home.png), [모바일 WebGL](../../../artifacts/phase5-threeui/home-mobile.png) 캡처를 열어 확인했다. 운영체제 모션 감소가 켜진 사용자 Chrome에서는 정적 대체와 축 선택을 확인했다. 390px 및 320px viewport 검사에서 가로 넘침 없었으며 임시 viewport는 복원했다. 사용자 모션 설정은 변경하지 않았다.
+- [데스크톱 WebGL](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-threeui/home.png), [모바일 WebGL](https://github.com/SangJun-Pyo/MyAiScore/blob/f108be37d0df9a8e23a65794ccef0cc367256e0b/artifacts/phase5-threeui/home-mobile.png) 캡처를 열어 확인했다. 운영체제 모션 감소가 켜진 사용자 Chrome에서는 정적 대체와 축 선택을 확인했다. 390px 및 320px viewport 검사에서 가로 넘침 없었으며 임시 viewport는 복원했다. 사용자 모션 설정은 변경하지 않았다.
 - 문서 링크·배치 검사와 diff 검사는 통합 commit 전에 실행했다. 원격 검사/merge와 공용 checkout 동기화의 최종 기준은 이슈 #16 및 통합 PR/Git 이력이다.
 
 실제 모델 평가·배포는 이 시각 변경의 결과로 완료된 것이 아니다. 다음 기능 작업은 ROADMAP의 API/모델/예산 및 운영 검증 조건을 따른다.
