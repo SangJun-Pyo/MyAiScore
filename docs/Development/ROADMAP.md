@@ -8,7 +8,7 @@ The user approved a Korean, no-login public GitHub repository report as the cont
 
 Tracking issue: [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28). Integration branch: codex/public-repo-korean-flow. Decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). Contract: [REPOSITORY_REPORT](../Assessment/REPOSITORY_REPORT.md).
 
-## Active work
+## Released state
 
 | Area | Current scope |
 |---|---|
@@ -17,14 +17,13 @@ Tracking issue: [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28). Integ
 | Web | Korean Home/분석/Profile/Insights, progress/errors, opt-in browser history |
 | Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
 | Privacy | No repository code execution, no private repository, no token/raw response exposure |
-| Validation | Synthetic unit/API/browser checks, independent score/source review, Railway smoke |
+| Validation | 281 unit/API tests, docs/type/build, 24 browser checks, independent PASS, Railway live smoke complete |
 
-## Release order
+## Immediate operation
 
-1. Integrate core and Korean web branches into the issue branch.
-2. Run typecheck, unit/API, docs, production build and desktop/mobile browser suites.
-3. Independently review source collection, token, scoring and storage boundaries; fix mandatory findings.
-4. Merge reviewed PR, sync canonical checkout, then verify the Railway production URL and one public MyAiScore analysis.
+Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. The production health, Korean home and one real public MyAiScore report passed. Add a server-only `GITHUB_TOKEN` in Railway Variables before inviting multiple judges; the current non-token guard permits only one analysis start per hour per process. Never place the token in client variables, repository files, chat or logs.
+
+After setting it, confirm two consecutive public-repository reports succeed and that the response contains no token or raw file content. The token only raises the public API allowance; private repository reports remain rejected.
 
 ## Deferred
 
