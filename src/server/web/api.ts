@@ -30,17 +30,21 @@ function reply(body: unknown, status = 200) {
     'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
   } });
 }
-const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 function effectivePort(url: URL): string {
   if (url.port) return url.port;
   return url.protocol === 'https:' ? '443' : url.protocol === 'http:' ? '80' : '';
 }
 function allowsRequestOrigin(request: Request): boolean {
   const origin = request.headers.get('origin');
-  if (!origin) return true;
+  if (origin === null) return true;
   try {
     const supplied = new URL(origin);
     const target = new URL(request.url);
+    // Browser Origin headers are serialized origins, never arbitrary URLs.
+    // Validate this before comparing URL.origin so credentials, paths and blob:
+    // URLs cannot collapse to an otherwise matching origin.
+    if (!['http:', 'https:'].includes(supplied.protocol) || origin !== supplied.origin) return false;
     if (supplied.origin === target.origin) return true;
     return supplied.protocol === target.protocol && effectivePort(supplied) === effectivePort(target) &&
       LOOPBACK_HOSTS.has(supplied.hostname.toLowerCase()) && LOOPBACK_HOSTS.has(target.hostname.toLowerCase());
