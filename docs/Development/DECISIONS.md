@@ -1,8 +1,8 @@
 # Decisions — 과거 결정 요약과 ADR 안내
 
-## Current product decision — anonymous Korean repository reports (2026-09-18)
+## Current product decision — Korean-default bilingual repository reports (2026-09-18)
 
-The user approved replacing CLI-first onboarding with a Korean, no-login public GitHub URL analysis for the contest demo. The report scores observable repository collaboration-readiness signals and cites collected paths; it does not certify personal AI skill or code correctness. No account, user OAuth, Supabase or service LLM is required. The optional server `GITHUB_TOKEN` only raises public API allowance and stays secret. CLI session reports remain a secondary feature. Decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), execution: [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md).
+The user approved replacing CLI-first onboarding with a Korean-default, no-login public GitHub URL analysis for the contest demo, followed by a persistent English interface option. The report scores observable repository collaboration-readiness signals and cites collected paths; it does not certify personal AI skill or code correctness. No account, user OAuth, Supabase or service LLM is required. The optional server `GITHUB_TOKEN` only raises public API allowance and stays secret. CLI session reports remain a secondary feature. Repository decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). Language decision: [ADR-0016](../Architecture/ADR/0016-persistent-korean-english-interface.md). Execution: [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md).
 
 ## Previous product decision — CLI session reports (2026-09-15)
 

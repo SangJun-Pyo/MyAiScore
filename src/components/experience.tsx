@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import LandingPage from "./LandingPage";
+import { LanguageSwitch, useLocale } from "./LocaleProvider";
 import { RUBRIC_CRITERIA } from "../server/evaluation/rubricCriteria";
 
 const AXES = [
@@ -80,8 +81,9 @@ function Arrow({ diagonal = false }: { diagonal?: boolean }) { return <span aria
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const navigation = [{ href: "/", label: "Home" }, { href: "/profile", label: "Profile" }, { href: "/insights", label: "Insights" }];
-  return <><a className="skip-link" href="#main">Skip to content</a><header className="site-header"><div className="header-inner"><Link href="/" className="brand" aria-label="MyAiScore home"><span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>MyAiScore<span className="beta">BETA</span></Link><nav aria-label="Main navigation">{navigation.map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>{item.label}</Link>)}<Link href="/evaluate" className="nav-evaluate" aria-current={pathname === "/evaluate" ? "page" : undefined}>New assessment <Arrow /></Link></nav></div></header>{children}<footer className="site-footer"><Link href="/" className="brand">MyAiScore<span className="footer-dot">·</span></Link><p>From using more AI to building better together.</p><span>Experimental, project-specific feedback</span></footer></>;
+  const { copy } = useLocale();
+  const navigation = [{ href: "/", label: copy.shell.home }, { href: "/profile", label: copy.shell.profile }, { href: "/insights", label: copy.shell.insights }];
+  return <><a className="skip-link" href="#main">{copy.shell.skip}</a><header className="site-header"><div className="header-inner"><Link href="/" className="brand" aria-label={copy.shell.brandHome}><span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>MyAiScore<span className="beta">{copy.shell.beta}</span></Link><div className="header-actions"><nav aria-label={copy.shell.navLabel}>{navigation.map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>{item.label}</Link>)}<Link href="/evaluate" className="nav-evaluate" aria-current={pathname === "/evaluate" ? "page" : undefined}>{copy.shell.evaluate} <Arrow /></Link></nav><LanguageSwitch /></div></div></header>{children}<footer className="site-footer"><Link href="/" className="brand">MyAiScore<span className="footer-dot">·</span></Link><p>{copy.shell.footerLead}</p><span>{copy.shell.footerLimit}</span></footer></>;
 }
 function Alert({ children, error = false }: { children: React.ReactNode; error?: boolean }) { return <div className={`notice ${error ? "notice-error" : ""}`} role={error ? "alert" : "status"}>{children}</div>; }
 function SectionLabel({ children }: { children: React.ReactNode }) { return <p className="eyebrow"><span />{children}</p>; }
@@ -350,7 +352,7 @@ export function AssessmentExperience({ id }: { id: string }) {
     const timer = setInterval(() => { void refresh().catch(e => setError(asMessage(e))); }, 3000);
     return () => clearInterval(timer);
   }, [pending, busy, refresh]);
-  return <Shell><main id="main" className="page-width assessment-page"><Link href="/" className="back-link">← Back home</Link><div className="assessment-heading"><div><SectionLabel>YOUR COLLABORATION REVIEW</SectionLabel><h1>{status === "done" ? "Your next starting point." : "Let's explore your project."}</h1>{assessment?.repo_url && <p className="repo-label">{assessment.repo_url.replace("https://github.com/", "")}{assessment.commit_sha && <code>{assessment.commit_sha.slice(0, 8)}</code>}</p>}</div><span className="private-chip">{assessment?.visibility === "public" ? "Summary shared" : "Private"}</span></div><Progress status={status} />
+  return <Shell><main id="main" lang="en" className="page-width assessment-page"><Link href="/" className="back-link">← Back home</Link><div className="assessment-heading"><div><SectionLabel>YOUR COLLABORATION REVIEW</SectionLabel><h1>{status === "done" ? "Your next starting point." : "Let's explore your project."}</h1>{assessment?.repo_url && <p className="repo-label">{assessment.repo_url.replace("https://github.com/", "")}{assessment.commit_sha && <code>{assessment.commit_sha.slice(0, 8)}</code>}</p>}</div><span className="private-chip">{assessment?.visibility === "public" ? "Summary shared" : "Private"}</span></div><Progress status={status} />
     {error && <Alert error>{error}</Alert>}{!assessment && !error && <div className="loading-panel" role="status"><span className="spinner" />Loading assessment details.</div>}
     {(busy || pending) && <div className="loading-panel" role="status"><span className="spinner" /><div><strong>{activity || "Processing your request."}</strong><p>Keep this tab open to see the result. Larger submissions may take a little longer.</p></div></div>}
     {assessment && status === "draft" && !busy && <section className="action-panel"><div><h2>Ready to begin.</h2><p>We will read the selected repository and prepare questions about your collaboration.</p><p className="caption">Your private access token stays in this tab. Keep it open until you have reviewed the result.</p></div><button className="button button-primary" onClick={() => void run()}>Collect evidence <Arrow /></button></section>}
@@ -402,7 +404,7 @@ export function SharedExperience({ id }: { id: string }) {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [error, setError] = useState("");
   useEffect(() => { void request<Assessment>(`/api/results/${encodeURIComponent(id)}`).then(setAssessment).catch(e => setError(asMessage(e))); }, [id]);
-  return <Shell><main id="main" className="page-width assessment-page"><SectionLabel>SHARED REVIEW</SectionLabel><h1>Project collaboration summary.</h1><p className="page-description">A summary shared by its owner. Private collaboration records and answers are not included.</p>{error && <Alert error>{error}</Alert>}{!assessment && !error && <div className="loading-panel" role="status"><span className="spinner" />Loading the public summary.</div>}{assessment && <ResultView assessment={assessment} shared />}<div className="shared-cta"><h2>Ready to review your own collaboration?</h2><Link className="button button-primary" href="/evaluate">Start your project <Arrow /></Link></div></main></Shell>;
+  return <Shell><main id="main" lang="en" className="page-width assessment-page"><SectionLabel>SHARED REVIEW</SectionLabel><h1>Project collaboration summary.</h1><p className="page-description">A summary shared by its owner. Private collaboration records and answers are not included.</p>{error && <Alert error>{error}</Alert>}{!assessment && !error && <div className="loading-panel" role="status"><span className="spinner" />Loading the public summary.</div>}{assessment && <ResultView assessment={assessment} shared />}<div className="shared-cta"><h2>Ready to review your own collaboration?</h2><Link className="button button-primary" href="/evaluate">Start your project <Arrow /></Link></div></main></Shell>;
 }
 
 export function ResultView({ assessment, example = false, shared = false }: { assessment: Assessment; example?: boolean; shared?: boolean }) {

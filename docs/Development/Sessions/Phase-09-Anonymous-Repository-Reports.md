@@ -53,6 +53,14 @@ Railway `https://myaiscore-production.up.railway.app/`에서 health 200과 한�
 - 공개 저장소만 지원한다. 비공개 저장소 GitHub App, 계정·기기 간 이력, hosted 공유 링크, leaderboard와 LLM 조언은 보류한다.
 - v0.4 CLI의 `--web-url` fragment import는 한국어 공개 저장소 화면과 계약이 달라 v0.5에서 제거했다. 로컬 세션 분석 자체와 `--json`/`--out`은 유지한다.
 
+## 한국어·영어 화면 전환
+
+한국어 기본 흐름을 유지하면서 공통 헤더에 영어 전환을 추가했다. 선택은 `ko|en`만 허용하는 쿠키에 저장하고 서버 레이아웃이 첫 응답의 `<html lang>`과 메타데이터를 결정한다. 공개 네 경로의 고정 문구와 리포트 표현은 타입 고정 카탈로그와 style/evidence/axis 의미 ID로 번역한다. API와 localStorage에는 기존 `repository-report-v1` 정본을 그대로 저장한다. API 실패는 `error.code`에서 번역하므로 서버 내부 문구에 UI가 의존하지 않는다.
+
+과거 `/assessments/[id]`, `/results/[id]`, `/walkthrough/myaiscore`는 영어 본문을 유지하고 `lang="en"` 범위를 명시했다. 공통 탐색과 footer는 선택한 언어로 통일했다. 결정 이유와 대안은 [ADR-0016](../../Architecture/ADR/0016-persistent-korean-english-interface.md)에 기록한다.
+
+구현 후 `npm test` 285/285, `npm run typecheck`, `npm run check:docs` 63파일·상대 링크 409개, `npm run build`를 통과했다. Home·공개 네 경로·리포트 원본 보존·오류 코드 번역·과거 영어 화면을 포함한 Playwright 집중 검사는 desktop/mobile 26/26을 통과했다.
+
 ## 배포 후 로컬 403 수정 (#31)
 
 사용자가 `http://127.0.0.1:3104`에서 저장소 분석을 실행했을 때 `Requests from other sites are not allowed.`가 재현됐다. 실행 중인 3104 서버가 과거 worktree를 가리킨 문제를 먼저 바로잡았지만, 최신 standalone에서도 Next.js가 내부 request URL을 `http://localhost:3104`로 정규화해 strict 문자열 비교가 127.0.0.1 Origin을 거부했다.

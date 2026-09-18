@@ -76,11 +76,12 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
 });
 
 test('API 오류와 계약에 맞지 않는 응답을 점수 없이 명확히 표시한다', async ({ page }) => {
-  await page.route('**/api/repository-report', async route => route.fulfill({ status: 404, json: { error: { message: '공개 저장소를 찾을 수 없습니다.' } } }));
+  await page.route('**/api/repository-report', async route => route.fulfill({ status: 404, json: { error: { code: 'repo_not_found_or_private', message: 'PRIVATE SERVER DETAIL' } } }));
   await page.goto('/evaluate');
   await page.getByLabel('공개 GitHub 저장소 URL').fill('https://github.com/example/missing');
   await page.getByRole('button', { name: '저장소 분석하기' }).click();
-  await expect(page.locator('main .notice[role="alert"]')).toContainText('공개 저장소를 찾을 수 없습니다.');
+  await expect(page.locator('main .notice[role="alert"]')).toContainText('공개 저장소를 찾을 수 없어요. 비공개 저장소는 분석하지 않아요.');
+  await expect(page.locator('main')).not.toContainText('PRIVATE SERVER DETAIL');
   await expect(page.locator('.repo-report')).toHaveCount(0);
 
   await page.unroute('**/api/repository-report');
@@ -135,4 +136,57 @@ test('CLI 세션 리포트는 브라우저 자동 수집이 아닌 보조 안내
   await page.getByText('Claude Code 세션 리포트 CLI가 필요하다면', { exact: true }).click();
   await expect(page.locator('.repo-cli-secondary')).toContainText('브라우저가 로컬 대화 기록을 자동으로 읽지는 않습니다.');
   await expect(page.locator('.repo-cli-secondary')).toContainText('npm run session:report');
+});
+
+test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 리포트는 바꾸지 않는다', async ({ context, page }) => {
+  await context.addCookies([{ name: 'myaiscore_locale', value: 'en', url: 'http://127.0.0.1:3100' }]);
+  await interceptReport(page);
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page).toHaveTitle('MyAiScore — AI collaboration signals in public repositories');
+  await expect(page.getByRole('heading', { level: 1, name: /Find AI collaboration traces/ })).toBeVisible();
+  await page.getByRole('navigation').getByRole('link', { name: 'Reports', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'No saved reports yet.' })).toBeVisible();
+  await page.getByRole('navigation').getByRole('link', { name: 'Guide', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'No report selected.' })).toBeVisible();
+  await page.getByRole('navigation').getByRole('link', { name: 'Analyze', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Analyze a public repository' })).toBeVisible();
+  await page.getByLabel('Public GitHub repository URL').fill('https://github.com/example/public-repo');
+  await page.getByRole('button', { name: 'Analyze repository' }).click();
+  await expect(page.locator('.repo-style')).toContainText('Verification radar');
+  await expect(page.locator('.repo-report')).toContainText('Decision records');
+  await expect(page.locator('.repo-report')).toContainText('Connect one decision');
+  await expect(page.locator('.repo-boundary')).toContainText('does not certify personal AI ability');
+  await page.getByRole('button', { name: 'Save in this browser' }).click();
+  const saved = await page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)!), key);
+  expect(saved[0].style.title).toBe(REPOSITORY_REPORT_COPY.styles.verification.title);
+  expect(saved[0].evidenceCards[0].title).toBe(REPOSITORY_REPORT_COPY.evidence['context-readme'].title);
+
+  await page.getByRole('button', { name: '한국어' }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+  await expect(page.getByRole('heading', { name: '공개 저장소 분석' })).toBeVisible();
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+  await expect(page).toHaveTitle('MyAiScore — 공개 저장소의 AI 협업 신호');
+});
+
+test('영어 화면은 안정된 API 오류 코드를 번역한다', async ({ context, page }) => {
+  await context.addCookies([{ name: 'myaiscore_locale', value: 'en', url: 'http://127.0.0.1:3100' }]);
+  await page.route('**/api/repository-report', async route => route.fulfill({ status: 429, json: { error: { code: 'github_api_rate_limited', message: '내부 한국어 메시지' } } }));
+  await page.goto('/evaluate');
+  await page.getByLabel('Public GitHub repository URL').fill('https://github.com/example/public-repo');
+  await page.getByRole('button', { name: 'Analyze repository' }).click();
+  await expect(page.locator('main .notice[role="alert"]')).toContainText('The GitHub request limit was reached. Please try again later.');
+  await expect(page.locator('main')).not.toContainText('내부 한국어 메시지');
+  await page.getByRole('button', { name: '한국어' }).click();
+  await expect(page.locator('main .notice[role="alert"]')).toContainText('GitHub 요청 한도에 도달했어요. 잠시 뒤 다시 시도해 주세요.');
+});
+
+test('상속된 객체 키와 알 수 없는 API 오류 코드는 일반 오류로 안전하게 표시한다', async ({ page }) => {
+  await page.route('**/api/repository-report', async route => route.fulfill({ status: 500, contentType: 'application/json', body: '{"error":{"code":"__proto__","message":"UNSAFE DETAIL"}}' }));
+  await page.goto('/evaluate');
+  await page.getByLabel('공개 GitHub 저장소 URL').fill('https://github.com/example/public-repo');
+  await page.getByRole('button', { name: '저장소 분석하기' }).click();
+  await expect(page.locator('main .notice[role="alert"]')).toContainText('서버 응답을 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+  await expect(page.locator('main')).not.toContainText('UNSAFE DETAIL');
 });

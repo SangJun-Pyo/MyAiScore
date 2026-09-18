@@ -44,8 +44,8 @@ export default function RepositoryWalkthrough() {
     return () => { cancelled = true; };
   }, []);
 
-  return <Shell><main id="main" className="page-width product-page assessment-page">
-    <header className="product-heading"><div><h1>MyAiScore repository walkthrough</h1><p>Historical repository assessment demo. The current product uses local session reports.</p><a href="/evaluate">Open the current session report flow →</a></div></header>
+  return <Shell><main id="main" lang="en" className="page-width product-page assessment-page">
+    <header className="product-heading"><div><h1>MyAiScore repository walkthrough</h1><p>Historical repository assessment demo. The current product analyzes visible collaboration signals in public repositories.</p><a href="/evaluate">Open the current repository analysis →</a></div></header>
     <div className="example-banner"><span className="sample-chip">REPOSITORY WALKTHROUGH</span><p>Real public repository snapshot; scripted walkthrough; no user answers or service-model evaluation.</p></div>
     <ol className="progress" aria-label="Walkthrough stages">{stages.map((label, index) => <li key={label} className={index === stage ? "active" : ""} aria-current={index === stage ? "step" : undefined}><span>{index + 1}</span>{label}</li>)}</ol>
     {!data && !error && <p role="status">Opening the saved walkthrough…</p>}
