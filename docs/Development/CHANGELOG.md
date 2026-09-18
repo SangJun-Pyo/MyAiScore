@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-18 — 로컬 standalone 출처 판정 수정 (#31)
+
+- Next.js standalone이 요청 URL을 `localhost`로 정규화해, `127.0.0.1`로 연 브라우저의 POST를 외부 출처로 오인하던 403을 수정했다. 동일 scheme·port의 loopback 별칭만 허용하며 다른 host·port의 차단은 유지한다.
+
 ## 2026-09-18 — 로그인 없는 한국어 공개 저장소 리포트 (#28)
 
 - 기본 진입점을 CLI에서 공개 GitHub 저장소 URL 하나로 바꿨다. 회원가입·GitHub 로그인·질문·LLM 호출 없이 고정 commit의 제한된 정적 표본에서 맥락·검증 기반·기록·자동화 신호를 계산한다.

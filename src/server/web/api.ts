@@ -30,6 +30,22 @@ function reply(body: unknown, status = 200) {
     'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
   } });
 }
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+function effectivePort(url: URL): string {
+  if (url.port) return url.port;
+  return url.protocol === 'https:' ? '443' : url.protocol === 'http:' ? '80' : '';
+}
+function allowsRequestOrigin(request: Request): boolean {
+  const origin = request.headers.get('origin');
+  if (!origin) return true;
+  try {
+    const supplied = new URL(origin);
+    const target = new URL(request.url);
+    if (supplied.origin === target.origin) return true;
+    return supplied.protocol === target.protocol && effectivePort(supplied) === effectivePort(target) &&
+      LOOPBACK_HOSTS.has(supplied.hostname.toLowerCase()) && LOOPBACK_HOSTS.has(target.hostname.toLowerCase());
+  } catch { return false; }
+}
 function auth(request: Request): string | null {
   const authorization = request.headers.get('authorization');
   if (!authorization) return null;
@@ -69,10 +85,7 @@ export function createApi(deps: Dependencies = {}) {
     try {
       const method = request.method.toUpperCase();
       if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) throw new HttpError(405, 'invalid_input', 'This request is not supported.');
-      if (method !== 'GET') {
-        const origin = request.headers.get('origin');
-        if (origin && origin !== new URL(request.url).origin) throw new HttpError(403, 'forbidden_origin', 'Requests from other sites are not allowed.');
-      }
+      if (method !== 'GET' && !allowsRequestOrigin(request)) throw new HttpError(403, 'forbidden_origin', 'Requests from other sites are not allowed.');
       const [resource, id, action] = segments;
       if (segments.length > 3) throw new HttpError(404, 'not_found', 'Route not found.');
       if (resource === 'repository-report') {

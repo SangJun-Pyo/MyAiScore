@@ -82,6 +82,23 @@ test("invalid repository URLs are rejected before consuming the anonymous admiss
   assert.equal(calls, 1);
 });
 
+test("local standalone requests accept equivalent loopback aliases but reject other origins and ports", async () => {
+  let calls = 0;
+  const handle = createApi({ githubToken: "server-token", store: forbiddenStore, repositoryReport: async () => { calls++; return report; } });
+  const invoke = async (origin: string) => {
+    const response = await handle(new Request("http://localhost:3104/api/repository-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Origin: origin },
+      body: JSON.stringify({ repo_url: "https://github.com/acme/api" }),
+    }), ["repository-report"]);
+    return { status: response.status, body: await response.json() };
+  };
+  assert.equal((await invoke("http://127.0.0.1:3104")).status, 200);
+  assert.equal((await invoke("http://127.0.0.1:3105")).body.error.code, "forbidden_origin");
+  assert.equal((await invoke("https://evil.example")).body.error.code, "forbidden_origin");
+  assert.equal(calls, 1);
+});
+
 test("repository-report maps private repository rejection without leaking collector details", async () => {
   const handle = createApi({
     store: forbiddenStore,
