@@ -8,6 +8,7 @@ import type { EvaluationProvider } from '../evaluation/provider.js';
 import { compareAssessments } from '../service/comparison.js';
 import { parseRepositoryReportRequest, type RepositoryReport } from '../../shared/repositoryReport.js';
 import { generateRepositoryReport, repositoryReportAdmission, RepositoryReportAdmission, RepositoryReportError, type RepositoryReportServiceOptions } from '../repositoryReport/service.js';
+import { normalizeAndValidateRepoUrl } from '../ingestion/urlValidation.js';
 import repositoryWalkthrough from '../../../fixtures/walkthroughs/myaiscore-recollected.json';
 
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -81,11 +82,14 @@ export function createApi(deps: Dependencies = {}) {
         let input;
         try { input = parseRepositoryReportRequest(rawInput); }
         catch { throw new HttpError(400, 'invalid_input', 'repo_url 하나만 JSON 문자열로 보내 주세요.'); }
+        const normalized = normalizeAndValidateRepoUrl(input.repo_url);
+        if (!normalized.ok) throw new HttpError(400, normalized.code, 'https://github.com/소유자/저장소 형식의 공개 저장소 주소를 입력해 주세요.');
+        const repoUrl = `https://github.com/${normalized.ref.owner}/${normalized.ref.repo}`;
         const configuredToken = deps.githubToken === undefined ? process.env.GITHUB_TOKEN?.trim() : deps.githubToken?.trim();
         let release: (() => void) | undefined;
         try {
           release = (deps.repositoryReportAdmission ?? repositoryReportAdmission).acquire(Boolean(configuredToken));
-          const report = await (deps.repositoryReport ?? generateRepositoryReport)({ repoUrl: input.repo_url }, { authToken: configuredToken || undefined });
+          const report = await (deps.repositoryReport ?? generateRepositoryReport)({ repoUrl }, { authToken: configuredToken || undefined });
           return reply(report);
         } catch (error) {
           if (error instanceof RepositoryReportError) throw new HttpError(error.status, error.code, error.message, error.retryable);

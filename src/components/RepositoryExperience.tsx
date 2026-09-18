@@ -50,7 +50,7 @@ const DEMO_REPORT: RepositoryReport = parseRepositoryReport({
     { id: "context-readme", ...REPOSITORY_REPORT_COPY.evidence["context-readme"], paths: ["README.md"] },
     { id: "context-guidance", ...REPOSITORY_REPORT_COPY.evidence["context-guidance"], paths: ["AGENTS.md"] },
     { id: "verification-tests", ...REPOSITORY_REPORT_COPY.evidence["verification-tests"], paths: ["tests/browser/experience.spec.ts"] },
-    { id: "verification-config", ...REPOSITORY_REPORT_COPY.evidence["verification-config"], paths: ["playwright.config.ts"] },
+    { id: "verification-config", ...REPOSITORY_REPORT_COPY.evidence["verification-config"], paths: ["tsconfig.json"] },
     { id: "traceability-decisions", ...REPOSITORY_REPORT_COPY.evidence["traceability-decisions"], paths: ["docs/Architecture/ADR/0015-anonymous-korean-repository-reports.md"] },
     { id: "automation-ci", ...REPOSITORY_REPORT_COPY.evidence["automation-ci"], paths: [".github/workflows/ci.yml"] },
   ],
@@ -104,7 +104,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
     </section>
     <p className="repo-boundary"><strong>이 결과는 저장소에 남은 신호이며 개인 AI 실력 인증이 아닙니다.</strong> 실제 대화의 판단 과정이나 작업 성과 전체를 증명하지 않습니다.</p>
     <section className="repo-axis-section" aria-labelledby="axis-heading">
-      <div className="repo-section-heading"><div><span className="eyebrow">네 가지 저장소 신호</span><h2 id="axis-heading">어떤 흔적이 점수에 반영됐나요?</h2></div><p>{report.coverage.readFiles}/{report.coverage.selectedFiles}개 선택 파일 확인 · {report.coverage.status === "complete" ? "수집 완료" : "일부 수집"}<br />파일에 남은 정적 신호만 반영</p></div>
+      <div className="repo-section-heading"><div><span className="eyebrow">네 가지 저장소 신호</span><h2 id="axis-heading">어떤 흔적이 점수에 반영됐나요?</h2></div><p>{report.coverage.candidateFiles === null ? "후보 수 미확인" : `후보 ${report.coverage.candidateFiles}개`} · {report.coverage.selectedFiles}개 선택 · {report.coverage.readFiles}개 확인<br />{report.coverage.status === "complete" ? "수집 완료" : "일부 수집"} · 파일에 남은 정적 신호만 반영</p></div>
       <div className="repo-axis-grid">{AXES.map(axis => {
         const cards = report.evidenceCards.filter(card => card.axis === axis.id);
         return <article className="repo-axis-card product-panel" key={axis.id}>
@@ -161,6 +161,7 @@ export function RepositoryProfileExperience() {
 export function RepositoryInsightsExperience() {
   const [report, setReport] = useState<RepositoryReport | null>(currentReport);
   const [reports, setReports] = useState<RepositoryReport[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState("");
   useEffect(() => { try { setReports(readHistory()); } catch { /* The empty guide remains usable. */ } }, []);
-  return <RepositoryShell><main id="main" className="page-width product-page"><header className="product-heading"><div><h1>해석 가이드</h1><p>저장소 리포트의 네 축과 한계를 설명합니다.</p></div></header>{reports.length > 0 && <div className="product-toolbar"><label className="repo-select">저장된 리포트<select value="" onChange={event => { const selected = reports[Number(event.target.value)]; if (selected) { currentReport = selected; setReport(selected); } }}><option value="" disabled>저장소 선택</option>{reports.map((item, index) => <option key={`${item.repo}@${item.commitSha}`} value={index}>{repoName(item.repo)} · {item.score.value}점</option>)}</select></label></div>}{report ? <RepositoryReportView report={report} actions={false} /> : <><section className="product-empty"><h2>선택한 리포트가 없습니다.</h2><p>저장소 분석 결과에서 ‘점수 해석 보기’를 선택하거나 저장된 리포트를 골라 주세요.</p><Link className="button button-primary" href="/evaluate">저장소 분석하기 →</Link></section><section className="repo-guide product-panel"><span className="eyebrow">점수 읽는 법</span><h2>각 축은 최대 25점입니다.</h2><div className="session-breakdown">{AXES.map(axis => <div key={axis.id}><span>{axis.name}</span><strong>0–25점</strong><p>{axis.question}</p></div>)}</div><p>총점은 저장소에 확인 가능한 신호의 구성을 설명합니다. 점수가 높다고 작업 결과가 더 좋거나 개인의 AI 활용 능력이 더 뛰어나다는 뜻은 아닙니다.</p></section></>}</main></RepositoryShell>;
+  return <RepositoryShell><main id="main" className="page-width product-page"><header className="product-heading"><div><h1>해석 가이드</h1><p>저장소 리포트의 네 축과 한계를 설명합니다.</p></div></header>{reports.length > 0 && <div className="product-toolbar"><label className="repo-select">저장된 리포트<select value={selectedIndex} onChange={event => { setSelectedIndex(event.target.value); const selected = reports[Number(event.target.value)]; if (selected) { currentReport = selected; setReport(selected); } }}><option value="" disabled>저장소 선택</option>{reports.map((item, index) => <option key={`${item.repo}@${item.commitSha}`} value={index}>{repoName(item.repo)} · {item.score.value}점</option>)}</select></label></div>}{report ? <RepositoryReportView report={report} actions={false} /> : <><section className="product-empty"><h2>선택한 리포트가 없습니다.</h2><p>저장소 분석 결과에서 ‘점수 해석 보기’를 선택하거나 저장된 리포트를 골라 주세요.</p><Link className="button button-primary" href="/evaluate">저장소 분석하기 →</Link></section><section className="repo-guide product-panel"><span className="eyebrow">점수 읽는 법</span><h2>각 축은 최대 25점입니다.</h2><div className="session-breakdown">{AXES.map(axis => <div key={axis.id}><span>{axis.name}</span><strong>0–25점</strong><p>{axis.question}</p></div>)}</div><p>총점은 저장소에 확인 가능한 신호의 구성을 설명합니다. 점수가 높다고 작업 결과가 더 좋거나 개인의 AI 활용 능력이 더 뛰어나다는 뜻은 아닙니다.</p></section></>}</main></RepositoryShell>;
 }

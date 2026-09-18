@@ -183,11 +183,11 @@ test("checkout CLI produces safe JSON, refuses overwrites and keeps unsupported 
   const out = path.join(project, "summary.json");
   writeFileSync(file, fixture(project));
   const run = (args: string[]) => spawnSync(process.execPath, [path.join(root, "bin/myaiscore.mjs"), "--project", project, "--session", file, ...args], { cwd: project, encoding: "utf8" });
-  const result = run(["--json", "--out", out, "--web-url", "http://localhost:3104/session"]);
+  const result = run(["--json", "--out", out]);
   assert.equal(result.status, 0, result.stderr);
   assert.equal(parseSessionReport(JSON.parse(result.stdout)).score.value, 25);
   assert.deepEqual(JSON.parse(readFileSync(out, "utf8")), JSON.parse(result.stdout));
-  assert.ok(result.stderr.includes("#report="));
+  assert.equal(result.stderr, "");
   assert.ok(!result.stdout.includes(project));
   assert.equal(run(["--out", out]).status, 1);
   const bad = run(["--web-url", "javascript:alert('private')"]);

@@ -13,7 +13,7 @@ function report(overrides: Partial<RepositoryReport> = {}): RepositoryReport {
     { id: 'context-readme', ...REPOSITORY_REPORT_COPY.evidence['context-readme'], paths: ['README.md'] },
     { id: 'context-guidance', ...REPOSITORY_REPORT_COPY.evidence['context-guidance'], paths: ['AGENTS.md'] },
     { id: 'verification-tests', ...REPOSITORY_REPORT_COPY.evidence['verification-tests'], paths: ['tests/example.test.ts'] },
-    { id: 'verification-config', ...REPOSITORY_REPORT_COPY.evidence['verification-config'], paths: ['playwright.config.ts'] },
+    { id: 'verification-config', ...REPOSITORY_REPORT_COPY.evidence['verification-config'], paths: ['tsconfig.json'] },
     { id: 'traceability-decisions', ...REPOSITORY_REPORT_COPY.evidence['traceability-decisions'], paths: ['docs/Architecture/ADR/0001.md'] },
     { id: 'automation-ci', ...REPOSITORY_REPORT_COPY.evidence['automation-ci'], paths: ['.github/workflows/ci.yml'] },
   ];
@@ -65,7 +65,7 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await expect(page.locator('.repo-axis-card')).toHaveCount(4);
   await page.locator('.repo-axis-card').filter({ hasText: '시작 안내' }).getByText('근거 파일 1개').first().click();
   await expect(page.locator('.repo-axis-card').filter({ hasText: '시작 안내' })).toContainText('AGENTS.md');
-  await expect(page.locator('.repo-report')).toContainText('12/12개 선택 파일 확인');
+  await expect(page.locator('.repo-report')).toContainText('후보 20개 · 12개 선택 · 12개 확인');
   await expect(page.locator('.repo-report')).toContainText(REPOSITORY_REPORT_COPY.gaps.traceability);
   await expect(page.locator('.repo-report')).toContainText(REPOSITORY_REPORT_COPY.challenges.traceability.title);
   await expect(page.locator('.repo-boundary')).toContainText('저장소에 남은 신호이며 개인 AI 실력 인증이 아닙니다.');

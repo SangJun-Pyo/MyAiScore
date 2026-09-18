@@ -62,6 +62,26 @@ test("repository-report rejects malformed bodies and unsupported methods before 
   assert.equal(calls, 0);
 });
 
+test("invalid repository URLs are rejected before consuming the anonymous admission slot", async () => {
+  let calls = 0;
+  const admission = new RepositoryReportAdmission({ anonymousMaxStarts: 1, anonymousWindowMs: 3_600_000 });
+  const handle = createApi({
+    store: forbiddenStore,
+    githubToken: null,
+    repositoryReportAdmission: admission,
+    repositoryReport: async input => {
+      calls++;
+      assert.deepEqual(input, { repoUrl: "https://github.com/acme/api" });
+      return report;
+    },
+  });
+  const invalid = await request(handle, "POST", { repo_url: "https://example.com/not-github" });
+  assert.equal(invalid.status, 400);
+  assert.equal(invalid.body.error.code, "unsupported_host");
+  assert.equal((await request(handle, "POST", { repo_url: "https://github.com/acme/api.git" })).status, 200);
+  assert.equal(calls, 1);
+});
+
 test("repository-report maps private repository rejection without leaking collector details", async () => {
   const handle = createApi({
     store: forbiddenStore,
