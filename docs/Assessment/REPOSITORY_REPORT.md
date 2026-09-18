@@ -1,6 +1,6 @@
 # Repository report contract — v1
 
-Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). 구현 타입과 세부 점수표는 core 통합 뒤 이 문서에 확정한다.
+Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 현재 schema는 `repository-report-v1`, 규칙은 `repository-signals-v1`이다.
 
 ## 의미와 경계
 
@@ -17,8 +17,21 @@ RepositoryReport는 공개 GitHub 저장소의 고정 commit에서 제한적으�
 | 결정 추적 | ADR, 계획, 변경·세션 기록 | 기록의 사실성 또는 작성자 |
 | 자동화 기반 | 재현 가능한 scripts/config/workflow 신호 | 실행 성공·운영 품질 |
 
-각 축은 0~25이고 총점은 합계 0~100이다. 세부 신호는 cap을 사용해 파일 수만 늘려 점수를 무한히 높이지 않는다. 점수는 rule version으로 고정하고 같은 snapshot에서 결정론적으로 재계산한다. 부분 coverage는 점수 자체를 개인 실패로 재해석하지 않고 별도 상태로 표시한다.
+각 축은 0~25이고 총점은 합계 0~100이다. 같은 종류의 파일 수가 늘어도 신호 하나는 한 번만 더해지며, 각 근거 카드는 경로를 최대 5개만 표시한다. 네 축 모두 실제로 25점에 도달할 수 있다.
+
+| 축 | 고정 신호와 점수 | 축 최대 |
+|---|---|---:|
+| 맥락 | README 7, AGENTS/CLAUDE/Copilot 지침 7, 문서 공간 6, 프로젝트 설정 5 | 25 |
+| 검증 기반 | 테스트 파일 21, 타입·린트·테스트·커버리지 설정 4 | 25 |
+| 기록 | 변경 기록 8, ADR·결정 기록 9, 이슈·PR 템플릿 5, 마이그레이션 3 | 25 |
+| 자동화 | GitHub Actions 15, 의존성 갱신 설정 4, 배포 설정 3, scripts/tools/작업 파일 3 | 25 |
+
+스타일은 총점 20 미만이면 `첫 신호 탐험가`, 네 축 최저점이 10 이상이고 최고·최저 차가 6 이하이면 `균형 잡힌 빌더`다. 그 외에는 가장 높은 축의 고정 스타일을 사용하며 동점은 맥락→검증 기반→기록→자동화 순서로 결정한다. 10점 미만 축은 gap으로 표시하고, 가장 낮은 축에서 다음 도전을 고른다. 부분 coverage이면 별도 gap을 추가한다.
+
+점수·스타일·gap·다음 도전은 근거 카드에서 결정론적으로 재계산한다. 브라우저도 서버와 같은 strict parser를 사용하므로 파생 필드를 임의로 바꾼 응답이나 저장 이력은 거부한다. 부분 coverage는 보이는 신호만 점수에 반영하고 개인 실패로 해석하지 않는다.
 
 ## 근거와 안전
 
 근거 path는 수집된 file/evidence 목록에 실제로 존재해야 한다. 설명·스타일·도전은 고정 템플릿에서 생성하며 파일 원문을 그대로 삽입하지 않는다. 경로는 상대 경로, 길이·문자·개수 제한을 검증한다. 관찰되지 않은 축은 gap으로 설명하고 없는 성공을 추론하지 않는다.
+
+수집은 공개 저장소 metadata에서 `private === false`를 확인하고, 기본 branch·40자리 commit SHA·tree 구조를 검증한 뒤에만 blob을 읽는다. 실제 코드를 실행하지 않는다. 현재 서버 제한은 토큰이 있으면 5분당 분석 시작 5회, 없으면 서버 프로세스당 시간당 1회, 동시 2회다. 이 제한은 단일 프로세스 메모리 기준이며 여러 Railway 인스턴스에 공유되는 분산 제한은 아니다.

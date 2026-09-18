@@ -52,6 +52,19 @@ test("partial coverage remains explicit while observable signals still receive a
   assert.ok(report.gaps.includes(REPOSITORY_REPORT_COPY.gaps.partial));
 });
 
+test("the complete fixed signal set can reach 25 points on every axis and 100 overall", () => {
+  const report = buildRepositoryReport(snapshot([
+    "README.md", "AGENTS.md", "docs/guide.md", "package.json",
+    "tests/a.test.ts", "tsconfig.json",
+    "CHANGELOG.md", "docs/decisions/0001.md", ".github/issue_template/bug.md", "migrations/001.sql",
+    ".github/workflows/ci.yml", ".github/dependabot.yml", "Dockerfile", "scripts/check.ts",
+  ]));
+  assert.equal(report.score.value, 100);
+  assert.deepEqual(Object.fromEntries(Object.entries(report.score.axes).map(([axis, value]) => [axis, value.value])), {
+    context: 25, verification: 25, traceability: 25, automation: 25,
+  });
+});
+
 test("strict parsers reject extra request fields, forged scores and unsafe evidence paths", () => {
   assert.deepEqual(parseRepositoryReportRequest({ repo_url: " https://github.com/acme/reporter " }), { repo_url: "https://github.com/acme/reporter" });
   for (const input of [{}, { repo_url: 3 }, { repo_url: "https://github.com/a/b", extra: true }]) assert.throws(() => parseRepositoryReportRequest(input));
