@@ -29,6 +29,12 @@
 - partial/tree·selection 제한/미지원 테스트 형식, 관찰 축 3개 미만, substance 신호 4개 미만, 빈 차원 또는 여러 경계 차원에서는 네 글자를 강제하지 않고 `유형 판단 보류`와 고정 이유를 표시한다.
 - strict parser가 유형·강도·경계·보류 이유를 점수 신호에서 다시 계산한다. 기존 `repository-report-v1`과 `repository-signals-v2.1` 저장 이력은 그대로 읽는다. 결정은 [ADR-0018](../Architecture/ADR/0018-evidence-aware-collaboration-profile.md), 실행 이력은 [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md)에 기록한다.
 
+## 2026-09-19 — 헤더 GitHub 링크
+
+- 푸터에만 있던 GitHub 저장소 링크를 헤더 nav로 옮겼다. Home/내 리포트/해석 가이드/저장소 분석 뒤에 다섯 번째 항목으로 붙는 일반 텍스트 링크이며, 새 탭으로 연다. 스타 개수 등 GitHub API 호출은 추가하지 않았다 — 로그인 없는 stateless 도구라는 원칙과 맞지 않는다.
+- 레거시 CLI 세션 리포트 화면(`/assessments/[id]`, `/results/[id]`)의 별도 Shell 구현에도 같은 항목을 추가해 두 화면 간 헤더 구성을 맞췄다.
+- 푸터의 GitHub 링크와 죽은 `footer-source` CSS 규칙을 제거했다. 모바일 헤더 nav는 항목이 다섯 개로 늘어난 만큼 줄바꿈을 허용한다.
+
 ## 2026-09-19 — ThreeUI CRT background for Home hero
 
 - 홈 히어로 섹션 뒤에만 ThreeUI `CrtBackground` terminal variant를 낮은 opacity와 radial mask로 배치했다. 실제 H1·CTA·예시 리포트 카드가 주 콘텐츠로 유지되며, CRT는 `aria-hidden` 장식 요소다.

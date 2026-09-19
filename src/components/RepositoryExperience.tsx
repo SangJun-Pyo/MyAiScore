@@ -180,10 +180,10 @@ export function RepositoryShell({ children }: { children: React.ReactNode }) {
     <a className="skip-link" href="#main" onClick={() => requestAnimationFrame(() => { const target = document.getElementById("main"); target?.setAttribute("tabindex", "-1"); target?.focus(); })}>{copy.shell.skip}</a>
     <header className="site-header"><div className="header-inner">
       <Link href="/" className="brand" aria-label={copy.shell.brandHome}><span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>MyAiScore<span className="beta">{copy.shell.beta}</span></Link>
-      <div className="header-actions"><nav aria-label={copy.shell.navLabel}>{links.map(item => <Link key={item.href} href={item.href} className={item.href === "/evaluate" ? "nav-evaluate" : undefined} aria-current={pathname === item.href ? "page" : undefined}>{item.name}</Link>)}</nav><LanguageSwitch /></div>
+      <div className="header-actions"><nav aria-label={copy.shell.navLabel}>{links.map(item => <Link key={item.href} href={item.href} className={item.href === "/evaluate" ? "nav-evaluate" : undefined} aria-current={pathname === item.href ? "page" : undefined}>{item.name}</Link>)}<a href="https://github.com/SangJun-Pyo/MyAiScore" target="_blank" rel="noreferrer">{copy.shell.github}</a></nav><LanguageSwitch /></div>
     </div></header>
     {children}
-    <footer className="site-footer"><Link href="/" className="brand">MyAiScore</Link><p>{copy.shell.footerLead}</p><a className="footer-source" href="https://github.com/SangJun-Pyo/MyAiScore" target="_blank" rel="noreferrer">{copy.shell.footerSource}</a><span>{copy.shell.footerLimit}</span></footer>
+    <footer className="site-footer"><Link href="/" className="brand">MyAiScore</Link><p>{copy.shell.footerLead}</p><span>{copy.shell.footerLimit}</span></footer>
   </>;
 }
 
