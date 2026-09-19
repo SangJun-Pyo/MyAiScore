@@ -13,6 +13,7 @@
     "test": "node --import tsx --test tests/**/*.test.ts",
     "ingest": "tsx scripts/ingest.ts",
     "smoke:live": "tsx scripts/ingest.ts --repo https://github.com/octocat/Hello-World",
+    "cohort:build": "tsx scripts/buildRepositoryCohort.ts",
     "evaluate:offline": "tsx scripts/evaluateOffline.ts",
     "collect:local": "tsx scripts/collectLocalSession.ts",
     "test:e2e": "playwright test",

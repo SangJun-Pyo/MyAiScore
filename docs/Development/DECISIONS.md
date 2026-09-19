@@ -132,3 +132,7 @@ Community 공개 프롬프트와 MIT 원본 소스를 확인하고 히어로의 
 ## 16. ROI 개선 조언과 코호트 표시 조건 (2026-09-19)
 
 단일 최저축 조언 대신 신호별 개선을 가정해 실제 총점 gain을 재계산하고 고정 effort 대비 효과 순으로 최대 세 개를 제시한다. 내부 계수는 화면에 숨기며 strict parser가 추천과 근거 경로를 다시 계산한다. 실제 고정 SHA 공개 저장소 50개 이상의 투명한 manifest가 준비되기 전에는 순위·백분위를 표시하지 않는다. [ADR-0022](../Architecture/ADR/0022-deterministic-roi-recommendations.md).
+
+## 17. 고정 SHA 참조 코호트 v1 (2026-09-19)
+
+언어 5개와 별점 5구간으로 나눈 공개 저장소 50개를 고정 SHA에서 수집한 층화 편의 표본을 사용한다. 같은 candidate 규모와 coverage 상태의 그룹이 5개 이상일 때만 10% 단위 참고 위치를 표시하며 GitHub 전체 순위나 개인 능력 백분위로 표현하지 않는다. [ADR-0023](../Architecture/ADR/0023-fixed-sha-reference-cohort.md).

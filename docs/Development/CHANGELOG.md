@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-19 — 고정 SHA 참조 코호트 v2.7
+
+- TypeScript·Python·Go·Rust·Java 각 10개, 다섯 별점 구간별 2개씩 총 50개 공개 저장소를 고정 SHA에서 v2.6 규칙으로 수집했다. seed, 선택식, 점수·축·coverage manifest와 SHA-256 digest를 공개하며 원문은 저장하지 않는다.
+- 새 v2.7 결과는 같은 규모와 같은 complete/partial 상태의 참조 그룹이 5개 이상일 때만 10% 단위 위치 구간을 표시한다. 전체 50개와 실제 비교 수, GitHub 전체 순위가 아니라는 한계를 함께 보여준다.
+- strict parser가 점수와 coverage로 cohort 객체를 재계산해 위조된 순위·표본 수·digest를 거부한다. [ADR-0023](../Architecture/ADR/0023-fixed-sha-reference-cohort.md).
+
 ## 2026-09-19 — ROI 우선순위 개선 조언 v2.6
 
 - 측정 가능한 미충족 신호를 하나씩 최대점으로 개선했을 때의 전체 점수 gain을 실제로 재계산하고, 고정 작업량 대비 효과 순으로 최대 세 개를 고른다.

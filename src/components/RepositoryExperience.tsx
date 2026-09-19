@@ -8,6 +8,7 @@ import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
 import { repositoryProfilePresentation } from "../i18n/repositoryProfilePresentation";
 import { repositoryV2Presentation } from "../i18n/repositoryV2Presentation";
+import { deriveRepositoryCohortComparison } from "../shared/repositoryCohort";
 import {
   REPOSITORY_AXIS_ORDER,
   REPOSITORY_REPORT_COPY,
@@ -96,7 +97,7 @@ function buildDemoReport(): RepositoryReport {
   };
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.6",
+    ruleVersion: "repository-signals-v2.7",
     repo: "example/sample-project",
     commitSha: "0123456789abcdef0123456789abcdef01234567",
     coverage: {
@@ -128,7 +129,7 @@ function buildDemoReport(): RepositoryReport {
     diagnostics,
     collaborationProfile: deriveRepositoryCollaborationProfile(signalScores, derived.axes, diagnostics),
     recommendations: deriveRepositoryRecommendations(signalScores, DEMO_EVIDENCE_CARDS),
-    cohort: null,
+    cohort: deriveRepositoryCohortComparison(derived.value, { candidateFiles: 42, status: "complete" }),
   });
 }
 
@@ -195,6 +196,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(report, locale, copy);
   const v2 = report.schemaVersion === "repository-report-v2" ? report : null;
+  const actionable = v2 && (v2.ruleVersion === "repository-signals-v2.6" || v2.ruleVersion === "repository-signals-v2.7") ? v2 : null;
   const profile = reportCollaborationProfile(report);
   const profileDisplay = profile ? repositoryProfilePresentation(profile, locale) : null;
   const v2Display = repositoryV2Presentation(locale);
@@ -225,7 +227,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
     </section>
     <div className="repo-detail-grid">
       <section className="product-panel repo-gaps"><span className="eyebrow">{copy.report.gapsEyebrow}</span><h2>{copy.report.gapsHeading}</h2>{display.gaps.length ? <ul>{display.gaps.map((gap, index) => <li key={index}>{gap}</li>)}</ul> : <p>{copy.report.noGaps}</p>}<details><summary>{copy.report.coverageDetails}</summary><p>{display.coverageNote}</p>{report.coverage.treeTruncated && <p>{copy.report.treeTruncated}</p>}{report.coverage.selectionLimited && <p>{copy.report.selectionLimited}</p>}</details></section>
-      {v2?.ruleVersion === "repository-signals-v2.6" ? <section className="repo-next repo-recommendations"><span className="eyebrow">{copy.report.recommendations}</span><p>{copy.report.recommendationsIntro}</p>{v2.recommendations.length > 0 ? <ol>{v2.recommendations.map(item => { const action = v2Display.recommendation(item.signalId); return <li key={item.signalId}><span>{v2Display.recommendationEffort[item.effort]}</span><h2>{action.title}</h2><p>{action.description}</p>{item.evidencePath && <small>{v2Display.recommendationPath(item.evidencePath)}</small>}</li>; })}</ol> : <p>{v2Display.noRecommendations}</p>}<small className="repo-cohort-pending">{v2Display.cohortPending}</small></section> : <section className="repo-next"><span className="eyebrow">{copy.report.nextChallenge}</span><h2>{display.nextChallenge.title}</h2><p>{display.nextChallenge.description}</p></section>}
+      {actionable ? <section className="repo-next repo-recommendations"><span className="eyebrow">{copy.report.recommendations}</span><p>{copy.report.recommendationsIntro}</p>{actionable.recommendations.length > 0 ? <ol>{actionable.recommendations.map(item => { const action = v2Display.recommendation(item.signalId); return <li key={item.signalId}><span>{v2Display.recommendationEffort[item.effort]}</span><h2>{action.title}</h2><p>{action.description}</p>{item.evidencePath && <small>{v2Display.recommendationPath(item.evidencePath)}</small>}</li>; })}</ol> : <p>{v2Display.noRecommendations}</p>}{actionable.ruleVersion === "repository-signals-v2.7" && actionable.cohort ? <aside className="repo-cohort"><span>{v2Display.cohortHeading}</span><strong>{v2Display.cohortPosition(actionable.cohort)}</strong><p>{v2Display.cohortDetails(actionable.cohort)}</p></aside> : <small className="repo-cohort-pending">{v2Display.cohortPending}</small>}</section> : <section className="repo-next"><span className="eyebrow">{copy.report.nextChallenge}</span><h2>{display.nextChallenge.title}</h2><p>{display.nextChallenge.description}</p></section>}
     </div>
     {v2 && <section className="product-panel repo-diagnostics"><span className="eyebrow">{v2Display.diagnosticsHeading}</span><p>{v2Display.hygieneSummary(v2.diagnostics.hygiene.highConfidenceArtifacts, v2.diagnostics.hygiene.generatedArtifactCandidates, v2.diagnostics.hygiene.secretLikePaths)}</p><p>{v2Display.structureSummary(v2.diagnostics.structure.oversizedSourceCandidates, v2.diagnostics.structure.sourceFilesOver400Lines, v2.diagnostics.structure.sourceFilesOver800Lines)}</p>{v2.diagnostics.structure.largestSelectedSourceFiles.length > 0 && <ul>{v2.diagnostics.structure.largestSelectedSourceFiles.map(file => <li key={file.path}><code>{file.path}</code> · {file.lineCount} lines</li>)}</ul>}</section>}
     {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div>{notice && <p role="status" className="caption">{notice === "saved" ? copy.report.saved : copy.report.saveError}</p>}</section>}

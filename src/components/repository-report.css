@@ -78,6 +78,10 @@
 .repo-recommendations li h2 { margin-bottom:6px; font-size:20px; }
 .repo-recommendations li small,.repo-cohort-pending { display:block; margin-top:8px; color:#4f3028; font-size:10px; line-height:1.5; }
 .repo-cohort-pending { margin-top:18px; padding-top:13px; border-top:1px solid #4f30284a; }
+.repo-cohort { display:grid; gap:5px; margin-top:20px; padding:16px; border:1px solid #4f30284a; border-radius:10px; background:#fff2; }
+.repo-cohort span { color:#4f3028; font-size:10px; letter-spacing:.09em; text-transform:uppercase; }
+.repo-cohort strong { font-size:20px; font-weight:600; }
+.repo-cohort p { line-height:1.55; }
 .repo-actions { padding-block:22px; }
 .repo-actions .button-row { margin-top:14px; }
 .repo-cli-secondary { margin-top:36px; padding:22px 0; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }

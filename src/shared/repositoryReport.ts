@@ -1,3 +1,5 @@
+import { deriveRepositoryCohortComparison, type RepositoryCohortComparison } from "./repositoryCohort";
+
 export type RepositoryReportAxis = "context" | "verification" | "traceability" | "automation";
 export type RepositoryReportEvidenceId =
   | "context-readme"
@@ -197,7 +199,14 @@ export interface RepositoryReportV2_6 extends RepositoryReportV2Base {
   cohort: null;
 }
 
-export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3 | RepositoryReportV2_4 | RepositoryReportV2_5 | RepositoryReportV2_6;
+export interface RepositoryReportV2_7 extends RepositoryReportV2Base {
+  ruleVersion: "repository-signals-v2.7";
+  collaborationProfile: RepositoryCollaborationProfile;
+  recommendations: RepositoryRecommendation[];
+  cohort: RepositoryCohortComparison | null;
+}
+
+export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3 | RepositoryReportV2_4 | RepositoryReportV2_5 | RepositoryReportV2_6 | RepositoryReportV2_7;
 
 export type RepositoryReport = RepositoryReportV1 | RepositoryReportV2;
 
@@ -732,8 +741,8 @@ function expectedAxis(id: RepositoryReportScoreSignalId): RepositoryReportAxis {
   return REPOSITORY_REPORT_COPY.evidence[id].axis;
 }
 
-function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5" | "repository-signals-v2.6"): RepositoryReportSignalAssessment[] {
-  const modern = ["repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5", "repository-signals-v2.6"].includes(ruleVersion);
+function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5" | "repository-signals-v2.6" | "repository-signals-v2.7"): RepositoryReportSignalAssessment[] {
+  const modern = ["repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5", "repository-signals-v2.6", "repository-signals-v2.7"].includes(ruleVersion);
   const signalOrder = modern ? REPOSITORY_SCORE_SIGNAL_ORDER : REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER;
   if (!Array.isArray(value.signalScores) || value.signalScores.length !== signalOrder.length) throw new Error("Invalid repository report signal scores.");
   const assessments: RepositoryReportSignalAssessment[] = [];
@@ -854,13 +863,14 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   const isV24 = isV2 && value.ruleVersion === "repository-signals-v2.4";
   const isV25 = isV2 && value.ruleVersion === "repository-signals-v2.5";
   const isV26 = isV2 && value.ruleVersion === "repository-signals-v2.6";
-  const isModern = isV23 || isV24 || isV25 || isV26;
-  const alwaysAssigned = isV24 || isV25 || isV26;
+  const isV27 = isV2 && value.ruleVersion === "repository-signals-v2.7";
+  const isModern = isV23 || isV24 || isV25 || isV26 || isV27;
+  const alwaysAssigned = isV24 || isV25 || isV26 || isV27;
   const keys = isV2
-    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 || isModern ? ["collaborationProfile"] : []), ...(isV26 ? ["recommendations", "cohort"] : [])]
+    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 || isModern ? ["collaborationProfile"] : []), ...(isV26 || isV27 ? ["recommendations", "cohort"] : [])]
     : ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge"];
-  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5", "repository-signals-v2.6"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
-  const { coverage, status } = validateIdentityAndCoverage(value, isV25 || isV26 ? 60 : 40);
+  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5", "repository-signals-v2.6", "repository-signals-v2.7"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
+  const { coverage, status } = validateIdentityAndCoverage(value, isV25 || isV26 || isV27 ? 60 : 40);
   const score = validateScore(value, isV2 ? REPOSITORY_REPORT_COPY.scoreExplanationV2 : REPOSITORY_REPORT_COPY.scoreExplanation);
   const style = validateStyle(value);
   const cards = validateEvidenceCards(value, isModern ? REPOSITORY_V23_EVIDENCE_ORDER : REPOSITORY_LEGACY_EVIDENCE_ORDER);
@@ -871,8 +881,8 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
     return structuredClone(value) as unknown as RepositoryReportV1;
   }
 
-  const diagnostics = validateDiagnostics(value.diagnostics, isV25 || isV26 ? 60 : 40);
-  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5" | "repository-signals-v2.6";
+  const diagnostics = validateDiagnostics(value.diagnostics, isV25 || isV26 || isV27 ? 60 : 40);
+  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5" | "repository-signals-v2.6" | "repository-signals-v2.7";
   const assessments = validateSignalScores(value, diagnostics.profile.databaseLikely, ruleVersion);
   const reasonSet = new Set(diagnostics.reasons);
   const testAssessment = assessments.find(item => item.id === (isModern ? "verification-test-substance" : "verification-tests"))!;
@@ -893,9 +903,14 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
     if (JSON.stringify(profile) !== JSON.stringify(expectedProfile)) throw new Error("Repository collaboration profile does not match its evidence.");
   }
 
-  if (isV26) {
+  if (isV26 || isV27) {
     validateRecommendations(value.recommendations, assessments, cards);
-    if (value.cohort !== null) throw new Error("Repository cohort is unavailable until a fixed reference manifest is released.");
+    if (isV26) {
+      if (value.cohort !== null) throw new Error("Repository cohort is unavailable until a fixed reference manifest is released.");
+    } else {
+      const expectedCohort = deriveRepositoryCohortComparison(derived.value, coverage as unknown as RepositoryReportCoverage);
+      if (JSON.stringify(value.cohort) !== JSON.stringify(expectedCohort)) throw new Error("Repository cohort comparison does not match its score and coverage.");
+    }
   }
 
   return structuredClone(value) as unknown as RepositoryReportV2;

@@ -1,0 +1,930 @@
+{
+  "version": "repository-cohort-v1",
+  "ruleVersion": "repository-signals-v2.6",
+  "selectedAt": "2026-09-19",
+  "collectedAt": "2026-09-19",
+  "selection": {
+    "kind": "stratified-convenience-sample",
+    "ecosystems": [
+      "TypeScript",
+      "Python",
+      "Go",
+      "Rust",
+      "Java"
+    ],
+    "starBands": [
+      "100..499",
+      "500..1999",
+      "2000..9999",
+      "10000..49999",
+      ">=50000"
+    ],
+    "perCell": 2,
+    "querySuffix": "size:50..50000 fork:false archived:false pushed:>=2025-01-01",
+    "ordering": "stars descending; first two results returned by GitHub repository search"
+  },
+  "sampleSize": 50,
+  "distributions": {
+    "ecosystems": {
+      "TypeScript": 10,
+      "Python": 10,
+      "Go": 10,
+      "Rust": 10,
+      "Java": 10
+    },
+    "sizeBands": {
+      "small": 18,
+      "medium": 14,
+      "large": 18
+    },
+    "coverage": {
+      "complete": 37,
+      "partial": 13
+    }
+  },
+  "entries": [
+    {
+      "ecosystem": "TypeScript",
+      "starBand": "100..499",
+      "repo": "ecomfe/tempad-dev",
+      "commitSha": "29f1789fe7ec57e4492395028447a743ca087d6f",
+      "score": 61,
+      "axes": {
+        "context": 16,
+        "verification": 24,
+        "traceability": 5,
+        "automation": 16
+      },
+      "candidateFiles": 469,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": "100..499",
+      "repo": "mxstbr/mxstbr.com",
+      "commitSha": "cb1babc0e38087467ad7203f64d570b7e9720b79",
+      "score": 32,
+      "axes": {
+        "context": 15,
+        "verification": 10,
+        "traceability": 2,
+        "automation": 5
+      },
+      "candidateFiles": null,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection",
+        "selection_limited"
+      ],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": "500..1999",
+      "repo": "TypeStrong/fork-ts-checker-webpack-plugin",
+      "commitSha": "9f70a3dcdaf216177b9b7b85426fc8e473bfad4e",
+      "score": 61,
+      "axes": {
+        "context": 11,
+        "verification": 20,
+        "traceability": 13,
+        "automation": 17
+      },
+      "candidateFiles": 195,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection"
+      ],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": "500..1999",
+      "repo": "dahlia/logtape",
+      "commitSha": "96f14d976c4b6f3787b6e01cb888d4e1571044fa",
+      "score": 53,
+      "axes": {
+        "context": 16,
+        "verification": 17,
+        "traceability": 4,
+        "automation": 16
+      },
+      "candidateFiles": 388,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": "2000..9999",
+      "repo": "cloudflare/cloudflare-os",
+      "commitSha": "bdc5c85daf5e9c7fc80799c3fe042cd38e25add0",
+      "score": 62,
+      "axes": {
+        "context": 17,
+        "verification": 22,
+        "traceability": 5,
+        "automation": 18
+      },
+      "candidateFiles": 1190,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": "2000..9999",
+      "repo": "Narcooo/inkos",
+      "commitSha": "091048383f411eb99948a8764f42b6fd13006f9b",
+      "score": 53,
+      "axes": {
+        "context": 10,
+        "verification": 18,
+        "traceability": 12,
+        "automation": 13
+      },
+      "candidateFiles": 857,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": "10000..49999",
+      "repo": "type-challenges/type-challenges",
+      "commitSha": "0b0b0b18bcb7ac42dc22ce26ffb438231d4754b1",
+      "score": 28,
+      "axes": {
+        "context": 6,
+        "verification": 9,
+        "traceability": 4,
+        "automation": 9
+      },
+      "candidateFiles": 1074,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": "10000..49999",
+      "repo": "slab/quill",
+      "commitSha": "539cbffd0a13b18e9c65eb84dd35e6596e403158",
+      "score": 46,
+      "axes": {
+        "context": 7,
+        "verification": 17,
+        "traceability": 8,
+        "automation": 14
+      },
+      "candidateFiles": 259,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": ">=50000",
+      "repo": "anthropics/claude-code",
+      "commitSha": "bf7d404e26a5fb6167d21b46c93a2bf6c22ab274",
+      "score": 36,
+      "axes": {
+        "context": 9,
+        "verification": 9,
+        "traceability": 6,
+        "automation": 12
+      },
+      "candidateFiles": 1228,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "TypeScript",
+      "starBand": ">=50000",
+      "repo": "yangshun/tech-interview-handbook",
+      "commitSha": "e1d28e8886c0b6ff3e50da991ce0e895134ddc59",
+      "score": 27,
+      "axes": {
+        "context": 13,
+        "verification": 3,
+        "traceability": 7,
+        "automation": 4
+      },
+      "candidateFiles": 501,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": "100..499",
+      "repo": "frederikemmer/MediaLyze",
+      "commitSha": "2b9bf5f35462a2f994f1f37ed1cf3d2e3ca582f3",
+      "score": 68,
+      "axes": {
+        "context": 19,
+        "verification": 19,
+        "traceability": 12,
+        "automation": 18
+      },
+      "candidateFiles": 343,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": "100..499",
+      "repo": "ynsmroztas/cPanelSniper",
+      "commitSha": "41bc0de369e8c717b3f5cba95d59e3419d454580",
+      "score": 5,
+      "axes": {
+        "context": 5,
+        "verification": 0,
+        "traceability": 0,
+        "automation": 0
+      },
+      "candidateFiles": 2,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": "500..1999",
+      "repo": "JurajNyiri/HomeAssistant-Tapo-Control",
+      "commitSha": "1b7a7d6fa671047d04c092fee4f0e7bed1b8ee58",
+      "score": 15,
+      "axes": {
+        "context": 9,
+        "verification": 0,
+        "traceability": 6,
+        "automation": 0
+      },
+      "candidateFiles": 48,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": "500..1999",
+      "repo": "GitGuardian/ggshield",
+      "commitSha": "8584c34df744a8f9bc65a326aaad1c576e6d8fa4",
+      "score": 71,
+      "axes": {
+        "context": 13,
+        "verification": 23,
+        "traceability": 12,
+        "automation": 23
+      },
+      "candidateFiles": 627,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": "2000..9999",
+      "repo": "google-deepmind/sonnet",
+      "commitSha": "4a3bae0fe2837f68ef74025952ded3074e20592a",
+      "score": 21,
+      "axes": {
+        "context": 7,
+        "verification": 3,
+        "traceability": 3,
+        "automation": 8
+      },
+      "candidateFiles": 294,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection"
+      ],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": "2000..9999",
+      "repo": "Flowseal/tg-ws-proxy",
+      "commitSha": "f200e33fd283143a9f101d62aaf9d8c1468a23fe",
+      "score": 41,
+      "axes": {
+        "context": 10,
+        "verification": 16,
+        "traceability": 6,
+        "automation": 9
+      },
+      "candidateFiles": 84,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": "10000..49999",
+      "repo": "HKUDS/CLI-Anything",
+      "commitSha": "810c18b0d1ab9b234bc996c9fd999318523a3ef0",
+      "score": 46,
+      "axes": {
+        "context": 13,
+        "verification": 13,
+        "traceability": 16,
+        "automation": 4
+      },
+      "candidateFiles": 1820,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": "10000..49999",
+      "repo": "Imbad0202/academic-research-skills",
+      "commitSha": "3c546bc08c56f79e0068f1ea4f0acedf5bf69b5e",
+      "score": 59,
+      "axes": {
+        "context": 14,
+        "verification": 18,
+        "traceability": 13,
+        "automation": 14
+      },
+      "candidateFiles": null,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection",
+        "selection_limited"
+      ],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": ">=50000",
+      "repo": "public-apis/public-apis",
+      "commitSha": "4cfe04f70da070207b032eed62db76a0c82e11b7",
+      "score": 25,
+      "axes": {
+        "context": 5,
+        "verification": 12,
+        "traceability": 4,
+        "automation": 4
+      },
+      "candidateFiles": 18,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Python",
+      "starBand": ">=50000",
+      "repo": "EbookFoundation/free-programming-books",
+      "commitSha": "75784265b8c87560c18c19cc4d1ef66366ac938b",
+      "score": 25,
+      "axes": {
+        "context": 7,
+        "verification": 0,
+        "traceability": 5,
+        "automation": 13
+      },
+      "candidateFiles": 228,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": "100..499",
+      "repo": "nats-io/prometheus-nats-exporter",
+      "commitSha": "6002d4ce9f18dbd1e54e4a237792bd4e54e29691",
+      "score": 52,
+      "axes": {
+        "context": 8,
+        "verification": 20,
+        "traceability": 6,
+        "automation": 18
+      },
+      "candidateFiles": 54,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": "100..499",
+      "repo": "aydinnyunus/exifLooter",
+      "commitSha": "b8cc568f00f29b4eaec707f58e7b5066d0ec835f",
+      "score": 7,
+      "axes": {
+        "context": 5,
+        "verification": 0,
+        "traceability": 2,
+        "automation": 0
+      },
+      "candidateFiles": 7,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": "500..1999",
+      "repo": "glebkudr/shotgun_code",
+      "commitSha": "c243e82f46976da4f251db5b89a3afe973e40659",
+      "score": 10,
+      "axes": {
+        "context": 7,
+        "verification": 0,
+        "traceability": 0,
+        "automation": 3
+      },
+      "candidateFiles": 64,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection",
+        "commit_history_unavailable"
+      ],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": "500..1999",
+      "repo": "unrolled/render",
+      "commitSha": "dd96b08106d9dd6d30323ebab225ecbadb2ff231",
+      "score": 29,
+      "axes": {
+        "context": 4,
+        "verification": 15,
+        "traceability": 3,
+        "automation": 7
+      },
+      "candidateFiles": 48,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": "2000..9999",
+      "repo": "lib/pq",
+      "commitSha": "451ac10e4e854d3dd426b7b6ef6446850efbc34e",
+      "score": 4,
+      "axes": {
+        "context": 4,
+        "verification": 0,
+        "traceability": 0,
+        "automation": 0
+      },
+      "candidateFiles": 112,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection",
+        "commit_history_unavailable"
+      ],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": "2000..9999",
+      "repo": "alireza0/s-ui",
+      "commitSha": "13abbdc431ae31ec78a54f5e6643b7fd70b6e634",
+      "score": 49,
+      "axes": {
+        "context": 7,
+        "verification": 16,
+        "traceability": 7,
+        "automation": 19
+      },
+      "candidateFiles": 215,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": "10000..49999",
+      "repo": "charmbracelet/bubbletea",
+      "commitSha": "657aaae216e3f87df09b60959a9fe5de7b2ca419",
+      "score": 48,
+      "axes": {
+        "context": 5,
+        "verification": 19,
+        "traceability": 6,
+        "automation": 18
+      },
+      "candidateFiles": 192,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": "10000..49999",
+      "repo": "spf13/cobra",
+      "commitSha": "adbc8813901bba65827259daa8e22ff94ec1f30e",
+      "score": 37,
+      "axes": {
+        "context": 6,
+        "verification": 16,
+        "traceability": 4,
+        "automation": 11
+      },
+      "candidateFiles": 63,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": ">=50000",
+      "repo": "avelino/awesome-go",
+      "commitSha": "415e11de0684cf6846bc564b712165673421d32e",
+      "score": 39,
+      "axes": {
+        "context": 5,
+        "verification": 15,
+        "traceability": 7,
+        "automation": 12
+      },
+      "candidateFiles": 43,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Go",
+      "starBand": ">=50000",
+      "repo": "fatedier/frp",
+      "commitSha": "d20a232996007dfe6ab425abc0a39a3ae9a0889b",
+      "score": 47,
+      "axes": {
+        "context": 12,
+        "verification": 20,
+        "traceability": 6,
+        "automation": 9
+      },
+      "candidateFiles": 511,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": "100..499",
+      "repo": "PeiPei233/zju-learning-assistant",
+      "commitSha": "5f873fe36705303f96589a59a25cae55fcfd4cf8",
+      "score": 21,
+      "axes": {
+        "context": 7,
+        "verification": 7,
+        "traceability": 3,
+        "automation": 4
+      },
+      "candidateFiles": 85,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection"
+      ],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": "100..499",
+      "repo": "sebadob/hiqlite",
+      "commitSha": "52122ae7163d051d6b488d751018f76596f7d8f7",
+      "score": 43,
+      "axes": {
+        "context": 5,
+        "verification": 16,
+        "traceability": 12,
+        "automation": 10
+      },
+      "candidateFiles": 279,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": "500..1999",
+      "repo": "fede1024/rust-rdkafka",
+      "commitSha": "3f54ff1dabe7eece876b9635e22462b04478a445",
+      "score": 43,
+      "axes": {
+        "context": 7,
+        "verification": 13,
+        "traceability": 9,
+        "automation": 14
+      },
+      "candidateFiles": 76,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": "500..1999",
+      "repo": "gorules/zen",
+      "commitSha": "adf7cdf44aa4381967a5bef1908b3b02789c3180",
+      "score": 52,
+      "axes": {
+        "context": 9,
+        "verification": 14,
+        "traceability": 16,
+        "automation": 13
+      },
+      "candidateFiles": 722,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": "2000..9999",
+      "repo": "pkgxdev/pkgx",
+      "commitSha": "6de1d7e953b98061f69db95d4bd45a2a6ee5d7da",
+      "score": 41,
+      "axes": {
+        "context": 12,
+        "verification": 12,
+        "traceability": 2,
+        "automation": 15
+      },
+      "candidateFiles": 74,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": "2000..9999",
+      "repo": "SeaQL/sea-orm",
+      "commitSha": "f21b51c72a11bb6c88815952b7e7492d0ed21755",
+      "score": 47,
+      "axes": {
+        "context": 13,
+        "verification": 13,
+        "traceability": 7,
+        "automation": 14
+      },
+      "candidateFiles": 1567,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": "10000..49999",
+      "repo": "sharkdp/fd",
+      "commitSha": "5bbfa3eb1d1f3df78b9def10ea1c074307f9f22e",
+      "score": 45,
+      "axes": {
+        "context": 10,
+        "verification": 7,
+        "traceability": 12,
+        "automation": 16
+      },
+      "candidateFiles": 56,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": "10000..49999",
+      "repo": "FuelLabs/fuels-rs",
+      "commitSha": "d9a250a51818dda64bfeb5ef7cc19cf27bdcd623",
+      "score": 47,
+      "axes": {
+        "context": 15,
+        "verification": 13,
+        "traceability": 12,
+        "automation": 7
+      },
+      "candidateFiles": 640,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": ">=50000",
+      "repo": "ultraworkers/claw-code",
+      "commitSha": "08106b0c3771ef5b4a5aa176acccd460e88b7325",
+      "score": 47,
+      "axes": {
+        "context": 13,
+        "verification": 9,
+        "traceability": 7,
+        "automation": 18
+      },
+      "candidateFiles": 368,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Rust",
+      "starBand": ">=50000",
+      "repo": "rtk-ai/rtk",
+      "commitSha": "0924356b4caba4989607227b7c8824d3d8098719",
+      "score": 62,
+      "axes": {
+        "context": 18,
+        "verification": 13,
+        "traceability": 11,
+        "automation": 20
+      },
+      "candidateFiles": 563,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": "100..499",
+      "repo": "ekoz/kbase-doc",
+      "commitSha": "477e1d872c71cb84805f52d753bd05a247f3972b",
+      "score": 19,
+      "axes": {
+        "context": 6,
+        "verification": 10,
+        "traceability": 3,
+        "automation": 0
+      },
+      "candidateFiles": 95,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection"
+      ],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": "100..499",
+      "repo": "al3xtjames/ghidra-firmware-utils",
+      "commitSha": "2361aa838b1aaf2575edb14d33f6bc84ec37490a",
+      "score": 17,
+      "axes": {
+        "context": 7,
+        "verification": 3,
+        "traceability": 3,
+        "automation": 4
+      },
+      "candidateFiles": 78,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection"
+      ],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": "500..1999",
+      "repo": "slapperwan/gh4a",
+      "commitSha": "39f03ffe122125e46a51de16d90881047ed4660e",
+      "score": 21,
+      "axes": {
+        "context": 7,
+        "verification": 7,
+        "traceability": 7,
+        "automation": 0
+      },
+      "candidateFiles": 711,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": "500..1999",
+      "repo": "zhegexiaohuozi/SeimiCrawler",
+      "commitSha": "ddf7bd293c55f5c357e7b0abc3e21df5ccab4160",
+      "score": 20,
+      "axes": {
+        "context": 9,
+        "verification": 4,
+        "traceability": 7,
+        "automation": 0
+      },
+      "candidateFiles": 113,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": "2000..9999",
+      "repo": "happydog-intj/JsBridge",
+      "commitSha": "3210abd0a9268edc83fe20f31fa45255b762299e",
+      "score": 26,
+      "axes": {
+        "context": 6,
+        "verification": 13,
+        "traceability": 3,
+        "automation": 4
+      },
+      "candidateFiles": 47,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection"
+      ],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": "2000..9999",
+      "repo": "OpenFeign/feign",
+      "commitSha": "e394610d7d6c71801d0bedba4adb7130539c839a",
+      "score": 42,
+      "axes": {
+        "context": 12,
+        "verification": 13,
+        "traceability": 9,
+        "automation": 8
+      },
+      "candidateFiles": 732,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection"
+      ],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": "10000..49999",
+      "repo": "lysine-dev/retrofit",
+      "commitSha": "e27d855b7b029e7f907dfc52205fdb3e9c603c16",
+      "score": 39,
+      "axes": {
+        "context": 7,
+        "verification": 16,
+        "traceability": 10,
+        "automation": 6
+      },
+      "candidateFiles": 1073,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection"
+      ],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": "10000..49999",
+      "repo": "ashishps1/awesome-system-design-resources",
+      "commitSha": "25724090f7dd7746129b7194b55504f9d06f86ed",
+      "score": 6,
+      "axes": {
+        "context": 4,
+        "verification": 0,
+        "traceability": 2,
+        "automation": 0
+      },
+      "candidateFiles": 24,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "small"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": ">=50000",
+      "repo": "iluwatar/java-design-patterns",
+      "commitSha": "4cabb204f240240bea319605a5ffa46ded728001",
+      "score": 39,
+      "axes": {
+        "context": 9,
+        "verification": 15,
+        "traceability": 4,
+        "automation": 11
+      },
+      "candidateFiles": null,
+      "coverage": "partial",
+      "provisionalReasons": [
+        "partial_collection",
+        "selection_limited"
+      ],
+      "sizeBand": "large"
+    },
+    {
+      "ecosystem": "Java",
+      "starBand": ">=50000",
+      "repo": "doocs/advanced-java",
+      "commitSha": "4e152fde842130f1ff6e266c5fce8b0fcc5b439e",
+      "score": 22,
+      "axes": {
+        "context": 10,
+        "verification": 5,
+        "traceability": 3,
+        "automation": 4
+      },
+      "candidateFiles": 106,
+      "coverage": "complete",
+      "provisionalReasons": [],
+      "sizeBand": "medium"
+    }
+  ],
+  "failures": [],
+  "digest": "d0919a165fba4b792970cb0636a7da1d96e5a64a5266e8abb6cf678a5a17039c"
+}
