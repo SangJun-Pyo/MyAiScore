@@ -73,6 +73,9 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await expect(page.getByRole('heading', { name: '어떤 신호에 몇 점인지 전부 적어 뒀어요.' })).toBeVisible();
   await expect(page.locator('.repo-score-table tbody')).toHaveCount(4);
   await expect(page.locator('.repo-overview-guide')).toHaveCount(0);
+  await expect(page.locator('.repo-score-table')).toBeHidden();
+  await page.locator('.repo-guide-summary').click();
+  await expect(page.locator('.repo-score-table')).toBeVisible();
   await expect(page.getByRole('region', { name: '네 축의 신호별 배점표' })).toHaveAttribute('tabindex', '0');
   await expect(page.locator('.repo-score-table')).toContainText('인터페이스 계약4점');
   await expect(page.locator('.repo-score-table')).toContainText('테스트 내용5점');
@@ -81,8 +84,6 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await expect(page.locator('.repo-axis-total')).toHaveText(['축 합계25점', '축 합계25점', '축 합계25점', '축 합계25점']);
   await page.locator('.repo-guide-summary').click();
   await expect(page.locator('.repo-score-table')).toBeHidden();
-  await page.locator('.repo-guide-summary').click();
-  await expect(page.locator('.repo-score-table')).toBeVisible();
   await expect(page.getByRole('heading', { name: '네 가지 상대적 성향으로 유형을 만듭니다.' })).toBeVisible();
   await expect(page.locator('.repo-style-guide .repo-profile-dimensions article')).toHaveCount(4);
   await expect(page.locator('.repo-style-guide')).toContainText('D · 기록형');
@@ -235,6 +236,8 @@ test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 
   await page.getByRole('navigation').getByRole('link', { name: 'Guide', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'No report selected.' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Every signal and point value is visible.' })).toBeVisible();
+  await expect(page.locator('.repo-score-table')).toBeHidden();
+  await page.locator('.repo-guide-summary').click();
   await expect(page.locator('.repo-score-table')).toContainText('Test substance5 points');
   await expect(page.getByRole('heading', { name: 'Four relative dimensions form the profile.' })).toBeVisible();
   await expect(page.locator('.repo-style-guide .repo-profile-dimensions article')).toHaveCount(4);

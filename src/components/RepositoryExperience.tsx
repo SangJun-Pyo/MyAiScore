@@ -293,34 +293,27 @@ function RepositoryAxisRadar({ report }: { report: RepositoryReport }) {
     return `${point.x},${point.y}`;
   }).join(" ");
   return <figure className="repo-axis-radar" aria-label={copy.report.axesEyebrow}>
-    <svg viewBox="0 0 164 164" role="img" aria-label={axes.map(item => `${item.label} ${item.value}/25`).join(", ")}>
-      {[1, 0.75, 0.5, 0.25].map(level => {
-        const points = axes.map((_, index) => {
-          const point = radarPoint(index, 25 * level);
-          return `${point.x},${point.y}`;
-        }).join(" ");
-        return <polygon key={level} points={points} className="repo-axis-radar-grid" />;
-      })}
-      {axes.map((_, index) => {
-        const end = radarPoint(index, 25);
-        return <line key={index} x1="82" y1="82" x2={end.x} y2={end.y} className="repo-axis-radar-spoke" />;
-      })}
-      <polygon points={polygon} className="repo-axis-radar-shape" />
-      {axes.map((item, index) => {
-        const point = radarPoint(index, item.value);
-        return <circle key={item.axis} cx={point.x} cy={point.y} r="3.5" className="repo-axis-radar-dot" />;
-      })}
-      {axes.map((item, index) => {
-        const labelPositions = [
-          { x: 82, y: 12, anchor: "middle" },
-          { x: 152, y: 87, anchor: "end" },
-          { x: 82, y: 158, anchor: "middle" },
-          { x: 12, y: 87, anchor: "start" },
-        ] as const;
-        const position = labelPositions[index] ?? labelPositions[0];
-        return <text key={`${item.axis}-label`} x={position.x} y={position.y} textAnchor={position.anchor} className="repo-axis-radar-label">{item.label}</text>;
-      })}
-    </svg>
+    <div className="repo-axis-radar-plot">
+      <svg viewBox="0 0 164 164" role="img" aria-label={axes.map(item => `${item.label} ${item.value}/25`).join(", ")}>
+        {[1, 0.75, 0.5, 0.25].map(level => {
+          const points = axes.map((_, index) => {
+            const point = radarPoint(index, 25 * level);
+            return `${point.x},${point.y}`;
+          }).join(" ");
+          return <polygon key={level} points={points} className="repo-axis-radar-grid" />;
+        })}
+        {axes.map((_, index) => {
+          const end = radarPoint(index, 25);
+          return <line key={index} x1="82" y1="82" x2={end.x} y2={end.y} className="repo-axis-radar-spoke" />;
+        })}
+        <polygon points={polygon} className="repo-axis-radar-shape" />
+        {axes.map((item, index) => {
+          const point = radarPoint(index, item.value);
+          return <circle key={item.axis} cx={point.x} cy={point.y} r="3.5" className="repo-axis-radar-dot" />;
+        })}
+      </svg>
+      {axes.map(item => <span key={`${item.axis}-label`} className={`repo-axis-radar-label is-${item.axis}`}>{item.label}</span>)}
+    </div>
     <figcaption className="repo-axis-radar-legend">
       {axes.map(item => <span key={item.axis}><b>{item.label}</b><strong>{item.value}/25</strong></span>)}
     </figcaption>
@@ -377,12 +370,12 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
         <p className="caption">{display.style.description}</p>
       </div>
       <aside className="repo-overview-guide-side">
-        <RepositoryAxisRadar report={report} />
         {profileDisplay && <div className="repo-overview-profile-summary">
           <span>{profileDisplay.eyebrow}</span>
           <div><strong className="repo-profile-code">{profileDisplay.code}</strong><b>{profileDisplay.title}</b></div>
           <p>{profileDisplay.description}</p>
         </div>}
+        <RepositoryAxisRadar report={report} />
       </aside>
     </section> : <section className="repo-overview product-panel">
       <div className="repo-score"><span className="eyebrow">{display.scoreLabel}</span><strong>{report.score.value}</strong><small>/100</small><p>{display.scoreExplanation}</p></div>
@@ -531,7 +524,7 @@ function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | 
   const profileNames = repositoryProfileNameCatalog(locale);
   const guide = buildRepositoryGuide(locale, copy, hasCollaborationProfile ? undefined : report?.style.id);
   return <div className="repo-interpretation-guide">
-    <details className="repo-guide repo-guide-disclosure product-panel" aria-labelledby="score-matrix-heading" open>
+    <details className="repo-guide repo-guide-disclosure product-panel" aria-labelledby="score-matrix-heading">
       <summary className="repo-guide-summary" aria-label={copy.insights.matrixToggle}>
         <span className="repo-guide-summary-copy"><span className="eyebrow">{copy.insights.matrixEyebrow}</span><h2 id="score-matrix-heading" className="repo-guide-title">{copy.insights.matrixTitle}</h2><span>{copy.insights.matrixIntro}</span></span>
         <span className="repo-guide-toggle" aria-hidden="true" />

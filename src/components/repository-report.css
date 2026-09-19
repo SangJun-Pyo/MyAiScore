@@ -163,10 +163,10 @@
 }
 .repo-overview-guide .hero-card-logic-ambient {
   top:20px;
-  right:-76px;
+  right:28px;
   width:360px;
   height:250px;
-  opacity:.72;
+  opacity:.64;
 }
 .repo-overview-guide-main {
   position:relative;
@@ -189,6 +189,11 @@
 .repo-overview-guide-main > :not(.hero-card-logic-ambient) {
   position:relative;
   z-index:1;
+}
+.repo-overview-guide-main > .sample-chip {
+  align-self:flex-start;
+  width:max-content;
+  max-width:100%;
 }
 .repo-overview-guide-main h2 {
   max-width:440px;
@@ -240,9 +245,19 @@
     linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
   box-shadow:inset 0 1px 0 #ffffff0a;
 }
+.repo-axis-radar-plot {
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:260px;
+  max-width:360px;
+  margin:0 auto;
+  padding:26px 54px;
+}
 .repo-axis-radar svg {
   display:block;
-  width:min(100%,260px);
+  width:min(100%,210px);
   margin:0 auto;
   overflow:visible;
 }
@@ -267,10 +282,32 @@
   stroke-width:1.5;
 }
 .repo-axis-radar-label {
-  fill:var(--muted);
-  font-size:8.5px;
+  position:absolute;
+  color:var(--muted);
+  font-size:12px;
   font-weight:600;
   letter-spacing:.02em;
+  white-space:nowrap;
+}
+.repo-axis-radar-label.is-context {
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+}
+.repo-axis-radar-label.is-verification {
+  top:50%;
+  right:0;
+  transform:translateY(-50%);
+}
+.repo-axis-radar-label.is-traceability {
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+}
+.repo-axis-radar-label.is-automation {
+  top:50%;
+  left:0;
+  transform:translateY(-50%);
 }
 .repo-axis-radar-legend {
   display:grid;
@@ -519,11 +556,12 @@
   .repo-style dl { grid-template-columns:1fr; }
   .repo-overview-guide { grid-template-columns:1fr; width:100%; min-height:0; padding:24px 20px; }
   .repo-overview-guide-main { min-height:0; padding:22px 18px; }
-  .repo-overview-guide .hero-card-logic-ambient { top:6px; right:-110px; opacity:.48; transform:rotate(-4deg) scale(.95); }
+  .repo-overview-guide .hero-card-logic-ambient { top:6px; right:-42px; opacity:.48; transform:rotate(-4deg) scale(.9); }
   .repo-overview-guide-main h2 { max-width:100%; font-size:30px; }
   .repo-overview-guide-meta { grid-template-columns:1fr; }
   .repo-axis-radar { padding:17px; }
-  .repo-axis-radar svg { width:min(100%,220px); }
+  .repo-axis-radar-plot { min-height:230px; padding:24px 42px; }
+  .repo-axis-radar svg { width:min(100%,180px); }
   .repo-axis-radar-legend { grid-template-columns:1fr; }
   .repo-profile-panel { padding:22px 18px; }
   .repo-profile-heading { display:block; }
