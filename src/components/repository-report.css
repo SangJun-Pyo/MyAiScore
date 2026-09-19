@@ -71,6 +71,13 @@
 .repo-next .eyebrow { color:#4f3028; }
 .repo-next h2 { font-size:27px; }
 .repo-next p { margin-bottom:0; color:#4f3028; font-size:13px; }
+.repo-recommendations > p { margin-bottom:18px; }
+.repo-recommendations ol { display:grid; gap:14px; margin:0; padding:0; list-style:none; }
+.repo-recommendations li { padding-top:14px; border-top:1px solid #4f30284a; }
+.repo-recommendations li > span { display:inline-block; margin-bottom:7px; padding:3px 7px; border:1px solid #4f302866; border-radius:999px; color:#4f3028; font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+.repo-recommendations li h2 { margin-bottom:6px; font-size:20px; }
+.repo-recommendations li small,.repo-cohort-pending { display:block; margin-top:8px; color:#4f3028; font-size:10px; line-height:1.5; }
+.repo-cohort-pending { margin-top:18px; padding-top:13px; border-top:1px solid #4f30284a; }
 .repo-actions { padding-block:22px; }
 .repo-actions .button-row { margin-top:14px; }
 .repo-cli-secondary { margin-top:36px; padding:22px 0; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }

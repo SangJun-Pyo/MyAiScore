@@ -14,6 +14,7 @@ import {
   REPOSITORY_SCORE_SIGNAL_ORDER,
   REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS,
   deriveRepositoryCollaborationProfile,
+  deriveRepositoryRecommendations,
   deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
   repositoryV23EvidencePoints,
@@ -95,7 +96,7 @@ function buildDemoReport(): RepositoryReport {
   };
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.5",
+    ruleVersion: "repository-signals-v2.6",
     repo: "example/sample-project",
     commitSha: "0123456789abcdef0123456789abcdef01234567",
     coverage: {
@@ -126,6 +127,8 @@ function buildDemoReport(): RepositoryReport {
     signalScores,
     diagnostics,
     collaborationProfile: deriveRepositoryCollaborationProfile(signalScores, derived.axes, diagnostics),
+    recommendations: deriveRepositoryRecommendations(signalScores, DEMO_EVIDENCE_CARDS),
+    cohort: null,
   });
 }
 
@@ -222,7 +225,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
     </section>
     <div className="repo-detail-grid">
       <section className="product-panel repo-gaps"><span className="eyebrow">{copy.report.gapsEyebrow}</span><h2>{copy.report.gapsHeading}</h2>{display.gaps.length ? <ul>{display.gaps.map((gap, index) => <li key={index}>{gap}</li>)}</ul> : <p>{copy.report.noGaps}</p>}<details><summary>{copy.report.coverageDetails}</summary><p>{display.coverageNote}</p>{report.coverage.treeTruncated && <p>{copy.report.treeTruncated}</p>}{report.coverage.selectionLimited && <p>{copy.report.selectionLimited}</p>}</details></section>
-      <section className="repo-next"><span className="eyebrow">{copy.report.nextChallenge}</span><h2>{display.nextChallenge.title}</h2><p>{display.nextChallenge.description}</p></section>
+      {v2?.ruleVersion === "repository-signals-v2.6" ? <section className="repo-next repo-recommendations"><span className="eyebrow">{copy.report.recommendations}</span><p>{copy.report.recommendationsIntro}</p>{v2.recommendations.length > 0 ? <ol>{v2.recommendations.map(item => { const action = v2Display.recommendation(item.signalId); return <li key={item.signalId}><span>{v2Display.recommendationEffort[item.effort]}</span><h2>{action.title}</h2><p>{action.description}</p>{item.evidencePath && <small>{v2Display.recommendationPath(item.evidencePath)}</small>}</li>; })}</ol> : <p>{v2Display.noRecommendations}</p>}<small className="repo-cohort-pending">{v2Display.cohortPending}</small></section> : <section className="repo-next"><span className="eyebrow">{copy.report.nextChallenge}</span><h2>{display.nextChallenge.title}</h2><p>{display.nextChallenge.description}</p></section>}
     </div>
     {v2 && <section className="product-panel repo-diagnostics"><span className="eyebrow">{v2Display.diagnosticsHeading}</span><p>{v2Display.hygieneSummary(v2.diagnostics.hygiene.highConfidenceArtifacts, v2.diagnostics.hygiene.generatedArtifactCandidates, v2.diagnostics.hygiene.secretLikePaths)}</p><p>{v2Display.structureSummary(v2.diagnostics.structure.oversizedSourceCandidates, v2.diagnostics.structure.sourceFilesOver400Lines, v2.diagnostics.structure.sourceFilesOver800Lines)}</p>{v2.diagnostics.structure.largestSelectedSourceFiles.length > 0 && <ul>{v2.diagnostics.structure.largestSelectedSourceFiles.map(file => <li key={file.path}><code>{file.path}</code> · {file.lineCount} lines</li>)}</ul>}</section>}
     {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div>{notice && <p role="status" className="caption">{notice === "saved" ? copy.report.saved : copy.report.saveError}</p>}</section>}

@@ -128,3 +128,7 @@ Community 공개 프롬프트와 MIT 원본 소스를 확인하고 히어로의 
 ## 15. 수집 바이트 집계 분리 (2026-09-15)
 
 800 KiB는 채택한 디코딩 파일 내용만 제한한다. HTTP 응답 본문은 별도 지표로 기록하고 과거 혼합 값은 재해석하지 않는다. 누락 경로/사유를 새 walkthrough에 보존하며 같은 SHA의 재수집 결과와 원본을 구분한다. 표본 수집 완료도 개인 협업 근거를 대신하지 않는다. [ADR-0013](../Architecture/ADR/0013-separated-ingestion-byte-accounting.md), [Phase 7](Sessions/Phase-07-Repository-Walkthrough.md).
+
+## 16. ROI 개선 조언과 코호트 표시 조건 (2026-09-19)
+
+단일 최저축 조언 대신 신호별 개선을 가정해 실제 총점 gain을 재계산하고 고정 effort 대비 효과 순으로 최대 세 개를 제시한다. 내부 계수는 화면에 숨기며 strict parser가 추천과 근거 경로를 다시 계산한다. 실제 고정 SHA 공개 저장소 50개 이상의 투명한 manifest가 준비되기 전에는 순위·백분위를 표시하지 않는다. [ADR-0022](../Architecture/ADR/0022-deterministic-roi-recommendations.md).
