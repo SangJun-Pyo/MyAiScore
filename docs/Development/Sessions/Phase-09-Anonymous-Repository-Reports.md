@@ -112,3 +112,9 @@ walkthrough 출처 해시 회귀 검사가 실제로 읽는 `buildMyAiScoreWalkt
 UplinkLoader는 원본 파일을 유지하되 앱 전환 타이밍을 조정했다. API 응답이 빨리 도착해도 loader 내부 타임라인이 100% 구간에 도달하고 잠깐 보인 뒤 완료 notice와 리포트로 넘어간다. 응답이 한 loop 뒤에 도착한 경우에도 현재 phase를 계산해 다음 100% 구간에 맞춰 handoff한다.
 
 검증은 `npm run typecheck`, `npm test` 288/288, `npm run check:docs` 61파일·상대 링크 365개, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20을 통과했다. H1 줄바꿈 조정 후 홈 집중 Playwright desktop/mobile 2/2와 `git diff --check`를 재확인했다. Production build 서버에서 데스크톱·모바일 캡처를 만들었고, 별도 intro frame은 0개, H1 효과 line은 2개, 가로 넘침은 `false`였다.
+
+## 2026-09-19 GitHub repository footer link
+
+사용자가 MyAiScore 공개 저장소 `https://github.com/SangJun-Pyo/MyAiScore` 접근 링크를 추가하고 싶다고 요청했다. 주요 CTA와 혼동되지 않도록 footer의 보조 링크로 배치하고, 한국어는 `GitHub 저장소 보기 ↗`, 영어는 `View GitHub repository ↗`로 표시한다.
+
+검증은 `npm run typecheck`, `npm run check:docs`, `npm run build`, footer 링크를 포함한 Playwright 집중 검사 desktop/mobile 4/4를 통과했다.

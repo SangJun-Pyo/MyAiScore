@@ -52,6 +52,7 @@ test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 
   await expect(page.locator('.repo-hero-card')).toContainText('검증 체계');
   await expect(page.locator('.repo-hero-card')).toContainText('기록·추적');
   await expect(page.locator('.site-footer')).toContainText('개인의 AI 활용 능력을 인증하는 서비스가 아닙니다.');
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: 'GitHub 저장소 보기 ↗' })).toHaveAttribute('href', 'https://github.com/SangJun-Pyo/MyAiScore');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
@@ -178,6 +179,7 @@ test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page).toHaveTitle('MyAiScore — AI collaboration signals in public repositories');
   await expect(page.getByRole('heading', { level: 1, name: /Find AI collaboration traces/ })).toBeVisible();
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: 'View GitHub repository ↗' })).toHaveAttribute('href', 'https://github.com/SangJun-Pyo/MyAiScore');
   await page.getByRole('navigation').getByRole('link', { name: 'Reports', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'No saved reports yet.' })).toBeVisible();
   await page.getByRole('navigation').getByRole('link', { name: 'Guide', exact: true }).click();

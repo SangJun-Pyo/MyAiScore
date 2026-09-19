@@ -7,7 +7,7 @@ const ko = {
   shell: {
     skip: "본문으로 건너뛰기", brandHome: "MyAiScore 홈", beta: "데모", navLabel: "주요 메뉴",
     home: "홈", profile: "내 리포트", insights: "해석 가이드", evaluate: "저장소 분석",
-    footerLead: "공개 저장소에서 AI 협업을 뒷받침하는 신호를 분석합니다.", footerLimit: "개인의 AI 활용 능력을 인증하는 서비스가 아닙니다.",
+    footerLead: "공개 저장소에서 AI 협업을 뒷받침하는 신호를 분석합니다.", footerSource: "GitHub 저장소 보기 ↗", footerLimit: "개인의 AI 활용 능력을 인증하는 서비스가 아닙니다.",
   },
   report: {
     aria: "저장소 분석 리포트", demoTag: "가상 예시", demoDescription: "화면 구성을 보여드리기 위한 데이터입니다. 실제 저장소를 분석한 결과가 아닙니다.",
@@ -63,7 +63,7 @@ export type Messages = DeepWiden<typeof ko>;
 const en: Messages = {
   meta: { title: "MyAiScore — AI collaboration signals in public repositories", description: "Explore context, verification, traceability, and automation signals in a public GitHub repository without signing in." },
   language: { label: "Choose language", ko: "한국어", en: "EN" },
-  shell: { skip: "Skip to content", brandHome: "MyAiScore home", beta: "DEMO", navLabel: "Main navigation", home: "Home", profile: "Reports", insights: "Guide", evaluate: "Analyze", footerLead: "Explore traces of AI collaboration in a public repository.", footerLimit: "Not a certification of personal AI ability." },
+  shell: { skip: "Skip to content", brandHome: "MyAiScore home", beta: "DEMO", navLabel: "Main navigation", home: "Home", profile: "Reports", insights: "Guide", evaluate: "Analyze", footerLead: "Explore traces of AI collaboration in a public repository.", footerSource: "View GitHub repository ↗", footerLimit: "Not a certification of personal AI ability." },
   report: {
     aria: "Repository analysis report", demoTag: "SYNTHETIC EXAMPLE", demoDescription: "Invented data that demonstrates the report layout. This is not a real repository result.", styleEyebrow: "Collaboration style visible in this repository", repository: "Repository", commit: "Commit",
     boundaryStrong: "This result describes signals left in a repository; it does not certify personal AI ability.", boundaryMore: "It cannot establish the decisions made in real conversations or the quality of the whole project.",

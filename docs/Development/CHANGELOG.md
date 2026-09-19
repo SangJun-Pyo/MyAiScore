@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-19 — GitHub repository footer link
+
+- footer에 `GitHub 저장소 보기 ↗` 링크를 추가해 MyAiScore 공개 소스 저장소로 이동할 수 있게 했다. 영어 화면에서는 `View GitHub repository ↗`로 표시한다.
+
 ## 2026-09-19 — Hero title effect and 100% loading handoff
 
 - 홈 히어로의 별도 ThreeUI wordmark frame을 제거하고, 실제 H1 문구 `공개 저장소에서 AI 협업을 뒷받침하는 신호를 찾습니다.` 자체에 크로매틱 조립 효과를 적용했다. 텍스트는 실제 heading으로 유지하고 reduced motion에서는 정적으로 표시한다.

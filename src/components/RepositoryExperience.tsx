@@ -118,7 +118,7 @@ export function RepositoryShell({ children }: { children: React.ReactNode }) {
       <div className="header-actions"><nav aria-label={copy.shell.navLabel}>{links.map(item => <Link key={item.href} href={item.href} className={item.href === "/evaluate" ? "nav-evaluate" : undefined} aria-current={pathname === item.href ? "page" : undefined}>{item.name}</Link>)}</nav><LanguageSwitch /></div>
     </div></header>
     {children}
-    <footer className="site-footer"><Link href="/" className="brand">MyAiScore</Link><p>{copy.shell.footerLead}</p><span>{copy.shell.footerLimit}</span></footer>
+    <footer className="site-footer"><Link href="/" className="brand">MyAiScore</Link><p>{copy.shell.footerLead}</p><a className="footer-source" href="https://github.com/SangJun-Pyo/MyAiScore" target="_blank" rel="noreferrer">{copy.shell.footerSource}</a><span>{copy.shell.footerLimit}</span></footer>
   </>;
 }
 
