@@ -17,6 +17,6 @@ test("both locale catalogs expose stable API-error and repository-axis keys", ()
   assert.deepEqual(Object.keys(en.evaluate.errors).sort(), Object.keys(ko.evaluate.errors).sort());
   assert.deepEqual(Object.keys(en.presentation.axes).sort(), Object.keys(ko.presentation.axes).sort());
   assert.equal(en.presentation.axes.verification.label, "Verification basis");
-  assert.equal(ko.presentation.axes.verification.label, "검증 체계");
-  assert.equal(ko.presentation.axes.traceability.label, "기록·추적");
+  assert.equal(ko.presentation.axes.verification.label, "검증 기반");
+  assert.equal(ko.presentation.axes.traceability.label, "기록");
 });
