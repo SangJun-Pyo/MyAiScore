@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-19 — ThreeUI uplink loader for analysis progress
+
+- 저장소 분석 요청 후 대기 상태에 ThreeUI `UplinkLoader`를 추가했다. 실제 진행 문구는 화면 텍스트로 유지하고, loader iframe은 장식 요소로 숨겨 보안 스캔·인증처럼 오해되지 않게 했다.
+- 지정된 등록 번들의 TSX·canonical HTML·CSS를 해시 일치 상태로 가져오고, 로컬 `@designcodeio/threeui` alias가 요청된 `<UplinkLoader />` 사용을 원본 렌더러로 연결한다.
+- 브라우저 검사는 지연된 API 응답 중 loader iframe과 내부 stage가 보이는지 확인한다.
+
 ## 2026-09-19 — ThreeUI intro headline cue
 
 - 홈 히어로 제목 아래에 ThreeUI `TextAnimationCollection`의 `threeui-intro` 변형을 추가했다. 제목 문구는 실제 H1 텍스트로 유지하고, intro frame은 장식용으로 숨겨 접근성과 제품 의미를 보존한다.

@@ -36,7 +36,7 @@ const ko = {
   },
   evaluate: {
     title: "공개 저장소 분석", description: "GitHub 주소 하나로 저장소에 남은 AI 협업 신호를 확인합니다.", label: "공개 GitHub 저장소 URL", placeholder: "https://github.com/owner/repository", submit: "저장소 분석하기", submitting: "분석 중…", help: "공개 저장소만 분석할 수 있습니다. GitHub 로그인이나 별도 계정은 필요하지 않습니다.",
-    progressTitle: "저장소의 협업 신호를 찾고 있습니다.", progressText: "파일 목록을 고르고 맥락·검증·기록·자동화 흔적을 확인합니다.", complete: "분석이 완료되었습니다.", genericError: "서버 응답을 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+    progressTitle: "저장소의 협업 신호를 찾고 있습니다.", progressText: "파일 목록을 고르고 맥락·검증·기록·자동화 신호를 확인합니다.", complete: "분석이 완료되었습니다.", genericError: "서버 응답을 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.",
     cliSummary: "Claude Code 세션 리포트 CLI가 필요하다면", cliText: "선택한 로컬 Claude Code 세션의 활동 구성은 기존 CLI에서 별도로 만들 수 있습니다. 브라우저가 로컬 대화 기록을 자동으로 읽지는 않습니다.", cliCaption: "이 기능은 공개 저장소 분석과 다른 리포트이며, 설치된 MyAiScore 체크아웃과 Node.js가 필요합니다.",
     errors: {
       invalid_url: "공개 GitHub 저장소 주소 형식을 확인해 주세요.", unsupported_host: "공개 GitHub 저장소 주소 형식을 확인해 주세요.", invalid_commit_ref: "공개 GitHub 저장소 주소 형식을 확인해 주세요.",

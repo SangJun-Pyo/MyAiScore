@@ -104,3 +104,13 @@ Next.js가 원본의 `*.html?raw` import를 처리하도록 webpack resource rul
 한국어 H1 문구는 실제 텍스트로 유지하고, ThreeUI intro frame은 `aria-hidden` 장식 요소로 제목 아래에 배치했다. 원본 variant가 자체 `ThreeUI` wordmark를 렌더링하므로, 이를 점수·분석 진행·저장소 신호로 오해하지 않도록 디자인 문서에 제품 의미 경계를 기록했다. 데스크톱 첫 시안에서 animation frame이 긴 제목 위에 겹치는 문제가 보여, 제목 아래 고정 비율 frame으로 조정했다.
 
 검증은 원본 세 파일 해시 재확인, `npm run typecheck`, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20을 통과했다. 브라우저 수동 확인은 새 production build 서버에서 데스크톱 1440px와 모바일 390px 캡처를 만들고, iframe 내부 `body[data-threeui-ready] #stage` 가시성, 제목/animation 비겹침, `scrollWidth <= innerWidth`를 확인했다.
+
+## 2026-09-19 ThreeUI uplink loader progress
+
+사용자 요청에 따라 저장소 분석 요청 후 서버 응답을 기다리는 동안 ThreeUI `UplinkLoader`를 표시한다. 등록 번들 `https://threeui.com/source-code/uplink-loader.json`을 가져와 세 필수 파일의 SHA-256을 확인하고, `src/shaders/uplink-loader/UplinkLoader.tsx`, `src/shaders/uplink-loader/uplink-loader.html`, `src/shaders/threeui.css`를 해시 일치 상태로 보존했다.
+
+로컬 `@designcodeio/threeui` alias가 요청된 `<UplinkLoader />` 사용을 원본 component로 연결한다. `/evaluate`의 loading 상태는 원본 iframe을 포함한 별도 progress panel로 바뀌며, 실제 상태 문구는 한국어·영어 copy로 계속 표시한다. Uplink frame은 `aria-hidden` 장식 요소로 두고, 보안 스캔·실제 네트워크 uplink·분석 성공 인증처럼 표현하지 않는다.
+
+브라우저 회귀 검사는 API 응답을 지연시켜 loading 상태를 관찰하고, loader iframe과 내부 `#stage`가 보이는지 확인한다. 디자인 시스템과 ThreeUI 적용 기록 문서에는 이 animation이 대기 상태 cue일 뿐이며 최종 repository report의 수집 범위·근거·한계 설명을 대체하지 않는다고 기록했다.
+
+검증은 원본 세 파일 해시 재확인, `npm run typecheck`, `npm test` 288/288, `npm run check:docs` 62파일·상대 링크 366개, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20, `git diff --check`를 통과했다. Production build 서버에서 데스크톱 1440px와 모바일 iPhone 12 로딩 캡처를 확인했고, 모바일 `scrollWidth > innerWidth`는 `false`, loader ready 상태는 `true`였다.

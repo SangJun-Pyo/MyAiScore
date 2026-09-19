@@ -7,8 +7,12 @@
 .repo-form-row .button { min-width:150px; }
 .repo-form .field-help { margin:12px 0 0; }
 .repo-progress { display:flex; align-items:center; gap:18px; padding:22px; margin-top:18px; border:1px solid var(--line); border-radius:var(--radius); background:var(--white); }
+.repo-progress-uplink { display:grid; grid-template-columns:1fr; gap:16px; padding:18px; overflow:hidden; }
+.repo-uplink-frame { width:100%; min-height:220px; aspect-ratio:16/9; overflow:hidden; border:1px solid #ffffff14; border-radius:calc(var(--radius) - 4px); background:#030806; box-shadow:inset 0 1px 0 #ffffff14,0 18px 48px #00000035; }
+.repo-progress-copy { display:flex; align-items:flex-start; justify-content:space-between; gap:22px; }
 .repo-progress strong { display:block; font-size:13px; font-weight:500; }
 .repo-progress p { margin:4px 0 0; color:var(--muted); font-size:12px; }
+.repo-progress-copy p { max-width:520px; text-align:right; }
 .repo-report { margin-top:30px; }
 .repo-demo-banner { display:flex; align-items:center; gap:14px; padding:14px 17px; margin-bottom:18px; background:var(--white); border:1px solid var(--line); border-radius:var(--radius); }
 .repo-demo-banner p { margin:0; color:var(--muted); font-size:12px; }
@@ -98,6 +102,10 @@
   .repo-form { padding:22px 18px; }
   .repo-form-row { grid-template-columns:1fr; }
   .repo-form-row .button { width:100%; }
+  .repo-progress-uplink { padding:14px; }
+  .repo-uplink-frame { min-height:180px; }
+  .repo-progress-copy { display:block; }
+  .repo-progress-copy p { text-align:left; }
   .repo-overview,.repo-detail-grid { grid-template-columns:1fr; }
   .repo-score { border-right:0; border-bottom:1px solid var(--line); }
   .repo-score,.repo-style { padding:24px 20px; }

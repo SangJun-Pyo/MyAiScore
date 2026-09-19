@@ -33,10 +33,11 @@ function report(overrides: Partial<RepositoryReport> = {}): RepositoryReport {
   return { ...base, ...overrides };
 }
 
-async function interceptReport(page: Page, payload = report()) {
+async function interceptReport(page: Page, payload = report(), delayMs = 0) {
   const bodies: unknown[] = [];
   await page.route('**/api/repository-report', async route => {
     bodies.push(route.request().postDataJSON());
+    if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs));
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(payload) });
   });
   return bodies;
@@ -78,11 +79,15 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
 });
 
 test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는 리포트를 표시한다', async ({ page }, testInfo) => {
-  const bodies = await interceptReport(page);
+  const bodies = await interceptReport(page, report(), 3000);
   await page.goto('/evaluate');
   await expect(page.locator('input')).toHaveCount(1);
   await page.getByLabel('공개 GitHub 저장소 URL').fill('https://github.com/example/public-repo');
   await page.getByRole('button', { name: '저장소 분석하기' }).click();
+  await expect(page.locator('.repo-uplink-frame iframe[title="SYS.LINK uplink progress loader"]')).toBeVisible();
+  await expect(page.locator('.repo-uplink-frame .uplink-loader[data-state="ready"]')).toBeVisible();
+  await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#stage')).toBeVisible();
+  await expect(page.locator('.repo-progress')).toContainText('저장소의 협업 신호를 찾고 있습니다.');
   await expect(page.locator('.notice[role="status"]')).toContainText(/분석이 완료되었습니다/);
   await expect(page.locator('.repo-score > strong')).toHaveText('63');
   await expect(page.locator('.repo-style')).toContainText('AI 협업 신호 레이더');

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { TextAnimationCollection } from "@designcodeio/threeui";
+import { TextAnimationCollection, UplinkLoader } from "@designcodeio/threeui";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
 import {
@@ -174,7 +174,7 @@ export function RepositoryEvaluateExperience() {
   return <RepositoryShell><main id="main" className="page-width product-page repo-evaluate">
     <header className="product-heading"><div><h1>{copy.evaluate.title}</h1><p>{copy.evaluate.description}</p></div></header>
     <form className="repo-form product-panel" onSubmit={submit} aria-busy={status === "loading"}><label htmlFor="repo-url">{copy.evaluate.label}</label><div className="repo-form-row"><input id="repo-url" name="repo_url" type="url" required autoComplete="url" inputMode="url" value={repo} onChange={event => setRepo(event.target.value)} placeholder={copy.evaluate.placeholder} disabled={!ready || status === "loading"} /><button className="button button-primary" type="submit" disabled={!ready || status === "loading"}>{status === "loading" ? copy.evaluate.submitting : copy.evaluate.submit}</button></div><p className="field-help">{copy.evaluate.help}</p></form>
-    {status === "loading" && <div className="repo-progress" role="status"><span className="spinner" aria-hidden="true" /><div><strong>{copy.evaluate.progressTitle}</strong><p>{copy.evaluate.progressText}</p></div></div>}
+    {status === "loading" && <div className="repo-progress repo-progress-uplink" role="status" aria-label={copy.evaluate.progressTitle}><div className="shader-frame repo-uplink-frame" aria-hidden="true"><UplinkLoader /></div><div className="repo-progress-copy"><strong>{copy.evaluate.progressTitle}</strong><p>{copy.evaluate.progressText}</p></div></div>}
     {status === "error" && <p className="notice notice-error" role="alert">{errorMessage}</p>}{status === "done" && <p className="notice" role="status">{copy.evaluate.complete}</p>}{report && <RepositoryReportView report={report} />}
     <details className="repo-cli-secondary"><summary>{copy.evaluate.cliSummary}</summary><p>{copy.evaluate.cliText}</p><pre className="session-command"><code>npm run session:report -- --project "C:/path/to/project" --out session-report.json</code></pre><p className="caption">{copy.evaluate.cliCaption}</p></details>
   </main></RepositoryShell>;
