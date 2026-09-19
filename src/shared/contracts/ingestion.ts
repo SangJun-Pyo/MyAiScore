@@ -110,6 +110,18 @@ export interface RepositoryStructureDiagnostics {
   topFiveSourceByteShare: number | null;
 }
 
+export interface CommitTraceabilitySignals {
+  basis: "fixed_commit_ancestors";
+  sampledCommits: number;
+  evaluatedCommits: number;
+  excludedMergeOrAutomated: number;
+  nonGenericSubjectRatio: number | null;
+  distinctSubjectRatio: number | null;
+  scopedSubjectRatio: number | null;
+  rationaleBodyRatio: number | null;
+  referenceRatio: number | null;
+}
+
 export interface EvidenceCandidate {
   /** Candidates have no assessment_id yet -- always null until a scoring stage claims them. */
   assessmentId: null;
@@ -170,6 +182,8 @@ export interface IngestionSnapshot {
   repositoryInventory?: RepositoryInventory;
   /** Advisory-only v2 migration data; it does not affect repository-report-v1 scores. */
   repositoryStructure?: RepositoryStructureDiagnostics;
+  /** Fixed-SHA ancestor aggregate. Raw commit messages are never retained here. */
+  commitTraceability?: CommitTraceabilitySignals;
   evidenceCandidates: EvidenceCandidate[];
   coverage: CoverageInfo;
   skippedFiles: SkippedFile[];

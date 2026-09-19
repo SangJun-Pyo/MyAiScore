@@ -17,7 +17,8 @@ function lower(path: string): string {
 
 export function isRepositoryTestPath(path: string): boolean {
   const value = lower(path);
-  return /(^|\/)(tests?|__tests__)\//.test(value) || /\.(test|spec)\.[a-z0-9]+$/.test(value);
+  return /(^|\/)(tests?|__tests__)\//.test(value) || /\.(test|spec)\.[a-z0-9]+$/.test(value) ||
+    /(^|\/)test_[^/]+\.py$/.test(value) || /_test\.go$/.test(value);
 }
 
 export function isRepositoryDocumentationPath(path: string): boolean {

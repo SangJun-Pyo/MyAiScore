@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
+import { repositoryV2Presentation } from "../i18n/repositoryV2Presentation";
 import {
   REPOSITORY_AXIS_ORDER,
   REPOSITORY_REPORT_COPY,
@@ -105,6 +106,8 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
   const [notice, setNotice] = useState<"saved" | "error" | "">("");
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(report, locale, copy);
+  const v2 = report.schemaVersion === "repository-report-v2" ? report : null;
+  const v2Display = repositoryV2Presentation(locale);
   return <section className="repo-report" aria-label={copy.report.aria}>
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
     <section className="repo-overview product-panel">
@@ -112,13 +115,15 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
       <div className="repo-style"><span className="eyebrow">{copy.report.styleEyebrow}</span><h2>{display.style.title}</h2><p>{display.style.description}</p><dl><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl></div>
     </section>
     <p className="repo-boundary"><strong>{copy.report.boundaryStrong}</strong> {copy.report.boundaryMore}</p>
+    {v2?.diagnostics.provisional && <p className="notice repo-provisional">{v2Display.provisional}</p>}
     <section className="repo-axis-section" aria-labelledby="axis-heading">
       <div className="repo-section-heading"><div><span className="eyebrow">{copy.report.axesEyebrow}</span><h2 id="axis-heading">{copy.report.axesHeading}</h2></div><p>{report.coverage.candidateFiles === null ? copy.report.candidateUnknown : copy.report.candidate(report.coverage.candidateFiles)} · {copy.report.selected(report.coverage.selectedFiles)} · {copy.report.read(report.coverage.readFiles)}<br />{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.report.staticOnly}</p></div>
       <div className="repo-axis-grid">{REPOSITORY_AXIS_ORDER.map(axis => {
         const cards = report.evidenceCards.filter(card => card.axis === axis);
         return <article className="repo-axis-card product-panel" key={axis}>
           <div className="repo-axis-top"><span>{copy.presentation.axes[axis].label}</span><strong>{report.score.axes[axis].value}<small>/25</small></strong></div>
-          {cards.length ? cards.map(card => { const cardCopy = display.evidence[card.id]; return <div key={card.id} className="repo-evidence-card"><h3>{cardCopy.title}</h3><p>{cardCopy.description}</p><details><summary>{copy.report.evidenceFiles(card.paths.length)}</summary><ul>{card.paths.map(path => <li key={path}><code>{path}</code></li>)}</ul></details></div>; }) : <p>{copy.report.noSignal}</p>}
+          {cards.length ? cards.map(card => { const cardCopy = display.evidence[card.id]; const assessment = v2?.signalScores.find(item => item.id === card.id); return <div key={card.id} className="repo-evidence-card"><h3>{cardCopy.title}</h3>{assessment && <strong className="repo-signal-score">{assessment.substance === null ? v2Display.unmeasuredQuality(assessment.points, assessment.maxPoints) : v2Display.measuredQuality(assessment.points, assessment.maxPoints, Math.round(assessment.substance * 100))}</strong>}<p>{cardCopy.description}</p><details><summary>{copy.report.evidenceFiles(card.paths.length)}</summary><ul>{card.paths.map(path => <li key={path}><code>{path}</code></li>)}</ul></details></div>; }) : <p>{copy.report.noSignal}</p>}
+          {axis === "traceability" && v2 && (() => { const assessment = v2.signalScores.find(item => item.id === "traceability-commit-practice"); return assessment?.presence ? <div className="repo-evidence-card"><h3>{v2Display.commitPractice}</h3><strong className="repo-signal-score">{v2Display.measuredQuality(assessment.points, assessment.maxPoints, Math.round((assessment.substance ?? 0) * 100))}</strong><p>{v2Display.commitPracticeDescription}</p></div> : null; })()}
           <p className="caption">{copy.presentation.axes[axis].question}</p>
         </article>;
       })}</div>
@@ -127,6 +132,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
       <section className="product-panel repo-gaps"><span className="eyebrow">{copy.report.gapsEyebrow}</span><h2>{copy.report.gapsHeading}</h2>{display.gaps.length ? <ul>{display.gaps.map((gap, index) => <li key={index}>{gap}</li>)}</ul> : <p>{copy.report.noGaps}</p>}<details><summary>{copy.report.coverageDetails}</summary><p>{display.coverageNote}</p>{report.coverage.treeTruncated && <p>{copy.report.treeTruncated}</p>}{report.coverage.selectionLimited && <p>{copy.report.selectionLimited}</p>}</details></section>
       <section className="repo-next"><span className="eyebrow">{copy.report.nextChallenge}</span><h2>{display.nextChallenge.title}</h2><p>{display.nextChallenge.description}</p></section>
     </div>
+    {v2 && <section className="product-panel repo-diagnostics"><span className="eyebrow">{v2Display.diagnosticsHeading}</span><p>{v2Display.hygieneSummary(v2.diagnostics.hygiene.highConfidenceArtifacts, v2.diagnostics.hygiene.generatedArtifactCandidates, v2.diagnostics.hygiene.secretLikePaths)}</p><p>{v2Display.structureSummary(v2.diagnostics.structure.oversizedSourceCandidates, v2.diagnostics.structure.sourceFilesOver400Lines, v2.diagnostics.structure.sourceFilesOver800Lines)}</p>{v2.diagnostics.structure.largestSelectedSourceFiles.length > 0 && <ul>{v2.diagnostics.structure.largestSelectedSourceFiles.map(file => <li key={file.path}><code>{file.path}</code> · {file.lineCount} lines</li>)}</ul>}</section>}
     {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div>{notice && <p role="status" className="caption">{notice === "saved" ? copy.report.saved : copy.report.saveError}</p>}</section>}
   </section>;
 }

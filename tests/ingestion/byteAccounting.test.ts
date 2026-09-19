@@ -26,7 +26,7 @@ test("MAS-011: all 40 planned files fit the content budget even when response bo
   const snapshot = await ingestRepository(input, { httpClient: new OfflineHttpClient(fixtures) });
   assert.equal(snapshot.ingestionStatus, "complete");
   assert.equal(snapshot.coverage.readFiles, 40);
-  assert.equal(snapshot.metrics.httpRequests, 43);
+  assert.equal(snapshot.metrics.httpRequests, 44);
   assert.equal(snapshot.metrics.contentBytes, 40 * fileBytes);
   assert.equal(snapshot.metrics.fetchedBytes, responseBytes(fixtures));
   assert.ok(snapshot.metrics.fetchedBytes! > INGESTION_LIMITS.maxTotalContentBytes);
@@ -45,7 +45,7 @@ test("MAS-011: true decoded-content exhaustion never overshoots, even with absen
     assert.deepEqual(snapshot.skippedFiles.map(skip => skip.path), entries.slice(13).map(entry => entry.path));
     assert.ok(snapshot.skippedFiles.every(skip => skip.reason === "total_budget"));
     // Accurate tree sizes avoid fetching known-over-budget blobs; wrong/missing sizes are checked after decoding.
-    assert.equal(snapshot.metrics.httpRequests, reportedSize === 60 * 1024 ? 16 : 23);
+    assert.equal(snapshot.metrics.httpRequests, reportedSize === 60 * 1024 ? 17 : 24);
   }
 });
 
@@ -70,7 +70,7 @@ test("MAS-011: response telemetry includes failed and retried bodies without con
   fixtures[key] = [{ status: 500, body: { message: "temporary error 한글" } }, fixtures[key] as FixtureResponse];
   const snapshot = await ingestRepository(input, { httpClient: new OfflineHttpClient(fixtures) });
   assert.equal(snapshot.ingestionStatus, "complete");
-  assert.equal(snapshot.metrics.httpRequests, 5);
+  assert.equal(snapshot.metrics.httpRequests, 6);
   assert.equal(snapshot.metrics.contentBytes, 100);
   assert.equal(snapshot.metrics.fetchedBytes, responseBytes(fixtures));
 

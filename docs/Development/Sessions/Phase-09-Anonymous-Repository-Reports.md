@@ -10,6 +10,8 @@ v1 조작·표본 편향 검토와 사용자 합의를 [`SCORING_V2_PROPOSAL`](.
 
 GitHub client에는 고정 40자리 SHA만 받는 최근 조상 commit summary API를 추가했다. commit 메시지 분석기는 merge·자동화 커밋을 분리하고 일반성·고유성·범위·본문·참조 비율만 반환하며 원문을 리포트 계약에 보존하지 않는다. 아직 production API에서 추가 history 요청을 실행하거나 v1 점수에 반영하지 않는다.
 
+후속 구현에서 production collector가 14개 신호 대표를 예약하고 고정 SHA 조상 커밋 최대 20개를 bounded 요청으로 집계하도록 연결했다. `repository-report-v2`는 redacted content substance와 scanned-tree breadth를 공개 `signalScores`로 내보내고 브라우저 strict parser가 품질·정수 점수·축 합계·진단 이유를 재검증한다. 빈 파일은 존재 바닥만 받고 다언어 테스트 detector가 지원하지 않는 형식은 `unmeasured`로 보류한다. 커밋 설명은 평가 가능한 3개 이상일 때 기록축 보너스가 되며 원문은 snapshot과 응답에 남지 않는다. UI는 신호별 획득/최대점과 substance, 잠정 상태, 위생·큰 소스 진단을 표시한다. 기존 v1 브라우저 기록은 계속 읽는다.
+
 ## 사용자 결정
 
 사용자는 CLI 설치와 명령 실행이 첫 체험에 어렵다고 판단했다. 공개 GitHub 소스로 접근하는 흐름과 공모전용 한국어 화면을 제안했고, Astra의 로그인 없는 공개 URL 분석·선택적 세션 상세 분석 구성을 명시적으로 채택했다.

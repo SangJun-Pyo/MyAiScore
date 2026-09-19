@@ -1,9 +1,9 @@
 # 저장소 점수 v2.1 설계 제안
 
-> 상태: `proposal` / 미구현  
-> 대상 규칙: `repository-signals-v1` → `repository-signals-v2`  
+> 상태: 핵심 v2.1 구현 완료 / 유형·코호트 교정 후속
+> 대상 규칙: `repository-signals-v1` → `repository-signals-v2.1`
 > 기준 문서: [`AI_SCORE_EVALUATION_BASIS.md`](AI_SCORE_EVALUATION_BASIS.md)  
-> 구현 전 조건: 평가 계약 ADR 작성, v1 기록 호환 정책 확정
+> 구현 결정: [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), v1 기록 읽기 호환 유지
 
 ## 1. 목표와 비목표
 

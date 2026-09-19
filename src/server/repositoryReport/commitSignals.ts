@@ -1,16 +1,7 @@
 import type { CommitSummary } from "../ingestion/githubApi.js";
+import type { CommitTraceabilitySignals } from "../../shared/contracts/ingestion.js";
 
-export interface CommitTraceabilitySignals {
-  basis: "fixed_commit_ancestors";
-  sampledCommits: number;
-  evaluatedCommits: number;
-  excludedMergeOrAutomated: number;
-  nonGenericSubjectRatio: number | null;
-  distinctSubjectRatio: number | null;
-  scopedSubjectRatio: number | null;
-  rationaleBodyRatio: number | null;
-  referenceRatio: number | null;
-}
+export type { CommitTraceabilitySignals } from "../../shared/contracts/ingestion.js";
 
 const GENERIC_SUBJECT = /^(wip|update[sd]?|fix(?:e[sd])?|change[sd]?|test(?:s|ing)?|misc|cleanup|수정|업데이트|변경|작업|테스트)[.!\s-]*$/i;
 const MERGE_OR_AUTOMATED = /^(merge\b|revert\b|chore\(deps(?:-dev)?\)|bump\b)|\b(dependabot|renovate)\b/i;
