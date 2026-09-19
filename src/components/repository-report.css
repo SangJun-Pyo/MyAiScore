@@ -77,7 +77,47 @@
 .repo-cli-secondary > summary { color:var(--ink); }
 .repo-cli-secondary > p { max-width:720px; margin-top:14px; }
 .repo-cli-secondary .session-command { color:var(--ink); }
-.repo-hero-card { padding:32px; }
+.repo-hero-card {
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  padding:32px;
+  background:
+    radial-gradient(circle at 70% 22%,rgba(60,255,236,.08),transparent 38%),
+    linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 44%),
+    var(--white);
+}
+.repo-hero-card::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:linear-gradient(90deg,rgba(24,25,27,.16),rgba(24,25,27,.56) 62%,rgba(24,25,27,.2));
+}
+.repo-hero-card > :not(.hero-card-logic-ambient) {
+  position:relative;
+  z-index:1;
+}
+.hero-card-logic-ambient {
+  position:absolute;
+  z-index:0;
+  top:6px;
+  right:-86px;
+  width:310px;
+  height:214px;
+  opacity:1;
+  pointer-events:none;
+  transform:rotate(-4deg) scale(1.06);
+  transform-origin:center;
+  mix-blend-mode:screen;
+  mask-image:radial-gradient(ellipse at center,#000 0%,#000 45%,transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 0%,#000 45%,transparent 78%);
+}
+.hero-card-logic-ambient iframe {
+  width:100%;
+  height:100%;
+}
 .repo-hero-card h2 { margin:20px 0 8px; font-size:30px; }
 .repo-hero-card > p { color:var(--muted); }
 .repo-hero-card .session-breakdown { grid-template-columns:repeat(2,minmax(0,1fr)); }

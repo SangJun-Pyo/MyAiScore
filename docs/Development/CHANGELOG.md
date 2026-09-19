@@ -6,6 +6,11 @@
 - 기본 결과와 내 리포트 목록에서 후보·선택·읽기 파일 개수를 숨기고 complete/partial 및 정적 분석 범위만 보여준다. API의 coverage 계약은 검증을 위해 유지한다.
 - 선택 상한을 40개에서 60개로 늘리고 HTTP 요청 68회·60초로 조정했다. 현재 저장소 고정 tree 재생에서 소스 12→20, 테스트 6→10, 문서 11→15로 늘었다. [ADR-0021](../Architecture/ADR/0021-wider-private-collection-sample.md).
 
+## 2026-09-19 — ThreeUI Logic Core in Home example card
+
+- 홈 히어로의 “예시 화면” 카드 안에 ThreeUI `StructureFlowCollection` Logic Core variant를 `aria-hidden` 배경 레이어로 추가했다. 샘플 점수 카드 자체가 덜 밋밋하게 보이도록 통합했으며 실제 저장소 그래프·스캔·점수 근거로 표현하지 않는다.
+- 등록 번들의 `NeuformIsolatedEffects.tsx`, `platform-core.html`, shared CSS를 SHA-256 일치 상태로 보존하고, 로컬 `@designcodeio/threeui` alias가 요청된 `<StructureFlowCollection variant="logic-core" />` 사용을 Logic Core iframe 런타임으로 연결한다.
+
 ## 2026-09-19 — 항상 표시하는 저장소 협업 유형 v2.4
 
 - 새 분석은 D/R·H/P·S/T·F/E 네 차원에서 항상 한쪽을 선택해 유형 코드를 표시한다. 같은 강도나 근거가 없는 차원은 고정 tie priority를 사용한다.

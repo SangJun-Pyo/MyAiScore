@@ -2,6 +2,7 @@
 
 import { Suspense, lazy, type CSSProperties } from "react";
 import { type UplinkLoaderProps } from "../../shaders/uplink-loader/UplinkLoader";
+import { type StructureFlowCollectionProps } from "./neuform-runtime/StructureFlowCollection";
 
 type CrtBackgroundProps = {
   variant?: "terminal" | "cinematic" | "blue-screen" | "nintendo";
@@ -27,6 +28,12 @@ const UplinkLoaderComponent = lazy(() =>
   })),
 );
 
+const StructureFlowCollectionComponent = lazy(() =>
+  import("./neuform-runtime/StructureFlowCollection").then(module => ({
+    default: module.StructureFlowCollection,
+  })),
+);
+
 const fallbackStyle: CSSProperties = { background: "#090909" };
 
 export function CrtBackground(props: CrtBackgroundProps) {
@@ -41,6 +48,14 @@ export function UplinkLoader(props: UplinkLoaderProps) {
   return (
     <Suspense fallback={<div className="threeui-background" style={fallbackStyle} />}>
       <UplinkLoaderComponent {...props} />
+    </Suspense>
+  );
+}
+
+export function StructureFlowCollection(props: StructureFlowCollectionProps) {
+  return (
+    <Suspense fallback={<div className="threeui-background" style={fallbackStyle} />}>
+      <StructureFlowCollectionComponent {...props} />
     </Suspense>
   );
 }

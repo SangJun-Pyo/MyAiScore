@@ -49,6 +49,8 @@ test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 
   await expect(page.getByRole('heading', { level: 1 })).toContainText('AI 협업을 뒷받침하는 신호를 찾습니다.');
   await expect(page.locator('.repo-animated-title .repo-title-line')).toHaveCount(2);
   await expect(page.locator('.repo-crt-background .crt-terminal canvas')).toBeVisible();
+  await expect(page.locator('.repo-hero-card .hero-card-logic-ambient iframe[title="Logic Core isometric field"]')).toBeVisible();
+  await expect(page.frameLocator('.repo-hero-card .hero-card-logic-ambient iframe').locator('#three-canvas-container')).toBeAttached();
   await expect(page.locator('.repo-title-animation')).toHaveCount(0);
   await expect(page.locator('.landing-availability')).toHaveText('회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음');
   await expect(page.locator('.repo-hero-card')).toContainText('검증 체계');

@@ -180,3 +180,11 @@ UplinkLoader는 원본 파일을 유지하되 앱 전환 타이밍을 조정했�
 브라우저 회귀 검사는 Home에 `.repo-crt-background .crt-terminal canvas`가 보이는지 확인한다. 디자인 시스템과 별도 ThreeUI 적용 기록 문서에도 Home hero 전용 decorative background라는 범위를 기록했다.
 
 검증은 CRT 원본 다섯 파일의 SHA-256 재확인, `npm run typecheck`, `npm run check:docs`, `npm test` 288/288, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20, 최종 농도 조정 후 Home 집중 검사 desktop/mobile 2/2, `git diff --check`를 통과했다. Production build 서버 `http://127.0.0.1:3100/`에서 데스크톱 캡처를 확인했고 CRT canvas 1개, 가로 overflow 없음이었다.
+
+## 2026-09-19 ThreeUI Logic Core in Home example card
+
+사용자가 홈 탭에 ThreeUI `StructureFlowCollection` Logic Core variant를 자연스럽게 추가하는 방향을 제안했다. 원본 등록 번들 `https://threeui.com/source-code/logic-core.json`을 가져와 `NeuformIsolatedEffects.tsx`, `platform-core.html`, shared CSS의 SHA-256을 확인하고 `src/shaders/neuform-isolated/` 아래에 보존했다.
+
+처음에는 “분석 방법” 섹션의 보조 비주얼로 배치했지만, 사용자가 기존 화면과 잘 어우러지지 않는다고 판단했다. 최종 배치는 히어로의 “예시 화면” 카드 내부 우상단 ambient layer다. Logic Core는 `aria-hidden` 장식 요소이며, 실제 저장소 그래프, 스캔 진행, 의존성 분석, 점수 근거로 표현하지 않는다.
+
+등록 component는 ThreeUI 갤러리 전체용 파일이라 이번 번들에 포함되지 않은 다른 HTML 소스도 import한다. 해시 안정성과 앱 타입체크를 유지하기 위해 원본은 보존 경로에 두고, 로컬 `@designcodeio/threeui` alias의 `StructureFlowCollection` export는 요청된 `logic-core` variant만 `platform-core.html` iframe으로 격리해 연결한다.

@@ -49,6 +49,7 @@
   ],
   "exclude": [
     "node_modules",
-    "src/shaders/crt/**/*"
+    "src/shaders/crt/**/*",
+    "src/shaders/neuform-isolated/**/*"
   ]
 }
