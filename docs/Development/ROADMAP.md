@@ -17,7 +17,7 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 | Web | Korean-default bilingual Home/분석/Profile/Insights, persistent locale, transparent score/style guide, progress/errors, opt-in browser history |
 | Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
 | Privacy | No repository code execution, no private repository, no token/raw response exposure |
-| Validation | v2.7 local/CI validation and Railway live smoke complete |
+| Validation | v2.7 local/CI validation, Railway live smoke, representative demo matrix and automated accessibility checks |
 
 ## Immediate operation
 
@@ -26,6 +26,8 @@ Repository score v2.3 shipped through issue [#47](https://github.com/SangJun-Pyo
 Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. Production health, Korean/English pages and a real public MyAiScore report passed. Railway now has a server-only `GITHUB_TOKEN`; two consecutive public-repository reports returned 200 without token or raw file content in the response. The token only raises the public API allowance and private repositories remain rejected.
 
 Issue [#39](https://github.com/SangJun-Pyo/MyAiScore/issues/39) refreshes the public README and removes historical prompts, screenshots and run outputs from the current Git tree. Local copies stay under ignored `_archive/`; stable historical links point to pre-cleanup commit `f108be3`. Current product contracts, fixtures and compatibility routes remain versioned.
+
+Contest demo preflight uses five repositories drawn from the fixed cohort across all supported ecosystems, all size bands and complete/partial coverage. The executable list and operator checklist live in [DEMO_RUNBOOK](DEMO_RUNBOOK.md). Public pages also run automated WCAG A/AA, skip-link, reduced-motion and 320px overflow checks.
 
 ## Deferred
 

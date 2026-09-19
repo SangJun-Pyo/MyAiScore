@@ -268,3 +268,17 @@ PR [#58](https://github.com/SangJun-Pyo/MyAiScore/pull/58)의 GitHub CI는 3분 
 브라우저 검사는 생성된 파일의 PNG signature와 안전한 파일명, Web Share payload의 이름·MIME type·제목, 첫 100% 이후 응답 전환, 모바일 가로 overflow와 기존 오류 상태를 확인한다. README에는 `79f9cab`의 스크린샷·배지·목차를 통합하고 현재 화면 용어와 공유 기능을 반영했다.
 
 최종 검증은 `npm run typecheck`, `npm test` 318/318, `npm run check:docs` 73파일·432개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 36/36, `git diff --check`를 통과했다. 별도 포트에서도 병렬 브라우저 검사를 실행할 수 있도록 `PLAYWRIGHT_PORT`를 지원하며, 실제 생성 PNG를 원본 해상도로 열어 텍스트 잘림과 배치도 확인했다.
+
+## 2026-09-19 — 대표 데모 매트릭스와 접근성 점검
+
+운영 요청 용량 개선은 이번 범위에서 보류하고, 고정 SHA 코호트에서 TypeScript·Python·Go·Rust·Java를 하나씩 선택해 시연 목록을 만들었다. 목록은 small·medium·large와 complete·partial을 모두 포함하며 고정 결과 범위는 7~71점이다. fixture 검사는 각 SHA와 기대값이 코호트 manifest에 실제로 존재하고 이 다양성 조건이 유지되는지 확인한다. 운영 기본 branch의 현재 commit은 달라질 수 있으므로 runbook은 고정 점수를 약속하지 않는다.
+
+브라우저 검사에는 `@axe-core/playwright` 기반 WCAG A/AA serious·critical 위반 검사, 키보드 건너뛰기 링크, 동작 감소 시 제목 효과 정지, 320px 홈·해석 가이드 가로 넘침을 추가했다. 자동 검사는 실제 보조기기 사용자 검사를 대체하지 않는다는 한계도 runbook에 적었다.
+
+원격에 남아 있던 `codex/uplink-loader-progress`와 `codex/threeui-intro-hero`는 모두 현재 main의 조상이며 로컬 브랜치와 미병합 변경이 없음을 확인한 뒤 삭제했다. 별도 PR이 없어서 자동 삭제되지 않고 후속 통합 과정 뒤 남은 브랜치였다.
+
+첫 axe 실행은 홈 가상 리포트의 근거 파일 `<summary>`가 `#202123` 배경 위 `#818382`로 4.22:1에 그쳐 AA 4.5:1을 통과하지 못한다고 보고했다. 공용 `--subtle`을 `#8d8f8e`로 밝힌 뒤 desktop/mobile 새 검사 6/6이 통과했다. Railway에서는 `ecomfe/tempad-dev`가 현재 `29f1789fe7ec`에서 61점·complete, `iluwatar/java-design-patterns`가 `4cabb204f240`에서 39점·partial로 고정 코호트 결과를 그대로 재현했고 양쪽 모두 v2.7 조언 세 개를 반환했다.
+
+production build를 동작 감소 설정의 headless Chromium으로 측정한 홈은 20개 리소스·약 214KiB 전송, 분석과 해석 가이드는 각각 18개·약 198KiB였다. 측정된 load는 홈 desktop 385ms·390px 347ms, 분석 45ms, 해석 가이드 56ms였고 가로 overflow는 없었다. 이는 기기와 네트워크 전체에 대한 성능 보장이 아니라 변경 전후 이상을 찾기 위한 로컬 기준점이다.
+
+최종 검증은 `npm run typecheck`, `npm test` 319/319, `npm run check:docs` 74파일·435개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 42/42, `git diff --check`를 통과했다.
