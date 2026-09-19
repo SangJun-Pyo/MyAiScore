@@ -1,6 +1,6 @@
 # ADR-0017 — 내용·인벤토리 기반 저장소 점수 v2
 
-- 상태: Accepted; v2.1 content scoring implemented, cohort/type redesign deferred
+- 상태: Accepted; v2.1 content scoring implemented, profile follow-up extended by [ADR-0018](0018-evidence-aware-collaboration-profile.md)
 - 기록일: 2026-09-19
 - 결정 주체와 근거: 사용자와 Astra의 v1 조작·표본 편향 검토, [`SCORING_V2_PROPOSAL`](../../Assessment/SCORING_V2_PROPOSAL.md)
 - 기록 성격: 구현 전 사전 기록
@@ -45,4 +45,4 @@ v1 리포트는 소급 변환하지 않는다. v2는 별도 schema/rule/detector
 
 `repository-report-v2` / `repository-signals-v2.1`은 공용 경로 matcher, cap 이전 inventory, 14개 신호 예약, 내용 실질 detector, inventory breadth, manifest 기반 DB 적용성, 고정 SHA commit 보너스와 위생·구조 진단을 구현한다. 서버는 v2를 새로 발급하고 strict parser는 과거 v1 브라우저 기록도 계속 검증한다. 빈 신호 파일 14개 공격은 100점에서 약 15점 이하로 제한되며 JavaScript/TypeScript·Python·Go·Rust·Java/Kotlin 테스트 detector와 미지원 언어 `unmeasured` 회귀 검사를 둔다.
 
-구현·검증 이력은 [Phase 9](../../Development/Sessions/Phase-09-Anonymous-Repository-Reports.md)에 기록한다. 16유형 재설계와 참조 코호트·백분위는 detector 분포 자료가 없어 별도 후속으로 남긴다. 현재 여섯 스타일은 v2 축 점수에 기존 결정론적 분포 규칙을 적용한다.
+구현·검증 이력은 [Phase 9](../../Development/Sessions/Phase-09-Anonymous-Repository-Reports.md)에 기록한다. 네 차원 유형과 보류 계약은 [ADR-0018](0018-evidence-aware-collaboration-profile.md)에서 후속 구현했다. 참조 코호트·백분위는 detector 분포 자료가 없어 별도 후속으로 남긴다.

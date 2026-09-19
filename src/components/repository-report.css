@@ -24,12 +24,26 @@
 .repo-diagnostics p { margin:10px 0 0; color:var(--muted); font-size:12px; }
 .repo-diagnostics ul { margin:14px 0 0; padding-left:18px; }
 .repo-style h2 { margin:0; font-size:30px; }
+.repo-profile-code { display:inline-block; margin-top:12px; padding:6px 9px; border:1px solid var(--accent); border-radius:4px; color:var(--accent); font-size:13px; letter-spacing:.16em; }
 .repo-style dl { display:grid; grid-template-columns:1fr 1fr; gap:12px 24px; margin:24px 0 0; padding-top:18px; border-top:1px solid var(--line); }
 .repo-style dl > div { min-width:0; }
 .repo-style dt { color:var(--muted); font-size:10px; }
 .repo-style dd { margin:6px 0 0; overflow-wrap:anywhere; font-size:12px; }
 .repo-boundary { margin:16px 0 28px; padding:14px 17px; color:var(--muted); font-size:12px; border-left:2px solid var(--accent); background:var(--accent-soft); }
 .repo-boundary strong { color:var(--ink); font-weight:500; }
+.repo-profile-panel { margin-bottom:28px; padding:28px; }
+.repo-profile-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:32px; }
+.repo-profile-heading h2 { margin:0; }
+.repo-profile-heading > p { max-width:520px; margin:0; color:var(--muted); font-size:12px; }
+.repo-profile-dimensions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:22px; }
+.repo-profile-dimensions article { min-width:0; padding:20px; border:1px solid var(--line); border-radius:var(--radius); }
+.repo-profile-dimensions article > div:first-child { display:flex; align-items:start; justify-content:space-between; gap:16px; }
+.repo-profile-dimensions h3 { margin:0; font-size:18px; }
+.repo-profile-dimensions article > div:first-child strong { color:var(--accent); font-size:11px; text-align:right; }
+.repo-profile-dimensions p,.repo-profile-dimensions small { color:var(--muted); font-size:11px; line-height:1.65; }
+.repo-profile-poles { display:flex; justify-content:space-between; gap:12px; padding-block:12px; margin-block:12px; border-block:1px solid var(--line); color:var(--muted); font-size:11px; }
+.repo-profile-poles .is-selected { color:var(--ink); font-weight:600; }
+.repo-profile-reasons { margin:20px 0 0; padding:16px 16px 16px 34px; border-left:2px solid var(--accent); background:var(--accent-soft); color:var(--muted); font-size:12px; }
 .repo-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:30px; margin-bottom:18px; }
 .repo-section-heading h2 { margin:0; }
 .repo-section-heading > p { margin:0; color:var(--muted); font-size:12px; }
@@ -107,6 +121,10 @@
   .repo-score { border-right:0; border-bottom:1px solid var(--line); }
   .repo-score,.repo-style { padding:24px 20px; }
   .repo-style dl { grid-template-columns:1fr; }
+  .repo-profile-panel { padding:22px 18px; }
+  .repo-profile-heading { display:block; }
+  .repo-profile-heading > p { margin-top:12px; }
+  .repo-profile-dimensions { grid-template-columns:1fr; }
   .repo-section-heading { display:block; }
   .repo-section-heading > p { margin-top:12px; }
   .repo-axis-grid { grid-template-columns:1fr; }

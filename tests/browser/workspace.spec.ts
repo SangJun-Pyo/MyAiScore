@@ -58,10 +58,10 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await expect(page.locator('.repo-score-table')).toContainText('결정 기록9점');
   await expect(page.locator('.repo-score-table')).toContainText('자동 검사15점');
   await expect(page.locator('.repo-axis-total')).toHaveText(['축 합계25점', '축 합계25점', '축 합계25점', '축 합계25점']);
-  await expect(page.locator('.repo-style-rules > li')).toHaveCount(6);
-  await expect(page.locator('.repo-style-rules').first()).toContainText('총점이 20점 미만');
-  await expect(page.locator('.repo-style-rules').first()).toContainText('네 축이 모두 10점 이상');
-  await expect(page.locator('.repo-tie-priority')).toContainText('맥락 → 검증 기반 → 추적 가능성 → 자동화');
+  await expect(page.getByRole('heading', { name: '네 가지 상대적 성향으로 유형을 만듭니다.' })).toBeVisible();
+  await expect(page.locator('.repo-style-guide .repo-profile-dimensions article')).toHaveCount(4);
+  await expect(page.locator('.repo-style-guide')).toContainText('D · 기록형');
+  await expect(page.locator('.repo-style-guide')).toContainText('P · 파이프라인형');
   await page.screenshot({ path: testInfo.outputPath('repository-guide.png'), fullPage: true });
   expect(requests).toEqual([]);
 });
@@ -167,8 +167,9 @@ test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 
   await expect(page.getByRole('heading', { name: 'No report selected.' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Every signal and point value is visible.' })).toBeVisible();
   await expect(page.locator('.repo-score-table')).toContainText('Test traces21 points');
-  await expect(page.locator('.repo-style-rules')).toContainText('Use this style when the total is below 20.');
-  await expect(page.locator('.repo-tie-priority')).toContainText('Context → Verification basis → Traceability → Automation');
+  await expect(page.getByRole('heading', { name: 'Four relative dimensions form the profile.' })).toBeVisible();
+  await expect(page.locator('.repo-style-guide .repo-profile-dimensions article')).toHaveCount(4);
+  await expect(page.locator('.repo-style-guide')).toContainText('D · Documenter');
   await page.getByRole('navigation').getByRole('link', { name: 'Analyze', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Analyze a public repository' })).toBeVisible();
   await page.getByLabel('Public GitHub repository URL').fill('https://github.com/example/public-repo');

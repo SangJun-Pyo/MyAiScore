@@ -1,6 +1,7 @@
 import {
   REPOSITORY_AXIS_ORDER,
   REPOSITORY_REPORT_COPY,
+  deriveRepositoryCollaborationProfile,
   deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
   sanitizeRepositoryPath,
@@ -76,10 +77,34 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
     ...(!snapshot.commitTraceability ? ["commit_history_unavailable" as const] : []),
   ];
   const structure = snapshot.repositoryStructure;
+  const diagnostics = {
+    provisional: reasons.length > 0,
+    reasons,
+    profile: { databaseLikely: analysis.databaseLikely },
+    hygiene: inventory.hygiene,
+    structure: {
+      oversizedSourceCandidates: inventory.oversizedSourceCandidates,
+      sourceFilesOver400Lines: structure?.sourceFilesOver400Lines ?? 0,
+      sourceFilesOver800Lines: structure?.sourceFilesOver800Lines ?? 0,
+      topFiveSourceByteShare: structure?.topFiveSourceByteShare ?? null,
+      largestSelectedSourceFiles: (structure?.largestSelectedSourceFiles ?? [])
+        .filter(file => safePathSet.has(file.path)),
+    },
+    commit: snapshot.commitTraceability ? {
+      sampledCommits: snapshot.commitTraceability.sampledCommits,
+      evaluatedCommits: snapshot.commitTraceability.evaluatedCommits,
+      excludedMergeOrAutomated: snapshot.commitTraceability.excludedMergeOrAutomated,
+      nonGenericSubjectRatio: snapshot.commitTraceability.nonGenericSubjectRatio,
+      distinctSubjectRatio: snapshot.commitTraceability.distinctSubjectRatio,
+      scopedSubjectRatio: snapshot.commitTraceability.scopedSubjectRatio,
+      rationaleBodyRatio: snapshot.commitTraceability.rationaleBodyRatio,
+      referenceRatio: snapshot.commitTraceability.referenceRatio,
+    } : null,
+  };
 
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.1",
+    ruleVersion: "repository-signals-v2.2",
     repo: snapshot.repo,
     commitSha: snapshot.commitSha,
     coverage: {
@@ -108,29 +133,7 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
     gaps: derived.gaps,
     nextChallenge: derived.nextChallenge,
     signalScores: analysis.assessments,
-    diagnostics: {
-      provisional: reasons.length > 0,
-      reasons,
-      profile: { databaseLikely: analysis.databaseLikely },
-      hygiene: inventory.hygiene,
-      structure: {
-        oversizedSourceCandidates: inventory.oversizedSourceCandidates,
-        sourceFilesOver400Lines: structure?.sourceFilesOver400Lines ?? 0,
-        sourceFilesOver800Lines: structure?.sourceFilesOver800Lines ?? 0,
-        topFiveSourceByteShare: structure?.topFiveSourceByteShare ?? null,
-        largestSelectedSourceFiles: (structure?.largestSelectedSourceFiles ?? [])
-          .filter(file => safePathSet.has(file.path)),
-      },
-      commit: snapshot.commitTraceability ? {
-        sampledCommits: snapshot.commitTraceability.sampledCommits,
-        evaluatedCommits: snapshot.commitTraceability.evaluatedCommits,
-        excludedMergeOrAutomated: snapshot.commitTraceability.excludedMergeOrAutomated,
-        nonGenericSubjectRatio: snapshot.commitTraceability.nonGenericSubjectRatio,
-        distinctSubjectRatio: snapshot.commitTraceability.distinctSubjectRatio,
-        scopedSubjectRatio: snapshot.commitTraceability.scopedSubjectRatio,
-        rationaleBodyRatio: snapshot.commitTraceability.rationaleBodyRatio,
-        referenceRatio: snapshot.commitTraceability.referenceRatio,
-      } : null,
-    },
+    diagnostics,
+    collaborationProfile: deriveRepositoryCollaborationProfile(analysis.assessments, derived.axes, diagnostics),
   });
 }

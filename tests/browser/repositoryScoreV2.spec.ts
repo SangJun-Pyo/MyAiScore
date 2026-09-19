@@ -36,10 +36,14 @@ test("v2 report shows content-aware points, commit practice and advisory structu
   await page.locator('input[name="repo_url"]').fill("https://github.com/example/v2");
   await page.locator('form button[type="submit"]').click();
   await expect(page.locator(".repo-report")).toBeVisible();
+  await expect(page.locator(".repo-profile-panel")).toBeVisible();
+  await expect(page.locator(".repo-profile-dimensions article")).toHaveCount(4);
+  await expect(page.locator(".repo-profile-code")).toHaveText(/^[DR][HP][ST][FE]$/);
   await expect(page.locator(".repo-signal-score").first()).toBeVisible();
   await expect(page.locator(".repo-axis-card").nth(2)).toContainText(/커밋 설명 습관|Commit explanation practice/);
   await expect(page.locator(".repo-diagnostics")).toBeVisible();
   await expect(page.locator(".repo-diagnostics")).toContainText("src/large.ts");
   await expect(page.locator(".repo-diagnostics")).toContainText(/450/);
   expect(report.schemaVersion).toBe("repository-report-v2");
+  expect(report.ruleVersion).toBe("repository-signals-v2.2");
 });

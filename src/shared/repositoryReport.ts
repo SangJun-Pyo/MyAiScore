@@ -111,12 +111,49 @@ export interface RepositoryReportV2Diagnostics {
   } | null;
 }
 
-export interface RepositoryReportV2 extends RepositoryReportBase {
+export type RepositoryCollaborationProfileDimensionId = "orientation" | "workflow" | "timing" | "shape";
+export type RepositoryCollaborationProfilePole = "D" | "R" | "H" | "P" | "S" | "T" | "F" | "E";
+export type RepositoryCollaborationProfileReason =
+  | "incomplete_collection"
+  | "insufficient_observed_axes"
+  | "insufficient_substantive_signals"
+  | "missing_dimension_evidence"
+  | "multiple_near_boundaries";
+
+export interface RepositoryCollaborationProfileDimension {
+  id: RepositoryCollaborationProfileDimensionId;
+  leftPole: RepositoryCollaborationProfilePole;
+  rightPole: RepositoryCollaborationProfilePole;
+  leftStrength: number;
+  rightStrength: number;
+  selectedPole: RepositoryCollaborationProfilePole | null;
+  nearBoundary: boolean;
+}
+
+export interface RepositoryCollaborationProfile {
+  version: "repository-collaboration-profile-v1";
+  status: "assigned" | "withheld";
+  code: string | null;
+  dimensions: RepositoryCollaborationProfileDimension[];
+  reasons: RepositoryCollaborationProfileReason[];
+}
+
+interface RepositoryReportV2Base extends RepositoryReportBase {
   schemaVersion: "repository-report-v2";
-  ruleVersion: "repository-signals-v2.1";
   signalScores: RepositoryReportSignalAssessment[];
   diagnostics: RepositoryReportV2Diagnostics;
 }
+
+export interface RepositoryReportV2_1 extends RepositoryReportV2Base {
+  ruleVersion: "repository-signals-v2.1";
+}
+
+export interface RepositoryReportV2_2 extends RepositoryReportV2Base {
+  ruleVersion: "repository-signals-v2.2";
+  collaborationProfile: RepositoryCollaborationProfile;
+}
+
+export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2;
 
 export type RepositoryReport = RepositoryReportV1 | RepositoryReportV2;
 
@@ -142,6 +179,28 @@ export const REPOSITORY_SCORE_SIGNAL_ORDER: RepositoryReportScoreSignalId[] = [
   ...REPOSITORY_EVIDENCE_ORDER,
   "traceability-commit-practice",
 ];
+
+export const REPOSITORY_COLLABORATION_PROFILE_DIMENSION_ORDER: RepositoryCollaborationProfileDimensionId[] = [
+  "orientation",
+  "workflow",
+  "timing",
+  "shape",
+];
+
+export const REPOSITORY_COLLABORATION_PROFILE_POLES = {
+  orientation: ["D", "R"],
+  workflow: ["H", "P"],
+  timing: ["S", "T"],
+  shape: ["F", "E"],
+} as const satisfies Record<RepositoryCollaborationProfileDimensionId, readonly [RepositoryCollaborationProfilePole, RepositoryCollaborationProfilePole]>;
+
+export const REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS = {
+  minimumObservedAxes: 3,
+  minimumSubstantiveSignals: 4,
+  substantiveFloor: 0.25,
+  nearBoundaryDifference: 0.12,
+  focusedSpread: 6,
+} as const;
 
 export const REPOSITORY_REPORT_COPY = {
   scoreExplanation: "선택된 공개 저장소 파일에서 확인한 협업 준비 신호를 더한 재미용 점수예요. 개인의 AI 활용 능력, 코드 품질, 실행 성공을 평가하지 않아요.",
@@ -277,6 +336,79 @@ export function deriveRepositoryReportV2Presentation(
   if (coverage === "partial") gaps.push(REPOSITORY_REPORT_COPY.gaps.partial);
   const challengeAxis = REPOSITORY_AXIS_ORDER.reduce((lowest, axis) => axes[axis] < axes[lowest] ? axis : lowest, REPOSITORY_AXIS_ORDER[0]!);
   return { axes, value, style, gaps, nextChallenge: REPOSITORY_REPORT_COPY.challenges[challengeAxis] };
+}
+
+const PROFILE_LOCAL_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["verification-tests", "verification-config", "automation-scripts"];
+const PROFILE_PIPELINE_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["automation-ci", "automation-dependencies", "automation-delivery"];
+const PROFILE_SPEC_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["context-readme", "context-guidance", "traceability-templates"];
+const PROFILE_TRACE_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["traceability-changelog", "traceability-decisions", "traceability-migrations"];
+
+function roundedRatio(value: number): number {
+  return Math.round(Math.max(0, Math.min(1, value)) * 1_000) / 1_000;
+}
+
+function profileSignalStrength(assessments: RepositoryReportSignalAssessment[], ids: RepositoryReportScoreSignalId[]): number {
+  const selected = assessments.filter(item => ids.includes(item.id) && item.status === "measured" &&
+    (item.id !== "traceability-migrations" || item.role === "conditional" || item.presence === 1));
+  const maximum = selected.reduce((sum, item) => sum + item.maxPoints, 0);
+  return maximum === 0 ? 0 : roundedRatio(selected.reduce((sum, item) => sum + item.points, 0) / maximum);
+}
+
+function profileDimension(
+  id: RepositoryCollaborationProfileDimensionId,
+  leftStrength: number,
+  rightStrength: number,
+): RepositoryCollaborationProfileDimension {
+  const [leftPole, rightPole] = REPOSITORY_COLLABORATION_PROFILE_POLES[id];
+  const left = roundedRatio(leftStrength);
+  const right = roundedRatio(rightStrength);
+  const selectedPole = left === 0 && right === 0 ? null : left >= right ? leftPole : rightPole;
+  return {
+    id,
+    leftPole,
+    rightPole,
+    leftStrength: left,
+    rightStrength: right,
+    selectedPole,
+    nearBoundary: selectedPole !== null && Math.abs(left - right) <= REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.nearBoundaryDifference,
+  };
+}
+
+/**
+ * Summarize relative repository-signal placement without changing the score.
+ * The four-letter code is withheld when the sampled evidence cannot support all four choices.
+ */
+export function deriveRepositoryCollaborationProfile(
+  assessments: RepositoryReportSignalAssessment[],
+  axes: Record<RepositoryReportAxis, number>,
+  diagnostics: Pick<RepositoryReportV2Diagnostics, "reasons">,
+): RepositoryCollaborationProfile {
+  const axisSpread = Math.max(...REPOSITORY_AXIS_ORDER.map(axis => axes[axis])) - Math.min(...REPOSITORY_AXIS_ORDER.map(axis => axes[axis]));
+  const focusStrength = roundedRatio(axisSpread / (REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.focusedSpread * 2));
+  const dimensions = [
+    profileDimension("orientation", (axes.context + axes.traceability) / 50, (axes.verification + axes.automation) / 50),
+    profileDimension("workflow", profileSignalStrength(assessments, PROFILE_LOCAL_SIGNAL_IDS), profileSignalStrength(assessments, PROFILE_PIPELINE_SIGNAL_IDS)),
+    profileDimension("timing", profileSignalStrength(assessments, PROFILE_SPEC_SIGNAL_IDS), profileSignalStrength(assessments, PROFILE_TRACE_SIGNAL_IDS)),
+    profileDimension("shape", focusStrength, 1 - focusStrength),
+  ];
+  const observedAxes = REPOSITORY_AXIS_ORDER.filter(axis => axes[axis] > 0).length;
+  const substantiveSignals = assessments.filter(item => item.presence === 1 && item.status === "measured" && (item.substance ?? 0) >= REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.substantiveFloor).length;
+  const blockingCoverage = diagnostics.reasons.some(reason => ["partial_collection", "tree_truncated", "selection_limited", "unmeasured_test_language"].includes(reason));
+  const reasons: RepositoryCollaborationProfileReason[] = [
+    ...(blockingCoverage ? ["incomplete_collection" as const] : []),
+    ...(observedAxes < REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.minimumObservedAxes ? ["insufficient_observed_axes" as const] : []),
+    ...(substantiveSignals < REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.minimumSubstantiveSignals ? ["insufficient_substantive_signals" as const] : []),
+    ...(dimensions.some(item => item.selectedPole === null) ? ["missing_dimension_evidence" as const] : []),
+    ...(dimensions.filter(item => item.nearBoundary).length >= 2 ? ["multiple_near_boundaries" as const] : []),
+  ];
+  const status = reasons.length === 0 ? "assigned" : "withheld";
+  return {
+    version: "repository-collaboration-profile-v1",
+    status,
+    code: status === "assigned" ? dimensions.map(item => item.selectedPole).join("") : null,
+    dimensions,
+    reasons,
+  };
 }
 
 function object(value: unknown): value is Record<string, unknown> {
@@ -446,14 +578,49 @@ function validateDiagnostics(value: unknown): RepositoryReportV2Diagnostics {
   return value as unknown as RepositoryReportV2Diagnostics;
 }
 
+function validateCollaborationProfile(value: unknown): RepositoryCollaborationProfile {
+  if (!object(value) || !exactKeys(value, ["version", "status", "code", "dimensions", "reasons"]) ||
+      value.version !== "repository-collaboration-profile-v1" || !["assigned", "withheld"].includes(String(value.status)) ||
+      !(value.code === null || typeof value.code === "string") || !Array.isArray(value.dimensions) ||
+      value.dimensions.length !== REPOSITORY_COLLABORATION_PROFILE_DIMENSION_ORDER.length || !Array.isArray(value.reasons)) {
+    throw new Error("Invalid repository collaboration profile.");
+  }
+  const allowedReasons: RepositoryCollaborationProfileReason[] = [
+    "incomplete_collection",
+    "insufficient_observed_axes",
+    "insufficient_substantive_signals",
+    "missing_dimension_evidence",
+    "multiple_near_boundaries",
+  ];
+  if (value.reasons.length > allowedReasons.length || value.reasons.some(reason => !allowedReasons.includes(reason as RepositoryCollaborationProfileReason)) || new Set(value.reasons).size !== value.reasons.length) {
+    throw new Error("Invalid repository collaboration profile reasons.");
+  }
+  for (let index = 0; index < value.dimensions.length; index += 1) {
+    const dimension = value.dimensions[index];
+    const id = REPOSITORY_COLLABORATION_PROFILE_DIMENSION_ORDER[index]!;
+    const [leftPole, rightPole] = REPOSITORY_COLLABORATION_PROFILE_POLES[id];
+    if (!object(dimension) || !exactKeys(dimension, ["id", "leftPole", "rightPole", "leftStrength", "rightStrength", "selectedPole", "nearBoundary"]) ||
+        dimension.id !== id || dimension.leftPole !== leftPole || dimension.rightPole !== rightPole || !ratio(dimension.leftStrength) || !ratio(dimension.rightStrength) ||
+        !(dimension.selectedPole === null || dimension.selectedPole === leftPole || dimension.selectedPole === rightPole) || typeof dimension.nearBoundary !== "boolean") {
+      throw new Error("Invalid repository collaboration profile dimension.");
+    }
+  }
+  if ((value.status === "assigned") !== (value.reasons.length === 0) ||
+      (value.status === "assigned" ? typeof value.code !== "string" || !/^[DR][HP][ST][FE]$/.test(value.code) : value.code !== null)) {
+    throw new Error("Invalid repository collaboration profile status.");
+  }
+  return value as unknown as RepositoryCollaborationProfile;
+}
+
 /** Strict public parser: no unlisted fields or unvalidated paths survive it. */
 export function parseRepositoryReport(value: unknown): RepositoryReport {
   if (!object(value)) throw new Error("Invalid repository report.");
   const isV2 = value.schemaVersion === "repository-report-v2";
+  const isV22 = isV2 && value.ruleVersion === "repository-signals-v2.2";
   const keys = isV2
-    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics"]
+    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 ? ["collaborationProfile"] : [])]
     : ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge"];
-  if (!exactKeys(value, keys) || (isV2 ? value.ruleVersion !== "repository-signals-v2.1" : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
+  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
   const { coverage, status } = validateIdentityAndCoverage(value);
   const score = validateScore(value, isV2 ? REPOSITORY_REPORT_COPY.scoreExplanationV2 : REPOSITORY_REPORT_COPY.scoreExplanation);
   const style = validateStyle(value);
@@ -479,6 +646,12 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   const derived = deriveRepositoryReportV2Presentation(assessments, status);
   validateDerivedPresentation(score, style, derived);
   validateGuidance(value, derived);
+
+  if (isV22) {
+    const profile = validateCollaborationProfile(value.collaborationProfile);
+    const expectedProfile = deriveRepositoryCollaborationProfile(assessments, derived.axes, diagnostics);
+    if (JSON.stringify(profile) !== JSON.stringify(expectedProfile)) throw new Error("Repository collaboration profile does not match its evidence.");
+  }
 
   return structuredClone(value) as unknown as RepositoryReportV2;
 }
