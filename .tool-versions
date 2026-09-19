@@ -1,0 +1,3 @@
+# Runtime and toolchain versions for local development.
+# Keep CI, Dockerfile, and local shells aligned with these versions.
+nodejs 22.10.2
