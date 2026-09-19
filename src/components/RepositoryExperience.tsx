@@ -10,13 +10,13 @@ import { repositoryProfilePresentation } from "../i18n/repositoryProfilePresenta
 import { repositoryV2Presentation } from "../i18n/repositoryV2Presentation";
 import {
   REPOSITORY_AXIS_ORDER,
-  REPOSITORY_COMMIT_PRACTICE_MAX_POINTS,
   REPOSITORY_REPORT_COPY,
   REPOSITORY_SCORE_SIGNAL_ORDER,
+  REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS,
   deriveRepositoryCollaborationProfile,
   deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
-  repositoryEvidencePoints,
+  repositoryV23EvidencePoints,
   type RepositoryReport,
   type RepositoryReportEvidenceCard,
   type RepositoryReportSignalAssessment,
@@ -51,10 +51,14 @@ function delay(ms: number) {
 const DEMO_EVIDENCE_CARDS: RepositoryReportEvidenceCard[] = [
   { id: "context-readme", ...REPOSITORY_REPORT_COPY.evidence["context-readme"], paths: ["README.md"] },
   { id: "context-guidance", ...REPOSITORY_REPORT_COPY.evidence["context-guidance"], paths: ["AGENTS.md"] },
-  { id: "verification-tests", ...REPOSITORY_REPORT_COPY.evidence["verification-tests"], paths: ["tests/browser/experience.spec.ts"] },
-  { id: "verification-config", ...REPOSITORY_REPORT_COPY.evidence["verification-config"], paths: ["tsconfig.json"] },
+  { id: "verification-entrypoint", ...REPOSITORY_REPORT_COPY.evidence["verification-entrypoint"], paths: ["package.json"] },
+  { id: "verification-test-substance", ...REPOSITORY_REPORT_COPY.evidence["verification-test-substance"], paths: ["tests/browser/experience.spec.ts"] },
+  { id: "verification-test-breadth", ...REPOSITORY_REPORT_COPY.evidence["verification-test-breadth"], paths: ["tests/browser/experience.spec.ts"] },
+  { id: "verification-edge-cases", ...REPOSITORY_REPORT_COPY.evidence["verification-edge-cases"], paths: ["tests/browser/experience.spec.ts"] },
+  { id: "verification-static-analysis", ...REPOSITORY_REPORT_COPY.evidence["verification-static-analysis"], paths: ["tsconfig.json"] },
   { id: "traceability-decisions", ...REPOSITORY_REPORT_COPY.evidence["traceability-decisions"], paths: ["docs/Architecture/ADR/0015-anonymous-korean-repository-reports.md"] },
-  { id: "automation-ci", ...REPOSITORY_REPORT_COPY.evidence["automation-ci"], paths: [".github/workflows/ci.yml"] },
+  { id: "automation-ci-tests", ...REPOSITORY_REPORT_COPY.evidence["automation-ci-tests"], paths: [".github/workflows/ci.yml"] },
+  { id: "automation-ci-quality", ...REPOSITORY_REPORT_COPY.evidence["automation-ci-quality"], paths: [".github/workflows/ci.yml"] },
 ];
 
 function buildDemoReport(): RepositoryReport {
@@ -63,14 +67,14 @@ function buildDemoReport(): RepositoryReport {
     if (id === "traceability-commit-practice") {
       const substance = 0.5;
       const quality = Math.round((0.15 + 0.85 * substance) * 1_000) / 1_000;
-      return { id, axis: "traceability", role: "bonus", status: "measured", presence: 1, substance, breadth: 1, quality, points: Math.round(REPOSITORY_COMMIT_PRACTICE_MAX_POINTS * quality), maxPoints: REPOSITORY_COMMIT_PRACTICE_MAX_POINTS };
+      return { id, axis: "traceability", role: "bonus", status: "measured", presence: 1, substance, breadth: 1, quality, points: Math.round(REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS * quality), maxPoints: REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS };
     }
     const presence = presentIds.has(id) ? 1 : 0;
-    const maxPoints = repositoryEvidencePoints(id);
+    const maxPoints = repositoryV23EvidencePoints(id);
     return {
       id,
       axis: REPOSITORY_REPORT_COPY.evidence[id].axis,
-      role: ["context-readme", "context-metadata", "verification-tests", "verification-config"].includes(id) ? "core" : "bonus",
+      role: ["context-readme", "context-metadata", "context-reproducibility", "verification-entrypoint", "verification-test-substance", "verification-test-breadth", "verification-edge-cases", "verification-static-analysis", "verification-coverage"].includes(id) ? "core" : "bonus",
       status: "measured",
       presence,
       substance: presence,
@@ -91,7 +95,7 @@ function buildDemoReport(): RepositoryReport {
   };
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.2",
+    ruleVersion: "repository-signals-v2.3",
     repo: "example/sample-project",
     commitSha: "0123456789abcdef0123456789abcdef01234567",
     coverage: {
@@ -152,9 +156,14 @@ function repoName(repo: string) {
   return repo.replace(/^https:\/\/github\.com\//, "").replace(/\/$/, "");
 }
 
+function reportCollaborationProfile(report: RepositoryReport | null) {
+  return report?.schemaVersion === "repository-report-v2" && "collaborationProfile" in report ? report.collaborationProfile : null;
+}
+
 function reportProfileTitle(report: RepositoryReport, locale: "ko" | "en", fallback: string) {
-  return report.schemaVersion === "repository-report-v2" && report.ruleVersion === "repository-signals-v2.2"
-    ? repositoryProfilePresentation(report.collaborationProfile, locale).title
+  const profile = reportCollaborationProfile(report);
+  return profile
+    ? repositoryProfilePresentation(profile, locale).title
     : fallback;
 }
 
@@ -183,7 +192,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(report, locale, copy);
   const v2 = report.schemaVersion === "repository-report-v2" ? report : null;
-  const profile = v2?.ruleVersion === "repository-signals-v2.2" ? v2.collaborationProfile : null;
+  const profile = reportCollaborationProfile(report);
   const profileDisplay = profile ? repositoryProfilePresentation(profile, locale) : null;
   const v2Display = repositoryV2Presentation(locale);
   return <section className="repo-report" aria-label={copy.report.aria}>
@@ -328,12 +337,9 @@ export function RepositoryProfileExperience() {
 
 function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | null }) {
   const { locale, copy } = useLocale();
-  const hasCollaborationProfile = report?.schemaVersion === "repository-report-v2" && report.ruleVersion === "repository-signals-v2.2";
-  const referenceProfile = hasCollaborationProfile
-    ? report.collaborationProfile
-    : !report && DEMO_REPORT.schemaVersion === "repository-report-v2" && DEMO_REPORT.ruleVersion === "repository-signals-v2.2"
-      ? DEMO_REPORT.collaborationProfile
-      : null;
+  const reportProfile = reportCollaborationProfile(report);
+  const hasCollaborationProfile = reportProfile !== null;
+  const referenceProfile = reportProfile ?? (!report ? reportCollaborationProfile(DEMO_REPORT) : null);
   const profileGuide = referenceProfile ? repositoryProfilePresentation(referenceProfile, locale) : null;
   const guide = buildRepositoryGuide(locale, copy, hasCollaborationProfile ? undefined : report?.style.id);
   return <div className="repo-interpretation-guide">

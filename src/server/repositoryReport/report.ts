@@ -1,6 +1,7 @@
 import {
   REPOSITORY_AXIS_ORDER,
   REPOSITORY_REPORT_COPY,
+  REPOSITORY_V23_EVIDENCE_ORDER,
   deriveRepositoryCollaborationProfile,
   deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
@@ -25,7 +26,7 @@ function signal(id: RepositoryReportEvidenceId, axis: RepositoryReportAxis, path
 }
 
 function collectSignals(paths: string[]): Signal[] {
-  const signals = collectRepositorySignalPaths(paths).map(item => signal(item.id, item.axis, item.paths));
+  const signals = collectRepositorySignalPaths(paths, REPOSITORY_V23_EVIDENCE_ORDER).map(item => signal(item.id, item.axis, item.paths));
   return signals.filter((item): item is Signal => item !== null);
 }
 
@@ -60,15 +61,16 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
   const safePathSet = new Set(paths);
   const safeFiles = snapshot.files.filter(file => safePathSet.has(file.path));
   const inventory = snapshot.repositoryInventory ?? fallbackInventory(snapshot, paths);
-  const signals = collectSignals(paths);
+  const coverageStatus = snapshot.ingestionStatus;
+  const analysis = analyzeRepositorySignals(safeFiles, inventory, snapshot.commitTraceability);
+  const presentIds = new Set(analysis.assessments.filter(item => item.presence === 1).map(item => item.id));
+  const signals = collectSignals(paths).filter(item => presentIds.has(item.id));
   const evidenceCards: RepositoryReportEvidenceCard[] = signals.map(item => {
     const copy = REPOSITORY_REPORT_COPY.evidence[item.id];
     return { id: item.id, axis: item.axis, title: copy.title, description: copy.description, paths: item.paths };
   });
-  const coverageStatus = snapshot.ingestionStatus;
-  const analysis = analyzeRepositorySignals(safeFiles, inventory, snapshot.commitTraceability);
   const derived = deriveRepositoryReportV2Presentation(analysis.assessments, coverageStatus);
-  const testAssessment = analysis.assessments.find(item => item.id === "verification-tests");
+  const testAssessment = analysis.assessments.find(item => item.id === "verification-test-substance");
   const reasons = [
     ...(coverageStatus === "partial" ? ["partial_collection" as const] : []),
     ...(snapshot.coverage.treeTruncated ? ["tree_truncated" as const] : []),
@@ -104,7 +106,7 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
 
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.2",
+    ruleVersion: "repository-signals-v2.3",
     repo: snapshot.repo,
     commitSha: snapshot.commitSha,
     coverage: {

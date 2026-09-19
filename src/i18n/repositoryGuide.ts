@@ -1,11 +1,12 @@
 import {
   REPOSITORY_AXIS_ORDER,
-  REPOSITORY_EVIDENCE_ORDER,
   REPOSITORY_REPORT_COPY,
+  REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS,
+  REPOSITORY_V23_EVIDENCE_ORDER,
   REPOSITORY_STYLE_ORDER,
   REPOSITORY_STYLE_THRESHOLDS,
   REPOSITORY_STYLE_TIE_PRIORITY,
-  repositoryEvidencePoints,
+  repositoryV23EvidencePoints,
   type RepositoryReportAxis,
   type RepositoryReportStyleId,
 } from "../shared/repositoryReport";
@@ -22,14 +23,15 @@ const dominantAxisByStyle: Partial<Record<RepositoryReportStyleId, RepositoryRep
 
 export function buildRepositoryGuide(locale: Locale, copy: Messages, activeStyleId?: string) {
   const axes = REPOSITORY_AXIS_ORDER.map(axis => {
-    const signals = REPOSITORY_EVIDENCE_ORDER
+    const signals = REPOSITORY_V23_EVIDENCE_ORDER
       .filter(id => REPOSITORY_REPORT_COPY.evidence[id].axis === axis)
-      .map(id => ({ id, title: repositoryEvidencePresentation(id, locale).title, points: repositoryEvidencePoints(id) }));
+      .map(id => ({ id: id as string, title: repositoryEvidencePresentation(id, locale).title, points: repositoryV23EvidencePoints(id) }));
+    if (axis === "traceability") signals.push({ id: "traceability-commit-practice", title: locale === "ko" ? "커밋 설명 습관" : "Commit-message practice", points: REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS });
     return {
       id: axis,
       label: copy.presentation.axes[axis].label,
       signals,
-      total: signals.reduce((sum, signal) => sum + signal.points, 0),
+      total: Math.min(25, signals.reduce((sum, signal) => sum + signal.points, 0)),
     };
   });
 

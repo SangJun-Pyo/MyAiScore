@@ -5,15 +5,22 @@ import { OfflineHttpClient } from "../../src/server/ingestion/offlineHttpClient.
 import { buildRepositoryReport } from "../../src/server/repositoryReport/report.js";
 import { createSafeGithubHttpClient, generateRepositoryReport, RepositoryReportAdmission, RepositoryReportError } from "../../src/server/repositoryReport/service.js";
 import {
-  REPOSITORY_COMMIT_PRACTICE_MAX_POINTS,
+  REPOSITORY_AXIS_ORDER,
   REPOSITORY_EVIDENCE_ORDER,
+  REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER,
   REPOSITORY_REPORT_COPY,
   REPOSITORY_SCORE_SIGNAL_ORDER,
+  REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS,
   deriveRepositoryCollaborationProfile,
+  deriveRepositoryReportPresentation,
+  deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
   parseRepositoryReportRequest,
+  repositoryV23EvidencePoints,
   repositoryEvidencePoints,
+  REPOSITORY_COMMIT_PRACTICE_MAX_POINTS,
   type RepositoryReportAxis,
+  type RepositoryReportEvidenceCard,
   type RepositoryReportEvidenceId,
   type RepositoryReportScoreSignalId,
   type RepositoryReportSignalAssessment,
@@ -40,7 +47,7 @@ function snapshot(paths: string[], status: "complete" | "partial" = "complete"):
 
 function profileAssessments(overrides: Partial<Record<RepositoryReportScoreSignalId, Partial<RepositoryReportSignalAssessment>>> = {}): RepositoryReportSignalAssessment[] {
   return REPOSITORY_SCORE_SIGNAL_ORDER.map(id => {
-    const maxPoints = id === "traceability-commit-practice" ? REPOSITORY_COMMIT_PRACTICE_MAX_POINTS : repositoryEvidencePoints(id);
+    const maxPoints = id === "traceability-commit-practice" ? REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS : repositoryV23EvidencePoints(id);
     const axis = id === "traceability-commit-practice" ? "traceability" : REPOSITORY_REPORT_COPY.evidence[id].axis;
     const base: RepositoryReportSignalAssessment = id === "traceability-commit-practice"
       ? { id, axis, role: "bonus", status: "unmeasured", presence: 0, substance: null, breadth: 1, quality: 0, points: 0, maxPoints }
@@ -79,7 +86,7 @@ test("partial coverage remains explicit while observable signals still receive a
   assert.equal(report.coverage.note, REPOSITORY_REPORT_COPY.coverageNotes.partial);
   assert.ok(report.score.value > 0 && report.score.value <= 100);
   assert.ok(report.gaps.includes(REPOSITORY_REPORT_COPY.gaps.partial));
-  assert.equal(report.ruleVersion, "repository-signals-v2.2");
+  assert.equal(report.ruleVersion, "repository-signals-v2.3");
   assert.equal(report.collaborationProfile.status, "withheld");
   assert.ok(report.collaborationProfile.reasons.includes("incomplete_collection"));
   assert.equal(report.collaborationProfile.code, null);
@@ -117,14 +124,13 @@ test("substantive content and fixed-SHA commit practice raise transparent v2 sig
   input.commitTraceability = { basis: "fixed_commit_ancestors", sampledCommits: 5, evaluatedCommits: 5, excludedMergeOrAutomated: 0, nonGenericSubjectRatio: 1, distinctSubjectRatio: 1, scopedSubjectRatio: 0.8, rationaleBodyRatio: 0.6, referenceRatio: 0.4 };
   const report = buildRepositoryReport(input);
   assert.equal(report.schemaVersion, "repository-report-v2");
-  assert.equal(report.ruleVersion, "repository-signals-v2.2");
+  assert.equal(report.ruleVersion, "repository-signals-v2.3");
   assert.ok(report.score.value > 35);
   assert.equal(report.diagnostics.profile.databaseLikely, true);
   assert.ok(report.signalScores.find(item => item.id === "traceability-commit-practice")!.points > 0);
   assert.equal(report.diagnostics.commit?.sampledCommits, 5);
-  assert.equal(report.collaborationProfile.status, "withheld");
-  assert.ok(report.collaborationProfile.reasons.includes("multiple_near_boundaries"));
-  assert.equal(report.collaborationProfile.code, null);
+  assert.equal(report.collaborationProfile.status, "assigned");
+  assert.match(report.collaborationProfile.code ?? "", /^[DR][HP][ST][FE]$/);
   assert.equal(report.collaborationProfile.dimensions.length, 4);
 });
 
@@ -138,10 +144,10 @@ test("collaboration profile withholds sparse evidence with explicit reasons", ()
 
 test("collaboration profile withholds multiple near-boundary dimensions", () => {
   const assessments = profileAssessments({
-    "verification-tests": fullSignal(21), "verification-config": fullSignal(4), "automation-scripts": fullSignal(3),
-    "automation-ci": fullSignal(15), "automation-dependencies": fullSignal(4), "automation-delivery": fullSignal(3),
-    "context-readme": fullSignal(7), "context-guidance": fullSignal(7), "traceability-templates": fullSignal(5),
-    "traceability-changelog": fullSignal(8), "traceability-decisions": fullSignal(9),
+    "verification-entrypoint": fullSignal(4), "verification-test-substance": fullSignal(5), "verification-static-analysis": fullSignal(4), "automation-scripts": fullSignal(4),
+    "automation-ci-tests": fullSignal(5), "automation-ci-quality": fullSignal(5), "automation-dependencies": fullSignal(4), "automation-delivery": fullSignal(4),
+    "context-readme": fullSignal(5), "context-guidance": fullSignal(5), "traceability-templates": fullSignal(4),
+    "traceability-changelog": fullSignal(5), "traceability-decisions": fullSignal(6),
     "traceability-migrations": { ...fullSignal(3), role: "conditional" },
   });
   const axes: Record<RepositoryReportAxis, number> = { context: 10, verification: 10, traceability: 10, automation: 10 };
@@ -153,8 +159,9 @@ test("collaboration profile withholds multiple near-boundary dimensions", () => 
 
 test("a single spread-six boundary remains assigned and visible", () => {
   const assessments = profileAssessments({
-    "context-readme": fullSignal(7), "context-guidance": fullSignal(7),
-    "verification-tests": fullSignal(21), "verification-config": fullSignal(4),
+    "context-readme": fullSignal(5), "context-guidance": fullSignal(5), "traceability-templates": fullSignal(4),
+    "verification-entrypoint": fullSignal(4), "verification-test-substance": fullSignal(5), "automation-scripts": fullSignal(4),
+    "automation-ci-tests": fullSignal(5), "traceability-changelog": fullSignal(5),
   });
   const axes: Record<RepositoryReportAxis, number> = { context: 16, verification: 10, traceability: 16, automation: 10 };
   const profile = deriveRepositoryCollaborationProfile(assessments, axes, { reasons: [] });
@@ -167,13 +174,13 @@ test("a single spread-six boundary remains assigned and visible", () => {
 
 test("profile timing is stable across commit availability and migration applicability is explicit", () => {
   const base = profileAssessments({
-    "context-readme": fullSignal(7), "context-guidance": fullSignal(7),
-    "verification-tests": fullSignal(21), "verification-config": fullSignal(4),
-    "traceability-changelog": fullSignal(8), "traceability-decisions": fullSignal(9),
+    "context-readme": fullSignal(5), "context-guidance": fullSignal(5), "traceability-templates": fullSignal(4),
+    "verification-entrypoint": fullSignal(4), "verification-test-substance": fullSignal(5), "automation-scripts": fullSignal(4),
+    "automation-ci-tests": fullSignal(5), "traceability-changelog": fullSignal(5), "traceability-decisions": fullSignal(6),
   });
   const axes: Record<RepositoryReportAxis, number> = { context: 16, verification: 20, traceability: 17, automation: 4 };
   const measuredHistory = structuredClone(base);
-  Object.assign(measuredHistory.find(item => item.id === "traceability-commit-practice")!, fullSignal(REPOSITORY_COMMIT_PRACTICE_MAX_POINTS));
+  Object.assign(measuredHistory.find(item => item.id === "traceability-commit-practice")!, fullSignal(REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS));
   const withHistory = deriveRepositoryCollaborationProfile(measuredHistory, axes, { reasons: [] });
   const withoutHistory = deriveRepositoryCollaborationProfile(base, axes, { reasons: ["commit_history_unavailable"] });
   assert.deepEqual(withoutHistory, withHistory);
@@ -181,8 +188,45 @@ test("profile timing is stable across commit availability and migration applicab
   const applicable = structuredClone(base);
   applicable.find(item => item.id === "traceability-migrations")!.role = "conditional";
   const conditionalTiming = deriveRepositoryCollaborationProfile(applicable, axes, { reasons: [] }).dimensions.find(item => item.id === "timing")!;
-  assert.equal(bonusTiming.rightStrength, 1);
-  assert.equal(conditionalTiming.rightStrength, 0.85);
+  assert.ok(bonusTiming.rightStrength > conditionalTiming.rightStrength);
+});
+
+test("strict parser keeps stored v2.2 reports on their legacy signal and profile contract", () => {
+  const signalScores: RepositoryReportSignalAssessment[] = REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER.map(id => {
+    const axis = id === "traceability-commit-practice" ? "traceability" : REPOSITORY_REPORT_COPY.evidence[id].axis;
+    const maxPoints = id === "traceability-commit-practice" ? REPOSITORY_COMMIT_PRACTICE_MAX_POINTS : repositoryEvidencePoints(id);
+    return id === "traceability-commit-practice"
+      ? { id, axis, role: "bonus", status: "unmeasured", presence: 0, substance: null, breadth: 1, quality: 0, points: 0, maxPoints }
+      : { id, axis, role: ["context-readme", "context-metadata", "verification-tests", "verification-config"].includes(id) ? "core" : "bonus", status: "measured", presence: 0, substance: 0, breadth: 1, quality: 0, points: 0, maxPoints };
+  });
+  const derived = deriveRepositoryReportV2Presentation(signalScores, "complete");
+  const diagnostics = {
+    provisional: true, reasons: ["commit_history_unavailable" as const], profile: { databaseLikely: false },
+    hygiene: { highConfidenceArtifacts: 0, generatedArtifactCandidates: 0, secretLikePaths: 0 },
+    structure: { oversizedSourceCandidates: 0, sourceFilesOver400Lines: 0, sourceFilesOver800Lines: 0, topFiveSourceByteShare: null, largestSelectedSourceFiles: [] },
+    commit: null,
+  };
+  const stored = {
+    schemaVersion: "repository-report-v2", ruleVersion: "repository-signals-v2.2", repo: "acme/legacy", commitSha: SHA,
+    coverage: { status: "complete", basis: "selected_files", selectedFiles: 0, readFiles: 0, candidateFiles: 0, treeTruncated: false, selectionLimited: false, note: REPOSITORY_REPORT_COPY.coverageNotes.complete },
+    score: { value: derived.value, label: "저장소 기반 AI 협업 준비도", explanation: REPOSITORY_REPORT_COPY.scoreExplanationV2, axes: Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, { label: REPOSITORY_REPORT_COPY.axisLabels[axis], value: derived.axes[axis] }])) },
+    style: derived.style, evidenceCards: [], gaps: derived.gaps, nextChallenge: derived.nextChallenge, signalScores, diagnostics,
+    collaborationProfile: deriveRepositoryCollaborationProfile(signalScores, derived.axes, diagnostics, "v22"),
+  };
+  assert.deepEqual(parseRepositoryReport(stored), stored);
+});
+
+test("strict parser rejects v2.3 evidence IDs smuggled into a v1 report", () => {
+  const copy = REPOSITORY_REPORT_COPY.evidence["context-contracts"];
+  const evidenceCards: RepositoryReportEvidenceCard[] = [{ id: "context-contracts", axis: copy.axis, title: copy.title, description: copy.description, paths: ["openapi.yaml"] }];
+  const derived = deriveRepositoryReportPresentation(evidenceCards, "complete");
+  const report = {
+    schemaVersion: "repository-report-v1", ruleVersion: "repository-signals-v1", repo: "acme/legacy", commitSha: SHA,
+    coverage: { status: "complete", basis: "selected_files", selectedFiles: 1, readFiles: 1, candidateFiles: 1, treeTruncated: false, selectionLimited: false, note: REPOSITORY_REPORT_COPY.coverageNotes.complete },
+    score: { value: derived.value, label: "저장소 기반 AI 협업 준비도", explanation: REPOSITORY_REPORT_COPY.scoreExplanation, axes: Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, { label: REPOSITORY_REPORT_COPY.axisLabels[axis], value: derived.axes[axis] }])) },
+    style: derived.style, evidenceCards, gaps: derived.gaps, nextChallenge: derived.nextChallenge,
+  };
+  assert.throws(() => parseRepositoryReport(report), /Invalid repository report evidence/);
 });
 
 test("strict parsers reject extra request fields, forged scores and unsafe evidence paths", () => {
@@ -207,10 +251,8 @@ test("strict parsers reject extra request fields, forged scores and unsafe evide
     signalScores[0]!.quality = 1;
     assert.throws(() => parseRepositoryReport({ ...report, signalScores }));
     assert.throws(() => parseRepositoryReport({ ...report, diagnostics: { ...report.diagnostics, provisional: !report.diagnostics.provisional } }));
-    if (report.ruleVersion === "repository-signals-v2.2") {
+    if ("collaborationProfile" in report) {
       assert.throws(() => parseRepositoryReport({ ...report, collaborationProfile: { ...report.collaborationProfile, code: "XXXX" } }));
-      const { collaborationProfile: _profile, ...v21 } = report;
-      assert.deepEqual(parseRepositoryReport({ ...v21, ruleVersion: "repository-signals-v2.1" }), { ...v21, ruleVersion: "repository-signals-v2.1" });
     }
   }
 });

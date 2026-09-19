@@ -24,6 +24,7 @@
 | [0016](0016-persistent-korean-english-interface.md) | 한국어 기본과 첫 응답부터 유지되는 한국어·영어 전환 | Accepted; extends 0015 |
 | [0017](0017-content-aware-repository-scoring.md) | 내용·인벤토리 기반 저장소 점수 v2 | Accepted; v2.1 content scoring, v1 read compatibility |
 | [0018](0018-evidence-aware-collaboration-profile.md) | 근거 충분성에 따른 네 차원 협업 유형 | Accepted; v2.2 profile, v2.1/v1 read compatibility |
+| [0019](0019-granular-repository-score-signals.md) | 저장소 점수 신호 세분화 | Accepted; v2.3 granular signals, prior-rule read compatibility |
 
 0001~0006은 2026-09-14 사용자의 ADR 누락 지적 후 작성한 **사후 기록**이다. 기준은 [PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6), merge `db0edd7`, [Phase 4](../../Development/Sessions/Phase-04-Web-MVP.md)다. 작성자는 Astra이며 구현 시점에 ADR이 있었다고 소급하지 않는다. 대안은 당시 요약과 현재 코드를 바탕으로 정리했고, 대안별 실험을 수행했다는 뜻이 아니다.
 

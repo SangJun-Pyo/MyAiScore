@@ -141,8 +141,9 @@ test("tree scan cap retains its original limited meaning and is independent of i
 test("v2 reserves one representative for every observable score signal before general sampling", () => {
   const signalPaths = [
     "README.md", "AGENTS.md", "docs/guide.md", "package.json",
+    "openapi.yaml", ".nvmrc",
     "tests/a.test.ts", "tsconfig.json", "CHANGELOG.md", "docs/ADR/0001-choice.md",
-    ".github/issue_template/bug.md", "migrations/001.sql", ".github/workflows/ci.yml",
+    ".github/issue_template/bug.md", "migrations/001.sql", ".github/CODEOWNERS", ".github/workflows/ci.yml",
     ".github/dependabot.yml", "Dockerfile", "scripts/check.ts",
   ];
   const entries = [
