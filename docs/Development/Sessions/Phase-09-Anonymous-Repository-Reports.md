@@ -234,3 +234,19 @@ v2.7은 같은 규모와 같은 coverage 상태의 참조 그룹이 5개 이상�
 검증은 `npm run typecheck`, `npm test` 318/318, `npm run check:docs` 73파일·431개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 34/34를 통과했다. 최초 브라우저 검사에서 Node ESM의 JSON import attribute 누락을 발견해 명시적인 `with { type: "json" }`로 고쳤고 전체 검사를 다시 통과했다.
 
 PR [#58](https://github.com/SangJun-Pyo/MyAiScore/pull/58)의 GitHub CI는 3분 15초에 통과했고 main `c06c728`로 squash merge됐다. Railway 배포 상태도 해당 SHA에서 성공했다. 운영 `/api/health`는 200을 반환했고, 실제 `SangJun-Pyo/MyAiScore` 분석은 동일 SHA의 v2.7 총 77점, candidate 334·60개 읽기·complete, 추천 3개, medium/complete 참조 그룹 11개와 상위 0~10% 구간을 반환했다. 운영 HTML에는 `v1 참조 코호트`와 `GitHub 전체 순위가 아닙니다` 문구가 함께 노출됐다.
+
+## 2026-09-19 — 협업 유형·축별 신호 카드 다크모드 리디자인
+
+사용자가 `/insights` 페이지의 "협업 유형"과 "축별 저장소 신호" 카드가 정보 위계 없이 밋밋하다고 지적해, 먼저 Design 캔버스에 실제 카피·색상 토큰을 그대로 쓴 정적 샘플을 만들어 방향을 확인받은 뒤 같은 디자인을 실제 컴포넌트에 반영했다.
+
+`RepositoryExperience.tsx`의 `repo-profile-panel`(협업 유형 차원 카드)에 좌우 스펙트럼 바(트랙+마커, `leftStrength`/`rightStrength` 기반 폭 계산)를 추가하고, `repositoryProfilePresentation`가 이미 계산해 두었지만 이 패널에는 노출되지 않던 `code`·`title`(재미있는 유형 이름)·`confidenceLabel`을 패널 상단 배지로 끌어올렸다. `RepositoryInterpretationGuide`의 `profileGuide` 폴백 버전에도 동일한 스펙트럼 바를 반영해 두 위치의 시각 언어를 통일했다. `repo-axis-grid`(축별 신호 카드)에는 `conic-gradient` 기반 진행률 링과 축별 인라인 SVG 아이콘을 추가하고, `.repo-evidence-card`를 CSS 그리드로 재구성해 제목·근거 파일·점수 배지·설명이 겹치지 않게 분리했다.
+
+카피·데이터 구조·`<details>/<summary>` 상호작용은 바꾸지 않았다. `REPOSITORY_AXIS_ORDER` 기반 아이콘 맵과 스펙트럼 바 렌더링만 JSX에 추가했고, `selectedPole`이 `null`인 차원은 강조 색 없이 중립 마커만 표시한다. 원래 커밋 `1168cac`의 Linux 환경에서는 타입 검사만 통과했으며, main 통합 과정에서 전체 검증을 다시 수행한다.
+
+## 2026-09-19 — 해석 가이드 문구 정리
+
+원래 커밋 `41c3c50`에서 `/insights`의 한국어 표현을 리포트 본문과 같은 해요체로 맞췄다. 번역체 문장을 평이하게 고치고, `판정`을 `규칙`으로 바꾸며 반복 조건 문구를 줄였다. 화면 축 용어도 정본 계약에 맞춰 `기록`으로 통일했다.
+
+표 캡션의 전문용어 대신 본문에서 “같은 저장소의 같은 커밋이면 언제 다시 돌려도 같은 점수가 나와요”라고 설명한다. 변경은 의미 ID 카탈로그와 해당 브라우저 단언에 한정하며, `repository-report-v1`의 고정 한국어 계약·저장 이력·점수 계산은 바꾸지 않는다. main 통합 과정에서 현재 v2.7 화면 구조를 보존한 채 충돌을 해소하고 전체 검증을 다시 수행한다.
+
+두 커밋을 main v2.7 위에 통합한 뒤 `npm run typecheck`, `npm test` 318/318, `npm run check:docs` 73파일·432개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 34/34, `git diff --check`를 통과했다. 현재 버전에 추가된 locale 계약과 브라우저 문구 단언은 새 한국어 용어와 해요체에 맞춰 함께 갱신했다.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-19 — 협업 유형·축별 신호 카드 다크모드 리디자인
+
+- 해석 가이드 페이지에서 "협업 유형" 4개 차원 카드에 좌우 스펙트럼 바(막대+마커)를 추가하고, 유형 코드(4글자)와 신뢰도 라벨을 패널 상단 배지로 끌어올렸다. 데이터는 기존 `repositoryProfilePresentation`이 이미 계산하던 leftStrength/rightStrength/code/confidenceLabel을 그대로 사용한다.
+- "축별 저장소 신호" 카드에 축별 도넛형 진행률 링과 아이콘을 추가하고, 신호별 근거 카드(`repo-evidence-card`)를 제목·설명·근거 파일·점수 배지가 분리된 그리드 레이아웃으로 재구성했다. 기존에 `.repo-evidence-card`는 전용 CSS가 전혀 없어 브라우저 기본 스타일로만 렌더링되고 있었다.
+- 복사한 텍스트, `<details>/<summary>` 파일 목록 상호작용, 데이터 구조는 전혀 바꾸지 않았다 — CSS 클래스 재구성과 신규 시각 요소(링, 스펙트럼 바, 코드 배지) 추가만 있다.
+
 ## 2026-09-19 — 고정 SHA 참조 코호트 v2.7
 
 - TypeScript·Python·Go·Rust·Java 각 10개, 다섯 별점 구간별 2개씩 총 50개 공개 저장소를 고정 SHA에서 v2.6 규칙으로 수집했다. seed, 선택식, 점수·축·coverage manifest와 SHA-256 digest를 공개하며 원문은 저장하지 않는다.
@@ -85,6 +91,15 @@
 - 새 분석은 `repository-report-v2` / `repository-signals-v2.1`로 발급한다. 14개 신호의 실제 redacted content를 네 요소 이하로 측정하고 `presence × (0.15 + 0.60·substance + 0.25·substance·breadth)`를 적용한다. 과거 v1 브라우저 기록은 계속 검증한다.
 - JavaScript/TypeScript·Python·Go·Rust·Java/Kotlin 테스트 선언과 assertion을 지원하고, 미지원 테스트 형식은 `unmeasured`와 잠정 결과로 표시한다. 빈 신호 파일 14개 회귀 fixture는 고득점을 만들 수 없다.
 - manifest 의존성으로 DB 적용성을 판정하고, 고정 SHA 최근 조상 커밋의 원문 미보존 집계를 기록축 최대 5점 보너스로 연결했다. 위생과 400/800줄·큰 소스 집중도는 화면 진단으로 제공하되 감점하지 않는다.
+
+## 2026-09-19 — 해석 가이드 한국어 문구 정리
+
+- `/insights`의 화면 문구를 리포트 본문과 같은 해요체로 통일했다. 같은 화면에서 가이드는 합니다체, 리포트 카드는 해요체로 갈라져 있던 문제를 없앴다.
+- "신호별 점수를 모두 공개합니다", "축별 합계는 25점에서 멈춥니다", "총점은 저장소에 확인 가능한 신호의 구성을 설명합니다" 같은 번역체 문장을 다시 썼다. 스타일 규칙 3A~3D에 반복되던 "앞 규칙에 해당하지 않을 때"는 목록이 이미 순서를 나타내므로 제거했다.
+- 표 캡션의 "결정론적"을 본문 설명으로 옮겼다. "같은 저장소의 같은 커밋이면 언제 다시 돌려도 같은 점수가 나와요"로 같은 성질을 전달한다.
+- 화면의 traceability 축 이름을 `추적 가능성`에서 `기록`으로 바꿔 `REPOSITORY_REPORT_COPY.axisLabels`, `기록 수집가` 스타일, 빈칸 안내와 용어를 맞췄다. 축 질문은 문어체 의문형 대신 평서 의문형으로 바꿨다.
+- 변경 범위는 `src/i18n/messages.ts`의 의미 ID 카탈로그다. `repository-report-v1` 계약 문자열과 브라우저 저장 이력은 바꾸지 않았다([ADR-0016](../Architecture/ADR/0016-persistent-korean-english-interface.md)). 점수 계산과 스타일 판정 규칙도 그대로다.
+
 
 ## 2026-09-18 — 공개 README와 저장소 정리 (#39)
 

@@ -13,7 +13,7 @@ test('한국어 홈은 로그인 없는 공개 저장소 흐름과 가상 예시
   await page.getByRole('link', { name: '예시 리포트 보기' }).click();
   await expect(page.locator('#demo')).toContainText('가상 예시');
   await expect(page.locator('#demo .repo-profile-code')).toHaveText('RHSF');
-  await expect(page.locator('#demo')).toContainText('개인의 AI 활용 능력을 인증하지 않습니다.');
+  await expect(page.locator('#demo')).toContainText('개인의 AI 실력을 인증하지 않아요.');
   await expect(page.locator('#demo code')).toContainText(['README.md', 'AGENTS.md']);
   expect(await page.evaluate(() => ({ local: Object.keys(localStorage), session: Object.keys(sessionStorage) }))).toEqual({ local: [], session: [] });
   expect(apiRequests).toEqual([]);

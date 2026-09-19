@@ -53,8 +53,8 @@ test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 
   await expect(page.frameLocator('.repo-hero-card .hero-card-logic-ambient iframe').locator('#three-canvas-container')).toBeAttached();
   await expect(page.locator('.repo-title-animation')).toHaveCount(0);
   await expect(page.locator('.landing-availability')).toHaveText('회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음');
-  await expect(page.locator('.repo-hero-card')).toContainText('검증 체계');
-  await expect(page.locator('.repo-hero-card')).toContainText('기록·추적');
+  await expect(page.locator('.repo-hero-card')).toContainText('검증 기반');
+  await expect(page.locator('.repo-hero-card')).toContainText('기록');
   await expect(page.locator('.site-footer')).toContainText('개인의 AI 활용 능력을 인증하는 서비스가 아닙니다.');
   await expect(page.getByRole('navigation').getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/SangJun-Pyo/MyAiScore');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -66,8 +66,8 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await page.goto('/profile');
   await expect(page.getByRole('heading', { name: '저장한 리포트가 없습니다.' })).toBeVisible();
   await page.getByRole('navigation').getByRole('link', { name: '해석 가이드', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '선택한 리포트가 없습니다.' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '신호별 점수를 모두 공개합니다.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '아직 고른 리포트가 없어요.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '어떤 신호에 몇 점인지 전부 적어 뒀어요.' })).toBeVisible();
   await expect(page.locator('.repo-score-table tbody')).toHaveCount(4);
   await expect(page.getByRole('region', { name: '네 축의 신호별 배점표' })).toHaveAttribute('tabindex', '0');
   await expect(page.locator('.repo-score-table')).toContainText('인터페이스 계약4점');
@@ -105,7 +105,7 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await expect(page.locator('.repo-report')).not.toContainText('12개 확인 완료');
   await expect(page.locator('.repo-report')).toContainText('변경 사항과 의사결정 과정을 보여주는 기록을 충분히 확인하지 못했습니다.');
   await expect(page.locator('.repo-report')).toContainText('의사결정 하나 기록하기');
-  await expect(page.locator('.repo-boundary')).toContainText('개인의 AI 활용 능력을 인증하지 않습니다.');
+  await expect(page.locator('.repo-boundary')).toContainText('개인의 AI 실력을 인증하지 않아요.');
   expect(bodies).toEqual([{ repo_url: 'https://github.com/example/public-repo' }]);
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -146,7 +146,7 @@ test('저장은 명시적이며 같은 저장소와 커밋을 중복 없이 보�
   await expect(page.locator('.repo-report')).toContainText('AI 협업 신호 레이더');
   await expect(page.locator('.repo-style-rules > li.is-active')).toHaveCount(1);
   await expect(page.locator('.repo-style-rules > li.is-active')).toContainText('AI 협업 신호 레이더');
-  await expect(page.locator('.repo-current-style-note')).toContainText('총점 구간이 아니라 네 축의 분포');
+  await expect(page.locator('.repo-current-style-note')).toContainText('총점이 아니라 네 축의 분포');
   await page.getByRole('navigation').getByRole('link', { name: '내 리포트', exact: true }).click();
   await page.getByRole('button', { name: '삭제', exact: true }).click();
   await expect(page.getByRole('heading', { name: '저장한 리포트가 없습니다.' })).toBeVisible();
