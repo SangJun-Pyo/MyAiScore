@@ -13,10 +13,10 @@ const axes = (context: number, verification: number, traceability: number, autom
 test("repository guide derives every signal point and 25-point axis total from canonical IDs", () => {
   const guide = buildRepositoryGuide("ko", messagesFor("ko"));
   assert.deepEqual(guide.axes.map(axis => ({ id: axis.id, total: axis.total, signals: axis.signals.map(signal => [signal.id, signal.points]) })), [
-    { id: "context", total: 25, signals: [["context-readme", 7], ["context-guidance", 7], ["context-docs", 6], ["context-metadata", 5]] },
-    { id: "verification", total: 25, signals: [["verification-tests", 21], ["verification-config", 4]] },
-    { id: "traceability", total: 25, signals: [["traceability-changelog", 8], ["traceability-decisions", 9], ["traceability-templates", 5], ["traceability-migrations", 3]] },
-    { id: "automation", total: 25, signals: [["automation-ci", 15], ["automation-dependencies", 4], ["automation-delivery", 3], ["automation-scripts", 3]] },
+    { id: "context", total: 25, signals: [["context-readme", 5], ["context-guidance", 5], ["context-docs", 4], ["context-metadata", 3], ["context-contracts", 4], ["context-reproducibility", 4]] },
+    { id: "verification", total: 25, signals: [["verification-entrypoint", 4], ["verification-test-substance", 5], ["verification-test-breadth", 4], ["verification-edge-cases", 4], ["verification-static-analysis", 4], ["verification-coverage", 4]] },
+    { id: "traceability", total: 25, signals: [["traceability-changelog", 6], ["traceability-decisions", 7], ["traceability-templates", 4], ["traceability-migrations", 3], ["traceability-ownership", 4], ["traceability-commit-practice", 4]] },
+    { id: "automation", total: 25, signals: [["automation-ci-tests", 5], ["automation-ci-quality", 5], ["automation-dependencies", 4], ["automation-delivery", 4], ["automation-scripts", 4], ["automation-environment", 3]] },
   ]);
   assert.equal(guide.axes[0]?.signals[0]?.title, "프로젝트 안내");
   assert.equal(buildRepositoryGuide("en", messagesFor("en")).axes[0]?.signals[0]?.title, "Getting started");

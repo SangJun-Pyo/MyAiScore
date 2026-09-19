@@ -26,6 +26,16 @@ strict parser는 v2.2 유형의 강도·선택·경계·보류 이유를 `signal
 
 Issue [#43](https://github.com/SangJun-Pyo/MyAiScore/issues/43)은 PR [#44](https://github.com/SangJun-Pyo/MyAiScore/pull/44)로 main `ac246af`에 squash merge되었고 원격 `Verify`도 통과했다. Railway 배포 성공 뒤 production health가 `{"ok":true}`를 반환했다. 공개 `SangJun-Pyo/MyAiScore` smoke는 `repository-report-v2` / `repository-signals-v2.2`, 90점, complete diagnostics를 반환했다. 두 차원이 경계 근처라 `repository-collaboration-profile-v1`은 `multiple_near_boundaries`로 유형을 보류했으며, 이는 근거가 애매할 때 코드를 강제로 발급하지 않는 계약대로의 결과다.
 
+## 2026-09-19 — 점수 신호 세분화 v2.3 (#47)
+
+검증축의 테스트 21점과 자동화축의 CI 15점이 한 종류의 파일에 과도하게 집중된다는 사용자 피드백에 따라 각 축을 최대 여섯 신호로 분해했다. 검증은 실행 진입점·테스트 내용·트리 기반 분포·실패/경계 사례·정적 검사·커버리지로 나뉘고, 자동화는 CI 테스트와 CI 품질 검사를 분리한다. 맥락에는 인터페이스 계약·재현 환경, 기록·추적에는 CODEOWNERS 계열 변경 책임을 추가했다.
+
+새 `repository-signals-v2.3`은 네 축 25점과 총 100점을 유지한다. 검증·자동화 단일 신호는 최대 5점이고, 여러 신호가 같은 파일을 근거로 삼을 때 빈 파일 존재점이 중복 상승하지 않도록 품질식을 `0.10 + 0.65·substance + 0.25·substance·breadth`로 조정했다. 빈 테스트 파일은 트리 비율만으로 테스트 분포 점수를 얻지 못한다. 결정은 [ADR-0019](../../Architecture/ADR/0019-granular-repository-score-signals.md)에 기록했다.
+
+독립 검토는 배포 전용 workflow가 파일 존재 바닥으로 CI 테스트·품질·커버리지 점수를 받는 문제, 기본 npm placeholder가 검증 진입점으로 잡히는 문제, 동일 내용 테스트 복제로 substance와 breadth가 오르는 문제, DB 비적용 저장소의 기록축 최대가 22점에 머무는 문제를 지적했다. 실제 지원 명령·marker를 semantic presence gate로 두고, 테스트 내용 해시를 중복 제거하며, 기록축 원시 최대를 28점·축 상한을 25점으로 조정했다. 이어 v1 parser에 v2.3 신호를 끼워 넣을 수 있던 버전 격리 문제도 legacy allowlist와 회귀 검사로 막았다. 수정 후 독립 재검토는 **PASS, P1/P2 actionable finding 없음**으로 결론 냈다.
+
+검증은 `npm test` 311/311, 집중 회귀 32/32, `npm run typecheck`, `npm run check:docs` 67파일·상대 링크 404개, `npm run build`, Playwright desktop/mobile 34/34, `git diff --check`를 통과했다.
+
 ## 사용자 결정
 
 사용자는 CLI 설치와 명령 실행이 첫 체험에 어렵다고 판단했다. 공개 GitHub 소스로 접근하는 흐름과 공모전용 한국어 화면을 제안했고, Astra의 로그인 없는 공개 URL 분석·선택적 세션 상세 분석 구성을 명시적으로 채택했다.

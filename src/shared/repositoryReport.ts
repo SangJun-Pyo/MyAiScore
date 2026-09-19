@@ -4,16 +4,28 @@ export type RepositoryReportEvidenceId =
   | "context-guidance"
   | "context-docs"
   | "context-metadata"
+  | "context-contracts"
+  | "context-reproducibility"
   | "verification-tests"
   | "verification-config"
+  | "verification-entrypoint"
+  | "verification-test-substance"
+  | "verification-test-breadth"
+  | "verification-edge-cases"
+  | "verification-static-analysis"
+  | "verification-coverage"
   | "traceability-changelog"
   | "traceability-decisions"
   | "traceability-templates"
   | "traceability-migrations"
+  | "traceability-ownership"
   | "automation-ci"
+  | "automation-ci-tests"
+  | "automation-ci-quality"
   | "automation-dependencies"
   | "automation-delivery"
-  | "automation-scripts";
+  | "automation-scripts"
+  | "automation-environment";
 
 export type RepositoryReportScoreSignalId = RepositoryReportEvidenceId | "traceability-commit-practice";
 export type RepositoryReportSignalRole = "core" | "conditional" | "bonus";
@@ -153,12 +165,17 @@ export interface RepositoryReportV2_2 extends RepositoryReportV2Base {
   collaborationProfile: RepositoryCollaborationProfile;
 }
 
-export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2;
+export interface RepositoryReportV2_3 extends RepositoryReportV2Base {
+  ruleVersion: "repository-signals-v2.3";
+  collaborationProfile: RepositoryCollaborationProfile;
+}
+
+export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3;
 
 export type RepositoryReport = RepositoryReportV1 | RepositoryReportV2;
 
 export const REPOSITORY_AXIS_ORDER: RepositoryReportAxis[] = ["context", "verification", "traceability", "automation"];
-export const REPOSITORY_EVIDENCE_ORDER: RepositoryReportEvidenceId[] = [
+export const REPOSITORY_LEGACY_EVIDENCE_ORDER: RepositoryReportEvidenceId[] = [
   "context-readme",
   "context-guidance",
   "context-docs",
@@ -175,10 +192,46 @@ export const REPOSITORY_EVIDENCE_ORDER: RepositoryReportEvidenceId[] = [
   "automation-scripts",
 ];
 
-export const REPOSITORY_SCORE_SIGNAL_ORDER: RepositoryReportScoreSignalId[] = [
-  ...REPOSITORY_EVIDENCE_ORDER,
+export const REPOSITORY_V23_EVIDENCE_ORDER = [
+  "context-readme",
+  "context-guidance",
+  "context-docs",
+  "context-metadata",
+  "context-contracts",
+  "context-reproducibility",
+  "verification-entrypoint",
+  "verification-test-substance",
+  "verification-test-breadth",
+  "verification-edge-cases",
+  "verification-static-analysis",
+  "verification-coverage",
+  "traceability-changelog",
+  "traceability-decisions",
+  "traceability-templates",
+  "traceability-migrations",
+  "traceability-ownership",
+  "automation-ci-tests",
+  "automation-ci-quality",
+  "automation-dependencies",
+  "automation-delivery",
+  "automation-scripts",
+  "automation-environment",
+] as const satisfies readonly RepositoryReportEvidenceId[];
+
+export const REPOSITORY_EVIDENCE_ORDER: RepositoryReportEvidenceId[] = [
+  ...REPOSITORY_LEGACY_EVIDENCE_ORDER,
+  ...REPOSITORY_V23_EVIDENCE_ORDER.filter(id => !REPOSITORY_LEGACY_EVIDENCE_ORDER.includes(id)),
+];
+
+export const REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER: RepositoryReportScoreSignalId[] = [
+  ...REPOSITORY_LEGACY_EVIDENCE_ORDER,
   "traceability-commit-practice",
 ];
+
+export const REPOSITORY_SCORE_SIGNAL_ORDER = [
+  ...REPOSITORY_V23_EVIDENCE_ORDER,
+  "traceability-commit-practice",
+] as const satisfies readonly RepositoryReportScoreSignalId[];
 
 export const REPOSITORY_COLLABORATION_PROFILE_DIMENSION_ORDER: RepositoryCollaborationProfileDimensionId[] = [
   "orientation",
@@ -228,16 +281,28 @@ export const REPOSITORY_REPORT_COPY = {
     "context-guidance": { axis: "context", title: "협업 지침", description: "선택된 표본에서 사람과 AI가 참고할 수 있는 작업 지침 파일을 확인했어요." },
     "context-docs": { axis: "context", title: "문서 공간", description: "선택된 표본에서 별도 문서 경로를 확인했어요." },
     "context-metadata": { axis: "context", title: "프로젝트 설정", description: "선택된 표본에서 프로젝트 구조를 설명하는 루트 설정 파일을 확인했어요." },
+    "context-contracts": { axis: "context", title: "인터페이스 계약", description: "선택된 표본에서 API·데이터 구조의 계약 파일을 확인했어요." },
+    "context-reproducibility": { axis: "context", title: "환경 재현 단서", description: "선택된 표본에서 런타임이나 개발 환경을 고정하는 파일을 확인했어요." },
     "verification-tests": { axis: "verification", title: "테스트 흔적", description: "선택된 표본에서 테스트로 분류되는 파일을 확인했어요. 테스트 통과 여부는 실행하지 않았어요." },
     "verification-config": { axis: "verification", title: "검사 설정", description: "선택된 표본에서 타입, 린트 또는 커버리지 검사 설정을 확인했어요." },
+    "verification-entrypoint": { axis: "verification", title: "검사 실행 경로", description: "선택된 표본에서 테스트나 검사를 실행하는 명령 진입점을 확인했어요." },
+    "verification-test-substance": { axis: "verification", title: "테스트 내용", description: "선택된 표본의 고유 테스트 선언과 검증문을 제한적으로 확인했어요." },
+    "verification-test-breadth": { axis: "verification", title: "테스트 분포", description: "탐색한 트리에서 소스 규모 대비 테스트 파일의 분포를 확인했어요." },
+    "verification-edge-cases": { axis: "verification", title: "실패·경계 사례", description: "선택된 테스트에서 오류, 예외, 잘못된 입력이나 경계 사례 단서를 확인했어요." },
+    "verification-static-analysis": { axis: "verification", title: "정적 검사", description: "선택된 설정에서 타입·린트 검사의 강도와 실행 단서를 확인했어요." },
+    "verification-coverage": { axis: "verification", title: "커버리지 게이트", description: "선택된 설정에서 커버리지 측정이나 최소 기준 단서를 확인했어요." },
     "traceability-changelog": { axis: "traceability", title: "변경 기록", description: "선택된 표본에서 변경 이력을 정리하는 파일을 확인했어요." },
     "traceability-decisions": { axis: "traceability", title: "결정 기록", description: "선택된 표본에서 결정이나 ADR을 기록하는 파일을 확인했어요." },
     "traceability-templates": { axis: "traceability", title: "이슈·PR 틀", description: "선택된 표본에서 이슈나 Pull Request 기록을 돕는 템플릿을 확인했어요." },
     "traceability-migrations": { axis: "traceability", title: "변경 단계", description: "선택된 표본에서 데이터 구조 변경을 추적하는 마이그레이션 파일을 확인했어요." },
+    "traceability-ownership": { axis: "traceability", title: "변경 책임 경로", description: "선택된 표본에서 코드 영역별 검토 책임을 정하는 파일을 확인했어요." },
     "automation-ci": { axis: "automation", title: "자동 검사", description: "선택된 표본에서 GitHub Actions 워크플로를 확인했어요. 실행 성공 여부는 확인하지 않았어요." },
+    "automation-ci-tests": { axis: "automation", title: "테스트 자동 실행", description: "선택된 워크플로에서 테스트 실행 단서를 확인했어요. 실제 성공 여부는 확인하지 않았어요." },
+    "automation-ci-quality": { axis: "automation", title: "품질 검사 자동 실행", description: "선택된 워크플로에서 타입·린트·빌드 검사 단서를 확인했어요." },
     "automation-dependencies": { axis: "automation", title: "의존성 관리", description: "선택된 표본에서 의존성 업데이트 자동화 설정을 확인했어요." },
     "automation-delivery": { axis: "automation", title: "배포 준비", description: "선택된 표본에서 컨테이너나 배포 설정 파일을 확인했어요." },
     "automation-scripts": { axis: "automation", title: "반복 작업 도구", description: "선택된 표본에서 반복 작업을 담는 스크립트나 작업 파일을 확인했어요." },
+    "automation-environment": { axis: "automation", title: "환경 자동 구성", description: "선택된 표본에서 개발 환경이나 도구 버전을 자동으로 맞추는 설정을 확인했어요." },
   },
   gaps: {
     context: "선택된 표본에서 README나 협업 지침 같은 맥락 신호를 충분히 확인하지 못했어요.",
@@ -279,22 +344,65 @@ const FIXED_EVIDENCE_POINTS: Record<RepositoryReportEvidenceId, number> = {
   "context-guidance": 7,
   "context-docs": 6,
   "context-metadata": 5,
+  "context-contracts": 4,
+  "context-reproducibility": 4,
   "verification-tests": 21,
   "verification-config": 4,
+  "verification-entrypoint": 4,
+  "verification-test-substance": 5,
+  "verification-test-breadth": 4,
+  "verification-edge-cases": 4,
+  "verification-static-analysis": 4,
+  "verification-coverage": 4,
   "traceability-changelog": 8,
   "traceability-decisions": 9,
   "traceability-templates": 5,
   "traceability-migrations": 3,
+  "traceability-ownership": 3,
   "automation-ci": 15,
+  "automation-ci-tests": 5,
+  "automation-ci-quality": 5,
   "automation-dependencies": 4,
   "automation-delivery": 3,
   "automation-scripts": 3,
+  "automation-environment": 3,
 };
 
 export const REPOSITORY_COMMIT_PRACTICE_MAX_POINTS = 5;
+export const REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS = 4;
+
+const V23_EVIDENCE_POINTS: Record<(typeof REPOSITORY_V23_EVIDENCE_ORDER)[number], number> = {
+  "context-readme": 5,
+  "context-guidance": 5,
+  "context-docs": 4,
+  "context-metadata": 3,
+  "context-contracts": 4,
+  "context-reproducibility": 4,
+  "verification-entrypoint": 4,
+  "verification-test-substance": 5,
+  "verification-test-breadth": 4,
+  "verification-edge-cases": 4,
+  "verification-static-analysis": 4,
+  "verification-coverage": 4,
+  "traceability-changelog": 6,
+  "traceability-decisions": 7,
+  "traceability-templates": 4,
+  "traceability-migrations": 3,
+  "traceability-ownership": 4,
+  "automation-ci-tests": 5,
+  "automation-ci-quality": 5,
+  "automation-dependencies": 4,
+  "automation-delivery": 4,
+  "automation-scripts": 4,
+  "automation-environment": 3,
+};
 
 export function repositoryEvidencePoints(id: RepositoryReportEvidenceId): number {
   return FIXED_EVIDENCE_POINTS[id];
+}
+
+export function repositoryV23EvidencePoints(id: (typeof REPOSITORY_V23_EVIDENCE_ORDER)[number]): number {
+  return V23_EVIDENCE_POINTS[id];
 }
 
 export function repositoryStyleCopy(id: RepositoryReportStyleId) {
@@ -338,10 +446,13 @@ export function deriveRepositoryReportV2Presentation(
   return { axes, value, style, gaps, nextChallenge: REPOSITORY_REPORT_COPY.challenges[challengeAxis] };
 }
 
-const PROFILE_LOCAL_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["verification-tests", "verification-config", "automation-scripts"];
-const PROFILE_PIPELINE_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["automation-ci", "automation-dependencies", "automation-delivery"];
+const PROFILE_LOCAL_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["verification-entrypoint", "verification-test-substance", "verification-static-analysis", "automation-scripts"];
+const PROFILE_PIPELINE_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["automation-ci-tests", "automation-ci-quality", "automation-dependencies", "automation-delivery"];
+const LEGACY_PROFILE_LOCAL_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["verification-tests", "verification-config", "automation-scripts"];
+const LEGACY_PROFILE_PIPELINE_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["automation-ci", "automation-dependencies", "automation-delivery"];
 const PROFILE_SPEC_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["context-readme", "context-guidance", "traceability-templates"];
-const PROFILE_TRACE_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["traceability-changelog", "traceability-decisions", "traceability-migrations"];
+const PROFILE_TRACE_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["traceability-changelog", "traceability-decisions", "traceability-migrations", "traceability-ownership"];
+const LEGACY_PROFILE_TRACE_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["traceability-changelog", "traceability-decisions", "traceability-migrations"];
 
 function roundedRatio(value: number): number {
   return Math.round(Math.max(0, Math.min(1, value)) * 1_000) / 1_000;
@@ -382,13 +493,14 @@ export function deriveRepositoryCollaborationProfile(
   assessments: RepositoryReportSignalAssessment[],
   axes: Record<RepositoryReportAxis, number>,
   diagnostics: Pick<RepositoryReportV2Diagnostics, "reasons">,
+  signalVersion: "v22" | "v23" = "v23",
 ): RepositoryCollaborationProfile {
   const axisSpread = Math.max(...REPOSITORY_AXIS_ORDER.map(axis => axes[axis])) - Math.min(...REPOSITORY_AXIS_ORDER.map(axis => axes[axis]));
   const focusStrength = roundedRatio(axisSpread / (REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.focusedSpread * 2));
   const dimensions = [
     profileDimension("orientation", (axes.context + axes.traceability) / 50, (axes.verification + axes.automation) / 50),
-    profileDimension("workflow", profileSignalStrength(assessments, PROFILE_LOCAL_SIGNAL_IDS), profileSignalStrength(assessments, PROFILE_PIPELINE_SIGNAL_IDS)),
-    profileDimension("timing", profileSignalStrength(assessments, PROFILE_SPEC_SIGNAL_IDS), profileSignalStrength(assessments, PROFILE_TRACE_SIGNAL_IDS)),
+    profileDimension("workflow", profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_LOCAL_SIGNAL_IDS : PROFILE_LOCAL_SIGNAL_IDS), profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_PIPELINE_SIGNAL_IDS : PROFILE_PIPELINE_SIGNAL_IDS)),
+    profileDimension("timing", profileSignalStrength(assessments, PROFILE_SPEC_SIGNAL_IDS), profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_TRACE_SIGNAL_IDS : PROFILE_TRACE_SIGNAL_IDS)),
     profileDimension("shape", focusStrength, 1 - focusStrength),
   ];
   const observedAxes = REPOSITORY_AXIS_ORDER.filter(axis => axes[axis] > 0).length;
@@ -484,12 +596,13 @@ function validateStyle(value: Record<string, unknown>) {
   return style;
 }
 
-function validateEvidenceCards(value: Record<string, unknown>): RepositoryReportEvidenceCard[] {
-  if (!Array.isArray(value.evidenceCards) || value.evidenceCards.length > 14) throw new Error("Invalid repository report evidence.");
+function validateEvidenceCards(value: Record<string, unknown>, allowedOrder: readonly RepositoryReportEvidenceId[]): RepositoryReportEvidenceCard[] {
+  if (!Array.isArray(value.evidenceCards) || value.evidenceCards.length > allowedOrder.length) throw new Error("Invalid repository report evidence.");
+  const allowedIds = new Set<RepositoryReportEvidenceId>(allowedOrder);
   const evidenceIds = new Set<string>();
   const parsedCards: RepositoryReportEvidenceCard[] = [];
   for (const card of value.evidenceCards) {
-    if (!object(card) || !exactKeys(card, ["id", "axis", "title", "description", "paths"]) || typeof card.id !== "string" || !(card.id in REPOSITORY_REPORT_COPY.evidence) || evidenceIds.has(card.id)) throw new Error("Invalid repository report evidence.");
+    if (!object(card) || !exactKeys(card, ["id", "axis", "title", "description", "paths"]) || typeof card.id !== "string" || !allowedIds.has(card.id as RepositoryReportEvidenceId) || evidenceIds.has(card.id)) throw new Error("Invalid repository report evidence.");
     const copy = REPOSITORY_REPORT_COPY.evidence[card.id as RepositoryReportEvidenceId];
     if (card.axis !== copy.axis || card.title !== copy.title || card.description !== copy.description || !Array.isArray(card.paths) || card.paths.length < 1 || card.paths.length > 5) throw new Error("Invalid repository report evidence.");
     if (card.paths.some(path => sanitizeRepositoryPath(path) !== path) || new Set(card.paths).size !== card.paths.length) throw new Error("Invalid repository report evidence paths.");
@@ -526,25 +639,32 @@ function expectedAxis(id: RepositoryReportScoreSignalId): RepositoryReportAxis {
   return REPOSITORY_REPORT_COPY.evidence[id].axis;
 }
 
-function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean): RepositoryReportSignalAssessment[] {
-  if (!Array.isArray(value.signalScores) || value.signalScores.length !== REPOSITORY_SCORE_SIGNAL_ORDER.length) throw new Error("Invalid repository report signal scores.");
+function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3"): RepositoryReportSignalAssessment[] {
+  const signalOrder = ruleVersion === "repository-signals-v2.3" ? REPOSITORY_SCORE_SIGNAL_ORDER : REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER;
+  if (!Array.isArray(value.signalScores) || value.signalScores.length !== signalOrder.length) throw new Error("Invalid repository report signal scores.");
   const assessments: RepositoryReportSignalAssessment[] = [];
   for (let index = 0; index < value.signalScores.length; index += 1) {
     const item = value.signalScores[index];
-    const expectedId = REPOSITORY_SCORE_SIGNAL_ORDER[index];
+    const expectedId = signalOrder[index];
     if (!object(item) || !exactKeys(item, ["id", "axis", "role", "status", "presence", "substance", "breadth", "quality", "points", "maxPoints"]) || item.id !== expectedId ||
         item.axis !== expectedAxis(expectedId!) || !["core", "conditional", "bonus"].includes(String(item.role)) || !["measured", "unmeasured"].includes(String(item.status)) ||
         ![0, 1].includes(Number(item.presence)) || !(item.substance === null || ratio(item.substance)) || !ratio(item.breadth) || !ratio(item.quality) ||
         !integer(item.points, 0, 25) || !integer(item.maxPoints, 1, 25)) throw new Error("Invalid repository report signal score.");
     const id = expectedId!;
-    const maxPoints = id === "traceability-commit-practice" ? REPOSITORY_COMMIT_PRACTICE_MAX_POINTS : repositoryEvidencePoints(id);
-    const expectedRole: RepositoryReportSignalRole = ["context-readme", "context-metadata", "verification-tests", "verification-config"].includes(id)
+    const maxPoints = id === "traceability-commit-practice"
+      ? ruleVersion === "repository-signals-v2.3" ? REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS : REPOSITORY_COMMIT_PRACTICE_MAX_POINTS
+      : ruleVersion === "repository-signals-v2.3" ? repositoryV23EvidencePoints(id as (typeof REPOSITORY_V23_EVIDENCE_ORDER)[number]) : repositoryEvidencePoints(id);
+    const expectedRole: RepositoryReportSignalRole = (ruleVersion === "repository-signals-v2.3"
+      ? ["context-readme", "context-metadata", "context-reproducibility", "verification-entrypoint", "verification-test-substance", "verification-test-breadth", "verification-edge-cases", "verification-static-analysis", "verification-coverage"]
+      : ["context-readme", "context-metadata", "verification-tests", "verification-config"]).includes(id)
       ? "core" : id === "traceability-migrations" && databaseLikely ? "conditional" : "bonus";
     if (item.maxPoints !== maxPoints || item.role !== expectedRole || (item.status === "measured") !== (item.substance !== null) ||
         (item.presence === 0 && (item.quality !== 0 || item.points !== 0)) || item.points !== Math.round(maxPoints * Number(item.quality))) throw new Error("Invalid repository report signal derivation.");
     if (id !== "traceability-commit-practice" && item.presence === 0 && (item.status !== "measured" || item.substance !== 0)) throw new Error("Invalid absent repository signal.");
     if (id !== "traceability-commit-practice" && item.presence === 1) {
-      const expectedQuality = item.substance === null ? 0.15 : Math.round((0.15 + 0.60 * Number(item.substance) + 0.25 * Number(item.substance) * Number(item.breadth)) * 1_000) / 1_000;
+      const expectedQuality = ruleVersion === "repository-signals-v2.3"
+        ? item.substance === null ? 0.1 : Math.round((0.1 + 0.65 * Number(item.substance) + 0.25 * Number(item.substance) * Number(item.breadth)) * 1_000) / 1_000
+        : item.substance === null ? 0.15 : Math.round((0.15 + 0.60 * Number(item.substance) + 0.25 * Number(item.substance) * Number(item.breadth)) * 1_000) / 1_000;
       if (item.quality !== expectedQuality) throw new Error("Invalid repository report signal quality.");
     } else if (id === "traceability-commit-practice") {
       const expectedQuality = item.substance === null ? 0 : Math.round((0.15 + 0.85 * Number(item.substance)) * 1_000) / 1_000;
@@ -617,14 +737,15 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   if (!object(value)) throw new Error("Invalid repository report.");
   const isV2 = value.schemaVersion === "repository-report-v2";
   const isV22 = isV2 && value.ruleVersion === "repository-signals-v2.2";
+  const isV23 = isV2 && value.ruleVersion === "repository-signals-v2.3";
   const keys = isV2
-    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 ? ["collaborationProfile"] : [])]
+    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 || isV23 ? ["collaborationProfile"] : [])]
     : ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge"];
-  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
+  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
   const { coverage, status } = validateIdentityAndCoverage(value);
   const score = validateScore(value, isV2 ? REPOSITORY_REPORT_COPY.scoreExplanationV2 : REPOSITORY_REPORT_COPY.scoreExplanation);
   const style = validateStyle(value);
-  const cards = validateEvidenceCards(value);
+  const cards = validateEvidenceCards(value, isV23 ? REPOSITORY_V23_EVIDENCE_ORDER : REPOSITORY_LEGACY_EVIDENCE_ORDER);
   if (!isV2) {
     const derived = deriveRepositoryReportPresentation(cards, status);
     validateDerivedPresentation(score, style, derived);
@@ -633,9 +754,10 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   }
 
   const diagnostics = validateDiagnostics(value.diagnostics);
-  const assessments = validateSignalScores(value, diagnostics.profile.databaseLikely);
+  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3";
+  const assessments = validateSignalScores(value, diagnostics.profile.databaseLikely, ruleVersion);
   const reasonSet = new Set(diagnostics.reasons);
-  const testAssessment = assessments.find(item => item.id === "verification-tests")!;
+  const testAssessment = assessments.find(item => item.id === (isV23 ? "verification-test-substance" : "verification-tests"))!;
   if (reasonSet.has("partial_collection") !== (status === "partial") ||
       reasonSet.has("tree_truncated") !== Boolean(coverage.treeTruncated) ||
       reasonSet.has("selection_limited") !== Boolean(coverage.selectionLimited) ||
@@ -647,9 +769,9 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   validateDerivedPresentation(score, style, derived);
   validateGuidance(value, derived);
 
-  if (isV22) {
+  if (isV22 || isV23) {
     const profile = validateCollaborationProfile(value.collaborationProfile);
-    const expectedProfile = deriveRepositoryCollaborationProfile(assessments, derived.axes, diagnostics);
+    const expectedProfile = deriveRepositoryCollaborationProfile(assessments, derived.axes, diagnostics, isV22 ? "v22" : "v23");
     if (JSON.stringify(profile) !== JSON.stringify(expectedProfile)) throw new Error("Repository collaboration profile does not match its evidence.");
   }
 

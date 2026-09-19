@@ -1,7 +1,7 @@
 # AI 활용 평가 점수 판단 근거
 
-> 기준 시점: `codex/repository-profile-v2-2`
-> 현재 적용 규칙: `repository-report-v2` / `repository-signals-v2.2`
+> 기준 시점: `codex/repository-signals-v2-3`
+> 현재 적용 규칙: `repository-report-v2` / `repository-signals-v2.3`
 > 호환 규칙: 브라우저에 저장된 `repository-report-v1`과 `repository-signals-v2.1` 기록은 계속 읽음
 
 ## 1. 핵심 요약
@@ -11,7 +11,7 @@
 현재 점수는 다음 방식으로 만들어진다.
 
 1. 최대 2,000개 tree entry에서 cap 이전 인벤토리를 집계한다.
-2. 최대 40개 안에서 14개 신호의 대표 파일을 예약해 읽는다.
+2. 최대 40개 안에서 23개 파일 신호의 대표 파일을 예약해 읽는다.
 3. 파일 존재, 제한된 내용 실질, 저장소 규모 대비 breadth를 결합한다.
 4. 고정 SHA의 최근 조상 커밋 설명 습관을 원문 없이 집계한다.
 5. 맥락, 검증 기반, 기록, 자동화의 네 축 점수를 합해 0~100점의 총점을 만든다.
@@ -37,10 +37,12 @@ LLM의 주관적 판정, 코드 실행, 테스트 성공 여부는 반영하지 
 
 | 근거 | 점수 | 실제 인식 조건 |
 |---|---:|---|
-| 시작 안내 | 7 | 어느 경로든 파일명이 `README`, `README.md` 같은 형태 |
-| AI·협업 지침 | 7 | 어느 경로든 `AGENTS.md`, `CLAUDE.md`, 또는 정확히 `.github/copilot-instructions.md` |
-| 문서 공간 | 6 | 루트의 `doc/`, `docs/`, `documentation/` 아래에 있는 `.md`, `.mdx`, `.rst`, `.txt` 파일 |
-| 프로젝트 설정 | 5 | 루트의 `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml`, `build.gradle`, `composer.json`, `Gemfile` |
+| 시작 안내 | 5 | 어느 경로든 파일명이 `README`, `README.md` 같은 형태 |
+| AI·협업 지침 | 5 | 어느 경로든 `AGENTS.md`, `CLAUDE.md`, 또는 정확히 `.github/copilot-instructions.md` |
+| 문서 공간 | 4 | 루트의 `doc/`, `docs/`, `documentation/` 아래에 있는 `.md`, `.mdx`, `.rst`, `.txt` 파일 |
+| 프로젝트 설정 | 3 | 루트의 `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `pom.xml`, `build.gradle`, `composer.json`, `Gemfile` |
+| 인터페이스 계약 | 4 | OpenAPI·Swagger·GraphQL·Protocol Buffers·schema/contract 경로의 구조화된 계약 |
+| 재현 환경 | 4 | 런타임 버전 파일·toolchain·devcontainer의 재현 가능한 환경 단서 |
 
 이 축은 함께 작업할 사람이 참고할 수 있는 맥락 구조가 저장소에 존재하는지를 나타낸다. 다음 항목은 확인하지 않는다.
 
@@ -53,10 +55,14 @@ LLM의 주관적 판정, 코드 실행, 테스트 성공 여부는 반영하지 
 
 | 근거 | 점수 | 실제 인식 조건 |
 |---|---:|---|
-| 테스트 흔적 | 21 | `test/`, `tests/`, `__tests__/` 경로 또는 `*.test.*`, `*.spec.*` 파일 |
-| 검사 설정 | 4 | `tsconfig*.json`, ESLint, Vitest, Jest, Pytest, Tox, Ruff, Codecov, `.coveragerc` 설정 |
+| 검사 실행 경로 | 4 | manifest·task file의 test/check/typecheck/lint 실행 명령 |
+| 테스트 내용 | 5 | 지원 언어의 고유 테스트 선언과 assertion |
+| 테스트 분포 | 4 | 비어 있지 않은 지원 테스트와 scanned-tree 소스 대비 테스트 비율 |
+| 실패·경계 사례 | 4 | 오류·예외·잘못된 입력·경계값 검증 단서 |
+| 정적 검사 | 4 | strict typecheck·lint 설정과 규칙 단서 |
+| 커버리지 게이트 | 4 | coverage 측정·threshold·fail-under 단서 |
 
-테스트 파일 하나가 발견돼도 21점이며, 같은 종류의 테스트 파일이 여러 개 발견돼도 21점이다. 다음 항목은 확인하지 않는다.
+v2.3은 테스트 파일 하나가 검증축 대부분을 차지하지 못하게 단일 신호를 최대 5점으로 제한한다. 다음 항목은 확인하지 않는다.
 
 - 테스트가 실제로 실행됐는지
 - 테스트가 통과하는지
@@ -68,10 +74,14 @@ LLM의 주관적 판정, 코드 실행, 테스트 성공 여부는 반영하지 
 
 | 근거 | 점수 | 실제 인식 조건 |
 |---|---:|---|
-| 변경 기록 | 8 | `CHANGELOG`, `CHANGES`, `HISTORY` 계열 파일 |
-| 결정 기록 | 9 | `ADR`, `ADRS`, `decision`, `decisions` 경로·파일 또는 `ADR-0001`과 같은 이름 |
-| 이슈·PR 틀 | 5 | `.github/issue_template/` 또는 `.github/pull_request_template...` |
+| 변경 기록 | 6 | `CHANGELOG`, `CHANGES`, `HISTORY` 계열 파일 |
+| 결정 기록 | 7 | `ADR`, `ADRS`, `decision`, `decisions` 경로·파일 또는 `ADR-0001`과 같은 이름 |
+| 이슈·PR 틀 | 4 | `.github/issue_template/` 또는 `.github/pull_request_template...` |
 | 변경 단계 | 3 | `migration/`, `migrations/`, `schema/migration/` 계열 경로 |
+| 변경 책임 | 4 | `CODEOWNERS`, `MAINTAINERS`의 경로별 책임 단서 |
+| 커밋 설명 습관 | 4 | 고정 SHA 조상 중 평가 가능한 커밋 3개 이상의 비일반적·고유·범위·이유·참조 비율 |
+
+파일 신호와 커밋 신호의 원점수 합은 28점이지만 축은 25점으로 제한한다. 따라서 DB가 없는 저장소도 조건부 마이그레이션 없이 기록축 25점에 도달할 수 있다.
 
 이 축은 변경과 결정을 다시 따라갈 수 있는 파일 구조가 존재하는지를 나타낸다. 기록의 사실성, 최신성, 작성자, 실제 의사결정과의 연결 여부는 확인하지 않는다.
 
@@ -79,12 +89,14 @@ LLM의 주관적 판정, 코드 실행, 테스트 성공 여부는 반영하지 
 
 | 근거 | 점수 | 실제 인식 조건 |
 |---|---:|---|
-| 자동 검사 | 15 | `.github/workflows/` 아래의 `.yml` 또는 `.yaml` 파일 |
+| CI 테스트 | 5 | workflow 안의 실제 지원 테스트 명령 |
+| CI 품질 검사 | 5 | workflow 안의 lint·typecheck·build 명령 |
 | 의존성 관리 | 4 | `dependabot.yml`, `dependabot.yaml` 또는 Renovate 설정 |
-| 배포 준비 | 3 | `Dockerfile`, Compose, Railway, Vercel, Netlify, Fly, Render 설정 |
-| 반복 작업 도구 | 3 | 루트 `script/`, `scripts/`, `tool/`, `tools/` 또는 `Makefile`, `Justfile`, `Taskfile` |
+| 배포 준비 | 4 | `Dockerfile`, Compose, Railway, Vercel, Netlify, Fly, Render 설정 |
+| 반복 작업 도구 | 4 | 루트 `script/`, `scripts/`, `tool/`, `tools/` 또는 `Makefile`, `Justfile`, `Taskfile` |
+| 환경 자동화 | 3 | devcontainer·runtime/toolchain·container 설정의 설치·초기화 단서 |
 
-자동화 설정의 존재만 확인하며, 다음 항목은 확인하지 않는다.
+CI 테스트·품질 신호는 workflow 파일만으로 존재를 인정하지 않고 실제 지원 명령이 있어야 한다. 다음 항목은 확인하지 않는다.
 
 - 워크플로가 최근 실행됐는지
 - 워크플로가 성공했는지
@@ -97,17 +109,17 @@ LLM의 주관적 판정, 코드 실행, 테스트 성공 여부는 반영하지 
 - README나 테스트 파일이 여러 개 있어도 해당 신호의 점수는 한 번만 더한다.
 - 각 축은 최대 25점으로 제한한다.
 - 총점은 네 축 점수의 단순 합계다.
-- 각 신호는 `presence × (0.15 + 0.60·substance + 0.25·substance·breadth)` 품질을 계산하고 최대점과 곱한 뒤 정수로 반올림한다.
+- v2.3 각 신호는 `presence × (0.10 + 0.65·substance + 0.25·substance·breadth)` 품질을 계산하고 최대점과 곱한 뒤 정수로 반올림한다.
 - 근거 카드에는 각 신호에 해당하는 경로를 최대 5개만 표시한다.
 - 실제 수집된 파일 경로에 없는 근거는 인정하지 않는다.
 - 응답을 읽을 때 `signalScores`에서 점수, 스타일, 부족 영역, 다음 도전을 다시 계산한다.
 - 근거와 맞지 않게 점수 숫자만 변경된 응답은 거부한다.
 
-빈 파일도 경로 존재는 관찰되므로 최대점의 15% 바닥만 받을 수 있지만 내용 실질과 breadth 보상은 받지 못한다. 빈 신호 파일 14개를 만들어도 약 15점 이하이며, 같은 assertion 반복에는 개수 상한과 고유 줄 수를 함께 사용한다.
+빈 파일도 경로 존재는 관찰되므로 v2.3에서는 최대점의 10% 바닥만 받을 수 있지만 내용 실질과 breadth 보상은 받지 못한다. 같은 assertion이나 같은 테스트 파일 반복에는 개수 상한, 고유 줄과 내용 해시 중복 제거를 함께 사용한다.
 
 ## 4. 네 차원 협업 유형 판단 규칙
 
-v2.2는 점수의 높낮이와 별도로 저장소 신호의 상대적 배치를 네 글자로 요약한다.
+v2.3은 점수의 높낮이와 별도로 저장소 신호의 상대적 배치를 네 글자로 요약한다.
 
 | 차원 | 왼쪽 | 오른쪽 | 비교 근거 |
 |---|---|---|---|
@@ -158,7 +170,7 @@ partial/tree truncation/selection limit/테스트 형식 미측정, 관찰 축 3
 1. 명시적으로 지정된 관련 경로
 2. 루트 설정 파일 최대 6개
 3. AI 지침 파일 최대 4개
-4. 14개 점수 신호별 대표 파일
+4. 23개 파일 점수 신호별 대표 파일
 5. 소스 2개, 테스트 1개, 문서 1개, 기타 1개 순환
 6. fixture, example, archive, artifact는 여유가 있을 때 후순위로 선택
 

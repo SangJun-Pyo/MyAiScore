@@ -5,7 +5,10 @@ import type {
 } from "../../shared/contracts/ingestion.js";
 import {
   REPOSITORY_EVIDENCE_ORDER,
-  repositoryEvidencePoints,
+  REPOSITORY_SCORE_SIGNAL_ORDER,
+  REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS,
+  REPOSITORY_V23_EVIDENCE_ORDER,
+  repositoryV23EvidencePoints,
   type RepositoryReportAxis,
   type RepositoryReportEvidenceId,
   type RepositoryReportSignalAssessment,
@@ -24,6 +27,17 @@ function rounded(value: number): number {
 
 function normalizedContent(files: IngestedFile[]): string {
   return files.map(file => file.redactedContent.replace(/\r\n/g, "\n")).join("\n");
+}
+
+function uniqueSupportedTestFiles(files: IngestedFile[]): IngestedFile[] {
+  const seen = new Set<string>();
+  return files.filter(file => {
+    if (!SUPPORTED_TEST_EXTENSION.test(file.path)) return false;
+    const key = file.contentSha256 || file.redactedContent.replace(/\s+/g, " ").trim();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function uniqueMeaningfulLines(content: string): string[] {
@@ -99,7 +113,7 @@ function metadataSubstance(files: IngestedFile[], content: string): number {
 }
 
 function testSubstance(files: IngestedFile[], content: string): { status: "measured" | "unmeasured"; value: number | null } {
-  const supported = files.filter(file => SUPPORTED_TEST_EXTENSION.test(file.path));
+  const supported = uniqueSupportedTestFiles(files);
   if (supported.length === 0) return { status: "unmeasured", value: null };
   const supportedContent = normalizedContent(supported);
   const declarations = cappedCount(supportedContent, /(?:\b(?:describe|it|test)\s*\(|\bdef\s+test_|\bfunc\s+Test\w+|#\[test\]|@Test\b)/g, 4);
@@ -114,6 +128,86 @@ function configSubstance(content: string): number {
     present(content, /(?:compilerOptions|rules\s*[:=]|coverage|testEnvironment|testMatch|include\s*=|exclude\s*=|strict\s*[:=])/iu),
     present(content, /(?:test|lint|typecheck|coverage|check)/iu),
     present(content, /(?:extends|plugins?|preset|reporter|threshold|target|module)/iu),
+  ]);
+}
+
+function contractSubstance(content: string): number {
+  return average([
+    textDepth(content, 70),
+    present(content, /(?:openapi|swagger|type\s+Query|syntax\s*=\s*["']proto|\$schema)/iu),
+    present(content, /(?:paths|components|properties|message|input|enum|response)/iu),
+    cappedCount(content, /(?:required|nullable|minimum|maximum|pattern|error|status)/giu, 4),
+  ]);
+}
+
+function reproducibilitySubstance(files: IngestedFile[], content: string): number {
+  return average([
+    files.length ? files.filter(file => file.redactedContent.trim().length > 0).length / files.length : 0,
+    present(content, /(?:\d+\.\d+|node|python|java|rust|feature|image)/iu),
+    present(content, /(?:version|runtime|container|extensions|features|toolchain)/iu),
+    Math.min(1, files.length / 2),
+  ]);
+}
+
+function entrypointSubstance(content: string): number {
+  if (/no test specified/iu.test(content)) return 0;
+  const runnableCommand = /(?:node|tsx?)\s+--test|\b(?:vitest|jest|mocha|ava|pytest|ruff|eslint|mypy|pyright|tsc|clippy)\b|playwright\s+test|go\s+test|cargo\s+(?:test|clippy)|gradle\w*\s+test|mvn\w*\s+test|(?:npm|pnpm|yarn|bun)\s+(?:run\s+)?(?:test|check|verify|typecheck|lint)\b/iu;
+  if (!runnableCommand.test(content)) return 0;
+  return average([
+    present(content, /(?:["'](?:test|check|verify|typecheck|lint)["']\s*:|\b(?:test|check|verify|typecheck|lint)\s*:)/iu),
+    present(content, /(?:node --test|vitest|jest|pytest|go test|cargo test|gradle test|mvn test)/iu),
+    present(content, /(?:eslint|ruff|mypy|pyright|tsc\b|clippy)/iu),
+    textDepth(content, 45),
+  ]);
+}
+
+function requiresSemanticPresence(id: RepositoryReportEvidenceId): boolean {
+  return [
+    "verification-entrypoint",
+    "verification-coverage",
+    "automation-ci-tests",
+    "automation-ci-quality",
+  ].includes(id);
+}
+
+function edgeCaseSubstance(files: IngestedFile[], content: string): { status: "measured" | "unmeasured"; value: number | null } {
+  const supported = uniqueSupportedTestFiles(files);
+  if (supported.length === 0) return { status: "unmeasured", value: null };
+  const supportedContent = normalizedContent(supported);
+  return { status: "measured", value: average([
+    present(supportedContent, /(?:throw|reject|error|fail|invalid|malformed|unauthori[sz]ed|forbidden)/iu),
+    present(supportedContent, /(?:null|undefined|empty|zero|negative|minimum|maximum|boundary|edge case)/iu),
+    present(supportedContent, /(?:regression|should not|does not|cannot|must not|실패|오류|경계)/iu),
+    cappedCount(supportedContent, /(?:toThrow|rejects|assertRaises|assert.*(?:false|error)|t\.(?:Error|Fatal))/giu, 3),
+  ]) };
+}
+
+function testBreadthSubstance(files: IngestedFile[], inventory: RepositoryInventory): { status: "measured" | "unmeasured"; value: number | null } {
+  const supported = files.filter(file => SUPPORTED_TEST_EXTENSION.test(file.path));
+  const unique = uniqueSupportedTestFiles(files);
+  if (supported.length === 0) return { status: "unmeasured", value: null };
+  const nonEmptyShare = unique.length ? unique.filter(file => file.redactedContent.trim().length >= 40).length / unique.length : 0;
+  const dedupeFactor = supported.length ? unique.length / supported.length : 0;
+  const treeBreadth = clamp(((inventory.testFiles * dedupeFactor) / Math.max(inventory.sourceFiles, 1)) / 0.25);
+  return { status: "measured", value: rounded(nonEmptyShare * treeBreadth) };
+}
+
+function staticAnalysisSubstance(content: string): number {
+  return average([
+    present(content, /(?:strict\s*[":=]\s*true|strictNullChecks|noImplicitAny|mypy|pyright|ruff|eslint|clippy)/iu),
+    present(content, /(?:typecheck|lint|check|compilerOptions|rules\s*[:=])/iu),
+    present(content, /(?:extends|plugins?|recommended|deny|warnings?)/iu),
+    textDepth(content, 45),
+  ]);
+}
+
+function coverageSubstance(content: string): number {
+  if (!/(?:coverage|codecov|coveragerc|istanbul|c8)/iu.test(content)) return 0;
+  return average([
+    present(content, /(?:coverage|codecov|coveragerc|istanbul|c8)/iu),
+    present(content, /(?:threshold|lines|branches|functions|statements|fail_under)/iu),
+    cappedCount(content, /(?:threshold|minimum|fail_under|coverage)/giu, 3),
+    textDepth(content, 35),
   ]);
 }
 
@@ -165,6 +259,46 @@ function ciSubstance(content: string): number {
   ]);
 }
 
+function ciTestSubstance(content: string): number {
+  if (!/(?:npm|pnpm|yarn|bun).{0,12}\btest\b|pytest|go test|cargo test|gradle test|mvn test/iu.test(content)) return 0;
+  return average([
+    present(content, /(?:^|\n)\s*(?:jobs|steps|on):\s*/imu),
+    present(content, /(?:npm|pnpm|yarn|bun).{0,12}\btest\b|pytest|go test|cargo test|gradle test|mvn test/iu),
+    present(content, /(?:pull_request|push|workflow_dispatch)/iu),
+    cappedCount(content, /(?:run|uses):/giu, 3),
+  ]);
+}
+
+function ciQualitySubstance(content: string): number {
+  const checks = [/\blint\b|eslint|ruff/iu, /typecheck|tsc\b|mypy|pyright/iu, /\bbuild\b|compile/iu]
+    .filter(pattern => pattern.test(content)).length;
+  if (checks === 0) return 0;
+  return average([
+    present(content, /(?:^|\n)\s*(?:jobs|steps|on):\s*/imu),
+    clamp(checks / 3),
+    present(content, /(?:pull_request|push)/iu),
+    cappedCount(content, /(?:run|uses):/giu, 3),
+  ]);
+}
+
+function ownershipSubstance(content: string): number {
+  return average([
+    textDepth(content, 30),
+    cappedCount(content, /(?:^|\n)\s*\S+\s+@\S+/gm, 3),
+    present(content, /(?:^|\n)\s*(?:\/|\*|\.)\S*\s+@/m),
+    present(content, /@[^\s/]+(?:\/[^\s]+)?/u),
+  ]);
+}
+
+function environmentAutomationSubstance(content: string): number {
+  return average([
+    present(content, /(?:image|features|container|dockerfile|toolchain|runtime|version)/iu),
+    present(content, /(?:postCreateCommand|setup|install|build|initialize)/iu),
+    present(content, /(?:\d+\.\d+|node|python|java|rust)/iu),
+    textDepth(content, 45),
+  ]);
+}
+
 function dependencyAutomationSubstance(content: string): number {
   return average([
     textDepth(content, 35),
@@ -194,40 +328,56 @@ function scriptsSubstance(files: IngestedFile[], content: string): number {
   ]);
 }
 
-function substanceFor(id: RepositoryReportEvidenceId, files: IngestedFile[]): { status: "measured" | "unmeasured"; value: number | null } {
+function substanceFor(id: RepositoryReportEvidenceId, files: IngestedFile[], inventory: RepositoryInventory): { status: "measured" | "unmeasured"; value: number | null } {
   const content = normalizedContent(files);
   switch (id) {
     case "context-readme": return { status: "measured", value: readmeSubstance(content) };
     case "context-guidance": return { status: "measured", value: guidanceSubstance(content) };
     case "context-docs": return { status: "measured", value: docsSubstance(files, content) };
     case "context-metadata": return { status: "measured", value: metadataSubstance(files, content) };
+    case "context-contracts": return { status: "measured", value: contractSubstance(content) };
+    case "context-reproducibility": return { status: "measured", value: reproducibilitySubstance(files, content) };
     case "verification-tests": return testSubstance(files, content);
     case "verification-config": return { status: "measured", value: configSubstance(content) };
+    case "verification-entrypoint": return { status: "measured", value: entrypointSubstance(content) };
+    case "verification-test-substance": return testSubstance(files, content);
+    case "verification-test-breadth": return testBreadthSubstance(files, inventory);
+    case "verification-edge-cases": return edgeCaseSubstance(files, content);
+    case "verification-static-analysis": return { status: "measured", value: staticAnalysisSubstance(content) };
+    case "verification-coverage": return { status: "measured", value: coverageSubstance(content) };
     case "traceability-changelog": return { status: "measured", value: changelogSubstance(content) };
     case "traceability-decisions": return { status: "measured", value: decisionSubstance(files, content) };
     case "traceability-templates": return { status: "measured", value: templateSubstance(content) };
     case "traceability-migrations": return { status: "measured", value: migrationSubstance(files, content) };
+    case "traceability-ownership": return { status: "measured", value: ownershipSubstance(content) };
     case "automation-ci": return { status: "measured", value: ciSubstance(content) };
+    case "automation-ci-tests": return { status: "measured", value: ciTestSubstance(content) };
+    case "automation-ci-quality": return { status: "measured", value: ciQualitySubstance(content) };
     case "automation-dependencies": return { status: "measured", value: dependencyAutomationSubstance(content) };
     case "automation-delivery": return { status: "measured", value: deliverySubstance(content) };
     case "automation-scripts": return { status: "measured", value: scriptsSubstance(files, content) };
+    case "automation-environment": return { status: "measured", value: environmentAutomationSubstance(content) };
   }
 }
 
-function breadthFor(id: RepositoryReportEvidenceId, inventory: RepositoryInventory): number {
-  if (id === "verification-tests") return rounded(clamp((inventory.testFiles / Math.max(inventory.sourceFiles, 1)) / 0.25));
+function breadthFor(id: RepositoryReportEvidenceId, inventory: RepositoryInventory, files: IngestedFile[]): number {
+  if (["verification-tests", "verification-test-substance", "verification-test-breadth", "verification-edge-cases"].includes(id)) {
+    const supported = files.filter(file => SUPPORTED_TEST_EXTENSION.test(file.path));
+    const dedupeFactor = supported.length ? uniqueSupportedTestFiles(files).length / supported.length : 0;
+    return rounded(clamp(((inventory.testFiles * dedupeFactor) / Math.max(inventory.sourceFiles, 1)) / 0.25));
+  }
   if (id === "context-docs") {
     const target = Math.max(inventory.sourceFiles * 0.1, 1);
     return rounded(clamp(inventory.documentationFiles / target));
   }
-  if (["traceability-decisions", "traceability-migrations", "automation-scripts"].includes(id)) {
+  if (["traceability-decisions", "traceability-migrations", "traceability-ownership", "automation-scripts"].includes(id)) {
     return rounded(clamp(inventory.signalCandidateCounts[id] / 2));
   }
   return 1;
 }
 
 function roleFor(id: RepositoryReportEvidenceId, databaseLikely: boolean): RepositoryReportSignalAssessment["role"] {
-  if (["context-readme", "context-metadata", "verification-tests", "verification-config"].includes(id)) return "core";
+  if (["context-readme", "context-metadata", "context-reproducibility", "verification-entrypoint", "verification-test-substance", "verification-test-breadth", "verification-edge-cases", "verification-static-analysis", "verification-coverage"].includes(id)) return "core";
   if (id === "traceability-migrations" && databaseLikely) return "conditional";
   return "bonus";
 }
@@ -247,12 +397,13 @@ function fileAssessment(
   databaseLikely: boolean,
 ): RepositoryReportSignalAssessment {
   const files = allFiles.filter(file => repositoryPathMatchesEvidence(id, file.path));
-  const presence = files.length ? 1 : 0;
-  const measured = presence ? substanceFor(id, files) : { status: "measured" as const, value: 0 };
-  const breadth = breadthFor(id, inventory);
+  const pathPresence = files.length ? 1 : 0;
+  const measured = pathPresence ? substanceFor(id, files, inventory) : { status: "measured" as const, value: 0 };
+  const presence = pathPresence && (!requiresSemanticPresence(id) || (measured.value ?? 0) > 0) ? 1 : 0;
+  const breadth = breadthFor(id, inventory, files);
   const substance = measured.value;
-  const quality = presence === 0 ? 0 : substance === null ? 0.15 : rounded(0.15 + 0.60 * substance + 0.25 * substance * breadth);
-  const maxPoints = repositoryEvidencePoints(id);
+  const quality = presence === 0 ? 0 : substance === null ? 0.1 : rounded(0.1 + 0.65 * substance + 0.25 * substance * breadth);
+  const maxPoints = repositoryV23EvidencePoints(id as (typeof REPOSITORY_V23_EVIDENCE_ORDER)[number]);
   return {
     id,
     axis,
@@ -268,7 +419,7 @@ function fileAssessment(
 }
 
 function commitAssessment(signals?: CommitTraceabilitySignals): RepositoryReportSignalAssessment {
-  const maxPoints = 5;
+  const maxPoints = REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS;
   const ratios = signals ? [signals.nonGenericSubjectRatio, signals.distinctSubjectRatio, signals.scopedSubjectRatio, signals.rationaleBodyRatio, signals.referenceRatio]
     .filter((value): value is number => value !== null) : [];
   const enoughEvidence = Boolean(signals && signals.evaluatedCommits >= 3 && ratios.length === 5);
@@ -307,15 +458,15 @@ export function analyzeRepositorySignals(
       return [...Object.keys(value.dependencies ?? {}), ...Object.keys(value.devDependencies ?? {})];
     } catch { return []; }
   }) : [], normalizedContent(manifestFiles));
-  const assessments = REPOSITORY_EVIDENCE_ORDER.map(id => fileAssessment(
+  const assessments = REPOSITORY_V23_EVIDENCE_ORDER.map(id => fileAssessment(
     id,
     // The copy is the canonical axis map and is validated again by the public parser.
     ({
-      "context-readme": "context", "context-guidance": "context", "context-docs": "context", "context-metadata": "context",
-      "verification-tests": "verification", "verification-config": "verification",
-      "traceability-changelog": "traceability", "traceability-decisions": "traceability", "traceability-templates": "traceability", "traceability-migrations": "traceability",
-      "automation-ci": "automation", "automation-dependencies": "automation", "automation-delivery": "automation", "automation-scripts": "automation",
-    } satisfies Record<RepositoryReportEvidenceId, RepositoryReportAxis>)[id],
+      "context-readme": "context", "context-guidance": "context", "context-docs": "context", "context-metadata": "context", "context-contracts": "context", "context-reproducibility": "context",
+      "verification-entrypoint": "verification", "verification-test-substance": "verification", "verification-test-breadth": "verification", "verification-edge-cases": "verification", "verification-static-analysis": "verification", "verification-coverage": "verification",
+      "traceability-changelog": "traceability", "traceability-decisions": "traceability", "traceability-templates": "traceability", "traceability-migrations": "traceability", "traceability-ownership": "traceability",
+      "automation-ci-tests": "automation", "automation-ci-quality": "automation", "automation-dependencies": "automation", "automation-delivery": "automation", "automation-scripts": "automation", "automation-environment": "automation",
+    } satisfies Record<(typeof REPOSITORY_V23_EVIDENCE_ORDER)[number], RepositoryReportAxis>)[id],
     files,
     inventory,
     databaseLikely,

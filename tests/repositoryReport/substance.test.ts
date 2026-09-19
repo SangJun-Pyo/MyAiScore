@@ -1,11 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { analyzeRepositorySignals } from "../../src/server/repositoryReport/substance.js";
 import type { CommitTraceabilitySignals, IngestedFile, RepositoryInventory } from "../../src/shared/contracts/ingestion.js";
 import { REPOSITORY_EVIDENCE_ORDER, type RepositoryReportEvidenceId } from "../../src/shared/repositoryReport.js";
 
 function file(path: string, content: string): IngestedFile {
-  return { path, blobSha: "b".repeat(40), byteSize: Buffer.byteLength(content), contentSha256: "c".repeat(64), lineCount: content ? content.split("\n").length : 0, redactedContent: content, secretPatternMasked: false };
+  return { path, blobSha: "b".repeat(40), byteSize: Buffer.byteLength(content), contentSha256: createHash("sha256").update(content).digest("hex"), lineCount: content ? content.split("\n").length : 0, redactedContent: content, secretPatternMasked: false };
 }
 
 function inventory(overrides: Partial<RepositoryInventory> = {}): RepositoryInventory {
@@ -32,7 +33,7 @@ test("empty files receive only the gated presence floor", () => {
   ];
   const result = analyzeRepositorySignals(files, inventory());
   assert.ok(result.assessments.filter(item => item.id !== "traceability-commit-practice").reduce((sum, item) => sum + item.points, 0) <= 15);
-  assert.ok(result.assessments.filter(item => item.presence === 1).every(item => item.quality === 0.15));
+  assert.ok(result.assessments.filter(item => item.presence === 1).every(item => item.quality === 0.1));
 });
 
 test("test substance supports JavaScript, Python, Go, Rust and JVM assertions", () => {
@@ -45,7 +46,7 @@ test("test substance supports JavaScript, Python, Go, Rust and JVM assertions", 
   ];
   for (const candidate of cases) {
     const result = analyzeRepositorySignals([candidate], inventory({ sourceFiles: 4, testFiles: 1 }));
-    const assessment = score("verification-tests", result);
+    const assessment = score("verification-test-substance", result);
     assert.equal(assessment.status, "measured", candidate.path);
     assert.ok((assessment.substance ?? 0) > 0.15, candidate.path);
   }
@@ -53,18 +54,47 @@ test("test substance supports JavaScript, Python, Go, Rust and JVM assertions", 
 
 test("unsupported test content is withheld instead of treated as failed", () => {
   const result = analyzeRepositorySignals([file("tests/check.exs", "assert useful(result)")], inventory());
-  const assessment = score("verification-tests", result);
+  const assessment = score("verification-test-substance", result);
   assert.equal(assessment.status, "unmeasured");
   assert.equal(assessment.substance, null);
-  assert.equal(assessment.quality, 0.15);
+  assert.equal(assessment.quality, 0.1);
 });
 
 test("test breadth comes from the scanned inventory rather than selected files", () => {
   const testFile = file("tests/a.test.ts", "test('a', () => expect(a()).toBe(true));\ntest('b', () => expect(b()).toBe(false));");
-  const narrow = score("verification-tests", analyzeRepositorySignals([testFile], inventory({ sourceFiles: 100, testFiles: 1 })));
-  const broad = score("verification-tests", analyzeRepositorySignals([testFile], inventory({ sourceFiles: 8, testFiles: 2 })));
+  const narrow = score("verification-test-breadth", analyzeRepositorySignals([testFile], inventory({ sourceFiles: 100, testFiles: 1 })));
+  const broad = score("verification-test-breadth", analyzeRepositorySignals([testFile], inventory({ sourceFiles: 8, testFiles: 2 })));
   assert.ok(broad.breadth > narrow.breadth);
   assert.ok(broad.points > narrow.points);
+});
+
+test("duplicating identical test files cannot raise test substance or breadth", () => {
+  const content = "test('rejects invalid input', () => expect(() => parse(null)).toThrow());";
+  const one = analyzeRepositorySignals([file("tests/a.test.ts", content)], inventory({ sourceFiles: 8, testFiles: 1 }));
+  const four = analyzeRepositorySignals([
+    file("tests/a.test.ts", content), file("tests/b.test.ts", content), file("tests/c.test.ts", content), file("tests/d.test.ts", content),
+  ], inventory({ sourceFiles: 8, testFiles: 4 }));
+  for (const id of ["verification-test-substance", "verification-test-breadth", "verification-edge-cases"]) {
+    assert.equal(score(id, four).points, score(id, one).points, id);
+  }
+});
+
+test("deploy-only workflows do not earn test, quality or coverage points", () => {
+  const workflow = file(".github/workflows/deploy.yml", "on: [push]\njobs:\n  deploy:\n    steps:\n      - uses: actions/checkout@v4\n      - run: railway up");
+  const result = analyzeRepositorySignals([workflow], inventory());
+  assert.equal(score("automation-ci-tests", result).points, 0);
+  assert.equal(score("automation-ci-quality", result).points, 0);
+  assert.equal(score("verification-coverage", result).points, 0);
+  assert.equal(score("automation-ci-tests", result).presence, 0);
+  assert.equal(score("automation-ci-quality", result).presence, 0);
+  assert.equal(score("verification-coverage", result).presence, 0);
+});
+
+test("placeholder test scripts are not verification entrypoints", () => {
+  const manifest = file("package.json", JSON.stringify({ scripts: { test: "echo Error: no test specified && exit 1" } }));
+  const assessment = score("verification-entrypoint", analyzeRepositorySignals([manifest], inventory()));
+  assert.equal(assessment.presence, 0);
+  assert.equal(assessment.points, 0);
 });
 
 test("fixed-SHA commit aggregates add a bounded traceability bonus without raw messages", () => {
@@ -74,7 +104,7 @@ test("fixed-SHA commit aggregates add a bounded traceability bonus without raw m
   };
   const assessment = score("traceability-commit-practice", analyzeRepositorySignals([], inventory(), commit));
   assert.equal(assessment.status, "measured");
-  assert.ok(assessment.points >= 1 && assessment.points <= 5);
+  assert.ok(assessment.points >= 1 && assessment.points <= 4);
   assert.doesNotMatch(JSON.stringify(assessment), /message|subject/);
 });
 
