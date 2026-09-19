@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { selectFiles } from "../../src/server/ingestion/fileSelection.js";
 import { INGESTION_LIMITS } from "../../src/shared/contracts/ingestion.js";
 import type { TreeEntry } from "../../src/server/ingestion/githubApi.js";
+import { REPOSITORY_EVIDENCE_ORDER } from "../../src/shared/repositoryReport.js";
 
 function entry(path: string, extra: Partial<TreeEntry> = {}): TreeEntry {
   return { path, mode: "100644", type: "blob", sha: `sha-${path}`, ...extra };
@@ -135,4 +136,48 @@ test("tree scan cap retains its original limited meaning and is independent of i
   const result = selectFiles(entries);
   assert.equal(result.selectionLimited, true); assert.equal(result.candidates.length, INGESTION_LIMITS.maxTreeEntries);
   assert.deepEqual(result.selected.map(c => c.entry.path), selectFiles([...entries].reverse()).selected.map(c => c.entry.path));
+});
+
+test("v2 reserves one representative for every observable score signal before general sampling", () => {
+  const signalPaths = [
+    "README.md", "AGENTS.md", "docs/guide.md", "package.json",
+    "tests/a.test.ts", "tsconfig.json", "CHANGELOG.md", "docs/ADR/0001-choice.md",
+    ".github/issue_template/bug.md", "migrations/001.sql", ".github/workflows/ci.yml",
+    ".github/dependabot.yml", "Dockerfile", "scripts/check.ts",
+  ];
+  const entries = [
+    ...signalPaths.map((path, index) => entry(path, { size: 100 + index })),
+    ...Array.from({ length: 100 }, (_, index) => entry(`src/feature-${String(index).padStart(3, "0")}.ts`, { size: 200 })),
+  ];
+  const result = selectFiles(entries, [], { reserveRepositorySignals: true });
+  const selected = new Set(result.selected.map(file => file.entry.path));
+  for (const path of signalPaths) assert.ok(selected.has(path), path);
+  for (const id of REPOSITORY_EVIDENCE_ORDER) assert.ok(result.inventory.signalCandidateCounts[id] > 0, id);
+  assert.equal(result.selected.length, INGESTION_LIMITS.plannedSelectedFiles);
+  assert.deepEqual(
+    selectFiles([...entries].reverse(), [], { reserveRepositorySignals: true }).selected.map(file => file.entry.path),
+    result.selected.map(file => file.entry.path),
+  );
+});
+
+test("inventory uses scanned candidates rather than the selected 40-file sample and records cautious diagnostics", () => {
+  const entries = [
+    ...Array.from({ length: 60 }, (_, index) => entry(`src/file-${String(index).padStart(3, "0")}.ts`, { size: index === 59 ? 50 * 1024 : 1_000 })),
+    ...Array.from({ length: 12 }, (_, index) => entry(`tests/file-${index}.test.ts`, { size: 500 })),
+    entry("README.md", { size: 800 }),
+    entry("docs/guide.md", { size: 900 }),
+    entry(".DS_Store", { size: 10 }),
+    entry("node_modules/pkg/index.js", { size: 100 }),
+    entry(".env", { size: 20 }),
+  ];
+  const result = selectFiles(entries);
+  assert.equal(result.selected.length, 40);
+  assert.equal(result.inventory.sourceFiles, 60);
+  assert.equal(result.inventory.testFiles, 12);
+  assert.equal(result.inventory.documentationFiles, 2);
+  assert.equal(result.inventory.oversizedSourceCandidates, 1);
+  assert.equal(result.inventory.largestSourceFiles[0]?.path, "src/file-059.ts");
+  assert.equal(result.inventory.hygiene.highConfidenceArtifacts, 1);
+  assert.equal(result.inventory.hygiene.generatedArtifactCandidates, 1);
+  assert.equal(result.inventory.hygiene.secretLikePaths, 1);
 });

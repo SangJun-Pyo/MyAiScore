@@ -15,6 +15,8 @@ test("MAS-007: sampled collection remains complete with explicit coverage warnin
   const snapshot = await ingestRepository({ repoUrl: 'https://github.com/acme/sampled' }, { httpClient: new OfflineHttpClient(fixtures) });
   assert.equal(snapshot.ingestionStatus, 'complete'); assert.equal(snapshot.coverage.selectionLimited, false);
   assert.equal(snapshot.coverage.selectedFiles, 40); assert.equal(snapshot.coverage.readFiles, 40); assert.equal(snapshot.coverage.candidateFiles, 51);
+  assert.equal(snapshot.repositoryInventory?.basis, "scanned_tree");
+  assert.equal(snapshot.repositoryInventory?.sourceFiles, 51);
   assert.ok(snapshot.warnings.some(w => w.includes('40/51') && w.includes(SELECTION_POLICY_VERSION)));
   const paths = snapshot.files.map(f => f.path).sort();
   const expected = createHash('sha256').update(JSON.stringify({ collectorVersion: COLLECTOR_VERSION, selectionPolicyVersion: SELECTION_POLICY_VERSION, selectedPaths: paths })).digest('hex');
@@ -50,6 +52,11 @@ test("happy path: complete ingestion with next.js/typescript detection and evide
   assert.equal(snapshot.supportStatus, "nextjs_typescript");
   assert.equal(snapshot.files.length, 4);
   assert.equal(snapshot.evidenceCandidates.length, 4);
+  assert.equal(snapshot.repositoryInventory?.sourceFiles, 1);
+  assert.equal(snapshot.repositoryInventory?.testFiles, 1);
+  assert.equal(snapshot.repositoryInventory?.signalCandidateCounts["context-readme"], 1);
+  assert.equal(snapshot.repositoryStructure?.selectedSourceFiles, 1);
+  assert.equal(snapshot.repositoryStructure?.sourceFilesOver400Lines, 0);
   assert.ok(snapshot.staticSignals.dependencies.includes("next"));
   assert.deepEqual(snapshot.staticSignals.testPaths, ["src/server/actions/createOrder.test.ts"]);
   assert.equal(snapshot.failure, null);

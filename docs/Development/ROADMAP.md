@@ -21,6 +21,8 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 
 ## Immediate operation
 
+Repository score v2.1 is now in foundational development on `codex/repository-score-v2`; the production `repository-report-v1` score remains unchanged. [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md) and the [v2.1 proposal](../Assessment/SCORING_V2_PROPOSAL.md) define the migration. The first slice adds a pre-cap `scanned_tree` inventory, shared signal matchers, an opt-in score-signal reservation policy, advisory repository-hygiene and source-concentration diagnostics, and a fixed-SHA commit-message aggregate analyzer. None of these new diagnostics currently changes the public score or triggers an additional history request.
+
 Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. Production health, Korean/English pages and a real public MyAiScore report passed. Railway now has a server-only `GITHUB_TOKEN`; two consecutive public-repository reports returned 200 without token or raw file content in the response. The token only raises the public API allowance and private repositories remain rejected.
 
 Issue [#39](https://github.com/SangJun-Pyo/MyAiScore/issues/39) refreshes the public README and removes historical prompts, screenshots and run outputs from the current Git tree. Local copies stay under ignored `_archive/`; stable historical links point to pre-cleanup commit `f108be3`. Current product contracts, fixtures and compatibility routes remain versioned.

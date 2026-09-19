@@ -27,6 +27,12 @@ export interface BlobResult {
   content: string;
 }
 
+export interface CommitSummary {
+  sha: string;
+  /** Bounded, untrusted text for local aggregate analysis only. */
+  message: string;
+}
+
 export type GithubApiError =
   | { kind: "not_found" }
   | { kind: "rate_limited"; retryAfterSeconds: number | null }
@@ -175,6 +181,26 @@ export class GithubApiClient {
       return { ok: false, error: { kind: "network_error", message: "invalid tree metadata" } };
     }
     return { ok: true, value: { truncated: result.value.truncated, entries: result.value.tree } };
+  }
+
+  /** Reads a bounded ancestor window pinned to the evaluated SHA; never follows the moving default branch. */
+  async getCommitSummaries(owner: string, repo: string, commitSha: string, limit = 20): Promise<GithubApiResult<CommitSummary[]>> {
+    if (!/^[a-f0-9]{40}$/i.test(commitSha) || !Number.isSafeInteger(limit) || limit < 1 || limit > 50) {
+      return { ok: false, error: { kind: "network_error", message: "invalid commit history request" } };
+    }
+    const result = await this.requestJson<Array<{ sha: string; commit?: { message?: string } }>>(
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?sha=${commitSha}&per_page=${limit}`,
+    );
+    if (!result.ok) return result;
+    if (!Array.isArray(result.value) || result.value.length > limit || result.value.some(item =>
+      !item || typeof item.sha !== "string" || !/^[a-f0-9]{40}$/i.test(item.sha) ||
+      !item.commit || typeof item.commit.message !== "string")) {
+      return { ok: false, error: { kind: "network_error", message: "invalid commit history metadata" } };
+    }
+    return {
+      ok: true,
+      value: result.value.map(item => ({ sha: item.sha, message: item.commit!.message!.slice(0, 10_000) })),
+    };
   }
 
   async getBlob(owner: string, repo: string, blobSha: string): Promise<GithubApiResult<BlobResult>> {

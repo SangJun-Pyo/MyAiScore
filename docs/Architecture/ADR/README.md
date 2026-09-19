@@ -22,6 +22,7 @@
 | [0014](0014-cli-first-session-reports.md) | CLI 기반 재미용 세션 리포트로 기본 제품 흐름 전환 | Accepted as optional detail; primary flow superseded by 0015 |
 | [0015](0015-anonymous-korean-repository-reports.md) | 로그인 없는 한국어 공개 저장소 리포트를 기본 흐름으로 채택 | Accepted; supersedes 0010 language and 0014 primary onboarding |
 | [0016](0016-persistent-korean-english-interface.md) | 한국어 기본과 첫 응답부터 유지되는 한국어·영어 전환 | Accepted; extends 0015 |
+| [0017](0017-content-aware-repository-scoring.md) | 내용·인벤토리 기반 저장소 점수 v2 | Proposed; v1 production 규칙 유지 |
 
 0001~0006은 2026-09-14 사용자의 ADR 누락 지적 후 작성한 **사후 기록**이다. 기준은 [PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6), merge `db0edd7`, [Phase 4](../../Development/Sessions/Phase-04-Web-MVP.md)다. 작성자는 Astra이며 구현 시점에 ADR이 있었다고 소급하지 않는다. 대안은 당시 요약과 현재 코드를 바탕으로 정리했고, 대안별 실험을 수행했다는 뜻이 아니다.
 

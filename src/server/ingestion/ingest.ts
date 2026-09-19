@@ -14,6 +14,7 @@ import type {
   SupportStatus,
 } from "../../shared/contracts/ingestion.js";
 import { INGESTION_LIMITS } from "../../shared/contracts/ingestion.js";
+import { buildRepositoryStructureDiagnostics } from "../repositoryReport/structureDiagnostics.js";
 
 export const COLLECTOR_VERSION = "ingestion-0.3.0";
 
@@ -194,7 +195,9 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     return failureSnapshot(input, `github_api_${treeResult.error.kind}`, "The file tree could not be retrieved.", treeResult.error.kind !== "budget_exceeded", ctx);
   }
 
-  const selection = selectFiles(treeResult.value.entries, input.relevantPaths ?? []);
+  const selection = selectFiles(treeResult.value.entries, input.relevantPaths ?? [], {
+    treeTruncated: treeResult.value.truncated,
+  });
   progress(`Selected ${selection.selected.length} of ${selection.candidates.length} candidate files`);
 
   const files: IngestedFile[] = [];
@@ -306,6 +309,8 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     collectedAt: nowIso(),
     files,
     staticSignals: signals,
+    repositoryInventory: selection.inventory,
+    repositoryStructure: buildRepositoryStructureDiagnostics(files, selection.inventory),
     evidenceCandidates,
     coverage: {
       treeTruncated: treeResult.value.truncated,

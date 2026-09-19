@@ -1,3 +1,5 @@
+import type { RepositoryReportEvidenceId } from "../repositoryReport.js";
+
 /**
  * Types for the read-only GitHub ingestion PoC (Phase 1, Task 1).
  *
@@ -72,6 +74,42 @@ export interface StaticSignals {
   aiConfigPaths: string[];
 }
 
+export interface RepositoryInventoryLargestSource {
+  path: string;
+  byteSize: number;
+}
+
+export interface RepositoryInventory {
+  /** Eligible paths observed before the selected-file cap; not a claim about the entire repository. */
+  basis: "scanned_tree";
+  scannedEntries: number;
+  treeTruncated: boolean;
+  selectionLimited: boolean;
+  sourceFiles: number;
+  testFiles: number;
+  documentationFiles: number;
+  sourceFilesWithKnownSize: number;
+  sourceBytes: number;
+  oversizedSourceCandidates: number;
+  largestSourceFiles: RepositoryInventoryLargestSource[];
+  signalCandidateCounts: Record<RepositoryReportEvidenceId, number>;
+  hygiene: {
+    highConfidenceArtifacts: number;
+    generatedArtifactCandidates: number;
+    secretLikePaths: number;
+  };
+}
+
+export interface RepositoryStructureDiagnostics {
+  basis: "selected_source_content_and_scanned_tree_sizes";
+  selectedSourceFiles: number;
+  selectedSourceFilesWithLineCount: number;
+  sourceFilesOver400Lines: number;
+  sourceFilesOver800Lines: number;
+  largestSelectedSourceFiles: Array<{ path: string; lineCount: number }>;
+  topFiveSourceByteShare: number | null;
+}
+
 export interface EvidenceCandidate {
   /** Candidates have no assessment_id yet -- always null until a scoring stage claims them. */
   assessmentId: null;
@@ -128,6 +166,10 @@ export interface IngestionSnapshot {
   collectedAt: string;
   files: IngestedFile[];
   staticSignals: StaticSignals;
+  /** Added for the repository-score v2 migration. Older/synthetic snapshots may omit it. */
+  repositoryInventory?: RepositoryInventory;
+  /** Advisory-only v2 migration data; it does not affect repository-report-v1 scores. */
+  repositoryStructure?: RepositoryStructureDiagnostics;
   evidenceCandidates: EvidenceCandidate[];
   coverage: CoverageInfo;
   skippedFiles: SkippedFile[];

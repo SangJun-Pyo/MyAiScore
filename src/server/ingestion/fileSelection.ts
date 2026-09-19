@@ -3,9 +3,18 @@ import {
   EXCLUDED_DIR_SEGMENTS,
   EXCLUDED_FILE_PATTERNS,
   INGESTION_LIMITS,
+  type RepositoryInventory,
   type SkipReason,
   type SkippedFile,
 } from "../../shared/contracts/ingestion.js";
+import { REPOSITORY_EVIDENCE_ORDER, type RepositoryReportEvidenceId } from "../../shared/repositoryReport.js";
+import {
+  isRepositoryDocumentationPath,
+  isRepositoryReferencePath,
+  isRepositorySourcePath,
+  isRepositoryTestPath,
+  repositoryPathMatchesEvidence,
+} from "../../shared/repositorySignals.js";
 
 const BINARY_EXTENSIONS = new Set([
   "png", "jpg", "jpeg", "gif", "webp", "ico", "bmp", "svg",
@@ -25,6 +34,8 @@ const LOCK_FILE_NAMES = new Set([
 
 export type PriorityTier = 0 | 1 | 2 | 3 | 4 | 5;
 export const SELECTION_POLICY_VERSION = "representative-categories-v2";
+export const REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION = "repository-signal-reservations-v1";
+export const OVERSIZED_SOURCE_CANDIDATE_BYTES = 40 * 1024;
 
 const CONFIG_FILE_PATTERNS = [
   /^package\.json$/,
@@ -60,6 +71,13 @@ export interface SelectionResult {
   skipped: SkippedFile[];
   /** true if our own selection had to cap the tree beyond INGESTION_LIMITS.maxTreeEntries */
   selectionLimited: boolean;
+  inventory: RepositoryInventory;
+}
+
+export interface SelectionOptions {
+  /** Transitional v2 path. The current v1 collector leaves this false. */
+  reserveRepositorySignals?: boolean;
+  treeTruncated?: boolean;
 }
 
 function isExcludedPath(path: string): boolean {
@@ -87,7 +105,7 @@ function classifyPriority(path: string, relevantPaths: string[]): PriorityTier {
 }
 
 function isReferenceMaterial(path: string): boolean {
-  return /(^|\/)(fixtures|__fixtures__|examples|_archive|artifacts)\//i.test(path);
+  return isRepositoryReferencePath(path);
 }
 type Category = "source" | "tests" | "docs" | "other";
 function category(file: ClassifiedFile): Category {
@@ -99,7 +117,16 @@ function category(file: ClassifiedFile): Category {
 function pathOrder(a: ClassifiedFile, b: ClassifiedFile): number {
   return a.entry.path < b.entry.path ? -1 : a.entry.path > b.entry.path ? 1 : 0;
 }
-function representativeSample(sorted: ClassifiedFile[]): ClassifiedFile[] {
+function pathDepth(path: string): number {
+  return path.split("/").length;
+}
+
+function signalCandidateOrder(a: ClassifiedFile, b: ClassifiedFile): number {
+  return pathDepth(a.entry.path) - pathDepth(b.entry.path) ||
+    (b.entry.size ?? -1) - (a.entry.size ?? -1) || pathOrder(a, b);
+}
+
+function representativeSample(sorted: ClassifiedFile[], reserveRepositorySignals: boolean): ClassifiedFile[] {
   const limit = INGESTION_LIMITS.plannedSelectedFiles;
   if (sorted.length <= limit) return sorted; // Small repositories retain every eligible file.
   const selected: ClassifiedFile[] = [];
@@ -108,6 +135,14 @@ function representativeSample(sorted: ClassifiedFile[]): ClassifiedFile[] {
   sorted.filter(f => f.priority === 0).forEach(take);
   sorted.filter(f => f.priority === 1).slice(0, 6).forEach(take);
   sorted.filter(f => f.priority === 4).slice(0, 4).forEach(take);
+  if (reserveRepositorySignals) {
+    for (const id of REPOSITORY_EVIDENCE_ORDER) {
+      const candidate = sorted
+        .filter(file => file.priority !== 5 && repositoryPathMatchesEvidence(id, file.entry.path))
+        .sort(signalCandidateOrder)[0];
+      if (candidate) take(candidate);
+    }
+  }
   const groups: Record<Category, ClassifiedFile[]> = { source: [], tests: [], docs: [], other: [] };
   for (const file of sorted) if (!chosen.has(file) && file.priority !== 5) groups[category(file)].push(file);
   for (const group of Object.values(groups)) group.sort(pathOrder);
@@ -130,12 +165,75 @@ function representativeSample(sorted: ClassifiedFile[]): ClassifiedFile[] {
   return selected;
 }
 
+function emptySignalCounts(): Record<RepositoryReportEvidenceId, number> {
+  return Object.fromEntries(REPOSITORY_EVIDENCE_ORDER.map(id => [id, 0])) as Record<RepositoryReportEvidenceId, number>;
+}
+
+function isHighConfidenceArtifact(path: string): boolean {
+  const name = path.split("/").pop()?.toLowerCase() ?? "";
+  return name === ".ds_store" || name === "thumbs.db" || /\.(swp|swo|tmp|orig)$/.test(name);
+}
+
+function isGeneratedArtifactCandidate(path: string): boolean {
+  return path.split("/").some(segment => ["node_modules", ".next", "dist", "build", "coverage", "vendor"].includes(segment.toLowerCase()));
+}
+
+function isSecretLikePath(path: string): boolean {
+  const name = path.split("/").pop()?.toLowerCase() ?? "";
+  if ([".env.example", ".env.sample", ".env.template"].includes(name)) return false;
+  return /^\.env(?:\..+)?$/.test(name) || /\.(pem|key)$/.test(name) || name === "id_rsa";
+}
+
+function buildInventory(
+  scoped: TreeEntry[],
+  candidates: ClassifiedFile[],
+  selectionLimited: boolean,
+  treeTruncated: boolean,
+): RepositoryInventory {
+  const eligible = candidates.filter(file => !isRepositoryReferencePath(file.entry.path));
+  const signalCandidateCounts = emptySignalCounts();
+  for (const file of eligible) {
+    for (const id of REPOSITORY_EVIDENCE_ORDER) {
+      if (repositoryPathMatchesEvidence(id, file.entry.path)) signalCandidateCounts[id] += 1;
+    }
+  }
+
+  const sourceEntries = scoped.filter(entry => entry.type === "blob" && isRepositorySourcePath(entry.path) &&
+    !isRepositoryReferencePath(entry.path) && !isGeneratedArtifactCandidate(entry.path));
+  const knownSourceSizes = sourceEntries.filter(entry => typeof entry.size === "number") as Array<TreeEntry & { size: number }>;
+  const largestSourceFiles = [...knownSourceSizes]
+    .sort((a, b) => b.size - a.size || a.path.localeCompare(b.path, "en"))
+    .slice(0, 5)
+    .map(entry => ({ path: entry.path, byteSize: entry.size }));
+  const blobPaths = scoped.filter(entry => entry.type === "blob").map(entry => entry.path);
+
+  return {
+    basis: "scanned_tree",
+    scannedEntries: scoped.length,
+    treeTruncated,
+    selectionLimited,
+    sourceFiles: sourceEntries.length,
+    testFiles: eligible.filter(file => isRepositoryTestPath(file.entry.path)).length,
+    documentationFiles: eligible.filter(file => isRepositoryDocumentationPath(file.entry.path)).length,
+    sourceFilesWithKnownSize: knownSourceSizes.length,
+    sourceBytes: knownSourceSizes.reduce((sum, entry) => sum + entry.size, 0),
+    oversizedSourceCandidates: knownSourceSizes.filter(entry => entry.size > OVERSIZED_SOURCE_CANDIDATE_BYTES).length,
+    largestSourceFiles,
+    signalCandidateCounts,
+    hygiene: {
+      highConfidenceArtifacts: blobPaths.filter(isHighConfidenceArtifact).length,
+      generatedArtifactCandidates: blobPaths.filter(isGeneratedArtifactCandidate).length,
+      secretLikePaths: blobPaths.filter(isSecretLikePath).length,
+    },
+  };
+}
+
 /**
  * Applies root metadata/AI reservations and category sampling after exclusions to a
  * flat recursive tree listing. Pure function -- no network calls. Symlinks
  * and submodules are recorded as skipped and never followed.
  */
-export function selectFiles(entries: TreeEntry[], relevantPaths: string[] = []): SelectionResult {
+export function selectFiles(entries: TreeEntry[], relevantPaths: string[] = [], options: SelectionOptions = {}): SelectionResult {
   const skipped: SkippedFile[] = [];
   const blobEntries = entries.filter((entry) => entry.type === "blob" || entry.type === "commit")
     .sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
@@ -178,14 +276,20 @@ export function selectFiles(entries: TreeEntry[], relevantPaths: string[] = []):
     return pathOrder(a, b);
   });
 
-  const selected = representativeSample(sorted);
+  const selected = representativeSample(sorted, options.reserveRepositorySignals ?? false);
   const selectedSet = new Set(selected);
   const notSelected = sorted.filter(file => !selectedSet.has(file));
   for (const file of notSelected) {
     skipped.push({ path: file.entry.path, reason: "not_selected" });
   }
 
-  return { candidates, selected, skipped, selectionLimited };
+  return {
+    candidates,
+    selected,
+    skipped,
+    selectionLimited,
+    inventory: buildInventory(scoped, candidates, selectionLimited, options.treeTruncated ?? false),
+  };
 }
 
 export function isProbablyBinaryContent(buffer: Buffer): boolean {

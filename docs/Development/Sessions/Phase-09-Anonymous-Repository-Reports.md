@@ -2,6 +2,14 @@
 
 Date: 2026-09-18. Base: main@3060526. Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28). Decision: [ADR-0015](../../Architecture/ADR/0015-anonymous-korean-repository-reports.md).
 
+## 2026-09-19 — 저장소 점수 v2.1 설계와 첫 기반 구현
+
+v1 조작·표본 편향 검토와 사용자 합의를 [`SCORING_V2_PROPOSAL`](../../Assessment/SCORING_V2_PROPOSAL.md) 및 [ADR-0017](../../Architecture/ADR/0017-content-aware-repository-scoring.md)에 기록했다. presence 게이트, cap 이전 `scanned_tree` inventory, 점수 신호 읽기 예약, inventory breadth, 독립 적용성, 핵심·조건부·보너스, 다언어 `unmeasured`, provisional coverage와 유형 보류를 채택했다. 고정 SHA의 커밋 설명은 기록축 보너스 후보로 두고, 불필요 파일과 큰 파일은 검증 전 감점하지 않고 위생·구조 집중도 진단으로 시작한다.
+
+첫 구현 슬라이스는 공용 `repositorySignals` matcher를 만들어 기존 v1 리포트와 v2 inventory가 같은 경로 정의를 사용하게 했다. `selectFiles()`는 cap 이전 후보에서 소스·테스트·문서·14개 신호 후보와 source byte, oversized source 후보, 임시·생성물·비밀 가능 경로 수를 집계한다. 기본 v1 선택은 유지하고, 명시적 v2 옵션에서만 14개 신호별 대표 파일을 일반 표본보다 먼저 예약한다.
+
+GitHub client에는 고정 40자리 SHA만 받는 최근 조상 commit summary API를 추가했다. commit 메시지 분석기는 merge·자동화 커밋을 분리하고 일반성·고유성·범위·본문·참조 비율만 반환하며 원문을 리포트 계약에 보존하지 않는다. 아직 production API에서 추가 history 요청을 실행하거나 v1 점수에 반영하지 않는다.
+
 ## 사용자 결정
 
 사용자는 CLI 설치와 명령 실행이 첫 체험에 어렵다고 판단했다. 공개 GitHub 소스로 접근하는 흐름과 공모전용 한국어 화면을 제안했고, Astra의 로그인 없는 공개 URL 분석·선택적 세션 상세 분석 구성을 명시적으로 채택했다.
