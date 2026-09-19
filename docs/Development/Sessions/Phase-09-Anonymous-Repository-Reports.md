@@ -118,3 +118,13 @@ UplinkLoader는 원본 파일을 유지하되 앱 전환 타이밍을 조정했�
 사용자가 MyAiScore 공개 저장소 `https://github.com/SangJun-Pyo/MyAiScore` 접근 링크를 추가하고 싶다고 요청했다. 주요 CTA와 혼동되지 않도록 footer의 보조 링크로 배치하고, 한국어는 `GitHub 저장소 보기 ↗`, 영어는 `View GitHub repository ↗`로 표시한다.
 
 검증은 `npm run typecheck`, `npm run check:docs`, `npm run build`, footer 링크를 포함한 Playwright 집중 검사 desktop/mobile 4/4를 통과했다.
+
+## 2026-09-19 ThreeUI CRT background for Home hero
+
+사용자가 ThreeUI `CrtBackground` terminal variant를 홈 섹션 배경으로 쓰는 방향을 제안했다. 원본 등록 번들 `https://threeui.com/source-code/crt.json`을 가져와 component, renderer, shader, variant screen painter, shared CSS의 SHA-256을 모두 확인하고 `src/shaders/crt/` 아래에 보존했다.
+
+로컬 `@designcodeio/threeui` alias에 `CrtBackground` export를 추가하고, 요청된 props 그대로 Home hero의 첫 번째 decorative layer에 배치했다. 제품 화면에서는 wrapper opacity와 radial mask만 낮춰 제목·설명·CTA·예시 점수 카드가 계속 우선 보이게 했다. 이 CRT boot log는 분위기용 배경이며 실제 저장소 스캔 로그, 보안 연결 증명, AI 대화 기록, 점수 근거로 표현하지 않는다.
+
+브라우저 회귀 검사는 Home에 `.repo-crt-background .crt-terminal canvas`가 보이는지 확인한다. 디자인 시스템과 별도 ThreeUI 적용 기록 문서에도 Home hero 전용 decorative background라는 범위를 기록했다.
+
+검증은 CRT 원본 다섯 파일의 SHA-256 재확인, `npm run typecheck`, `npm run check:docs`, `npm test` 288/288, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20, 최종 농도 조정 후 Home 집중 검사 desktop/mobile 2/2, `git diff --check`를 통과했다. Production build 서버 `http://127.0.0.1:3100/`에서 데스크톱 캡처를 확인했고 CRT canvas 1개, 가로 overflow 없음이었다.

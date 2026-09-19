@@ -47,6 +47,7 @@ test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('AI 협업을 뒷받침하는 신호를 찾습니다.');
   await expect(page.locator('.repo-animated-title .repo-title-line')).toHaveCount(2);
+  await expect(page.locator('.repo-crt-background .crt-terminal canvas')).toBeVisible();
   await expect(page.locator('.repo-title-animation')).toHaveCount(0);
   await expect(page.locator('.landing-availability')).toHaveText('회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음');
   await expect(page.locator('.repo-hero-card')).toContainText('검증 체계');
@@ -89,8 +90,8 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await expect(page.locator('.repo-uplink-frame .uplink-loader[data-state="ready"]')).toBeVisible();
   await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#stage')).toBeVisible();
   await expect(page.locator('.repo-progress')).toContainText('저장소의 협업 신호를 찾고 있습니다.');
-  await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#num')).toHaveText('100', { timeout: 12000 });
-  await expect(page.locator('.notice[role="status"]')).toContainText(/분석이 완료되었습니다/, { timeout: 4000 });
+  await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#num')).toHaveText('100', { timeout: 18000 });
+  await expect(page.locator('.notice[role="status"]')).toContainText(/분석이 완료되었습니다/, { timeout: 6000 });
   await expect(page.locator('.repo-score > strong')).toHaveText('63');
   await expect(page.locator('.repo-style')).toContainText('AI 협업 신호 레이더');
   await expect(page.locator('.repo-axis-card')).toHaveCount(4);
@@ -192,7 +193,7 @@ test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 
   await expect(page.getByRole('heading', { name: 'Analyze a public repository' })).toBeVisible();
   await page.getByLabel('Public GitHub repository URL').fill('https://github.com/example/public-repo');
   await page.getByRole('button', { name: 'Analyze repository' }).click();
-  await expect(page.locator('.repo-style')).toContainText('Verification radar', { timeout: 12000 });
+  await expect(page.locator('.repo-style')).toContainText('Verification radar', { timeout: 22000 });
   await expect(page.locator('.repo-report')).toContainText('Decision records');
   await expect(page.locator('.repo-report')).toContainText('Connect one decision');
   await expect(page.locator('.repo-boundary')).toContainText('does not certify personal AI ability');

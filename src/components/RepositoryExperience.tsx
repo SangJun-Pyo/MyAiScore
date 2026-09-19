@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { UplinkLoader } from "@designcodeio/threeui";
+import { CrtBackground, UplinkLoader } from "@designcodeio/threeui";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
 import {
@@ -158,6 +158,18 @@ export function RepositoryHomeExperience() {
   const heroTitle = `${copy.home.title1} ${copy.home.title2}`;
   return <RepositoryShell><main id="main"><div className="landing-editorial">
     <section className="landing-hero repo-landing-hero" aria-labelledby="landing-title">
+      <div className="shader-frame repo-crt-background" aria-hidden="true">
+        <CrtBackground
+          variant="terminal"
+          speed={1.00}
+          typeSpeed={1.00}
+          motion={1.00}
+          hue={0}
+          saturation={1.00}
+          brightness={1.00}
+          opacity={1.00}
+        />
+      </div>
       <div className="landing-hero-copy"><p className="chapter-label"><i /> {copy.home.kicker}</p><div className="repo-hero-title-lockup"><h1 id="landing-title" className="repo-animated-title" aria-label={heroTitle}><span className="repo-title-line" data-text={copy.home.title1}>{copy.home.title1}</span><span className="repo-title-line repo-title-muted" data-text={copy.home.title2}>{copy.home.title2}</span></h1></div><p className="landing-lead">{copy.home.lead1}<br />{copy.home.lead2}</p><div className="landing-actions"><Link className="landing-primary" href="/evaluate">{copy.home.primary}</Link><a className="landing-text-action" href="#demo">{copy.home.example}</a></div><p className="landing-availability">{copy.home.availability}</p></div>
       <div className="landing-world repo-hero-card product-panel"><span className="sample-chip">{copy.home.demoTag}</span><h2>{display.style.title}</h2><div className="session-hero-number">{DEMO_REPORT.score.value}<small>/100</small></div><p>{display.scoreLabel}</p><div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{DEMO_REPORT.score.axes[axis].value}/25</strong></div>)}</div><p className="caption">{copy.home.demoCaption}</p></div>
       <div className="landing-chapters">{copy.home.chapters.map((chapter, index) => <a key={chapter.label} href={`#${["flow", "scope", "demo"][index]}`}><span>0{index + 1}</span><div><b>{chapter.label}</b><p>{chapter.text}</p></div></a>)}</div>
@@ -195,9 +207,13 @@ export function RepositoryEvaluateExperience() {
     return () => observer.disconnect();
   }, [status]);
   async function waitForUplinkReady(startedAt: number) {
-    const deadline = startedAt + 2500;
+    const deadline = Math.max(startedAt + 2500, performance.now() + 6000);
     while (!uplinkReadyAtRef.current && performance.now() < deadline) await delay(50);
     return uplinkReadyAtRef.current ?? startedAt;
+  }
+  async function waitForVisibleUplinkCompletion(startedAt: number) {
+    const uplinkStartedAt = await waitForUplinkReady(startedAt);
+    await waitForUplinkCompletion(uplinkStartedAt);
   }
   async function submit(event: FormEvent) {
     event.preventDefault(); const loadingStartedAt = performance.now(); const runId = requestId.current + 1; requestId.current = runId; uplinkReadyAtRef.current = null; setStatus("loading"); setErrorCode(""); setReport(null);
@@ -209,7 +225,7 @@ export function RepositoryEvaluateExperience() {
         const code = isRecord(data) && isRecord(data.error) && typeof data.error.code === "string" ? data.error.code : "";
         setStatus("error"); setErrorCode(code); return;
       }
-      const parsed = parseRepositoryReport(data); const uplinkStartedAt = await waitForUplinkReady(loadingStartedAt); await waitForUplinkCompletion(uplinkStartedAt); if (runId !== requestId.current) return; currentReport = parsed; setReport(parsed); setStatus("done");
+      const parsed = parseRepositoryReport(data); await waitForVisibleUplinkCompletion(loadingStartedAt); if (runId !== requestId.current) return; currentReport = parsed; setReport(parsed); setStatus("done");
     } catch {
       if (runId !== requestId.current) return;
       setStatus("error"); setErrorCode("");

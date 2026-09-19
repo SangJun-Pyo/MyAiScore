@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-19 — ThreeUI CRT background for Home hero
+
+- 홈 히어로 섹션 뒤에만 ThreeUI `CrtBackground` terminal variant를 낮은 opacity와 radial mask로 배치했다. 실제 H1·CTA·예시 리포트 카드가 주 콘텐츠로 유지되며, CRT는 `aria-hidden` 장식 요소다.
+- 등록 번들의 component, renderer, shader, variant renderer, shared CSS 파일을 SHA-256 일치 상태로 가져오고 로컬 `@designcodeio/threeui` alias에 `CrtBackground` export를 추가했다.
+
 ## 2026-09-19 — GitHub repository footer link
 
 - footer에 `GitHub 저장소 보기 ↗` 링크를 추가해 MyAiScore 공개 소스 저장소로 이동할 수 있게 했다. 영어 화면에서는 `View GitHub repository ↗`로 표시한다.

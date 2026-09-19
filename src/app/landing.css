@@ -50,6 +50,38 @@
   gap: 0 52px;
   align-items: center;
 }
+.repo-landing-hero {
+  isolation: isolate;
+  overflow: hidden;
+}
+.shader-frame.repo-crt-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(520px,56vw,780px);
+  border: 0;
+  border-radius: 0;
+  background: #03100a;
+  opacity: .12;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform: scale(1.08);
+  transform-origin: center;
+  mask-image: radial-gradient(ellipse at 35% 34%, #000 0%, #000 38%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse at 35% 34%, #000 0%, #000 38%, transparent 78%);
+}
+.repo-crt-background .threeui-background {
+  position: absolute;
+  inset: 0;
+}
+.repo-crt-background .threeui-background,
+.repo-crt-background canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 .landing-hero-copy {
   position: relative;
   z-index: 2;
@@ -196,6 +228,8 @@
 }
 .landing-chapters {
   grid-column: 1/-1;
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(4,1fr);
   gap: 25px;
@@ -754,6 +788,13 @@
     padding-top: 46px;
     gap: 35px;
   }
+  .shader-frame.repo-crt-background {
+    opacity: .08;
+    transform: scale(1.12);
+    min-height: 620px;
+    mask-image: radial-gradient(ellipse at 50% 24%, #000 0%, #000 36%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 24%, #000 0%, #000 36%, transparent 80%);
+  }
   .landing-hero h1 {
     letter-spacing: -.065em;
     white-space: normal;
@@ -1029,6 +1070,8 @@
   height: auto;
   justify-self: end;
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 .process-art .file-line {
   display: flex;
