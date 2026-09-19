@@ -27,6 +27,7 @@ import {
 } from "../../src/shared/repositoryReport.js";
 import type { IngestionSnapshot, IngestedFile } from "../../src/shared/contracts/ingestion.js";
 import { repositoryPathMatchesEvidence } from "../../src/shared/repositorySignals.js";
+import { repositoryProfilePresentation } from "../../src/i18n/repositoryProfilePresentation.js";
 import { buildStandardFixtures, commitUrl, repoUrl, treeUrl } from "../ingestion/githubFixtures.js";
 
 const SHA = "a".repeat(40);
@@ -86,10 +87,10 @@ test("partial coverage remains explicit while observable signals still receive a
   assert.equal(report.coverage.note, REPOSITORY_REPORT_COPY.coverageNotes.partial);
   assert.ok(report.score.value > 0 && report.score.value <= 100);
   assert.ok(report.gaps.includes(REPOSITORY_REPORT_COPY.gaps.partial));
-  assert.equal(report.ruleVersion, "repository-signals-v2.3");
-  assert.equal(report.collaborationProfile.status, "withheld");
+  assert.equal(report.ruleVersion, "repository-signals-v2.4");
+  assert.equal(report.collaborationProfile.status, "assigned");
   assert.ok(report.collaborationProfile.reasons.includes("incomplete_collection"));
-  assert.equal(report.collaborationProfile.code, null);
+  assert.match(report.collaborationProfile.code ?? "", /^[DR][HP][ST][FE]$/);
 });
 
 test("empty placeholder signal files cannot manufacture a high score", () => {
@@ -124,7 +125,7 @@ test("substantive content and fixed-SHA commit practice raise transparent v2 sig
   input.commitTraceability = { basis: "fixed_commit_ancestors", sampledCommits: 5, evaluatedCommits: 5, excludedMergeOrAutomated: 0, nonGenericSubjectRatio: 1, distinctSubjectRatio: 1, scopedSubjectRatio: 0.8, rationaleBodyRatio: 0.6, referenceRatio: 0.4 };
   const report = buildRepositoryReport(input);
   assert.equal(report.schemaVersion, "repository-report-v2");
-  assert.equal(report.ruleVersion, "repository-signals-v2.3");
+  assert.equal(report.ruleVersion, "repository-signals-v2.4");
   assert.ok(report.score.value > 35);
   assert.equal(report.diagnostics.profile.databaseLikely, true);
   assert.ok(report.signalScores.find(item => item.id === "traceability-commit-practice")!.points > 0);
@@ -134,15 +135,15 @@ test("substantive content and fixed-SHA commit practice raise transparent v2 sig
   assert.equal(report.collaborationProfile.dimensions.length, 4);
 });
 
-test("collaboration profile withholds sparse evidence with explicit reasons", () => {
+test("collaboration profile assigns sparse evidence with explicit low-confidence reasons", () => {
   const axes: Record<RepositoryReportAxis, number> = { context: 0, verification: 0, traceability: 0, automation: 0 };
   const profile = deriveRepositoryCollaborationProfile(profileAssessments(), axes, { reasons: ["commit_history_unavailable"] });
-  assert.equal(profile.status, "withheld");
-  assert.equal(profile.code, null);
-  assert.deepEqual(profile.reasons, ["insufficient_observed_axes", "insufficient_substantive_signals", "missing_dimension_evidence"]);
+  assert.equal(profile.status, "assigned");
+  assert.match(profile.code ?? "", /^[DR][HP][ST][FE]$/);
+  assert.deepEqual(profile.reasons, ["insufficient_observed_axes", "insufficient_substantive_signals", "missing_dimension_evidence", "multiple_near_boundaries"]);
 });
 
-test("collaboration profile withholds multiple near-boundary dimensions", () => {
+test("collaboration profile assigns multiple near-boundary dimensions with caveats", () => {
   const assessments = profileAssessments({
     "verification-entrypoint": fullSignal(4), "verification-test-substance": fullSignal(5), "verification-static-analysis": fullSignal(4), "automation-scripts": fullSignal(4),
     "automation-ci-tests": fullSignal(5), "automation-ci-quality": fullSignal(5), "automation-dependencies": fullSignal(4), "automation-delivery": fullSignal(4),
@@ -152,7 +153,8 @@ test("collaboration profile withholds multiple near-boundary dimensions", () => 
   });
   const axes: Record<RepositoryReportAxis, number> = { context: 10, verification: 10, traceability: 10, automation: 10 };
   const profile = deriveRepositoryCollaborationProfile(assessments, axes, { reasons: [] });
-  assert.equal(profile.status, "withheld");
+  assert.equal(profile.status, "assigned");
+  assert.ok(profile.reasons.includes("multiple_near_boundaries"));
   assert.deepEqual(profile.reasons, ["multiple_near_boundaries"]);
   assert.ok(profile.dimensions.filter(item => item.nearBoundary).length >= 2);
 });
@@ -170,6 +172,7 @@ test("a single spread-six boundary remains assigned and visible", () => {
   assert.match(profile.code ?? "", /^[DR][HP][ST]F$/);
   assert.deepEqual([shape.leftStrength, shape.rightStrength, shape.selectedPole, shape.nearBoundary], [0.5, 0.5, "F", true]);
   assert.equal(profile.dimensions.filter(item => item.nearBoundary).length, 1);
+  assert.equal(repositoryProfilePresentation(profile, "ko").confidence, "medium");
 });
 
 test("profile timing is stable across commit availability and migration applicability is explicit", () => {
@@ -213,6 +216,20 @@ test("strict parser keeps stored v2.2 reports on their legacy signal and profile
     style: derived.style, evidenceCards: [], gaps: derived.gaps, nextChallenge: derived.nextChallenge, signalScores, diagnostics,
     collaborationProfile: deriveRepositoryCollaborationProfile(signalScores, derived.axes, diagnostics, "v22"),
   };
+  assert.deepEqual(parseRepositoryReport(stored), stored);
+});
+
+test("strict parser keeps stored v2.3 withheld profiles on their historical contract", () => {
+  const current = buildRepositoryReport(snapshot([]));
+  assert.equal(current.schemaVersion, "repository-report-v2");
+  if (current.schemaVersion !== "repository-report-v2") return;
+  const axes = Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, current.score.axes[axis].value])) as Record<RepositoryReportAxis, number>;
+  const stored = {
+    ...current,
+    ruleVersion: "repository-signals-v2.3" as const,
+    collaborationProfile: deriveRepositoryCollaborationProfile(current.signalScores, axes, current.diagnostics, "v23"),
+  };
+  assert.equal(stored.collaborationProfile.status, "withheld");
   assert.deepEqual(parseRepositoryReport(stored), stored);
 });
 

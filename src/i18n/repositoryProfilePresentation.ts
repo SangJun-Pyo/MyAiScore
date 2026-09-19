@@ -63,6 +63,11 @@ export function repositoryProfilePresentation(profile: RepositoryCollaborationPr
   const dimensions = locale === "ko" ? koDimensions : enDimensions;
   const reasons = locale === "ko" ? koReasons : enReasons;
   const selected = profile.dimensions.map(item => item.selectedPole).filter((pole): pole is RepositoryCollaborationProfilePole => pole !== null);
+  const confidenceCaveats = profile.reasons.length + profile.dimensions.filter(item => item.nearBoundary).length;
+  const confidence = confidenceCaveats === 0 ? "high" : confidenceCaveats === 1 ? "medium" : "low";
+  const confidenceLabel = locale === "ko"
+    ? `유형 신뢰도 · ${confidence === "high" ? "높음" : confidence === "medium" ? "보통" : "낮음"}`
+    : `Profile confidence · ${confidence}`;
   return {
     eyebrow: locale === "ko" ? "저장소에서 보이는 협업 유형" : "COLLABORATION PROFILE VISIBLE IN THIS REPOSITORY",
     title: profile.status === "assigned"
@@ -70,12 +75,18 @@ export function repositoryProfilePresentation(profile: RepositoryCollaborationPr
       : locale === "ko" ? "유형 판단 보류" : "Profile withheld",
     description: profile.status === "assigned"
       ? locale === "ko"
-        ? "점수의 높낮이가 아니라 관찰된 신호가 어디에 놓였는지를 네 글자로 요약했어요. 능력이나 성격 유형이 아닙니다."
-        : "The four letters summarize where observed signals sit, not how high the score is. This is not a personality or ability type."
+        ? profile.reasons.length > 0
+          ? "관찰된 신호로 가장 가까운 유형을 표시했어요. 근거가 제한적이어서 신뢰도는 낮을 수 있으며, 능력이나 성격 유형이 아닙니다."
+          : "점수의 높낮이가 아니라 관찰된 신호가 어디에 놓였는지를 네 글자로 요약했어요. 능력이나 성격 유형이 아닙니다."
+        : profile.reasons.length > 0
+          ? "This is the closest profile from the observed signals. Limited evidence can lower confidence; it is not a personality or ability type."
+          : "The four letters summarize where observed signals sit, not how high the score is. This is not a personality or ability type."
       : locale === "ko"
         ? "근거가 부족하거나 경계에 가까워 네 글자 유형을 억지로 붙이지 않았어요. 점수와 확인된 근거는 그대로 볼 수 있습니다."
         : "The evidence is too limited or too close to multiple boundaries for a responsible four-letter code. The score and observed evidence remain available.",
     code: profile.code,
+    confidence,
+    confidenceLabel,
     dimensions: profile.dimensions.map(item => ({
       ...item,
       ...dimensions[item.id],

@@ -36,6 +36,14 @@ Issue [#43](https://github.com/SangJun-Pyo/MyAiScore/issues/43)은 PR [#44](http
 
 검증은 `npm test` 311/311, 집중 회귀 32/32, `npm run typecheck`, `npm run check:docs` 67파일·상대 링크 404개, `npm run build`, Playwright desktop/mobile 34/34, `git diff --check`를 통과했다.
 
+## 2026-09-19 — 항상 표시하는 협업 유형 v2.4 (#49)
+
+사용자 피드백에 따라 새 `repository-signals-v2.4` 결과는 희소·부분·경계 근거에서도 D/R·H/P·S/T·F/E 각 차원의 가장 가까운 pole을 결정론적으로 선택해 네 글자 코드를 항상 표시한다. 기존 보류 이유는 삭제하지 않고 고정 이유와 경계 차원 수의 합이 0개=높음, 1개=보통, 2개 이상=낮음인 유형 신뢰도와 주의 문구로 바꿨다. 점수와 축 배점은 v2.3에서 바뀌지 않는다.
+
+strict parser는 v2.4의 항상 assigned 코드·차원·주의 이유를 다시 계산한다. v2.2·v2.3 저장 결과는 당시 `withheld` 계약으로 별도 재계산해 브라우저 이력을 보존한다. 결정은 [ADR-0020](../../Architecture/ADR/0020-always-assigned-repository-profile.md)에 기록했다.
+
+독립 검토는 단일 50:50 경계 차원이 카드에는 `경계에 가까움`으로 표시되면서 전체 신뢰도는 높음이 되는 모순을 지적했다. 신뢰도 주의 요소에 경계 차원 수를 포함하고 직접 회귀를 추가했다. 수정 후 재검토는 **PASS, P1/P2 finding 없음**으로 결론 냈다. 검증은 `npm test` 312/312, 집중 회귀 24/24, `npm run typecheck`, `npm run check:docs` 68파일·상대 링크 407개, `npm run build`, Playwright desktop/mobile 34/34, `git diff --check`를 통과했다.
+
 ## 사용자 결정
 
 사용자는 CLI 설치와 명령 실행이 첫 체험에 어렵다고 판단했다. 공개 GitHub 소스로 접근하는 흐름과 공모전용 한국어 화면을 제안했고, Astra의 로그인 없는 공개 URL 분석·선택적 세션 상세 분석 구성을 명시적으로 채택했다.

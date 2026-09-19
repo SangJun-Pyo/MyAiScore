@@ -1,6 +1,6 @@
-# Repository report contract — v2.3
+# Repository report contract — v2.4
 
-Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [ADR-0018](../Architecture/ADR/0018-evidence-aware-collaboration-profile.md), and [ADR-0019](../Architecture/ADR/0019-granular-repository-score-signals.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.3`으로 발급한다. strict parser는 브라우저에 저장된 v1, v2.1, v2.2 기록을 계속 읽는다.
+Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [ADR-0019](../Architecture/ADR/0019-granular-repository-score-signals.md), and [ADR-0020](../Architecture/ADR/0020-always-assigned-repository-profile.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.4`로 발급한다. strict parser는 브라우저에 저장된 v1, v2.1, v2.2, v2.3 기록을 계속 읽는다.
 
 ## 의미와 경계
 
@@ -35,7 +35,7 @@ points  = round(maxPoints × quality)
 
 고정 SHA의 최근 조상 커밋 최대 20개에서 자동·merge·revert를 제외하고 제목의 구체성·고유성·범위, 본문의 이유, issue/PR/ADR/RFC 참조 비율을 집계한다. 평가 가능한 커밋이 3개 이상이면 v2.3 기록축에 최대 4점을 주되 축 상한은 25점이다. 원문 커밋 메시지는 snapshot이나 공개 응답에 넣지 않는다.
 
-v2.2 협업 유형은 점수 높낮이와 분리해 D/R(기록/실행), H/P(직접확인/파이프라인), S/T(설계선행/추적중심), F/E(집중/균형)의 네 상대 차원으로 표시한다. 수집이 불완전하거나 관찰 축·실질 신호·차원 근거가 부족하거나 둘 이상의 차원이 경계에 가까우면 네 글자 코드를 발급하지 않고 `withheld`와 고정 이유를 공개한다. 상세 계산과 초기 임계값은 [ADR-0018](../Architecture/ADR/0018-evidence-aware-collaboration-profile.md)을 따른다.
+v2.4 협업 유형은 점수 높낮이와 분리해 D/R(기록/실행), H/P(직접확인/파이프라인), S/T(설계선행/추적중심), F/E(집중/균형)의 네 상대 차원을 항상 표시한다. 수집이 불완전하거나 관찰 축·실질 신호·차원 근거가 부족하거나 차원이 경계에 가까워도 가장 가까운 코드를 발급하되, 기존 이유와 경계 차원 수를 신뢰도 주의 문구에 반영한다. 주의 요소 0개는 높음, 1개는 보통, 2개 이상은 낮음이다. 과거 v2.2·v2.3 결과는 당시 보류 계약을 유지한다.
 
 웹 해석 가이드는 별도 점수표를 유지하지 않는다. v2.3의 축별 여섯 신호와 최대점을 공유 코드에서 직접 읽는다. 실제 리포트 카드는 획득점·최대점·내용 실질을 함께 표시한다. 한국어·영어 제목은 같은 의미 ID에서 가져온다. 과거 v1/v2.1/v2.2 저장 이력은 당시 계약으로 검증한다.
 

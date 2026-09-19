@@ -95,7 +95,7 @@ function buildDemoReport(): RepositoryReport {
   };
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.3",
+    ruleVersion: "repository-signals-v2.4",
     repo: "example/sample-project",
     commitSha: "0123456789abcdef0123456789abcdef01234567",
     coverage: {
@@ -199,7 +199,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
     <section className="repo-overview product-panel">
       <div className="repo-score"><span className="eyebrow">{display.scoreLabel}</span><strong>{report.score.value}</strong><small>/100</small><p>{display.scoreExplanation}</p></div>
-      <div className="repo-style"><span className="eyebrow">{profileDisplay?.eyebrow ?? copy.report.styleEyebrow}</span><h2>{profileDisplay?.title ?? display.style.title}</h2>{profileDisplay?.code && <strong className="repo-profile-code">{profileDisplay.code}</strong>}<p>{profileDisplay?.description ?? display.style.description}</p><dl><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl></div>
+      <div className="repo-style"><span className="eyebrow">{profileDisplay?.eyebrow ?? copy.report.styleEyebrow}</span><h2>{profileDisplay?.title ?? display.style.title}</h2>{profileDisplay?.code && <><strong className="repo-profile-code">{profileDisplay.code}</strong><small>{profileDisplay.confidenceLabel}</small></>}<p>{profileDisplay?.description ?? display.style.description}</p><dl><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl></div>
     </section>
     <p className="repo-boundary"><strong>{copy.report.boundaryStrong}</strong> {copy.report.boundaryMore}</p>
     {v2?.diagnostics.provisional && <p className="notice repo-provisional">{v2Display.provisional}</p>}

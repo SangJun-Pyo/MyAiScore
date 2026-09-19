@@ -170,7 +170,12 @@ export interface RepositoryReportV2_3 extends RepositoryReportV2Base {
   collaborationProfile: RepositoryCollaborationProfile;
 }
 
-export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3;
+export interface RepositoryReportV2_4 extends RepositoryReportV2Base {
+  ruleVersion: "repository-signals-v2.4";
+  collaborationProfile: RepositoryCollaborationProfile;
+}
+
+export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3 | RepositoryReportV2_4;
 
 export type RepositoryReport = RepositoryReportV1 | RepositoryReportV2;
 
@@ -469,11 +474,12 @@ function profileDimension(
   id: RepositoryCollaborationProfileDimensionId,
   leftStrength: number,
   rightStrength: number,
+  alwaysSelect = false,
 ): RepositoryCollaborationProfileDimension {
   const [leftPole, rightPole] = REPOSITORY_COLLABORATION_PROFILE_POLES[id];
   const left = roundedRatio(leftStrength);
   const right = roundedRatio(rightStrength);
-  const selectedPole = left === 0 && right === 0 ? null : left >= right ? leftPole : rightPole;
+  const selectedPole = !alwaysSelect && left === 0 && right === 0 ? null : left >= right ? leftPole : rightPole;
   return {
     id,
     leftPole,
@@ -487,21 +493,23 @@ function profileDimension(
 
 /**
  * Summarize relative repository-signal placement without changing the score.
- * The four-letter code is withheld when the sampled evidence cannot support all four choices.
+ * v2.4 always assigns a deterministic code and retains caveat reasons as confidence context.
+ * Earlier rule versions keep the historical withheld behavior for stored-report compatibility.
  */
 export function deriveRepositoryCollaborationProfile(
   assessments: RepositoryReportSignalAssessment[],
   axes: Record<RepositoryReportAxis, number>,
   diagnostics: Pick<RepositoryReportV2Diagnostics, "reasons">,
-  signalVersion: "v22" | "v23" = "v23",
+  signalVersion: "v22" | "v23" | "v24" = "v24",
 ): RepositoryCollaborationProfile {
+  const alwaysAssign = signalVersion === "v24";
   const axisSpread = Math.max(...REPOSITORY_AXIS_ORDER.map(axis => axes[axis])) - Math.min(...REPOSITORY_AXIS_ORDER.map(axis => axes[axis]));
   const focusStrength = roundedRatio(axisSpread / (REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.focusedSpread * 2));
   const dimensions = [
-    profileDimension("orientation", (axes.context + axes.traceability) / 50, (axes.verification + axes.automation) / 50),
-    profileDimension("workflow", profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_LOCAL_SIGNAL_IDS : PROFILE_LOCAL_SIGNAL_IDS), profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_PIPELINE_SIGNAL_IDS : PROFILE_PIPELINE_SIGNAL_IDS)),
-    profileDimension("timing", profileSignalStrength(assessments, PROFILE_SPEC_SIGNAL_IDS), profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_TRACE_SIGNAL_IDS : PROFILE_TRACE_SIGNAL_IDS)),
-    profileDimension("shape", focusStrength, 1 - focusStrength),
+    profileDimension("orientation", (axes.context + axes.traceability) / 50, (axes.verification + axes.automation) / 50, alwaysAssign),
+    profileDimension("workflow", profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_LOCAL_SIGNAL_IDS : PROFILE_LOCAL_SIGNAL_IDS), profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_PIPELINE_SIGNAL_IDS : PROFILE_PIPELINE_SIGNAL_IDS), alwaysAssign),
+    profileDimension("timing", profileSignalStrength(assessments, PROFILE_SPEC_SIGNAL_IDS), profileSignalStrength(assessments, signalVersion === "v22" ? LEGACY_PROFILE_TRACE_SIGNAL_IDS : PROFILE_TRACE_SIGNAL_IDS), alwaysAssign),
+    profileDimension("shape", focusStrength, 1 - focusStrength, alwaysAssign),
   ];
   const observedAxes = REPOSITORY_AXIS_ORDER.filter(axis => axes[axis] > 0).length;
   const substantiveSignals = assessments.filter(item => item.presence === 1 && item.status === "measured" && (item.substance ?? 0) >= REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.substantiveFloor).length;
@@ -510,10 +518,10 @@ export function deriveRepositoryCollaborationProfile(
     ...(blockingCoverage ? ["incomplete_collection" as const] : []),
     ...(observedAxes < REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.minimumObservedAxes ? ["insufficient_observed_axes" as const] : []),
     ...(substantiveSignals < REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS.minimumSubstantiveSignals ? ["insufficient_substantive_signals" as const] : []),
-    ...(dimensions.some(item => item.selectedPole === null) ? ["missing_dimension_evidence" as const] : []),
+    ...(dimensions.some(item => item.leftStrength === 0 && item.rightStrength === 0) ? ["missing_dimension_evidence" as const] : []),
     ...(dimensions.filter(item => item.nearBoundary).length >= 2 ? ["multiple_near_boundaries" as const] : []),
   ];
-  const status = reasons.length === 0 ? "assigned" : "withheld";
+  const status = alwaysAssign || reasons.length === 0 ? "assigned" : "withheld";
   return {
     version: "repository-collaboration-profile-v1",
     status,
@@ -639,8 +647,9 @@ function expectedAxis(id: RepositoryReportScoreSignalId): RepositoryReportAxis {
   return REPOSITORY_REPORT_COPY.evidence[id].axis;
 }
 
-function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3"): RepositoryReportSignalAssessment[] {
-  const signalOrder = ruleVersion === "repository-signals-v2.3" ? REPOSITORY_SCORE_SIGNAL_ORDER : REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER;
+function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4"): RepositoryReportSignalAssessment[] {
+  const modern = ruleVersion === "repository-signals-v2.3" || ruleVersion === "repository-signals-v2.4";
+  const signalOrder = modern ? REPOSITORY_SCORE_SIGNAL_ORDER : REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER;
   if (!Array.isArray(value.signalScores) || value.signalScores.length !== signalOrder.length) throw new Error("Invalid repository report signal scores.");
   const assessments: RepositoryReportSignalAssessment[] = [];
   for (let index = 0; index < value.signalScores.length; index += 1) {
@@ -652,9 +661,9 @@ function validateSignalScores(value: Record<string, unknown>, databaseLikely: bo
         !integer(item.points, 0, 25) || !integer(item.maxPoints, 1, 25)) throw new Error("Invalid repository report signal score.");
     const id = expectedId!;
     const maxPoints = id === "traceability-commit-practice"
-      ? ruleVersion === "repository-signals-v2.3" ? REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS : REPOSITORY_COMMIT_PRACTICE_MAX_POINTS
-      : ruleVersion === "repository-signals-v2.3" ? repositoryV23EvidencePoints(id as (typeof REPOSITORY_V23_EVIDENCE_ORDER)[number]) : repositoryEvidencePoints(id);
-    const expectedRole: RepositoryReportSignalRole = (ruleVersion === "repository-signals-v2.3"
+      ? modern ? REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS : REPOSITORY_COMMIT_PRACTICE_MAX_POINTS
+      : modern ? repositoryV23EvidencePoints(id as (typeof REPOSITORY_V23_EVIDENCE_ORDER)[number]) : repositoryEvidencePoints(id);
+    const expectedRole: RepositoryReportSignalRole = (modern
       ? ["context-readme", "context-metadata", "context-reproducibility", "verification-entrypoint", "verification-test-substance", "verification-test-breadth", "verification-edge-cases", "verification-static-analysis", "verification-coverage"]
       : ["context-readme", "context-metadata", "verification-tests", "verification-config"]).includes(id)
       ? "core" : id === "traceability-migrations" && databaseLikely ? "conditional" : "bonus";
@@ -662,7 +671,7 @@ function validateSignalScores(value: Record<string, unknown>, databaseLikely: bo
         (item.presence === 0 && (item.quality !== 0 || item.points !== 0)) || item.points !== Math.round(maxPoints * Number(item.quality))) throw new Error("Invalid repository report signal derivation.");
     if (id !== "traceability-commit-practice" && item.presence === 0 && (item.status !== "measured" || item.substance !== 0)) throw new Error("Invalid absent repository signal.");
     if (id !== "traceability-commit-practice" && item.presence === 1) {
-      const expectedQuality = ruleVersion === "repository-signals-v2.3"
+      const expectedQuality = modern
         ? item.substance === null ? 0.1 : Math.round((0.1 + 0.65 * Number(item.substance) + 0.25 * Number(item.substance) * Number(item.breadth)) * 1_000) / 1_000
         : item.substance === null ? 0.15 : Math.round((0.15 + 0.60 * Number(item.substance) + 0.25 * Number(item.substance) * Number(item.breadth)) * 1_000) / 1_000;
       if (item.quality !== expectedQuality) throw new Error("Invalid repository report signal quality.");
@@ -698,7 +707,7 @@ function validateDiagnostics(value: unknown): RepositoryReportV2Diagnostics {
   return value as unknown as RepositoryReportV2Diagnostics;
 }
 
-function validateCollaborationProfile(value: unknown): RepositoryCollaborationProfile {
+function validateCollaborationProfile(value: unknown, alwaysAssigned = false): RepositoryCollaborationProfile {
   if (!object(value) || !exactKeys(value, ["version", "status", "code", "dimensions", "reasons"]) ||
       value.version !== "repository-collaboration-profile-v1" || !["assigned", "withheld"].includes(String(value.status)) ||
       !(value.code === null || typeof value.code === "string") || !Array.isArray(value.dimensions) ||
@@ -725,7 +734,8 @@ function validateCollaborationProfile(value: unknown): RepositoryCollaborationPr
       throw new Error("Invalid repository collaboration profile dimension.");
     }
   }
-  if ((value.status === "assigned") !== (value.reasons.length === 0) ||
+  if ((!alwaysAssigned && (value.status === "assigned") !== (value.reasons.length === 0)) ||
+      (alwaysAssigned && (value.status !== "assigned" || value.dimensions.some(dimension => !object(dimension) || dimension.selectedPole === null))) ||
       (value.status === "assigned" ? typeof value.code !== "string" || !/^[DR][HP][ST][FE]$/.test(value.code) : value.code !== null)) {
     throw new Error("Invalid repository collaboration profile status.");
   }
@@ -738,14 +748,16 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   const isV2 = value.schemaVersion === "repository-report-v2";
   const isV22 = isV2 && value.ruleVersion === "repository-signals-v2.2";
   const isV23 = isV2 && value.ruleVersion === "repository-signals-v2.3";
+  const isV24 = isV2 && value.ruleVersion === "repository-signals-v2.4";
+  const isModern = isV23 || isV24;
   const keys = isV2
-    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 || isV23 ? ["collaborationProfile"] : [])]
+    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 || isModern ? ["collaborationProfile"] : [])]
     : ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge"];
-  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
+  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3", "repository-signals-v2.4"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
   const { coverage, status } = validateIdentityAndCoverage(value);
   const score = validateScore(value, isV2 ? REPOSITORY_REPORT_COPY.scoreExplanationV2 : REPOSITORY_REPORT_COPY.scoreExplanation);
   const style = validateStyle(value);
-  const cards = validateEvidenceCards(value, isV23 ? REPOSITORY_V23_EVIDENCE_ORDER : REPOSITORY_LEGACY_EVIDENCE_ORDER);
+  const cards = validateEvidenceCards(value, isModern ? REPOSITORY_V23_EVIDENCE_ORDER : REPOSITORY_LEGACY_EVIDENCE_ORDER);
   if (!isV2) {
     const derived = deriveRepositoryReportPresentation(cards, status);
     validateDerivedPresentation(score, style, derived);
@@ -754,10 +766,10 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   }
 
   const diagnostics = validateDiagnostics(value.diagnostics);
-  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3";
+  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4";
   const assessments = validateSignalScores(value, diagnostics.profile.databaseLikely, ruleVersion);
   const reasonSet = new Set(diagnostics.reasons);
-  const testAssessment = assessments.find(item => item.id === (isV23 ? "verification-test-substance" : "verification-tests"))!;
+  const testAssessment = assessments.find(item => item.id === (isModern ? "verification-test-substance" : "verification-tests"))!;
   if (reasonSet.has("partial_collection") !== (status === "partial") ||
       reasonSet.has("tree_truncated") !== Boolean(coverage.treeTruncated) ||
       reasonSet.has("selection_limited") !== Boolean(coverage.selectionLimited) ||
@@ -769,9 +781,9 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   validateDerivedPresentation(score, style, derived);
   validateGuidance(value, derived);
 
-  if (isV22 || isV23) {
-    const profile = validateCollaborationProfile(value.collaborationProfile);
-    const expectedProfile = deriveRepositoryCollaborationProfile(assessments, derived.axes, diagnostics, isV22 ? "v22" : "v23");
+  if (isV22 || isModern) {
+    const profile = validateCollaborationProfile(value.collaborationProfile, isV24);
+    const expectedProfile = deriveRepositoryCollaborationProfile(assessments, derived.axes, diagnostics, isV22 ? "v22" : isV23 ? "v23" : "v24");
     if (JSON.stringify(profile) !== JSON.stringify(expectedProfile)) throw new Error("Repository collaboration profile does not match its evidence.");
   }
 
