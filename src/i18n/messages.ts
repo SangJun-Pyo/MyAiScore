@@ -25,7 +25,7 @@ const ko = {
   home: {
     kicker: "로그인 없이 바로 시작", title1: "AI로 코딩하고 있는데,", title2: "제대로 활용하고 있을까요?", lead1: "GitHub 공개 저장소 주소 하나만 입력하면", lead2: "맥락·검증·기록·자동화와 관련된 신호를 확인할 수 있습니다.",
     primary: "내 저장소 분석하기 ↗", example: "예시 리포트 보기 ↘", availability: "회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음",
-    demoTag: "예시 화면", demoCaption: "실제 개인 평가가 아닌, 저장소에서 확인할 수 있는 신호를 보여주는 예시입니다.",
+    demoTag: "예시 화면", demoCaption: "개인 역량이 아닌, 저장소에 남은 AI 활용 신호를 반영한 예시입니다.",
     chapters: [{ label: "분석 방법", text: "주소 하나로 바로 확인합니다." }, { label: "확인 범위", text: "저장소에 남은 신호만 분석합니다." }, { label: "리포트 예시", text: "점수와 근거를 함께 보여드립니다." }],
     flowLabel: "01 / 분석 방법", flowSide: "공개 GitHub 저장소", flowTitle1: "복잡한 설정 없이,", flowTitle2: "저장소 링크 하나면 충분해요.", flowIntro: "GitHub 로그인이나 별도 설치 없이 공개 저장소 주소만 입력하면 돼요.",
     steps: [{ title: "저장소 주소 입력", text: "분석할 공개 GitHub 저장소 주소를 붙여 넣어요." }, { title: "네 가지 기준 확인", text: "문서, 테스트, 커밋 기록, 자동화 설정을 살펴봐요." }, { title: "점수와 근거 확인", text: "점수에 반영된 파일과 부족한 부분, 다음에 개선할 항목까지 함께 보여드려요." }],
@@ -54,7 +54,7 @@ const ko = {
     stylesEyebrow: "축 기반 결과 스타일", stylesTitle: "결과 이름은 네 축의 분포로 정해져요.", stylesIntro: "검증 수호자처럼 결과 카드에 표시되는 이름입니다. 아래 규칙을 위에서부터 확인해 처음 맞는 하나로 정해요.", ruleStep: (value: string) => `규칙 ${value}`, firstSignalsRule: (threshold: number) => `총점이 ${threshold}점보다 낮으면 이 스타일이에요.`, balancedRule: (minimum: number, spread: number) => `네 축이 모두 ${minimum}점 이상이고, 가장 높은 축과 가장 낮은 축의 차이가 ${spread}점 이하면 이 스타일이에요.`, dominantRule: (axis: string) => `${axis} 축이 가장 높으면 이 스타일이에요.`, tiePriority: (axes: string) => `가장 높은 축이 여러 개면 이 순서로 정해요 — ${axes}`, activeStyle: "현재 리포트 스타일", distributionNote: "이 리포트의 스타일도 총점이 아니라 네 축의 분포로 정해졌어요.",
   },
   presentation: {
-    scoreLabel: "저장소 기반 AI 협업 준비도", scoreExplanation: "선택된 공개 저장소 파일에서 확인된 AI 협업 준비 신호를 종합한 참고용 점수입니다. 개인의 AI 활용 능력이나 코드 품질, 실제 실행 결과를 평가하는 점수는 아닙니다.",
+    scoreLabel: "AI 개발 체계 점수", scoreExplanation: "선택된 공개 저장소에서 확인한 맥락·검증·기록·자동화 신호를 종합한 참고용 점수입니다. 개인의 AI 활용 능력이나 코드 품질, 실제 실행 결과를 평가하는 점수는 아닙니다.",
     axes: { context: { label: "맥락", question: "AI가 프로젝트의 목표와 규칙을 파악할 단서가 있나요?" }, verification: { label: "검증 기반", question: "결과를 확인할 테스트와 점검 장치가 있나요?" }, traceability: { label: "기록", question: "나중에 결정과 변경 이유를 따라갈 수 있나요?" }, automation: { label: "자동화", question: "반복 점검을 자동으로 돌릴 구조가 있나요?" } } satisfies Record<RepositoryReportAxis, { label: string; question: string }>,
   },
 } as const;

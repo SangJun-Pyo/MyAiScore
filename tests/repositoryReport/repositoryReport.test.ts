@@ -81,8 +81,11 @@ test("repository report is deterministic, bounded by four axes and uses only val
   assert.doesNotMatch(JSON.stringify(first), /unsafe\.md|absolute\.md|line\\nbreak/);
   const selected = new Set(input.files.map(item => item.path));
   for (const card of first.evidenceCards) for (const path of card.paths) assert.ok(selected.has(path));
-  assert.equal(first.score.label, "저장소 기반 AI 협업 준비도");
+  assert.equal(first.score.label, REPOSITORY_REPORT_COPY.scoreLabel);
   assert.match(first.score.explanation, /개인의 AI 활용 능력/);
+  const legacyLabel = structuredClone(first);
+  legacyLabel.score.label = "저장소 기반 AI 협업 준비도";
+  assert.equal(parseRepositoryReport(legacyLabel).score.label, "저장소 기반 AI 협업 준비도");
 });
 
 test("partial coverage remains explicit while observable signals still receive a deterministic score", () => {
@@ -270,7 +273,7 @@ test("strict parser keeps stored v2.2 reports on their legacy signal and profile
   const stored = {
     schemaVersion: "repository-report-v2", ruleVersion: "repository-signals-v2.2", repo: "acme/legacy", commitSha: SHA,
     coverage: { status: "complete", basis: "selected_files", selectedFiles: 0, readFiles: 0, candidateFiles: 0, treeTruncated: false, selectionLimited: false, note: REPOSITORY_REPORT_COPY.coverageNotes.complete },
-    score: { value: derived.value, label: "저장소 기반 AI 협업 준비도", explanation: REPOSITORY_REPORT_COPY.scoreExplanationV2, axes: Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, { label: REPOSITORY_REPORT_COPY.axisLabels[axis], value: derived.axes[axis] }])) },
+    score: { value: derived.value, label: REPOSITORY_REPORT_COPY.scoreLabel, explanation: REPOSITORY_REPORT_COPY.scoreExplanationV2, axes: Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, { label: REPOSITORY_REPORT_COPY.axisLabels[axis], value: derived.axes[axis] }])) },
     style: derived.style, evidenceCards: [], gaps: derived.gaps, nextChallenge: derived.nextChallenge, signalScores, diagnostics,
     collaborationProfile: deriveRepositoryCollaborationProfile(signalScores, derived.axes, diagnostics, "v22"),
   };
@@ -316,7 +319,7 @@ test("strict parser rejects v2.3 evidence IDs smuggled into a v1 report", () => 
   const report = {
     schemaVersion: "repository-report-v1", ruleVersion: "repository-signals-v1", repo: "acme/legacy", commitSha: SHA,
     coverage: { status: "complete", basis: "selected_files", selectedFiles: 1, readFiles: 1, candidateFiles: 1, treeTruncated: false, selectionLimited: false, note: REPOSITORY_REPORT_COPY.coverageNotes.complete },
-    score: { value: derived.value, label: "저장소 기반 AI 협업 준비도", explanation: REPOSITORY_REPORT_COPY.scoreExplanation, axes: Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, { label: REPOSITORY_REPORT_COPY.axisLabels[axis], value: derived.axes[axis] }])) },
+    score: { value: derived.value, label: REPOSITORY_REPORT_COPY.scoreLabel, explanation: REPOSITORY_REPORT_COPY.scoreExplanation, axes: Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, { label: REPOSITORY_REPORT_COPY.axisLabels[axis], value: derived.axes[axis] }])) },
     style: derived.style, evidenceCards, gaps: derived.gaps, nextChallenge: derived.nextChallenge,
   };
   assert.throws(() => parseRepositoryReport(report), /Invalid repository report evidence/);

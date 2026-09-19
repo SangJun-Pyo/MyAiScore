@@ -24,7 +24,7 @@ function report(overrides: Partial<RepositoryReportV1> = {}): RepositoryReport {
     schemaVersion: 'repository-report-v1', ruleVersion: 'repository-signals-v1',
     repo: 'example/public-repo', commitSha: 'a'.repeat(40),
     coverage: { status: 'complete', basis: 'selected_files', selectedFiles: 12, readFiles: 12, candidateFiles: 20, treeTruncated: false, selectionLimited: false, note: REPOSITORY_REPORT_COPY.coverageNotes.complete },
-    score: { value: derived.value, label: '저장소 기반 AI 협업 준비도', explanation: REPOSITORY_REPORT_COPY.scoreExplanation, axes: {
+    score: { value: derived.value, label: REPOSITORY_REPORT_COPY.scoreLabel, explanation: REPOSITORY_REPORT_COPY.scoreExplanation, axes: {
       context: { label: REPOSITORY_REPORT_COPY.axisLabels.context, value: derived.axes.context },
       verification: { label: REPOSITORY_REPORT_COPY.axisLabels.verification, value: derived.axes.verification },
       traceability: { label: REPOSITORY_REPORT_COPY.axisLabels.traceability, value: derived.axes.traceability },

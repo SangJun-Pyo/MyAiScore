@@ -123,7 +123,7 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
     },
     score: {
       value: derived.value,
-      label: "저장소 기반 AI 협업 준비도",
+      label: REPOSITORY_REPORT_COPY.scoreLabel,
       explanation: REPOSITORY_REPORT_COPY.scoreExplanationV2,
       axes: {
         context: { label: REPOSITORY_REPORT_COPY.axisLabels.context, value: derived.axes.context },
