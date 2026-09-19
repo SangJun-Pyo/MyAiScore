@@ -9,7 +9,7 @@ test('한국어 홈은 로그인 없는 공개 저장소 흐름과 가상 예시
   await expect(page.getByRole('heading', { level: 1, name: /공개 저장소에서/ })).toBeVisible();
   await expect(page.getByText('회원가입 불필요', { exact: false })).toBeVisible();
   await expect(page.getByRole('link', { name: '내 저장소 분석하기' })).toHaveAttribute('href', '/evaluate');
-  await expect(page.locator('.repo-hero-card')).toContainText('실행형 · 직접확인형 · 설계선행형 · 집중형');
+  await expect(page.locator('.repo-hero-card')).toContainText('실험실 프로토타이퍼');
   await page.getByRole('link', { name: '예시 리포트 보기' }).click();
   await expect(page.locator('#demo')).toContainText('가상 예시');
   await expect(page.locator('#demo .repo-profile-code')).toHaveText('RHSF');

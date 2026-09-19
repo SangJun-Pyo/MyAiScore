@@ -103,7 +103,7 @@ test("MAS-007: nested fixture metadata cannot displace root config, AI guidance,
     ...Array.from({ length: 50 }, (_, i) => entry(`src/feature-${i}.ts`)),
   ];
   const result = selectFiles(entries), paths = result.selected.map(c => c.entry.path);
-  assert.equal(paths.length, 40); assert.equal(result.selectionLimited, false);
+  assert.equal(paths.length, INGESTION_LIMITS.plannedSelectedFiles); assert.equal(result.selectionLimited, false);
   for (const path of ['package.json', 'README.md', 'AGENTS.md', 'CLAUDE.md', '.github/workflows/ci.yml']) assert.ok(paths.includes(path), path);
   assert.ok(paths.some(path => path.startsWith('src/')));
   assert.ok(paths.some(path => path.startsWith('tests/')));
@@ -119,7 +119,7 @@ test("MAS-007: explicitly relevant reference paths win while exclusion and file 
     ...Array.from({ length: 70 }, (_, i) => entry(`src/feature-${i}.ts`)), entry('AGENTS.md')];
   const result = selectFiles(entries, [wanted, 'artifacts', 'fixtures/.env', 'fixtures/large.ts']);
   assert.deepEqual(result.selected.slice(0, 2).map(c => c.entry.path), ['artifacts/run.json', wanted]);
-  assert.equal(result.selected.length, 40);
+  assert.equal(result.selected.length, INGESTION_LIMITS.plannedSelectedFiles);
   assert.ok(result.skipped.some(s => s.path === 'fixtures/.env' && s.reason === 'excluded'));
   assert.ok(result.skipped.some(s => s.path === 'fixtures/large.ts' && s.reason === 'file_too_large'));
 });
@@ -161,7 +161,7 @@ test("v2 reserves one representative for every observable score signal before ge
   );
 });
 
-test("inventory uses scanned candidates rather than the selected 40-file sample and records cautious diagnostics", () => {
+test("inventory uses scanned candidates rather than the selected file sample and records cautious diagnostics", () => {
   const entries = [
     ...Array.from({ length: 60 }, (_, index) => entry(`src/file-${String(index).padStart(3, "0")}.ts`, { size: index === 59 ? 50 * 1024 : 1_000 })),
     ...Array.from({ length: 12 }, (_, index) => entry(`tests/file-${index}.test.ts`, { size: 500 })),
@@ -172,7 +172,7 @@ test("inventory uses scanned candidates rather than the selected 40-file sample 
     entry(".env", { size: 20 }),
   ];
   const result = selectFiles(entries);
-  assert.equal(result.selected.length, 40);
+  assert.equal(result.selected.length, INGESTION_LIMITS.plannedSelectedFiles);
   assert.equal(result.inventory.sourceFiles, 60);
   assert.equal(result.inventory.testFiles, 12);
   assert.equal(result.inventory.documentationFiles, 2);

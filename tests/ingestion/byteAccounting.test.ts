@@ -20,14 +20,14 @@ function responseBytes(fixtures: Record<string, FixtureResponse | FixtureRespons
     .reduce((sum, res) => sum + Buffer.byteLength(typeof res.body === "string" ? res.body : JSON.stringify(res.body), "utf8"), 0);
 }
 
-test("MAS-011: all 40 planned files fit the content budget even when response bodies exceed it", async () => {
-  const fileBytes = 18 * 1024;
-  const { fixtures } = sample(40, fileBytes, fileBytes);
+test("MAS-011: all planned files fit the content budget even when response bodies exceed it", async () => {
+  const fileBytes = 12 * 1024;
+  const { fixtures } = sample(INGESTION_LIMITS.plannedSelectedFiles, fileBytes, fileBytes);
   const snapshot = await ingestRepository(input, { httpClient: new OfflineHttpClient(fixtures) });
   assert.equal(snapshot.ingestionStatus, "complete");
-  assert.equal(snapshot.coverage.readFiles, 40);
-  assert.equal(snapshot.metrics.httpRequests, 44);
-  assert.equal(snapshot.metrics.contentBytes, 40 * fileBytes);
+  assert.equal(snapshot.coverage.readFiles, INGESTION_LIMITS.plannedSelectedFiles);
+  assert.equal(snapshot.metrics.httpRequests, 64);
+  assert.equal(snapshot.metrics.contentBytes, INGESTION_LIMITS.plannedSelectedFiles * fileBytes);
   assert.equal(snapshot.metrics.fetchedBytes, responseBytes(fixtures));
   assert.ok(snapshot.metrics.fetchedBytes! > INGESTION_LIMITS.maxTotalContentBytes);
   assert.deepEqual(snapshot.skippedFiles, []);
@@ -84,19 +84,19 @@ test("MAS-011: response telemetry includes failed and retried bodies without con
 });
 
 test("MAS-011: request cap records every unread selected path, including a retry that cannot start", async () => {
-  const { fixtures } = sample(40, 10, 10);
-  for (let i = 0; i < 40; i++) {
+  const { fixtures } = sample(INGESTION_LIMITS.plannedSelectedFiles, 10, 10);
+  for (let i = 0; i < INGESTION_LIMITS.plannedSelectedFiles; i++) {
     const key = blobUrl("acme", "accounting", `blob-${i}`);
     fixtures[key] = [{ status: 500, body: "retry" }, fixtures[key] as FixtureResponse];
   }
   const snapshot = await ingestRepository(input, { httpClient: new OfflineHttpClient(fixtures) });
   assert.equal(snapshot.ingestionStatus, "partial");
-  assert.equal(snapshot.metrics.httpRequests, 48);
-  assert.equal(snapshot.files.length, 22);
-  assert.equal(snapshot.skippedFiles.length, 18);
-  assert.equal(new Set(snapshot.skippedFiles.map(skip => skip.path)).size, 18);
+  assert.equal(snapshot.metrics.httpRequests, INGESTION_LIMITS.maxHttpRequests);
+  assert.equal(snapshot.files.length, 32);
+  assert.equal(snapshot.skippedFiles.length, 28);
+  assert.equal(new Set(snapshot.skippedFiles.map(skip => skip.path)).size, 28);
   assert.ok(snapshot.skippedFiles.every(skip => skip.reason === "request_budget"));
-  assert.equal(snapshot.metrics.contentBytes, 220);
+  assert.equal(snapshot.metrics.contentBytes, 320);
 });
 
 test("MAS-011: elapsed-time exhaustion is distinct from request exhaustion, even on the current response", async () => {

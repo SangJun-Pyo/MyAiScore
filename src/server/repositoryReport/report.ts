@@ -106,7 +106,7 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
 
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.4",
+    ruleVersion: "repository-signals-v2.5",
     repo: snapshot.repo,
     commitSha: snapshot.commitSha,
     coverage: {

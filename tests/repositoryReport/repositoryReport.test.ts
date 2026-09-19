@@ -19,6 +19,9 @@ import {
   repositoryV23EvidencePoints,
   repositoryEvidencePoints,
   REPOSITORY_COMMIT_PRACTICE_MAX_POINTS,
+  REPOSITORY_COLLABORATION_PROFILE_DIMENSION_ORDER,
+  REPOSITORY_COLLABORATION_PROFILE_POLES,
+  type RepositoryCollaborationProfile,
   type RepositoryReportAxis,
   type RepositoryReportEvidenceCard,
   type RepositoryReportEvidenceId,
@@ -87,7 +90,7 @@ test("partial coverage remains explicit while observable signals still receive a
   assert.equal(report.coverage.note, REPOSITORY_REPORT_COPY.coverageNotes.partial);
   assert.ok(report.score.value > 0 && report.score.value <= 100);
   assert.ok(report.gaps.includes(REPOSITORY_REPORT_COPY.gaps.partial));
-  assert.equal(report.ruleVersion, "repository-signals-v2.4");
+  assert.equal(report.ruleVersion, "repository-signals-v2.5");
   assert.equal(report.collaborationProfile.status, "assigned");
   assert.ok(report.collaborationProfile.reasons.includes("incomplete_collection"));
   assert.match(report.collaborationProfile.code ?? "", /^[DR][HP][ST][FE]$/);
@@ -125,7 +128,7 @@ test("substantive content and fixed-SHA commit practice raise transparent v2 sig
   input.commitTraceability = { basis: "fixed_commit_ancestors", sampledCommits: 5, evaluatedCommits: 5, excludedMergeOrAutomated: 0, nonGenericSubjectRatio: 1, distinctSubjectRatio: 1, scopedSubjectRatio: 0.8, rationaleBodyRatio: 0.6, referenceRatio: 0.4 };
   const report = buildRepositoryReport(input);
   assert.equal(report.schemaVersion, "repository-report-v2");
-  assert.equal(report.ruleVersion, "repository-signals-v2.4");
+  assert.equal(report.ruleVersion, "repository-signals-v2.5");
   assert.ok(report.score.value > 35);
   assert.equal(report.diagnostics.profile.databaseLikely, true);
   assert.ok(report.signalScores.find(item => item.id === "traceability-commit-practice")!.points > 0);
@@ -141,6 +144,25 @@ test("collaboration profile assigns sparse evidence with explicit low-confidence
   assert.equal(profile.status, "assigned");
   assert.match(profile.code ?? "", /^[DR][HP][ST][FE]$/);
   assert.deepEqual(profile.reasons, ["insufficient_observed_axes", "insufficient_substantive_signals", "missing_dimension_evidence", "multiple_near_boundaries"]);
+});
+
+test("all 16 assigned codes have unique playful bilingual profile names", () => {
+  const codes = ["DHSF", "DHSE", "DHTF", "DHTE", "DPSF", "DPSE", "DPTF", "DPTE", "RHSF", "RHSE", "RHTF", "RHTE", "RPSF", "RPSE", "RPTF", "RPTE"];
+  const titles = codes.map(code => {
+    const profile: RepositoryCollaborationProfile = {
+      version: "repository-collaboration-profile-v1", status: "assigned", code, reasons: [],
+      dimensions: REPOSITORY_COLLABORATION_PROFILE_DIMENSION_ORDER.map((id, index) => {
+        const [leftPole, rightPole] = REPOSITORY_COLLABORATION_PROFILE_POLES[id];
+        const selectedPole = code[index] === leftPole ? leftPole : rightPole;
+        return { id, leftPole, rightPole, leftStrength: selectedPole === leftPole ? 0.7 : 0.3, rightStrength: selectedPole === rightPole ? 0.7 : 0.3, selectedPole, nearBoundary: false };
+      }),
+    };
+    return [repositoryProfilePresentation(profile, "ko").title, repositoryProfilePresentation(profile, "en").title];
+  });
+  assert.equal(new Set(titles.map(([ko]) => ko)).size, 16);
+  assert.equal(new Set(titles.map(([, en]) => en)).size, 16);
+  assert.deepEqual(titles[codes.indexOf("RHSE")], ["균형 잡힌 빌더", "Balanced Builder"]);
+  assert.deepEqual(titles[codes.indexOf("RHTE")], ["검증 루프 항해사", "Verification Navigator"]);
 });
 
 test("collaboration profile assigns multiple near-boundary dimensions with caveats", () => {
@@ -231,6 +253,20 @@ test("strict parser keeps stored v2.3 withheld profiles on their historical cont
   };
   assert.equal(stored.collaborationProfile.status, "withheld");
   assert.deepEqual(parseRepositoryReport(stored), stored);
+});
+
+test("strict parser keeps v2.4 profiles readable while preserving their 40-file limit", () => {
+  const current = buildRepositoryReport(snapshot([]));
+  assert.equal(current.schemaVersion, "repository-report-v2");
+  if (current.schemaVersion !== "repository-report-v2") return;
+  const expanded = { ...current, coverage: { ...current.coverage, selectedFiles: 60, readFiles: 60, candidateFiles: 60 } };
+  assert.deepEqual(parseRepositoryReport(expanded), expanded);
+  const stored = { ...current, ruleVersion: "repository-signals-v2.4" as const };
+  assert.deepEqual(parseRepositoryReport(stored), stored);
+  assert.throws(() => parseRepositoryReport({
+    ...stored,
+    coverage: { ...stored.coverage, selectedFiles: 41, readFiles: 41, candidateFiles: 41 },
+  }), /Invalid repository report coverage/);
 });
 
 test("strict parser rejects v2.3 evidence IDs smuggled into a v1 report", () => {

@@ -25,7 +25,7 @@ Use neutral borders to separate rows and sections. Other colors require a meanin
 
 - **Home:** explain public repository analysis, show a labeled synthetic repository preview, and lead to one working URL input. No fake processing or population ranks.
 - **Reports:** show only explicitly saved browser-local repository summaries with honest empty/error states. No account identity or automatic example history.
-- **Guide:** show all v2.3+ signal values in a horizontally scrollable semantic table. For v2.4 show the always-assigned four-letter profile, relative strengths, boundary state and confidence caveats; keep historical v2.2/v2.3 withheld results and v1/v2.1 styles readable.
+- **Guide:** show all v2.3+ signal values in a horizontally scrollable semantic table. For v2.4+ lead with one of 16 playful bilingual profile names, then show the four-letter code, relative strengths, boundary state and confidence caveats; keep historical v2.2/v2.3 withheld results and v1/v2.1 styles readable. Raw candidate/selected/read counts stay out of the primary result and history UI.
 - **Analysis:** accept one public GitHub URL, show progress or localized coded errors, then present coverage, evidence paths, gaps and one next challenge. CLI setup remains a secondary disclosure.
 - **Historical results:** preserve the original private/public rules and mark retained English body regions with the correct language semantics.
 

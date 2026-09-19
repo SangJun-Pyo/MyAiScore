@@ -98,7 +98,9 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await expect(page.locator('.repo-axis-card')).toHaveCount(4);
   await page.locator('.repo-axis-card').filter({ hasText: '프로젝트 안내' }).getByText('근거 파일 1개').first().click();
   await expect(page.locator('.repo-axis-card').filter({ hasText: '프로젝트 안내' })).toContainText('AGENTS.md');
-  await expect(page.locator('.repo-report')).toContainText('후보 파일 20개 · 분석 파일 12개 · 12개 확인 완료');
+  await expect(page.locator('.repo-report')).toContainText('수집 완료 · 저장소에 남아 있는 정적 신호만 반영');
+  await expect(page.locator('.repo-report')).not.toContainText('후보 파일 20개');
+  await expect(page.locator('.repo-report')).not.toContainText('12개 확인 완료');
   await expect(page.locator('.repo-report')).toContainText('변경 사항과 의사결정 과정을 보여주는 기록을 충분히 확인하지 못했습니다.');
   await expect(page.locator('.repo-report')).toContainText('의사결정 하나 기록하기');
   await expect(page.locator('.repo-boundary')).toContainText('개인의 AI 활용 능력을 인증하지 않습니다.');

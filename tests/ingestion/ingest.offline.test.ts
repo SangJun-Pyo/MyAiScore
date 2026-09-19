@@ -9,15 +9,15 @@ import { buildStandardFixtures, commitHistoryUrl, repoUrl, treeUrl } from "./git
 const COMMIT_SHA = "a".repeat(40);
 
 test("MAS-007: sampled collection remains complete with explicit coverage warning and versioned digest", async () => {
-  const entries = Array.from({ length: 51 }, (_, i) => ({ path: `src/file-${i}.ts`, sha: `sample-${i}` }));
+  const entries = Array.from({ length: 71 }, (_, i) => ({ path: `src/file-${i}.ts`, sha: `sample-${i}` }));
   const fixtures = buildStandardFixtures({ owner: 'acme', repo: 'sampled', commitSha: COMMIT_SHA, entries,
     blobs: entries.map(e => ({ sha: e.sha, content: 'export const synthetic = true;' })) });
   const snapshot = await ingestRepository({ repoUrl: 'https://github.com/acme/sampled' }, { httpClient: new OfflineHttpClient(fixtures) });
   assert.equal(snapshot.ingestionStatus, 'complete'); assert.equal(snapshot.coverage.selectionLimited, false);
-  assert.equal(snapshot.coverage.selectedFiles, 40); assert.equal(snapshot.coverage.readFiles, 40); assert.equal(snapshot.coverage.candidateFiles, 51);
+  assert.equal(snapshot.coverage.selectedFiles, 60); assert.equal(snapshot.coverage.readFiles, 60); assert.equal(snapshot.coverage.candidateFiles, 71);
   assert.equal(snapshot.repositoryInventory?.basis, "scanned_tree");
-  assert.equal(snapshot.repositoryInventory?.sourceFiles, 51);
-  assert.ok(snapshot.warnings.some(w => w.includes('40/51') && w.includes(REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION)));
+  assert.equal(snapshot.repositoryInventory?.sourceFiles, 71);
+  assert.ok(snapshot.warnings.some(w => w.includes('60/71') && w.includes(REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION)));
   const paths = snapshot.files.map(f => f.path).sort();
   const expected = createHash('sha256').update(JSON.stringify({ collectorVersion: COLLECTOR_VERSION, selectionPolicyVersion: REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION, selectedPaths: paths })).digest('hex');
   assert.equal(snapshot.selectionDigest, expected);

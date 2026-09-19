@@ -34,7 +34,7 @@ const LOCK_FILE_NAMES = new Set([
 
 export type PriorityTier = 0 | 1 | 2 | 3 | 4 | 5;
 export const SELECTION_POLICY_VERSION = "representative-categories-v2";
-export const REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION = "repository-signal-reservations-v1";
+export const REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION = "repository-signal-reservations-v2-60-files";
 export const OVERSIZED_SOURCE_CANDIDATE_BYTES = 40 * 1024;
 
 const CONFIG_FILE_PATTERNS = [

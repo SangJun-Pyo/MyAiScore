@@ -1,6 +1,6 @@
-# Repository report contract — v2.4
+# Repository report contract — v2.5
 
-Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [ADR-0019](../Architecture/ADR/0019-granular-repository-score-signals.md), and [ADR-0020](../Architecture/ADR/0020-always-assigned-repository-profile.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.4`로 발급한다. strict parser는 브라우저에 저장된 v1, v2.1, v2.2, v2.3 기록을 계속 읽는다.
+Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [ADR-0019](../Architecture/ADR/0019-granular-repository-score-signals.md), [ADR-0020](../Architecture/ADR/0020-always-assigned-repository-profile.md), and [ADR-0021](../Architecture/ADR/0021-wider-private-collection-sample.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.5`로 발급한다. strict parser는 브라우저에 저장된 v1, v2.1, v2.2, v2.3, v2.4 기록을 계속 읽는다.
 
 ## 의미와 경계
 
@@ -24,7 +24,7 @@ quality = presence × (0.10 + 0.65 × substance + 0.25 × substance × breadth)
 points  = round(maxPoints × quality)
 ```
 
-`presence`는 실제 읽은 신호 파일, `substance`는 네 개 이하의 제한된 내용 요소 평균, `breadth`는 40개 선택 표본이 아닌 cap 이전 `scanned_tree` 규모 비율이다. v2.3 빈 파일은 최대 배점의 10% 존재 바닥만 받는다. 단, 실행 진입점·커버리지·CI 테스트·CI 품질 검사는 관련 파일만으로 presence를 인정하지 않고 실제 지원 명령이나 marker가 있어야 한다. 같은 내용 해시의 테스트는 한 번만 세며, 지원하지 않는 테스트 언어는 실패 0점으로 단정하지 않고 `unmeasured`로 공개한다.
+`presence`는 실제 읽은 신호 파일, `substance`는 네 개 이하의 제한된 내용 요소 평균, `breadth`는 60개 선택 표본이 아닌 cap 이전 `scanned_tree` 규모 비율이다. v2.3+ 빈 파일은 최대 배점의 10% 존재 바닥만 받는다. 단, 실행 진입점·커버리지·CI 테스트·CI 품질 검사는 관련 파일만으로 presence를 인정하지 않고 실제 지원 명령이나 marker가 있어야 한다. 같은 내용 해시의 테스트는 한 번만 세며, 지원하지 않는 테스트 언어는 실패 0점으로 단정하지 않고 `unmeasured`로 공개한다.
 
 | 축 | 신호별 최대점 | 축 최대 |
 |---|---|---:|
@@ -45,6 +45,8 @@ v2.4 협업 유형은 점수 높낮이와 분리해 D/R(기록/실행), H/P(직�
 
 근거 path는 수집된 file/evidence 목록에 실제로 존재해야 한다. 설명·스타일·도전은 고정 템플릿에서 생성하며 파일 원문을 그대로 삽입하지 않는다. 경로는 상대 경로, 길이·문자·개수 제한을 검증한다. 관찰되지 않은 축은 gap으로 설명하고 없는 성공을 추론하지 않는다.
 
-수집은 공개 저장소 metadata에서 `private === false`를 확인하고, 기본 branch·40자리 commit SHA·tree 구조를 검증한 뒤에만 blob을 읽는다. v2.3의 23개 파일 신호별 대표를 40개 예산 안에 예약하고 같은 고정 SHA의 조상 커밋만 집계한다. 실제 코드를 실행하지 않는다. 현재 서버 제한은 토큰이 있으면 5분당 분석 시작 5회, 없으면 서버 프로세스당 시간당 1회, 동시 2회다. 이 제한은 단일 프로세스 메모리 기준이며 여러 Railway 인스턴스에 공유되는 분산 제한은 아니다.
+수집은 공개 저장소 metadata에서 `private === false`를 확인하고, 기본 branch·40자리 commit SHA·tree 구조를 검증한 뒤에만 blob을 읽는다. 23개 파일 신호별 대표를 60개 예산 안에 예약하고 같은 고정 SHA의 조상 커밋만 집계한다. 파일당 60KB, decoded content 800KB, HTTP 68회, 60초 상한이며 실제 코드를 실행하지 않는다. 현재 서버 제한은 토큰이 있으면 5분당 분석 시작 5회, 없으면 서버 프로세스당 시간당 1회, 동시 2회다. 이 제한은 단일 프로세스 메모리 기준이며 여러 Railway 인스턴스에 공유되는 분산 제한은 아니다.
+
+coverage 개수는 응답 검증과 재현 진단을 위해 보존하지만 기본 결과와 내 리포트 화면에는 표시하지 않는다. 화면은 complete/partial 상태와 실제 근거 경로를 중심으로 보여준다.
 
 `.DS_Store`·swap·temp 같은 고신뢰 임시 파일, 생성물 후보, 비밀정보 가능 경로와 400/800줄 초과 선택 소스·큰 소스 후보는 진단에 표시하되 v2.3 점수에서 일괄 감점하지 않는다. 필요한 배포 산출물이나 응집된 모듈을 잘못 벌점화하고 의미 없는 파일 분할을 유도하지 않기 위해서다.
