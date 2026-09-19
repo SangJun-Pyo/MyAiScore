@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/readme/hero.jpg" alt="MyAiScore — 공개 저장소에서 AI 협업 신호를 찾는 홈 화면" width="860">
+<img src="docs/assets/readme/hero.jpg" alt="MyAiScore — 저장소에 남은 AI 활용 흔적을 살펴보는 홈 화면" width="860">
 
 # MyAiScore
 

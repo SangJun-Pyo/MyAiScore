@@ -283,6 +283,12 @@ production build를 동작 감소 설정의 headless Chromium으로 측정한 �
 
 최종 검증은 `npm run typecheck`, `npm test` 319/319, `npm run check:docs` 74파일·435개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 42/42, `git diff --check`를 통과했다.
 
+## 2026-09-19 — 홈 질문형 헤드라인
+
+사용자가 실제로 궁금한 것은 추상적인 “협업 신호”가 아니라 AI를 얼마나 잘 활용하고 있는지라는 점을 반영했다. 홈 H1을 `내 저장소에는 AI를 잘 활용한 흔적이 얼마나 남아 있을까요?`로 바꿔 목적을 직접 묻되, 개인의 능력을 인증한다고 단정하지 않고 저장소에 남은 자료만 본다는 범위를 문장에 남겼다. 영어 화면과 점수 계약은 변경하지 않았다.
+
+README hero 이미지는 1424×660 production 화면으로 다시 캡처했다. 새 제목의 데스크톱·모바일 집중 Playwright 6/6, `npm run typecheck`, `npm test` 319/319, `npm run check:docs` 74파일·435개 링크, `npm run build`, 가로 overflow 없음과 `git diff --check`를 확인했다.
+
 ## 2026-09-19 — 해석 가이드 유형 목록과 점수 규칙 접기
 
 해석 가이드에는 네 가지 상대 차원(D/R, H/P, S/T, F/E)의 의미는 있었지만, 16가지 조합 코드가 실제로 어떤 한국어·영어 이름으로 표시되는지 한눈에 볼 수 없었다. `repositoryProfilePresentation`에 있던 이름 표를 카탈로그 함수로 공개하고, `/insights`의 협업 유형 설명 아래에 16개 코드·이름 그리드를 추가했다. 이 목록은 선택된 리포트 유무와 관계없이 설명용으로 표시되며, 유형 이름이 능력·성격 판정이 아니라는 안내를 함께 둔다.
