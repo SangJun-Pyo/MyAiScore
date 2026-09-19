@@ -46,7 +46,7 @@ test("동작 감소 환경과 작은 화면에서도 장식 효과 없이 핵심
 
   await page.goto("/insights");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await expect(page.getByText("어떤 신호에 몇 점인지 전부 적어 뒀어요.")).toBeVisible();
+  await expect(page.getByText("신호별 배점과 산정 원칙을 공개합니다")).toBeVisible();
   await page.locator(".repo-guide-summary").click();
   await expect(page.getByRole("region", { name: "네 축의 신호별 배점표" })).toBeVisible();
 });

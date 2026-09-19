@@ -69,8 +69,9 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await page.goto('/profile');
   await expect(page.getByRole('heading', { name: '저장한 리포트가 없습니다.' })).toBeVisible();
   await page.getByRole('navigation').getByRole('link', { name: '해석 가이드', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '아직 고른 리포트가 없어요.' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '어떤 신호에 몇 점인지 전부 적어 뒀어요.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '선택한 리포트가 없습니다' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '신호별 배점과 산정 원칙을 공개합니다' })).toBeVisible();
+  await expect(page.locator('.repo-guide-principles')).toContainText('동일한 커밋과 규칙 버전, 동일한 수집 범위에서는 같은 결과가 계산됩니다.');
   await expect(page.locator('.repo-score-table tbody')).toHaveCount(4);
   await expect(page.locator('.repo-overview-guide')).toHaveCount(0);
   await expect(page.locator('.repo-score-table')).toBeHidden();
@@ -243,8 +244,8 @@ test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 
   await page.getByRole('navigation').getByRole('link', { name: 'Reports', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'No saved reports yet.' })).toBeVisible();
   await page.getByRole('navigation').getByRole('link', { name: 'Guide', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'No report selected.' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Every signal and point value is visible.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'No report selected' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Signal points and scoring principles' })).toBeVisible();
   await expect(page.locator('.repo-score-table')).toBeHidden();
   await page.locator('.repo-guide-summary').click();
   await expect(page.locator('.repo-score-table')).toContainText('Test substance5 points');

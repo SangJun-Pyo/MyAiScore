@@ -12,7 +12,7 @@
   word-break: normal;
 }
 .landing-title {
-  font-size: clamp(36px,4.7vw,70px);
+  font-size: clamp(38px,3.5vw,60px);
   line-height: 1.07;
   letter-spacing: -.055em;
   margin: 0;
@@ -722,7 +722,7 @@
   justify-content: center;
 }
 .landing-closing h2 {
-  font-size: clamp(48px,7vw,104px);
+  font-size: clamp(38px,3.5vw,60px);
   margin-bottom: 35px;
 }
 .landing-closing>.landing-primary {
@@ -890,10 +890,7 @@
     gap: 32px;
   }
   .landing-title {
-    font-size: 41px;
-  }
-  .landing-approach .landing-title {
-    font-size: 37px;
+    font-size: clamp(38px,8.6vw,56px);
   }
   .landing-essay {
     justify-self: start;
@@ -1042,7 +1039,7 @@
     padding-block: 65px 28px;
   }
   .landing-closing h2 {
-    font-size: 51px;
+    font-size: clamp(38px,8.6vw,56px);
   }
   .landing-closing .chapter-label {
     font-size: 6px;

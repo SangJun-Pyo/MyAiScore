@@ -524,7 +524,7 @@ function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | 
   return <div className="repo-interpretation-guide">
     <details className="repo-guide repo-guide-disclosure product-panel" aria-labelledby="score-matrix-heading">
       <summary className="repo-guide-summary" aria-label={copy.insights.matrixToggle}>
-        <span className="repo-guide-summary-copy"><span className="eyebrow">{copy.insights.matrixEyebrow}</span><h2 id="score-matrix-heading" className="repo-guide-title">{copy.insights.matrixTitle}</h2><span>{copy.insights.matrixIntro}</span></span>
+        <span className="repo-guide-summary-copy"><span className="eyebrow">{copy.insights.matrixEyebrow}</span><h2 id="score-matrix-heading" className="repo-guide-title">{copy.insights.matrixTitle}</h2><ul className="repo-guide-principles">{copy.insights.matrixPrinciples.map(item => <li key={item.label}><strong>{item.label}</strong><span>{item.text}</span></li>)}</ul></span>
         <span className="repo-guide-toggle" aria-hidden="true" />
       </summary>
       <div className="repo-guide-body">
