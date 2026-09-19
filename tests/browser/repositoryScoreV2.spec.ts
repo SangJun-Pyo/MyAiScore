@@ -45,5 +45,5 @@ test("v2 report shows content-aware points, commit practice and advisory structu
   await expect(page.locator(".repo-diagnostics")).toContainText("src/large.ts");
   await expect(page.locator(".repo-diagnostics")).toContainText(/450/);
   expect(report.schemaVersion).toBe("repository-report-v2");
-  expect(report.ruleVersion).toBe("repository-signals-v2.3");
+  expect(report.ruleVersion).toBe("repository-signals-v2.4");
 });

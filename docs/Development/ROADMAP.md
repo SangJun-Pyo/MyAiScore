@@ -21,7 +21,7 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 
 ## Immediate operation
 
-Repository score v2.3 is in progress under issue [#47](https://github.com/SangJun-Pyo/MyAiScore/issues/47). It replaces dominant 21-point test and 15-point CI signals with six smaller signals per axis, adds bounded contract·reproducibility·ownership evidence, and retains v1/v2.1/v2.2 read compatibility. After this contract lands, the next implementation order is always-assigned profiles with confidence, hidden collection counts, a measured 60-file collection budget, then transparent cohort calibration and ROI advice.
+Repository score v2.3 shipped through issue [#47](https://github.com/SangJun-Pyo/MyAiScore/issues/47) and PR [#48](https://github.com/SangJun-Pyo/MyAiScore/pull/48) at main `7635071`; Railway and live v2.3 smoke passed. Issue [#49](https://github.com/SangJun-Pyo/MyAiScore/issues/49) now implements v2.4 always-assigned profiles with confidence while retaining v2.2/v2.3 history. The next implementation order is hidden collection counts, a measured 60-file collection budget, then transparent cohort calibration and ROI advice.
 
 Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. Production health, Korean/English pages and a real public MyAiScore report passed. Railway now has a server-only `GITHUB_TOKEN`; two consecutive public-repository reports returned 200 without token or raw file content in the response. The token only raises the public API allowance and private repositories remain rejected.
 
