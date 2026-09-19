@@ -165,6 +165,92 @@ function reportProfileTitle(report: RepositoryReport, locale: "ko" | "en", fallb
     : fallback;
 }
 
+function fitCanvasText(context: CanvasRenderingContext2D, value: string, maxWidth: number) {
+  if (context.measureText(value).width <= maxWidth) return value;
+  let text = value;
+  while (text.length > 1 && context.measureText(`${text}…`).width > maxWidth) text = text.slice(0, -1);
+  return `${text}…`;
+}
+
+async function createRepositoryShareCard(report: RepositoryReport, locale: "ko" | "en", axisLabels: Record<(typeof REPOSITORY_AXIS_ORDER)[number], string>, profileTitle: string) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1200;
+  canvas.height = 630;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("canvas_unavailable");
+
+  const background = context.createLinearGradient(0, 0, 1200, 630);
+  background.addColorStop(0, "#101213");
+  background.addColorStop(0.58, "#191b1d");
+  background.addColorStop(1, "#251815");
+  context.fillStyle = background;
+  context.fillRect(0, 0, 1200, 630);
+  const glow = context.createRadialGradient(970, 90, 10, 970, 90, 420);
+  glow.addColorStop(0, "rgba(229,140,117,.28)");
+  glow.addColorStop(1, "rgba(229,140,117,0)");
+  context.fillStyle = glow;
+  context.fillRect(0, 0, 1200, 630);
+
+  context.fillStyle = "#e58c75";
+  context.fillRect(72, 58, 32, 4);
+  context.font = "600 25px system-ui, sans-serif";
+  context.fillText("MyAiScore", 120, 70);
+  context.fillStyle = "#92979b";
+  context.font = "500 15px system-ui, sans-serif";
+  context.fillText(locale === "ko" ? "공개 저장소 협업 신호 리포트" : "PUBLIC REPOSITORY SIGNAL REPORT", 72, 116);
+
+  context.fillStyle = "#f5f3ee";
+  context.font = "600 32px system-ui, sans-serif";
+  context.fillText(fitCanvasText(context, repoName(report.repo), 760), 72, 164);
+  context.fillStyle = "#e58c75";
+  context.font = "600 54px system-ui, sans-serif";
+  context.fillText(fitCanvasText(context, profileTitle, 760), 72, 232);
+
+  context.fillStyle = "#f5f3ee";
+  context.font = "500 126px system-ui, sans-serif";
+  context.fillText(String(report.score.value), 68, 380);
+  context.fillStyle = "#92979b";
+  context.font = "500 27px system-ui, sans-serif";
+  context.fillText("/100", 246, 378);
+
+  const cardWidth = 330;
+  const cardHeight = 96;
+  REPOSITORY_AXIS_ORDER.forEach((axis, index) => {
+    const x = 420 + (index % 2) * (cardWidth + 22);
+    const y = 254 + Math.floor(index / 2) * (cardHeight + 20);
+    context.fillStyle = "rgba(255,255,255,.055)";
+    context.fillRect(x, y, cardWidth, cardHeight);
+    context.fillStyle = "#92979b";
+    context.font = "500 15px system-ui, sans-serif";
+    context.fillText(axisLabels[axis], x + 22, y + 34);
+    context.fillStyle = "#f5f3ee";
+    context.font = "600 28px system-ui, sans-serif";
+    context.fillText(`${report.score.axes[axis].value}/25`, x + 22, y + 70);
+    context.fillStyle = "#e58c75";
+    context.fillRect(x, y + cardHeight - 4, Math.round(cardWidth * report.score.axes[axis].value / 25), 4);
+  });
+
+  context.fillStyle = "#777d81";
+  context.font = "500 14px system-ui, sans-serif";
+  context.fillText(`${report.commitSha.slice(0, 12)} · ${report.coverage.status}`, 72, 520);
+  context.fillText(locale === "ko" ? "저장소의 정적 신호를 요약한 참고용 결과이며 개인의 AI 실력 인증이 아닙니다." : "A static repository-signal summary, not a certification of personal AI ability.", 72, 575);
+  context.textAlign = "right";
+  context.fillStyle = "#e58c75";
+  context.fillText("myaiscore-production.up.railway.app", 1128, 575);
+
+  const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("image_encoding_failed")), "image/png"));
+  return { blob, fileName: `myaiscore-${repoName(report.repo).replace(/[^a-z0-9._-]+/gi, "-")}-${report.commitSha.slice(0, 12)}.png` };
+}
+
+function downloadShareCard(blob: Blob, fileName: string) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 export function RepositoryShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { copy } = useLocale();
@@ -193,7 +279,8 @@ const AXIS_ICONS: Record<(typeof REPOSITORY_AXIS_ORDER)[number], ReactElement> =
 };
 
 function RepositoryReportView({ report, demo = false, actions = true, overviewVariant = "default" }: { report: RepositoryReport; demo?: boolean; actions?: boolean; overviewVariant?: "default" | "guide" }) {
-  const [notice, setNotice] = useState<"saved" | "error" | "">("");
+  const [notice, setNotice] = useState<"saved" | "error" | "cardSaved" | "cardShared" | "shareFallback" | "cardError" | "">("");
+  const [cardBusy, setCardBusy] = useState(false);
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(report, locale, copy);
   const v2 = report.schemaVersion === "repository-report-v2" ? report : null;
@@ -202,6 +289,31 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
   const profileDisplay = profile ? repositoryProfilePresentation(profile, locale) : null;
   const v2Display = repositoryV2Presentation(locale);
   const guideOverview = overviewVariant === "guide";
+  async function makeCard(mode: "download" | "share") {
+    if (cardBusy) return;
+    setCardBusy(true);
+    try {
+      const card = await createRepositoryShareCard(report, locale, Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, copy.presentation.axes[axis].label])) as Record<(typeof REPOSITORY_AXIS_ORDER)[number], string>, profileDisplay?.title ?? display.style.title);
+      if (mode === "share") {
+        const file = new File([card.blob], card.fileName, { type: "image/png" });
+        if (navigator.share && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: `MyAiScore · ${repoName(report.repo)}`, text: profileDisplay?.title ?? display.style.title });
+          setNotice("cardShared");
+        } else {
+          downloadShareCard(card.blob, card.fileName);
+          setNotice("shareFallback");
+        }
+      } else {
+        downloadShareCard(card.blob, card.fileName);
+        setNotice("cardSaved");
+      }
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) setNotice("cardError");
+    } finally {
+      setCardBusy(false);
+    }
+  }
+  const noticeCopy = notice === "saved" ? copy.report.saved : notice === "error" ? copy.report.saveError : notice === "cardSaved" ? copy.report.cardSaved : notice === "cardShared" ? copy.report.cardShared : notice === "shareFallback" ? copy.report.cardShareFallback : copy.report.cardError;
   return <section className="repo-report" aria-label={copy.report.aria}>
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
     {guideOverview ? <section className="repo-overview-guide repo-hero-card product-panel" aria-label={display.scoreLabel}>
@@ -243,7 +355,7 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
       {actionable ? <section className="repo-next repo-recommendations"><span className="eyebrow">{copy.report.recommendations}</span><p>{copy.report.recommendationsIntro}</p>{actionable.recommendations.length > 0 ? <ol>{actionable.recommendations.map(item => { const action = v2Display.recommendation(item.signalId); return <li key={item.signalId}><span>{v2Display.recommendationEffort[item.effort]}</span><h2>{action.title}</h2><p>{action.description}</p>{item.evidencePath && <small>{v2Display.recommendationPath(item.evidencePath)}</small>}</li>; })}</ol> : <p>{v2Display.noRecommendations}</p>}{actionable.ruleVersion === "repository-signals-v2.7" && actionable.cohort ? <aside className="repo-cohort"><span>{v2Display.cohortHeading}</span><strong>{v2Display.cohortPosition(actionable.cohort)}</strong><p>{v2Display.cohortDetails(actionable.cohort)}</p></aside> : <small className="repo-cohort-pending">{v2Display.cohortPending}</small>}</section> : <section className="repo-next"><span className="eyebrow">{copy.report.nextChallenge}</span><h2>{display.nextChallenge.title}</h2><p>{display.nextChallenge.description}</p></section>}
     </div>
     {v2 && <section className="product-panel repo-diagnostics"><span className="eyebrow">{v2Display.diagnosticsHeading}</span><p>{v2Display.hygieneSummary(v2.diagnostics.hygiene.highConfidenceArtifacts, v2.diagnostics.hygiene.generatedArtifactCandidates, v2.diagnostics.hygiene.secretLikePaths)}</p><p>{v2Display.structureSummary(v2.diagnostics.structure.oversizedSourceCandidates, v2.diagnostics.structure.sourceFilesOver400Lines, v2.diagnostics.structure.sourceFilesOver800Lines)}</p>{v2.diagnostics.structure.largestSelectedSourceFiles.length > 0 && <ul>{v2.diagnostics.structure.largestSelectedSourceFiles.map(file => <li key={file.path}><code>{file.path}</code> · {file.lineCount} lines</li>)}</ul>}</section>}
-    {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div>{notice && <p role="status" className="caption">{notice === "saved" ? copy.report.saved : copy.report.saveError}</p>}</section>}
+    {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button type="button" className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("download")}>{copy.report.downloadCard}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("share")}>{copy.report.shareCard}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div><p className="repo-card-intro caption">{copy.report.cardIntro}</p>{notice && <p role="status" className="caption">{noticeCopy}</p>}</section>}
   </section>;
 }
 

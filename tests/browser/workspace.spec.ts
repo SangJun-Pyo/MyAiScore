@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 import {
   REPOSITORY_REPORT_COPY,
   deriveRepositoryReportPresentation,
@@ -86,6 +87,13 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
 
 test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는 리포트를 표시한다', async ({ page }, testInfo) => {
   const bodies = await interceptReport(page, report(), 250);
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'canShare', { configurable: true, value: (data: ShareData) => Boolean(data.files?.length) });
+    Object.defineProperty(navigator, 'share', { configurable: true, value: async (data: ShareData) => {
+      const file = data.files?.[0];
+      (window as typeof window & { __sharedCard?: unknown }).__sharedCard = { name: file?.name, type: file?.type, size: file?.size, title: data.title };
+    } });
+  });
   await page.goto('/evaluate');
   await expect(page.locator('input')).toHaveCount(1);
   await page.getByLabel('공개 GitHub 저장소 URL').fill('https://github.com/example/public-repo');
@@ -107,19 +115,30 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await expect(page.locator('.repo-report')).toContainText('변경 사항과 의사결정 과정을 보여주는 기록을 충분히 확인하지 못했습니다.');
   await expect(page.locator('.repo-report')).toContainText('의사결정 하나 기록하기');
   await expect(page.locator('.repo-boundary')).toContainText('개인의 AI 실력을 인증하지 않아요.');
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: '결과 카드 저장' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe(`myaiscore-example-public-repo-${'a'.repeat(12)}.png`);
+  const cardPath = testInfo.outputPath('repository-share-card.png');
+  await download.saveAs(cardPath);
+  expect((await readFile(cardPath)).subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  await expect(page.locator('.repo-actions [role="status"]')).toContainText('PNG 결과 카드를 저장했어요.');
+  await page.getByRole('button', { name: '결과 카드 공유' }).click();
+  await expect(page.locator('.repo-actions [role="status"]')).toContainText('결과 카드를 공유했어요.');
+  expect(await page.evaluate(() => (window as typeof window & { __sharedCard?: unknown }).__sharedCard)).toMatchObject({ name: `myaiscore-example-public-repo-${'a'.repeat(12)}.png`, type: 'image/png', title: 'MyAiScore · example/public-repo' });
   expect(bodies).toEqual([{ repo_url: 'https://github.com/example/public-repo' }]);
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('repository-report.png'), fullPage: true });
 });
 
-test('분석 응답이 첫 100% 이후 도착해도 두 번째 100%를 기다리지 않는다', async ({ page }) => {
-  await interceptReport(page, report(), 10300);
+test('분석 응답이 첫 100% 이후 도착해도 다음 로더 반복을 기다리지 않는다', async ({ page }) => {
+  await interceptReport(page, report(), 10_300);
   await page.goto('/evaluate');
   await page.getByLabel('공개 GitHub 저장소 URL').fill('https://github.com/example/public-repo');
   await page.getByRole('button', { name: '저장소 분석하기' }).click();
-  await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#num')).toHaveText('100', { timeout: 18000 });
-  await expect(page.locator('.notice[role="status"]')).toContainText(/분석이 완료되었습니다/, { timeout: 5000 });
+  await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#num')).toHaveText('100', { timeout: 18_000 });
+  await expect(page.locator('.notice[role="status"]')).toContainText('분석이 완료되었습니다.', { timeout: 5_000 });
   await expect(page.locator('.repo-score > strong')).toHaveText('63');
 });
 
