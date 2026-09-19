@@ -1,0 +1,36 @@
+{
+  "version": "repository-demo-scenarios-v1",
+  "cohortVersion": "repository-cohort-v1",
+  "repositories": [
+    {
+      "repo": "aydinnyunus/exifLooter",
+      "commitSha": "b8cc568f00f29b4eaec707f58e7b5066d0ec835f",
+      "purpose": "small-low-score",
+      "expected": { "ecosystem": "Go", "sizeBand": "small", "coverage": "complete", "score": 7 }
+    },
+    {
+      "repo": "ecomfe/tempad-dev",
+      "commitSha": "29f1789fe7ec57e4492395028447a743ca087d6f",
+      "purpose": "medium-typescript",
+      "expected": { "ecosystem": "TypeScript", "sizeBand": "medium", "coverage": "complete", "score": 61 }
+    },
+    {
+      "repo": "GitGuardian/ggshield",
+      "commitSha": "8584c34df744a8f9bc65a326aaad1c576e6d8fa4",
+      "purpose": "large-high-score",
+      "expected": { "ecosystem": "Python", "sizeBand": "large", "coverage": "complete", "score": 71 }
+    },
+    {
+      "repo": "iluwatar/java-design-patterns",
+      "commitSha": "4cabb204f240240bea319605a5ffa46ded728001",
+      "purpose": "large-partial-coverage",
+      "expected": { "ecosystem": "Java", "sizeBand": "large", "coverage": "partial", "score": 39 }
+    },
+    {
+      "repo": "sebadob/hiqlite",
+      "commitSha": "52122ae7163d051d6b488d751018f76596f7d8f7",
+      "purpose": "medium-rust",
+      "expected": { "ecosystem": "Rust", "sizeBand": "medium", "coverage": "complete", "score": 43 }
+    }
+  ]
+}
