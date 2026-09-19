@@ -86,3 +86,11 @@ walkthrough 출처 해시 회귀 검사가 실제로 읽는 `buildMyAiScoreWalkt
 정리 전후 generator fixture의 Git blob 해시는 모두 `61523fcff9b652bfec0e99d144b1ce7d44cd251e`로 일치했다. `npm run check:docs`는 60개 Markdown·364개 로컬 링크 문제 0건, `npm run typecheck`, `npm test` 288/288, `npm run build`, `npm run test:e2e` desktop/mobile 30/30을 통과했다. 첫 build는 실행 중이던 로컬 3104 서버가 `.next/standalone`을 잠가 `EBUSY`로 중단됐고 해당 서버만 종료한 뒤 같은 명령이 통과했다. 정리 결과 현재 Git index는 301개 파일이며 로컬 archive에는 기존 무시 파일을 포함한 91개 파일 약 17.4MB가 남아 있다.
 
 구현에 참여하지 않은 서브에이전트의 독립 검토는 **PASS, 차단 사항 없음**으로 판정했다. 삭제 71개 각각의 로컬 archive 사본, 역사 링크가 가리키는 27개 고유 Git object, 제거 코드의 활성 참조 부재와 `_archive` ignore를 확인했다. reviewer가 별도로 실행한 walkthrough/session 집중 검사 19/19와 tracked 문서 검사도 통과했다.
+
+## 2026-09-19 한국어 제품 문구 정리
+
+홈과 예시·실제 리포트, 해석 가이드, footer의 한국어를 더 자연스러운 제품 문구로 정리했다. `AI 협업의 흔적`은 제품이 실제로 확인하는 범위에 맞춰 `AI 협업을 뒷받침하는 신호`로 바꾸고, 한국어 화면의 네 축은 `맥락·검증 체계·기록·추적·자동화`로 표시한다. 근거 카드, 미확인 항목, 다음 단계와 한계 설명도 같은 문체로 맞췄다.
+
+기존 API 응답과 localStorage 결과가 계속 검증되도록 `repository-report-v1`의 고정 한국어 계약은 변경하지 않았다. 화면에서는 기존과 같은 style/evidence/axis ID를 새 한국어 표현으로 변환하며, 영어 화면과 점수 계산 규칙도 그대로 유지한다.
+
+검증은 `npm test` 288/288, `npm run typecheck`, `npm run check:docs` 62파일·상대 링크 372개, `npm run build`를 통과했다. 홈 문구와 가로 넘침, 변경된 리포트·가이드·언어 전환을 포함한 Playwright 집중 검사는 desktop/mobile 20/20을 통과했다.

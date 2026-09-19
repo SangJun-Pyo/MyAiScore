@@ -42,6 +42,16 @@ async function interceptReport(page: Page, payload = report()) {
   return bodies;
 }
 
+test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 설명한다', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('AI 협업을 뒷받침하는 신호를 찾습니다.');
+  await expect(page.locator('.landing-availability')).toHaveText('회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음');
+  await expect(page.locator('.repo-hero-card')).toContainText('검증 체계');
+  await expect(page.locator('.repo-hero-card')).toContainText('기록·추적');
+  await expect(page.locator('.site-footer')).toContainText('개인의 AI 활용 능력을 인증하는 서비스가 아닙니다.');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
 test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 꾸며내지 않는다', async ({ page }, testInfo) => {
   const requests: string[] = [];
   page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/')) requests.push(request.url()); });
@@ -52,15 +62,15 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await expect(page.getByRole('heading', { name: '신호별 점수를 모두 공개합니다.' })).toBeVisible();
   await expect(page.locator('.repo-score-table tbody')).toHaveCount(4);
   await expect(page.getByRole('region', { name: '네 축의 신호별 배점표' })).toHaveAttribute('tabindex', '0');
-  await expect(page.locator('.repo-score-table')).toContainText('시작 안내7점');
-  await expect(page.locator('.repo-score-table')).toContainText('테스트 흔적21점');
-  await expect(page.locator('.repo-score-table')).toContainText('결정 기록9점');
+  await expect(page.locator('.repo-score-table')).toContainText('프로젝트 안내7점');
+  await expect(page.locator('.repo-score-table')).toContainText('테스트 코드21점');
+  await expect(page.locator('.repo-score-table')).toContainText('의사결정 기록9점');
   await expect(page.locator('.repo-score-table')).toContainText('자동 검사15점');
   await expect(page.locator('.repo-axis-total')).toHaveText(['축 합계25점', '축 합계25점', '축 합계25점', '축 합계25점']);
   await expect(page.locator('.repo-style-rules > li')).toHaveCount(6);
   await expect(page.locator('.repo-style-rules').first()).toContainText('총점이 20점 미만');
   await expect(page.locator('.repo-style-rules').first()).toContainText('네 축이 모두 10점 이상');
-  await expect(page.locator('.repo-tie-priority')).toContainText('맥락 → 검증 기반 → 추적 가능성 → 자동화');
+  await expect(page.locator('.repo-tie-priority')).toContainText('맥락 → 검증 체계 → 기록·추적 → 자동화');
   await page.screenshot({ path: testInfo.outputPath('repository-guide.png'), fullPage: true });
   expect(requests).toEqual([]);
 });
@@ -73,14 +83,14 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await page.getByRole('button', { name: '저장소 분석하기' }).click();
   await expect(page.locator('.notice[role="status"]')).toContainText(/분석이 완료되었습니다/);
   await expect(page.locator('.repo-score > strong')).toHaveText('63');
-  await expect(page.locator('.repo-style')).toContainText('검증 레이더');
+  await expect(page.locator('.repo-style')).toContainText('AI 협업 신호 레이더');
   await expect(page.locator('.repo-axis-card')).toHaveCount(4);
-  await page.locator('.repo-axis-card').filter({ hasText: '시작 안내' }).getByText('근거 파일 1개').first().click();
-  await expect(page.locator('.repo-axis-card').filter({ hasText: '시작 안내' })).toContainText('AGENTS.md');
-  await expect(page.locator('.repo-report')).toContainText('후보 20개 · 12개 선택 · 12개 확인');
-  await expect(page.locator('.repo-report')).toContainText(REPOSITORY_REPORT_COPY.gaps.traceability);
-  await expect(page.locator('.repo-report')).toContainText(REPOSITORY_REPORT_COPY.challenges.traceability.title);
-  await expect(page.locator('.repo-boundary')).toContainText('저장소에 남은 신호이며 개인 AI 실력 인증이 아닙니다.');
+  await page.locator('.repo-axis-card').filter({ hasText: '프로젝트 안내' }).getByText('근거 파일 1개').first().click();
+  await expect(page.locator('.repo-axis-card').filter({ hasText: '프로젝트 안내' })).toContainText('AGENTS.md');
+  await expect(page.locator('.repo-report')).toContainText('후보 파일 20개 · 분석 파일 12개 · 12개 확인 완료');
+  await expect(page.locator('.repo-report')).toContainText('변경 사항과 의사결정 과정을 보여주는 기록을 충분히 확인하지 못했습니다.');
+  await expect(page.locator('.repo-report')).toContainText('의사결정 하나 기록하기');
+  await expect(page.locator('.repo-boundary')).toContainText('개인의 AI 활용 능력을 인증하지 않습니다.');
   expect(bodies).toEqual([{ repo_url: 'https://github.com/example/public-repo' }]);
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -118,9 +128,9 @@ test('저장은 명시적이며 같은 저장소와 커밋을 중복 없이 보�
   await page.reload();
   await expect(page.locator('.history-entry')).toContainText('example/public-repo');
   await page.getByRole('button', { name: '리포트 보기' }).click();
-  await expect(page.locator('.repo-report')).toContainText('검증 레이더');
+  await expect(page.locator('.repo-report')).toContainText('AI 협업 신호 레이더');
   await expect(page.locator('.repo-style-rules > li.is-active')).toHaveCount(1);
-  await expect(page.locator('.repo-style-rules > li.is-active')).toContainText('검증 레이더');
+  await expect(page.locator('.repo-style-rules > li.is-active')).toContainText('AI 협업 신호 레이더');
   await expect(page.locator('.repo-current-style-note')).toContainText('총점 구간이 아니라 네 축의 분포');
   await page.getByRole('navigation').getByRole('link', { name: '내 리포트', exact: true }).click();
   await page.getByRole('button', { name: '삭제', exact: true }).click();
