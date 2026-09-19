@@ -17,11 +17,11 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 | Web | Korean-default bilingual Home/분석/Profile/Insights, persistent locale, transparent score/style guide, progress/errors, opt-in browser history |
 | Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
 | Privacy | No repository code execution, no private repository, no token/raw response exposure |
-| Validation | 288 unit/API tests, docs/type/build, 30 browser checks, independent PASS, Railway live smoke complete |
+| Validation | 306 unit/API tests, docs/type/build, 34 browser checks, independent PASS, Railway live smoke complete |
 
 ## Immediate operation
 
-Repository score v2.1 shipped through PR #42. The current `codex/repository-profile-v2-2` work adds `repository-signals-v2.2`: an evidence-aware D/R·H/P·S/T·F/E collaboration profile with explicit withheld reasons while retaining v1 and v2.1 browser-history compatibility. Score weights, hygiene diagnostics and structure advice do not change. The next gate is full verification, PR integration and Railway smoke; transparent 50–100 repository cohort calibration remains deferred until this profile contract ships.
+Repository score v2.2 shipped through issue [#43](https://github.com/SangJun-Pyo/MyAiScore/issues/43) and PR [#44](https://github.com/SangJun-Pyo/MyAiScore/pull/44) at main `ac246af`. It adds an evidence-aware D/R·H/P·S/T·F/E collaboration profile with explicit withheld reasons while retaining v1 and v2.1 browser-history compatibility. Score weights, hygiene diagnostics and structure advice do not change. The next product gate is transparent 50–100 repository cohort calibration, with the cohort size and limitations shown to users.
 
 Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. Production health, Korean/English pages and a real public MyAiScore report passed. Railway now has a server-only `GITHUB_TOKEN`; two consecutive public-repository reports returned 200 without token or raw file content in the response. The token only raises the public API allowance and private repositories remain rejected.
 

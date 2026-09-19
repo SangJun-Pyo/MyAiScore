@@ -22,7 +22,9 @@ strict parser는 v2.2 유형의 강도·선택·경계·보류 이유를 `signal
 
 결정은 [ADR-0018](../../Architecture/ADR/0018-evidence-aware-collaboration-profile.md)에 기록했다. 최종 로컬 검사는 `npm test` 306/306, `npm run typecheck`, `npm run check:docs` 66파일·398링크 문제 0, `npm run build`, 전체 Playwright desktop/mobile 34/34, `git diff --check` 통과다. 해석 가이드의 desktop/mobile 캡처를 직접 확인해 네 차원 카드의 overflow와 읽기 순서를 확인했다.
 
-구현에 참여하지 않은 독립 검토는 처음에 DB 비적용 migration과 commit API 가용성이 timing 분모를 바꾸는 문제, 홈 hero의 legacy 제목, 경계별 직접 회귀 부족을 지적했다. migration을 적용 대상 또는 실제 존재일 때만 분모에 넣고 commit-practice를 유형 입력에서 제외했으며, hero를 v2.2 프로필 제목으로 바꾸고 sparse·다중 경계·단일 spread-6 경계·commit 가용성·DB 적용성 회귀를 추가했다. 수정 후 재검토는 **PASS, 남은 actionable issue 없음**으로 결론 냈다. PR/CI/Railway 결과는 통합 뒤 이 절에 이어 기록한다.
+구현에 참여하지 않은 독립 검토는 처음에 DB 비적용 migration과 commit API 가용성이 timing 분모를 바꾸는 문제, 홈 hero의 legacy 제목, 경계별 직접 회귀 부족을 지적했다. migration을 적용 대상 또는 실제 존재일 때만 분모에 넣고 commit-practice를 유형 입력에서 제외했으며, hero를 v2.2 프로필 제목으로 바꾸고 sparse·다중 경계·단일 spread-6 경계·commit 가용성·DB 적용성 회귀를 추가했다. 수정 후 재검토는 **PASS, 남은 actionable issue 없음**으로 결론 냈다.
+
+Issue [#43](https://github.com/SangJun-Pyo/MyAiScore/issues/43)은 PR [#44](https://github.com/SangJun-Pyo/MyAiScore/pull/44)로 main `ac246af`에 squash merge되었고 원격 `Verify`도 통과했다. Railway 배포 성공 뒤 production health가 `{"ok":true}`를 반환했다. 공개 `SangJun-Pyo/MyAiScore` smoke는 `repository-report-v2` / `repository-signals-v2.2`, 90점, complete diagnostics를 반환했다. 두 차원이 경계 근처라 `repository-collaboration-profile-v1`은 `multiple_near_boundaries`로 유형을 보류했으며, 이는 근거가 애매할 때 코드를 강제로 발급하지 않는 계약대로의 결과다.
 
 ## 사용자 결정
 
