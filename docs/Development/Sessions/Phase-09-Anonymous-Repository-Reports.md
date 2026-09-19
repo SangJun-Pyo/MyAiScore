@@ -209,8 +209,8 @@ Base: `36ba40e`. Branch: `codex/github-nav-link`.
 
 `tests/browser/workspace.spec.ts`에서 footer의 GitHub 링크를 단언하던 2줄(`contentinfo` 영역, 한국어/영어 각각)을 헤더 `navigation` 영역의 `GitHub` 링크 단언으로 옮겼다. 다른 nav 관련 테스트는 전부 `name: X, exact: true`로 개별 항목을 찾으므로 5번째 항목 추가로 깨지지 않는다.
 
-이 세션 환경(Cowork Linux VM)은 `@esbuild/darwin-arm64`만 설치돼 있어 `npm test`(유닛)와 Playwright e2e를 실행할 수 없었다. 타입체크(`tsc --noEmit`)는 통과했고, 변경 자체가 정적 문자열·마크업·CSS라 위험도가 낮다고 판단해 코드 리뷰로 대체했다. **다음 사람이 사용자의 실제 개발 환경에서 `npm test`와 `npm run test:e2e`를 한 번 돌려 확인해야 한다.**
+원래 작업 환경(Cowork Linux VM)에서는 `@esbuild/darwin-arm64`만 설치돼 있어 단위·브라우저 검사를 실행하지 못했다. 최신 `main@236d7cb` 위로 통합한 macOS 환경에서 `npm run typecheck`, `npm test` 314/314, `npm run check:docs` 70파일·413개 로컬 링크, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20, `git diff --check`를 모두 통과했다.
 
 ### 배경 — main의 동시 작업
 
- 이 작업 시점에 다른 세션이 같은 체크아웃의 공유 워크트리에서 `codex/repository-profile-v2-2`를 병합하는 중이었고, 그 병합이 `layout.tsx`, `globals.css`, `RepositoryExperience.tsx`를 건드리고 있었다. 충돌을 피하려고 이 작업은 별도 워크트리(`origin/main@36ba40e` 기준)에서 진행했다. 이후 최신 `main@236d7cb` 위로 통합해 동시 변경을 보존했다.
+이 작업 시점에 다른 세션이 같은 체크아웃의 공유 워크트리에서 `codex/repository-profile-v2-2`를 병합하는 중이었고, 그 병합이 `layout.tsx`, `globals.css`, `RepositoryExperience.tsx`를 건드리고 있었다. 충돌을 피하려고 이 작업은 별도 워크트리(`origin/main@36ba40e` 기준)에서 진행했다. 이후 이슈 #53에서 최신 `main@236d7cb` 위로 통합해 동시 변경을 보존했다.
