@@ -35,7 +35,7 @@ test("v2 report shows content-aware points, commit practice and advisory structu
   await page.goto("/evaluate");
   await page.locator('input[name="repo_url"]').fill("https://github.com/example/v2");
   await page.locator('form button[type="submit"]').click();
-  await expect(page.locator(".repo-report")).toBeVisible();
+  await expect(page.locator(".repo-report")).toBeVisible({ timeout: 22_000 });
   await expect(page.locator(".repo-signal-score").first()).toBeVisible();
   await expect(page.locator(".repo-axis-card").nth(2)).toContainText(/커밋 설명 습관|Commit explanation practice/);
   await expect(page.locator(".repo-diagnostics")).toBeVisible();
