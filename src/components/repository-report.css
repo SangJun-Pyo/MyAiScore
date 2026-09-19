@@ -104,6 +104,7 @@
 .repo-cohort p { line-height:1.55; }
 .repo-actions { padding-block:22px; }
 .repo-actions .button-row { margin-top:14px; }
+.repo-card-intro { margin:12px 0 0; }
 .repo-cli-secondary { margin-top:36px; padding:22px 0; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
 .repo-cli-secondary > summary { color:var(--ink); }
 .repo-cli-secondary > p { max-width:720px; margin-top:14px; }
