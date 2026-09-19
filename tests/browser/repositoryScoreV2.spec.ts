@@ -46,7 +46,7 @@ test("v2 report shows content-aware points, commit practice and advisory structu
   await expect(page.locator(".repo-diagnostics")).toContainText(/450/);
   await expect(page.locator(".repo-recommendations")).toBeVisible();
   await expect(page.locator(".repo-recommendations li")).toHaveCount(report.recommendations.length);
-  await expect(page.locator(".repo-recommendations")).toContainText("효율이 높은 다음 작업");
+  await expect(page.locator(".repo-recommendations")).toContainText("추천 개선 과제");
   await expect(page.locator(".repo-cohort")).toContainText("v1 참조 코호트");
   await expect(page.locator(".repo-cohort")).toContainText("GitHub 전체 순위가 아닙니다");
   await expect(page.locator(".repo-recommendations")).not.toContainText(/gain|ROI|\+\d+점/i);
