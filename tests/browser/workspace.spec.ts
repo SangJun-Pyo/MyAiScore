@@ -4,11 +4,12 @@ import {
   deriveRepositoryReportPresentation,
   type RepositoryReport,
   type RepositoryReportEvidenceCard,
+  type RepositoryReportV1,
 } from '../../src/shared/repositoryReport.js';
 
 const key = 'myaiscore_repository_reports_v1';
 
-function report(overrides: Partial<RepositoryReport> = {}): RepositoryReport {
+function report(overrides: Partial<RepositoryReportV1> = {}): RepositoryReport {
   const evidenceCards: RepositoryReportEvidenceCard[] = [
     { id: 'context-readme', ...REPOSITORY_REPORT_COPY.evidence['context-readme'], paths: ['README.md'] },
     { id: 'context-guidance', ...REPOSITORY_REPORT_COPY.evidence['context-guidance'], paths: ['AGENTS.md'] },
@@ -18,7 +19,7 @@ function report(overrides: Partial<RepositoryReport> = {}): RepositoryReport {
     { id: 'automation-ci', ...REPOSITORY_REPORT_COPY.evidence['automation-ci'], paths: ['.github/workflows/ci.yml'] },
   ];
   const derived = deriveRepositoryReportPresentation(evidenceCards, 'complete');
-  const base: RepositoryReport = {
+  const base: RepositoryReportV1 = {
     schemaVersion: 'repository-report-v1', ruleVersion: 'repository-signals-v1',
     repo: 'example/public-repo', commitSha: 'a'.repeat(40),
     coverage: { status: 'complete', basis: 'selected_files', selectedFiles: 12, readFiles: 12, candidateFiles: 20, treeTruncated: false, selectionLimited: false, note: REPOSITORY_REPORT_COPY.coverageNotes.complete },

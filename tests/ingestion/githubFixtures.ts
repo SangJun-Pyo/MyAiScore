@@ -21,6 +21,9 @@ export function repoUrl(owner: string, repo: string): string {
 export function commitUrl(owner: string, repo: string, ref: string): string {
   return `${API_BASE}/repos/${owner}/${repo}/commits/${ref}`;
 }
+export function commitHistoryUrl(owner: string, repo: string, sha: string, limit = 20): string {
+  return `${API_BASE}/repos/${owner}/${repo}/commits?sha=${sha}&per_page=${limit}`;
+}
 export function treeUrl(owner: string, repo: string, sha: string): string {
   return `${API_BASE}/repos/${owner}/${repo}/git/trees/${sha}?recursive=1`;
 }

@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { ingestRepository, COLLECTOR_VERSION } from "../../src/server/ingestion/ingest.js";
-import { SELECTION_POLICY_VERSION } from "../../src/server/ingestion/fileSelection.js";
+import { REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION } from "../../src/server/ingestion/fileSelection.js";
 import { createHash } from "node:crypto";
 import { OfflineHttpClient } from "../../src/server/ingestion/offlineHttpClient.js";
-import { buildStandardFixtures, repoUrl, treeUrl } from "./githubFixtures.js";
+import { buildStandardFixtures, commitHistoryUrl, repoUrl, treeUrl } from "./githubFixtures.js";
 
 const COMMIT_SHA = "a".repeat(40);
 
@@ -15,9 +15,11 @@ test("MAS-007: sampled collection remains complete with explicit coverage warnin
   const snapshot = await ingestRepository({ repoUrl: 'https://github.com/acme/sampled' }, { httpClient: new OfflineHttpClient(fixtures) });
   assert.equal(snapshot.ingestionStatus, 'complete'); assert.equal(snapshot.coverage.selectionLimited, false);
   assert.equal(snapshot.coverage.selectedFiles, 40); assert.equal(snapshot.coverage.readFiles, 40); assert.equal(snapshot.coverage.candidateFiles, 51);
-  assert.ok(snapshot.warnings.some(w => w.includes('40/51') && w.includes(SELECTION_POLICY_VERSION)));
+  assert.equal(snapshot.repositoryInventory?.basis, "scanned_tree");
+  assert.equal(snapshot.repositoryInventory?.sourceFiles, 51);
+  assert.ok(snapshot.warnings.some(w => w.includes('40/51') && w.includes(REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION)));
   const paths = snapshot.files.map(f => f.path).sort();
-  const expected = createHash('sha256').update(JSON.stringify({ collectorVersion: COLLECTOR_VERSION, selectionPolicyVersion: SELECTION_POLICY_VERSION, selectedPaths: paths })).digest('hex');
+  const expected = createHash('sha256').update(JSON.stringify({ collectorVersion: COLLECTOR_VERSION, selectionPolicyVersion: REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION, selectedPaths: paths })).digest('hex');
   assert.equal(snapshot.selectionDigest, expected);
   assert.notEqual(snapshot.selectionDigest, createHash('sha256').update(paths.join('\n')).digest('hex'), 'old path-only digest must not silently identify the new policy');
 });
@@ -40,6 +42,11 @@ test("happy path: complete ingestion with next.js/typescript detection and evide
       { sha: "s-readme", content: "# Shop\n" },
     ],
   });
+  fixtures[commitHistoryUrl("acme", "shop", COMMIT_SHA)] = { status: 200, body: [
+    { sha: "1".repeat(40), commit: { message: "feat(cart): validate order totals\n\nPrevent negative checkout totals. #12" } },
+    { sha: "2".repeat(40), commit: { message: "test(cart): cover an empty basket\n\nRecord the expected zero total." } },
+    { sha: "3".repeat(40), commit: { message: "docs: explain checkout verification\n\nLink the test plan to ADR-12." } },
+  ] };
 
   const http = new OfflineHttpClient(fixtures);
   const snapshot = await ingestRepository({ repoUrl: "https://github.com/acme/shop" }, { httpClient: http });
@@ -50,6 +57,14 @@ test("happy path: complete ingestion with next.js/typescript detection and evide
   assert.equal(snapshot.supportStatus, "nextjs_typescript");
   assert.equal(snapshot.files.length, 4);
   assert.equal(snapshot.evidenceCandidates.length, 4);
+  assert.equal(snapshot.repositoryInventory?.sourceFiles, 1);
+  assert.equal(snapshot.repositoryInventory?.testFiles, 1);
+  assert.equal(snapshot.repositoryInventory?.signalCandidateCounts["context-readme"], 1);
+  assert.equal(snapshot.repositoryStructure?.selectedSourceFiles, 1);
+  assert.equal(snapshot.repositoryStructure?.sourceFilesOver400Lines, 0);
+  assert.equal(snapshot.commitTraceability?.sampledCommits, 3);
+  assert.equal(snapshot.commitTraceability?.evaluatedCommits, 3);
+  assert.ok((snapshot.commitTraceability?.nonGenericSubjectRatio ?? 0) > 0);
   assert.ok(snapshot.staticSignals.dependencies.includes("next"));
   assert.deepEqual(snapshot.staticSignals.testPaths, ["src/server/actions/createOrder.test.ts"]);
   assert.equal(snapshot.failure, null);

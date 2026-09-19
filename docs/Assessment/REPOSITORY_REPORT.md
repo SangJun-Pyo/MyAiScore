@@ -1,6 +1,6 @@
-# Repository report contract — v1
+# Repository report contract — v2.1
 
-Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 현재 schema는 `repository-report-v1`, 규칙은 `repository-signals-v1`이다.
+Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md) and [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.1`로 발급한다. strict parser는 브라우저에 저장된 `repository-report-v1` 기록을 계속 읽지만 새 분석에 v1 점수를 발급하지 않는다.
 
 ## 의미와 경계
 
@@ -17,23 +17,34 @@ RepositoryReport는 공개 GitHub 저장소의 고정 commit에서 제한적으�
 | 결정 추적 | ADR, 계획, 변경·세션 기록 | 기록의 사실성 또는 작성자 |
 | 자동화 기반 | 재현 가능한 scripts/config/workflow 신호 | 실행 성공·운영 품질 |
 
-각 축은 0~25이고 총점은 합계 0~100이다. 같은 종류의 파일 수가 늘어도 신호 하나는 한 번만 더해지며, 각 근거 카드는 경로를 최대 5개만 표시한다. 네 축 모두 실제로 25점에 도달할 수 있다.
+각 축은 0~25이고 총점은 합계 0~100이다. 같은 종류의 파일 수가 늘어도 신호 하나는 한 번만 더해지며, 각 근거 카드는 경로를 최대 5개만 표시한다. 신호 점수는 다음 식으로 계산하고 정수로 반올림한다.
 
-| 축 | 고정 신호와 점수 | 축 최대 |
+```text
+quality = presence × (0.15 + 0.60 × substance + 0.25 × substance × breadth)
+points  = round(maxPoints × quality)
+```
+
+`presence`는 실제 읽은 신호 파일, `substance`는 네 개 이하의 제한된 내용 요소 평균, `breadth`는 40개 선택 표본이 아닌 cap 이전 `scanned_tree` 규모 비율이다. 빈 파일은 최대 배점의 15% 존재 바닥만 받는다. 지원하지 않는 테스트 언어는 실패 0점으로 단정하지 않고 `unmeasured`로 공개한다.
+
+| 축 | 신호별 최대점 | 축 최대 |
 |---|---|---:|
 | 맥락 | README 7, AGENTS/CLAUDE/Copilot 지침 7, 문서 공간 6, 프로젝트 설정 5 | 25 |
 | 검증 기반 | 테스트 파일 21, 타입·린트·테스트·커버리지 설정 4 | 25 |
 | 기록 | 변경 기록 8, ADR·결정 기록 9, 이슈·PR 템플릿 5, 마이그레이션 3 | 25 |
 | 자동화 | GitHub Actions 15, 의존성 갱신 설정 4, 배포 설정 3, scripts/tools/작업 파일 3 | 25 |
 
+고정 SHA의 최근 조상 커밋 최대 20개에서 자동·merge·revert를 제외하고 제목의 구체성·고유성·범위, 본문의 이유, issue/PR/ADR/RFC 참조 비율을 집계한다. 평가 가능한 커밋이 3개 이상이면 기록축에 최대 5점 보너스를 주되 축 상한은 25점이다. 원문 커밋 메시지는 snapshot이나 공개 응답에 넣지 않는다.
+
 스타일은 총점 20 미만이면 `첫 신호 탐험가`, 네 축 최저점이 10 이상이고 최고·최저 차가 6 이하이면 `균형 잡힌 빌더`다. 그 외에는 가장 높은 축의 고정 스타일을 사용하며 동점은 맥락→검증 기반→기록→자동화 순서로 결정한다. 10점 미만 축은 gap으로 표시하고, 가장 낮은 축에서 다음 도전을 고른다. 부분 coverage이면 별도 gap을 추가한다.
 
-웹 해석 가이드는 별도 점수표를 유지하지 않는다. 이 문서의 14개 근거 ID 순서, 고정 점수, 스타일 임계값과 축 우선순위를 공유 코드에서 직접 읽어 네 축 표와 여섯 스타일을 표시한다. 리포트를 선택하면 해당 스타일을 강조하되 총점 구간으로 설명하지 않고 네 축 분포의 결과라고 밝힌다. 한국어·영어 제목은 같은 근거·스타일 ID에서 가져온다.
+웹 해석 가이드는 별도 점수표를 유지하지 않는다. 이 문서의 14개 근거 ID 순서, 신호별 최대점, 스타일 임계값과 축 우선순위를 공유 코드에서 직접 읽어 네 축 표와 여섯 스타일을 표시한다. 실제 v2 리포트 카드는 획득점·최대점·내용 실질을 함께 표시한다. 리포트를 선택하면 해당 스타일을 강조하되 총점 구간으로 설명하지 않고 네 축 분포의 결과라고 밝힌다. 한국어·영어 제목은 같은 근거·스타일 ID에서 가져온다.
 
-점수·스타일·gap·다음 도전은 근거 카드에서 결정론적으로 재계산한다. 브라우저도 서버와 같은 strict parser를 사용하므로 파생 필드를 임의로 바꾼 응답이나 저장 이력은 거부한다. 부분 coverage는 보이는 신호만 점수에 반영하고 개인 실패로 해석하지 않는다.
+점수·스타일·gap·다음 도전은 v2 `signalScores`에서 결정론적으로 재계산한다. 브라우저도 서버와 같은 strict parser를 사용하므로 품질·점수·진단을 임의로 바꾼 응답이나 저장 이력은 거부한다. 부분 coverage, tree/selection 제한, 지원하지 않는 테스트 형식, 커밋 이력 미측정은 `provisional` 이유로 공개한다.
 
 ## 근거와 안전
 
 근거 path는 수집된 file/evidence 목록에 실제로 존재해야 한다. 설명·스타일·도전은 고정 템플릿에서 생성하며 파일 원문을 그대로 삽입하지 않는다. 경로는 상대 경로, 길이·문자·개수 제한을 검증한다. 관찰되지 않은 축은 gap으로 설명하고 없는 성공을 추론하지 않는다.
 
-수집은 공개 저장소 metadata에서 `private === false`를 확인하고, 기본 branch·40자리 commit SHA·tree 구조를 검증한 뒤에만 blob을 읽는다. 실제 코드를 실행하지 않는다. 현재 서버 제한은 토큰이 있으면 5분당 분석 시작 5회, 없으면 서버 프로세스당 시간당 1회, 동시 2회다. 이 제한은 단일 프로세스 메모리 기준이며 여러 Railway 인스턴스에 공유되는 분산 제한은 아니다.
+수집은 공개 저장소 metadata에서 `private === false`를 확인하고, 기본 branch·40자리 commit SHA·tree 구조를 검증한 뒤에만 blob을 읽는다. 14개 파일 신호별 대표를 40개 예산 안에 예약하고 같은 고정 SHA의 조상 커밋만 집계한다. 실제 코드를 실행하지 않는다. 현재 서버 제한은 토큰이 있으면 5분당 분석 시작 5회, 없으면 서버 프로세스당 시간당 1회, 동시 2회다. 이 제한은 단일 프로세스 메모리 기준이며 여러 Railway 인스턴스에 공유되는 분산 제한은 아니다.
+
+`.DS_Store`·swap·temp 같은 고신뢰 임시 파일, 생성물 후보, 비밀정보 가능 경로와 400/800줄 초과 선택 소스·큰 소스 후보는 진단에 표시하되 v2.1 점수에서 일괄 감점하지 않는다. 필요한 배포 산출물이나 응집된 모듈을 잘못 벌점화하고 의미 없는 파일 분할을 유도하지 않기 위해서다.

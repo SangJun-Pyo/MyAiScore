@@ -15,6 +15,23 @@ export type RepositoryReportEvidenceId =
   | "automation-delivery"
   | "automation-scripts";
 
+export type RepositoryReportScoreSignalId = RepositoryReportEvidenceId | "traceability-commit-practice";
+export type RepositoryReportSignalRole = "core" | "conditional" | "bonus";
+export type RepositoryReportSignalStatus = "measured" | "unmeasured";
+
+export interface RepositoryReportSignalAssessment {
+  id: RepositoryReportScoreSignalId;
+  axis: RepositoryReportAxis;
+  role: RepositoryReportSignalRole;
+  status: RepositoryReportSignalStatus;
+  presence: 0 | 1;
+  substance: number | null;
+  breadth: number;
+  quality: number;
+  points: number;
+  maxPoints: number;
+}
+
 export interface RepositoryReportRequest {
   repo_url: string;
 }
@@ -38,9 +55,7 @@ export interface RepositoryReportEvidenceCard {
   paths: string[];
 }
 
-export interface RepositoryReport {
-  schemaVersion: "repository-report-v1";
-  ruleVersion: "repository-signals-v1";
+interface RepositoryReportBase {
   repo: string;
   commitSha: string;
   coverage: RepositoryReportCoverage;
@@ -55,6 +70,55 @@ export interface RepositoryReport {
   gaps: string[];
   nextChallenge: { title: string; description: string };
 }
+
+export interface RepositoryReportV1 extends RepositoryReportBase {
+  schemaVersion: "repository-report-v1";
+  ruleVersion: "repository-signals-v1";
+}
+
+export type RepositoryReportDiagnosticReason =
+  | "partial_collection"
+  | "tree_truncated"
+  | "selection_limited"
+  | "unmeasured_test_language"
+  | "commit_history_unavailable";
+
+export interface RepositoryReportV2Diagnostics {
+  provisional: boolean;
+  reasons: RepositoryReportDiagnosticReason[];
+  profile: { databaseLikely: boolean };
+  hygiene: {
+    highConfidenceArtifacts: number;
+    generatedArtifactCandidates: number;
+    secretLikePaths: number;
+  };
+  structure: {
+    oversizedSourceCandidates: number;
+    sourceFilesOver400Lines: number;
+    sourceFilesOver800Lines: number;
+    topFiveSourceByteShare: number | null;
+    largestSelectedSourceFiles: Array<{ path: string; lineCount: number }>;
+  };
+  commit: {
+    sampledCommits: number;
+    evaluatedCommits: number;
+    excludedMergeOrAutomated: number;
+    nonGenericSubjectRatio: number | null;
+    distinctSubjectRatio: number | null;
+    scopedSubjectRatio: number | null;
+    rationaleBodyRatio: number | null;
+    referenceRatio: number | null;
+  } | null;
+}
+
+export interface RepositoryReportV2 extends RepositoryReportBase {
+  schemaVersion: "repository-report-v2";
+  ruleVersion: "repository-signals-v2.1";
+  signalScores: RepositoryReportSignalAssessment[];
+  diagnostics: RepositoryReportV2Diagnostics;
+}
+
+export type RepositoryReport = RepositoryReportV1 | RepositoryReportV2;
 
 export const REPOSITORY_AXIS_ORDER: RepositoryReportAxis[] = ["context", "verification", "traceability", "automation"];
 export const REPOSITORY_EVIDENCE_ORDER: RepositoryReportEvidenceId[] = [
@@ -74,8 +138,14 @@ export const REPOSITORY_EVIDENCE_ORDER: RepositoryReportEvidenceId[] = [
   "automation-scripts",
 ];
 
+export const REPOSITORY_SCORE_SIGNAL_ORDER: RepositoryReportScoreSignalId[] = [
+  ...REPOSITORY_EVIDENCE_ORDER,
+  "traceability-commit-practice",
+];
+
 export const REPOSITORY_REPORT_COPY = {
   scoreExplanation: "선택된 공개 저장소 파일에서 확인한 협업 준비 신호를 더한 재미용 점수예요. 개인의 AI 활용 능력, 코드 품질, 실행 성공을 평가하지 않아요.",
+  scoreExplanationV2: "공개 저장소의 파일 존재뿐 아니라 제한적으로 읽은 내용의 실질과 저장소 규모 대비 범위를 함께 계산한 점수예요. 개인의 AI 활용 능력, 코드 정답이나 실행 성공을 평가하지 않아요.",
   axisLabels: {
     context: "맥락",
     verification: "검증 기반",
@@ -162,6 +232,8 @@ const FIXED_EVIDENCE_POINTS: Record<RepositoryReportEvidenceId, number> = {
   "automation-scripts": 3,
 };
 
+export const REPOSITORY_COMMIT_PRACTICE_MAX_POINTS = 5;
+
 export function repositoryEvidencePoints(id: RepositoryReportEvidenceId): number {
   return FIXED_EVIDENCE_POINTS[id];
 }
@@ -193,6 +265,20 @@ export function deriveRepositoryReportPresentation(cards: Array<Pick<RepositoryR
   return { axes, value, style, gaps, nextChallenge: REPOSITORY_REPORT_COPY.challenges[challengeAxis] };
 }
 
+export function deriveRepositoryReportV2Presentation(
+  assessments: Array<Pick<RepositoryReportSignalAssessment, "id" | "axis" | "points">>,
+  coverage: "complete" | "partial",
+) {
+  const axes: Record<RepositoryReportAxis, number> = { context: 0, verification: 0, traceability: 0, automation: 0 };
+  for (const item of assessments) axes[item.axis] = Math.min(25, axes[item.axis] + item.points);
+  const value = REPOSITORY_AXIS_ORDER.reduce((sum, axis) => sum + axes[axis], 0);
+  const style = repositoryStyleCopy(classifyRepositoryReportStyle(axes));
+  const gaps: string[] = REPOSITORY_AXIS_ORDER.filter(axis => axes[axis] < 10).map(axis => REPOSITORY_REPORT_COPY.gaps[axis]);
+  if (coverage === "partial") gaps.push(REPOSITORY_REPORT_COPY.gaps.partial);
+  const challengeAxis = REPOSITORY_AXIS_ORDER.reduce((lowest, axis) => axes[axis] < axes[lowest] ? axis : lowest, REPOSITORY_AXIS_ORDER[0]!);
+  return { axes, value, style, gaps, nextChallenge: REPOSITORY_REPORT_COPY.challenges[challengeAxis] };
+}
+
 function object(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -205,6 +291,10 @@ function exactKeys(value: Record<string, unknown>, keys: readonly string[]): boo
 
 function integer(value: unknown, min: number, max: number): value is number {
   return Number.isSafeInteger(value) && (value as number) >= min && (value as number) <= max;
+}
+
+function ratio(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
 }
 
 /** Only validated paths may cross the public report boundary. */
@@ -226,14 +316,10 @@ export function parseRepositoryReportRequest(value: unknown): RepositoryReportRe
   return { repo_url: repoUrl };
 }
 
-/** Strict public parser: no unlisted fields or unvalidated paths survive it. */
-export function parseRepositoryReport(value: unknown): RepositoryReport {
+function validateIdentityAndCoverage(value: Record<string, unknown>): { coverage: Record<string, unknown>; status: "complete" | "partial" } {
   const repoParts = object(value) && typeof value.repo === "string" ? value.repo.split("/") : [];
-  if (!object(value) || !exactKeys(value, ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge"]) ||
-      value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1" ||
-      typeof value.repo !== "string" || !/^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(value.repo) || repoParts.length !== 2 || repoParts.some(part => part === "." || part === ".." || part.length > 100) ||
+  if (typeof value.repo !== "string" || !/^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(value.repo) || repoParts.length !== 2 || repoParts.some(part => part === "." || part === ".." || part.length > 100) ||
       typeof value.commitSha !== "string" || !/^[a-f0-9]{40}$/i.test(value.commitSha)) throw new Error("Invalid repository report.");
-
   const coverage = value.coverage;
   if (!object(coverage) || !exactKeys(coverage, ["status", "basis", "selectedFiles", "readFiles", "candidateFiles", "treeTruncated", "selectionLimited", "note"]) ||
       !["complete", "partial"].includes(String(coverage.status)) || coverage.basis !== "selected_files" ||
@@ -241,10 +327,13 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
       !(coverage.candidateFiles === null || integer(coverage.candidateFiles, 0, 2_000)) ||
       typeof coverage.treeTruncated !== "boolean" || typeof coverage.selectionLimited !== "boolean" ||
       coverage.note !== REPOSITORY_REPORT_COPY.coverageNotes[coverage.status as "complete" | "partial"]) throw new Error("Invalid repository report coverage.");
+  return { coverage, status: coverage.status as "complete" | "partial" };
+}
 
+function validateScore(value: Record<string, unknown>, explanation: string) {
   const score = value.score;
   if (!object(score) || !exactKeys(score, ["value", "label", "explanation", "axes"]) || !integer(score.value, 0, 100) ||
-      score.label !== "저장소 기반 AI 협업 준비도" || score.explanation !== REPOSITORY_REPORT_COPY.scoreExplanation || !object(score.axes) ||
+      score.label !== "저장소 기반 AI 협업 준비도" || score.explanation !== explanation || !object(score.axes) ||
       !exactKeys(score.axes, REPOSITORY_AXIS_ORDER)) throw new Error("Invalid repository report score.");
   let total = 0;
   for (const axis of REPOSITORY_AXIS_ORDER) {
@@ -253,11 +342,17 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
     total += item.value as number;
   }
   if (total !== score.value) throw new Error("Invalid repository report score total.");
+  return score;
+}
 
+function validateStyle(value: Record<string, unknown>) {
   const style = value.style;
   const styles = Object.values(REPOSITORY_REPORT_COPY.styles);
   if (!object(style) || !exactKeys(style, ["id", "title", "description"]) || !styles.some(item => item.id === style.id && item.title === style.title && item.description === style.description)) throw new Error("Invalid repository report style.");
+  return style;
+}
 
+function validateEvidenceCards(value: Record<string, unknown>): RepositoryReportEvidenceCard[] {
   if (!Array.isArray(value.evidenceCards) || value.evidenceCards.length > 14) throw new Error("Invalid repository report evidence.");
   const evidenceIds = new Set<string>();
   const parsedCards: RepositoryReportEvidenceCard[] = [];
@@ -269,19 +364,121 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
     parsedCards.push(card as unknown as RepositoryReportEvidenceCard);
     evidenceIds.add(card.id);
   }
-  const derived = deriveRepositoryReportPresentation(parsedCards, coverage.status as "complete" | "partial");
-  for (const axis of REPOSITORY_AXIS_ORDER) {
-    const item = score.axes[axis] as Record<string, unknown>;
-    if (item.value !== derived.axes[axis]) throw new Error("Repository report score does not match its evidence.");
-  }
-  if (score.value !== derived.value || style.id !== derived.style.id || style.title !== derived.style.title || style.description !== derived.style.description) throw new Error("Repository report presentation does not match its evidence.");
+  return parsedCards;
+}
 
+function validateGuidance(value: Record<string, unknown>, derived: ReturnType<typeof deriveRepositoryReportPresentation>) {
   const allowedGaps = new Set<string>(Object.values(REPOSITORY_REPORT_COPY.gaps));
   if (!Array.isArray(value.gaps) || value.gaps.length > 5 || value.gaps.some(gap => typeof gap !== "string" || !allowedGaps.has(gap)) || new Set(value.gaps).size !== value.gaps.length) throw new Error("Invalid repository report gaps.");
   const challenge = value.nextChallenge;
   const challenges = Object.values(REPOSITORY_REPORT_COPY.challenges);
   if (!object(challenge) || !exactKeys(challenge, ["title", "description"]) || !challenges.some(item => item.title === challenge.title && item.description === challenge.description)) throw new Error("Invalid repository report challenge.");
   if (JSON.stringify(value.gaps) !== JSON.stringify(derived.gaps) || challenge.title !== derived.nextChallenge.title || challenge.description !== derived.nextChallenge.description) throw new Error("Repository report guidance does not match its evidence.");
+}
 
-  return structuredClone(value) as unknown as RepositoryReport;
+function validateDerivedPresentation(
+  score: Record<string, unknown>,
+  style: Record<string, unknown>,
+  derived: ReturnType<typeof deriveRepositoryReportPresentation>,
+) {
+  const axes = score.axes as Record<string, unknown>;
+  for (const axis of REPOSITORY_AXIS_ORDER) {
+    const item = axes[axis] as Record<string, unknown>;
+    if (item.value !== derived.axes[axis]) throw new Error("Repository report score does not match its evidence.");
+  }
+  if (score.value !== derived.value || style.id !== derived.style.id || style.title !== derived.style.title || style.description !== derived.style.description) throw new Error("Repository report presentation does not match its evidence.");
+}
+
+function expectedAxis(id: RepositoryReportScoreSignalId): RepositoryReportAxis {
+  if (id === "traceability-commit-practice") return "traceability";
+  return REPOSITORY_REPORT_COPY.evidence[id].axis;
+}
+
+function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean): RepositoryReportSignalAssessment[] {
+  if (!Array.isArray(value.signalScores) || value.signalScores.length !== REPOSITORY_SCORE_SIGNAL_ORDER.length) throw new Error("Invalid repository report signal scores.");
+  const assessments: RepositoryReportSignalAssessment[] = [];
+  for (let index = 0; index < value.signalScores.length; index += 1) {
+    const item = value.signalScores[index];
+    const expectedId = REPOSITORY_SCORE_SIGNAL_ORDER[index];
+    if (!object(item) || !exactKeys(item, ["id", "axis", "role", "status", "presence", "substance", "breadth", "quality", "points", "maxPoints"]) || item.id !== expectedId ||
+        item.axis !== expectedAxis(expectedId!) || !["core", "conditional", "bonus"].includes(String(item.role)) || !["measured", "unmeasured"].includes(String(item.status)) ||
+        ![0, 1].includes(Number(item.presence)) || !(item.substance === null || ratio(item.substance)) || !ratio(item.breadth) || !ratio(item.quality) ||
+        !integer(item.points, 0, 25) || !integer(item.maxPoints, 1, 25)) throw new Error("Invalid repository report signal score.");
+    const id = expectedId!;
+    const maxPoints = id === "traceability-commit-practice" ? REPOSITORY_COMMIT_PRACTICE_MAX_POINTS : repositoryEvidencePoints(id);
+    const expectedRole: RepositoryReportSignalRole = ["context-readme", "context-metadata", "verification-tests", "verification-config"].includes(id)
+      ? "core" : id === "traceability-migrations" && databaseLikely ? "conditional" : "bonus";
+    if (item.maxPoints !== maxPoints || item.role !== expectedRole || (item.status === "measured") !== (item.substance !== null) ||
+        (item.presence === 0 && (item.quality !== 0 || item.points !== 0)) || item.points !== Math.round(maxPoints * Number(item.quality))) throw new Error("Invalid repository report signal derivation.");
+    if (id !== "traceability-commit-practice" && item.presence === 0 && (item.status !== "measured" || item.substance !== 0)) throw new Error("Invalid absent repository signal.");
+    if (id !== "traceability-commit-practice" && item.presence === 1) {
+      const expectedQuality = item.substance === null ? 0.15 : Math.round((0.15 + 0.60 * Number(item.substance) + 0.25 * Number(item.substance) * Number(item.breadth)) * 1_000) / 1_000;
+      if (item.quality !== expectedQuality) throw new Error("Invalid repository report signal quality.");
+    } else if (id === "traceability-commit-practice") {
+      const expectedQuality = item.substance === null ? 0 : Math.round((0.15 + 0.85 * Number(item.substance)) * 1_000) / 1_000;
+      if (item.quality !== expectedQuality || (item.presence === 1) !== (item.substance !== null)) throw new Error("Invalid repository report commit signal quality.");
+    }
+    assessments.push(item as unknown as RepositoryReportSignalAssessment);
+  }
+  return assessments;
+}
+
+function validateDiagnostics(value: unknown): RepositoryReportV2Diagnostics {
+  if (!object(value) || !exactKeys(value, ["provisional", "reasons", "profile", "hygiene", "structure", "commit"]) || typeof value.provisional !== "boolean" || !Array.isArray(value.reasons)) throw new Error("Invalid repository report diagnostics.");
+  const allowedReasons: RepositoryReportDiagnosticReason[] = ["partial_collection", "tree_truncated", "selection_limited", "unmeasured_test_language", "commit_history_unavailable"];
+  if (value.reasons.length > allowedReasons.length || value.reasons.some(reason => !allowedReasons.includes(reason as RepositoryReportDiagnosticReason)) || new Set(value.reasons).size !== value.reasons.length || value.provisional !== (value.reasons.length > 0)) throw new Error("Invalid repository report diagnostic reasons.");
+  if (!object(value.profile) || !exactKeys(value.profile, ["databaseLikely"]) || typeof value.profile.databaseLikely !== "boolean") throw new Error("Invalid repository report profile.");
+  if (!object(value.hygiene) || !exactKeys(value.hygiene, ["highConfidenceArtifacts", "generatedArtifactCandidates", "secretLikePaths"]) ||
+      !integer(value.hygiene.highConfidenceArtifacts, 0, 2_000) || !integer(value.hygiene.generatedArtifactCandidates, 0, 2_000) || !integer(value.hygiene.secretLikePaths, 0, 2_000)) throw new Error("Invalid repository report hygiene.");
+  const structure = value.structure;
+  if (!object(structure) || !exactKeys(structure, ["oversizedSourceCandidates", "sourceFilesOver400Lines", "sourceFilesOver800Lines", "topFiveSourceByteShare", "largestSelectedSourceFiles"]) ||
+      !integer(structure.oversizedSourceCandidates, 0, 2_000) || !integer(structure.sourceFilesOver400Lines, 0, 40) || !integer(structure.sourceFilesOver800Lines, 0, 40) ||
+      !(structure.topFiveSourceByteShare === null || ratio(structure.topFiveSourceByteShare)) || !Array.isArray(structure.largestSelectedSourceFiles) || structure.largestSelectedSourceFiles.length > 5) throw new Error("Invalid repository report structure.");
+  for (const file of structure.largestSelectedSourceFiles) {
+    if (!object(file) || !exactKeys(file, ["path", "lineCount"]) || sanitizeRepositoryPath(file.path) !== file.path || !integer(file.lineCount, 0, 1_000_000)) throw new Error("Invalid repository report structure path.");
+  }
+  if (value.commit !== null) {
+    const commit = value.commit;
+    if (!object(commit) || !exactKeys(commit, ["sampledCommits", "evaluatedCommits", "excludedMergeOrAutomated", "nonGenericSubjectRatio", "distinctSubjectRatio", "scopedSubjectRatio", "rationaleBodyRatio", "referenceRatio"]) ||
+        !integer(commit.sampledCommits, 0, 20) || !integer(commit.evaluatedCommits, 0, 20) || !integer(commit.excludedMergeOrAutomated, 0, 20) || commit.evaluatedCommits + commit.excludedMergeOrAutomated !== commit.sampledCommits ||
+        [commit.nonGenericSubjectRatio, commit.distinctSubjectRatio, commit.scopedSubjectRatio, commit.rationaleBodyRatio, commit.referenceRatio].some(item => !(item === null || ratio(item)))) throw new Error("Invalid repository report commit diagnostics.");
+  }
+  return value as unknown as RepositoryReportV2Diagnostics;
+}
+
+/** Strict public parser: no unlisted fields or unvalidated paths survive it. */
+export function parseRepositoryReport(value: unknown): RepositoryReport {
+  if (!object(value)) throw new Error("Invalid repository report.");
+  const isV2 = value.schemaVersion === "repository-report-v2";
+  const keys = isV2
+    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics"]
+    : ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge"];
+  if (!exactKeys(value, keys) || (isV2 ? value.ruleVersion !== "repository-signals-v2.1" : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
+  const { coverage, status } = validateIdentityAndCoverage(value);
+  const score = validateScore(value, isV2 ? REPOSITORY_REPORT_COPY.scoreExplanationV2 : REPOSITORY_REPORT_COPY.scoreExplanation);
+  const style = validateStyle(value);
+  const cards = validateEvidenceCards(value);
+  if (!isV2) {
+    const derived = deriveRepositoryReportPresentation(cards, status);
+    validateDerivedPresentation(score, style, derived);
+    validateGuidance(value, derived);
+    return structuredClone(value) as unknown as RepositoryReportV1;
+  }
+
+  const diagnostics = validateDiagnostics(value.diagnostics);
+  const assessments = validateSignalScores(value, diagnostics.profile.databaseLikely);
+  const reasonSet = new Set(diagnostics.reasons);
+  const testAssessment = assessments.find(item => item.id === "verification-tests")!;
+  if (reasonSet.has("partial_collection") !== (status === "partial") ||
+      reasonSet.has("tree_truncated") !== Boolean(coverage.treeTruncated) ||
+      reasonSet.has("selection_limited") !== Boolean(coverage.selectionLimited) ||
+      reasonSet.has("unmeasured_test_language") !== (testAssessment.status === "unmeasured") ||
+      reasonSet.has("commit_history_unavailable") !== (diagnostics.commit === null)) throw new Error("Repository report diagnostic reasons do not match evidence.");
+  const filePresence = new Set(assessments.filter(item => item.id !== "traceability-commit-practice" && item.presence === 1).map(item => item.id));
+  if (cards.length !== filePresence.size || cards.some(card => !filePresence.has(card.id))) throw new Error("Repository report evidence does not match signal presence.");
+  const derived = deriveRepositoryReportV2Presentation(assessments, status);
+  validateDerivedPresentation(score, style, derived);
+  validateGuidance(value, derived);
+
+  return structuredClone(value) as unknown as RepositoryReportV2;
 }
