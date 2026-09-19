@@ -179,7 +179,7 @@ test("collaboration profile assigns sparse evidence with explicit low-confidence
 
 test("all 16 assigned codes have unique playful bilingual profile names", () => {
   const codes = ["DHSF", "DHSE", "DHTF", "DHTE", "DPSF", "DPSE", "DPTF", "DPTE", "RHSF", "RHSE", "RHTF", "RHTE", "RPSF", "RPSE", "RPTF", "RPTE"];
-  const titles = codes.map(code => {
+  const presentations = codes.map(code => {
     const profile: RepositoryCollaborationProfile = {
       version: "repository-collaboration-profile-v1", status: "assigned", code, reasons: [],
       dimensions: REPOSITORY_COLLABORATION_PROFILE_DIMENSION_ORDER.map((id, index) => {
@@ -188,12 +188,17 @@ test("all 16 assigned codes have unique playful bilingual profile names", () => 
         return { id, leftPole, rightPole, leftStrength: selectedPole === leftPole ? 0.7 : 0.3, rightStrength: selectedPole === rightPole ? 0.7 : 0.3, selectedPole, nearBoundary: false };
       }),
     };
-    return [repositoryProfilePresentation(profile, "ko").title, repositoryProfilePresentation(profile, "en").title];
+    return { code, ko: repositoryProfilePresentation(profile, "ko"), en: repositoryProfilePresentation(profile, "en") };
   });
+  const titles = presentations.map(({ ko, en }) => [ko.title, en.title]);
   assert.equal(new Set(titles.map(([ko]) => ko)).size, 16);
   assert.equal(new Set(titles.map(([, en]) => en)).size, 16);
   assert.deepEqual(titles[codes.indexOf("RHSE")], ["균형 잡힌 빌더", "Balanced Builder"]);
   assert.deepEqual(titles[codes.indexOf("RHTE")], ["검증 루프 항해사", "Verification Navigator"]);
+  const rht = presentations.find(item => item.code === "RHTE")!;
+  assert.equal(rht.ko.description, "검증 루프 항해사는 테스트와 직접 확인 신호를 중심으로 변경을 점검하고,\n기록·추적 단서를 함께 보며 신뢰를 쌓아가는 저장소 유형입니다.");
+  assert.doesNotMatch(rht.ko.description, /능력이나 성격/);
+  assert.doesNotMatch(rht.en.description, /\b(personality|ability)\b/);
 });
 
 test("collaboration profile assigns multiple near-boundary dimensions with caveats", () => {

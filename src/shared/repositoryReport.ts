@@ -305,12 +305,12 @@ export const REPOSITORY_REPORT_COPY = {
     partial: "공개 파일 표본의 일부만 읽었어요. 보이는 신호만 점수에 반영했으며, 없는 신호로 단정하지 않아요.",
   },
   styles: {
-    firstSignals: { id: "first-signals", title: "첫 신호 탐험가", description: "작은 단서부터 발견한 저장소예요. 다음 한 가지 습관을 파일로 남기면 점수가 또렷해져요." },
+    firstSignals: { id: "first-signals", title: "스타터 빌더", description: "작은 단서부터 발견한 저장소예요. 다음 한 가지 습관을 파일로 남기면 점수가 또렷해져요." },
     balanced: { id: "balanced-builder", title: "균형 잡힌 빌더", description: "맥락, 검증, 기록, 자동화 신호가 비교적 고르게 보여요." },
-    context: { id: "context-cartographer", title: "맥락 지도 제작자", description: "README와 작업 지침처럼 함께 일하기 위한 맥락 신호가 돋보여요." },
-    verification: { id: "verification-radar", title: "검증 레이더", description: "테스트와 검사 설정처럼 결과를 확인하려는 구조가 눈에 띄어요." },
-    traceability: { id: "trace-collector", title: "기록 수집가", description: "변경과 결정을 다시 따라갈 수 있는 기록 신호가 돋보여요." },
-    automation: { id: "automation-tamer", title: "자동화 조련사", description: "반복 검사를 자동으로 돌리기 위한 저장소 구조가 눈에 띄어요." },
+    context: { id: "context-cartographer", title: "맥락 설계자", description: "README와 작업 지침처럼 함께 일하기 위한 맥락 신호가 돋보여요." },
+    verification: { id: "verification-radar", title: "검증 수호자", description: "테스트와 검사 설정처럼 결과를 확인하려는 구조가 눈에 띄어요." },
+    traceability: { id: "trace-collector", title: "기록 전략가", description: "변경과 결정을 다시 따라갈 수 있는 기록 신호가 돋보여요." },
+    automation: { id: "automation-tamer", title: "자동화 지휘자", description: "반복 검사를 자동으로 돌리기 위한 저장소 구조가 눈에 띄어요." },
   },
   evidence: {
     "context-readme": { axis: "context", title: "시작 안내", description: "선택된 표본에서 프로젝트 시작점을 설명하는 README를 확인했어요." },

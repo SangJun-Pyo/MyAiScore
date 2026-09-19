@@ -384,6 +384,7 @@
   border-left:2px solid var(--accent);
   line-height:1.75;
   font-size:12px;
+  white-space:pre-line;
 }
 .repo-landing-hero .landing-chapters { grid-template-columns:repeat(3,1fr); }
 .repo-clear { margin-top:24px; }
@@ -404,6 +405,15 @@
     linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01) 46%),
     var(--white);
   box-shadow:inset 0 1px 0 #ffffff0a;
+}
+.repo-interpretation-limit {
+  margin:28px 0 0;
+  padding:16px 18px;
+  border-left:2px solid var(--accent);
+  background:var(--accent-soft);
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.75;
 }
 .repo-interpretation-guide .repo-guide::before {
   content:"";

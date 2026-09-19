@@ -2,21 +2,21 @@ import { REPOSITORY_AXIS_ORDER, REPOSITORY_REPORT_COPY, type RepositoryReport, t
 import type { Messages } from "./messages";
 
 const koreanStyles: Record<RepositoryReportStyleId, { title: string; description: string }> = {
-  "first-signals": { title: "첫 신호 탐험가", description: "협업을 위한 초기 단서가 확인됩니다. 작업 방식을 파일로 하나씩 남기면 협업 기반을 더 분명하게 만들 수 있습니다." },
+  "first-signals": { title: "스타터 빌더", description: "협업을 위한 초기 단서가 확인됩니다. 작업 방식을 파일로 하나씩 남기면 협업 기반을 더 분명하게 만들 수 있습니다." },
   "balanced-builder": { title: "균형 잡힌 빌더", description: "맥락, 검증 체계, 기록·추적, 자동화와 관련된 신호가 비교적 고르게 확인됩니다." },
-  "context-cartographer": { title: "맥락 지도 제작자", description: "README와 작업 지침처럼 함께 일하는 데 필요한 맥락 정보가 잘 갖춰져 있습니다." },
-  "verification-radar": { title: "AI 협업 신호 레이더", description: "테스트와 검사 설정 등 결과를 검증하기 위한 구조가 비교적 잘 갖춰져 있습니다." },
-  "trace-collector": { title: "기록 수집가", description: "변경 사항과 의사결정을 나중에 추적할 수 있는 기록이 잘 갖춰져 있습니다." },
-  "automation-tamer": { title: "자동화 조련사", description: "반복적인 점검을 자동으로 실행하기 위한 구조가 잘 갖춰져 있습니다." },
+  "context-cartographer": { title: "맥락 설계자", description: "README와 작업 지침처럼 함께 일하는 데 필요한 맥락 정보가 잘 갖춰져 있습니다." },
+  "verification-radar": { title: "검증 수호자", description: "테스트와 검사 설정 등 결과를 검증하기 위한 구조가 비교적 잘 갖춰져 있습니다." },
+  "trace-collector": { title: "기록 전략가", description: "변경 사항과 의사결정을 나중에 추적할 수 있는 기록이 잘 갖춰져 있습니다." },
+  "automation-tamer": { title: "자동화 지휘자", description: "반복적인 점검을 자동으로 실행하기 위한 구조가 잘 갖춰져 있습니다." },
 };
 
 const englishStyles: Record<RepositoryReportStyleId, { title: string; description: string }> = {
-  "first-signals": { title: "First-signal explorer", description: "This repository has a few early clues. Recording one more working practice would make its collaboration foundation clearer." },
-  "balanced-builder": { title: "Balanced builder", description: "Context, verification, traceability, and automation signals appear in a relatively even mix." },
-  "context-cartographer": { title: "Context cartographer", description: "Context signals such as READMEs and working instructions stand out." },
-  "verification-radar": { title: "Verification radar", description: "Tests and check configurations intended to examine results stand out." },
-  "trace-collector": { title: "Trace collector", description: "Records that help later readers follow changes and decisions stand out." },
-  "automation-tamer": { title: "Automation tamer", description: "The repository has visible foundations for running repeated checks automatically." },
+  "first-signals": { title: "Starter Builder", description: "This repository has a few early clues. Recording one more working practice would make its collaboration foundation clearer." },
+  "balanced-builder": { title: "Balanced Builder", description: "Context, verification, traceability, and automation signals appear in a relatively even mix." },
+  "context-cartographer": { title: "Context Designer", description: "Context signals such as READMEs and working instructions stand out." },
+  "verification-radar": { title: "Quality Guardian", description: "Tests and check configurations intended to examine results stand out." },
+  "trace-collector": { title: "Record Strategist", description: "Records that help later readers follow changes and decisions stand out." },
+  "automation-tamer": { title: "Automation Conductor", description: "The repository has visible foundations for running repeated checks automatically." },
 };
 
 const koreanEvidence: Record<RepositoryReportEvidenceId, { title: string; description: string }> = {

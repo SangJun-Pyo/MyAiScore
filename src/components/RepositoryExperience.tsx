@@ -548,6 +548,7 @@ function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | 
     {!profileGuide && <section className="repo-style-guide" aria-labelledby="style-name-guide-heading">
       <section className="repo-profile-name-guide" aria-labelledby="style-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="style-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code}><strong>{item.code}</strong><span>{item.name}</span></div>)}</div></section>
     </section>}
+    <p className="repo-interpretation-limit">{copy.insights.profileLimit}</p>
   </div>;
 }
 

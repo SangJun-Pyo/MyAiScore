@@ -9,7 +9,7 @@ test('한국어 홈은 로그인 없는 공개 저장소 흐름과 가상 예시
   await expect(page.getByRole('heading', { level: 1, name: /AI로 코딩하고 있는데, 제대로 활용하고 있을까요/ })).toBeVisible();
   await expect(page.getByText('회원가입 불필요', { exact: false })).toBeVisible();
   await expect(page.getByRole('link', { name: '내 저장소 분석하기' })).toHaveAttribute('href', '/evaluate');
-  await expect(page.locator('.landing-world.repo-hero-card')).toContainText('AI 협업 신호 레이더');
+  await expect(page.locator('.landing-world.repo-hero-card')).toContainText('검증 수호자');
   await page.getByRole('link', { name: '예시 리포트 보기' }).click();
   await expect(page.locator('#demo')).toContainText('가상 예시');
   await expect(page.locator('#demo .repo-profile-code')).toContainText('RHSF');

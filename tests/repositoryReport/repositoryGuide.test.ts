@@ -41,8 +41,8 @@ test("style classification keeps the documented first-match order and dominant-a
 test("guide lists all styles in canonical order and marks only the selected report style", () => {
   const guide = buildRepositoryGuide("en", messagesFor("en"), "verification-radar");
   assert.deepEqual(guide.styles.map(style => style.id), REPOSITORY_STYLE_ORDER);
-  assert.deepEqual(guide.styles.map(style => style.title), ["First-signal explorer", "Balanced builder", "Context cartographer", "Verification radar", "Trace collector", "Automation tamer"]);
-  assert.deepEqual(buildRepositoryGuide("ko", messagesFor("ko")).styles.map(style => style.title), ["첫 신호 탐험가", "균형 잡힌 빌더", "맥락 지도 제작자", "AI 협업 신호 레이더", "기록 수집가", "자동화 조련사"]);
+  assert.deepEqual(guide.styles.map(style => style.title), ["Starter Builder", "Balanced Builder", "Context Designer", "Quality Guardian", "Record Strategist", "Automation Conductor"]);
+  assert.deepEqual(buildRepositoryGuide("ko", messagesFor("ko")).styles.map(style => style.title), ["스타터 빌더", "균형 잡힌 빌더", "맥락 설계자", "검증 수호자", "기록 전략가", "자동화 지휘자"]);
   assert.deepEqual(guide.styles.filter(style => style.active).map(style => style.id), ["verification-radar"]);
   assert.match(guide.styles[0]!.rule, /below 20/);
   assert.match(guide.styles[1]!.rule, /at least 10.*6 or less/);
