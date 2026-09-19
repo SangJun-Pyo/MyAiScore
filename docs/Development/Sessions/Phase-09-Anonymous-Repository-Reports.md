@@ -232,3 +232,5 @@ Base: `36ba40e`. Branch: `codex/github-nav-link`.
 v2.7은 같은 규모와 같은 coverage 상태의 참조 그룹이 5개 이상일 때만 동점 포함 위치를 10% 구간으로 표시한다. 전체 50개와 실제 비교 그룹 수, GitHub 전체 순위가 아니라는 문구를 함께 보여준다. strict parser는 score와 coverage에서 cohort 객체를 다시 계산한다. 설계와 편향 한계는 [ADR-0023](../../Architecture/ADR/0023-fixed-sha-reference-cohort.md), 데이터 설명은 [Cohorts README](../../Assessment/Cohorts/README.md)에 기록했다.
 
 검증은 `npm run typecheck`, `npm test` 318/318, `npm run check:docs` 73파일·431개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 34/34를 통과했다. 최초 브라우저 검사에서 Node ESM의 JSON import attribute 누락을 발견해 명시적인 `with { type: "json" }`로 고쳤고 전체 검사를 다시 통과했다.
+
+PR [#58](https://github.com/SangJun-Pyo/MyAiScore/pull/58)의 GitHub CI는 3분 15초에 통과했고 main `c06c728`로 squash merge됐다. Railway 배포 상태도 해당 SHA에서 성공했다. 운영 `/api/health`는 200을 반환했고, 실제 `SangJun-Pyo/MyAiScore` 분석은 동일 SHA의 v2.7 총 77점, candidate 334·60개 읽기·complete, 추천 3개, medium/complete 참조 그룹 11개와 상위 0~10% 구간을 반환했다. 운영 HTML에는 `v1 참조 코호트`와 `GitHub 전체 순위가 아닙니다` 문구가 함께 노출됐다.
