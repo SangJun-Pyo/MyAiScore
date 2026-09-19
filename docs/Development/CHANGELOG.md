@@ -1,16 +1,16 @@
 # Changelog
 
+## 2026-09-19 — Hero title effect and 100% loading handoff
+
+- 홈 히어로의 별도 ThreeUI wordmark frame을 제거하고, 실제 H1 문구 `공개 저장소에서 AI 협업을 뒷받침하는 신호를 찾습니다.` 자체에 크로매틱 조립 효과를 적용했다. 텍스트는 실제 heading으로 유지하고 reduced motion에서는 정적으로 표시한다.
+- 저장소 분석 API 응답을 받은 뒤에도 UplinkLoader가 100% 구간에 도달할 때까지 loading 상태를 유지한 다음 완료 리포트로 전환한다.
+- 사용하지 않게 된 `TextAnimationCollection` alias와 intro wordmark 원본 파일을 제거했다.
+
 ## 2026-09-19 — ThreeUI uplink loader for analysis progress
 
 - 저장소 분석 요청 후 대기 상태에 ThreeUI `UplinkLoader`를 추가했다. 실제 진행 문구는 화면 텍스트로 유지하고, loader iframe은 장식 요소로 숨겨 보안 스캔·인증처럼 오해되지 않게 했다.
 - 지정된 등록 번들의 TSX·canonical HTML·CSS를 해시 일치 상태로 가져오고, 로컬 `@designcodeio/threeui` alias가 요청된 `<UplinkLoader />` 사용을 원본 렌더러로 연결한다.
 - 브라우저 검사는 지연된 API 응답 중 loader iframe과 내부 stage가 보이는지 확인한다.
-
-## 2026-09-19 — ThreeUI intro headline cue
-
-- 홈 히어로 제목 아래에 ThreeUI `TextAnimationCollection`의 `threeui-intro` 변형을 추가했다. 제목 문구는 실제 H1 텍스트로 유지하고, intro frame은 장식용으로 숨겨 접근성과 제품 의미를 보존한다.
-- 지정된 등록 번들의 TSX·canonical HTML·CSS를 해시 일치 상태로 가져오고, 로컬 `@designcodeio/threeui` alias가 요청된 props를 `ThreeUIIntro` 원본 렌더러로 연결한다.
-- Next raw HTML import와 ThreeUI CSS 자산 경로를 보강했다. 브라우저 검사는 iframe 내부 stage 준비 상태와 데스크톱·모바일 가로 넘침을 확인한다.
 
 ## 2026-09-19 — 한국어 제품 문구 다듬기
 

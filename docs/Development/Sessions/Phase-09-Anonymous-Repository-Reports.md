@@ -95,16 +95,6 @@ walkthrough 출처 해시 회귀 검사가 실제로 읽는 `buildMyAiScoreWalkt
 
 검증은 `npm test` 288/288, `npm run typecheck`, `npm run check:docs` 62파일·상대 링크 372개, `npm run build`를 통과했다. 홈 문구와 가로 넘침, 변경된 리포트·가이드·언어 전환을 포함한 Playwright 집중 검사는 desktop/mobile 20/20을 통과했다.
 
-## 2026-09-19 ThreeUI intro headline cue
-
-사용자 요청에 따라 홈 히어로 제목 영역에 ThreeUI `TextAnimationCollection`의 `threeui-intro` 변형을 추가했다. 등록 번들 `https://threeui.com/source-code/threeui-intro.json`을 가져와 세 필수 파일의 SHA-256을 확인하고, `src/shaders/neuform-isolated/NeuformIsolatedEffects.tsx`, `src/shaders/neuform-isolated/sources/creator-studio-intro.html`, `src/shaders/threeui.css`를 해시 일치 상태로 보존했다.
-
-Next.js가 원본의 `*.html?raw` import를 처리하도록 webpack resource rule을 추가하고, 로컬 `@designcodeio/threeui` alias의 `TextAnimationCollection`이 요청된 `variant="threeui-intro"` props를 원본 `ThreeUIIntro` export로 연결하게 했다. 등록 TSX가 참조하지만 이번 번들에 포함되지 않은 다른 변형 source들은 사용되지 않는 최소 placeholder HTML로 채워 원본 TSX를 수정하지 않았다. ThreeUI CSS가 요구하는 `fonts/fragment-mono.woff2` 경로도 보강했다.
-
-한국어 H1 문구는 실제 텍스트로 유지하고, ThreeUI intro frame은 `aria-hidden` 장식 요소로 제목 아래에 배치했다. 원본 variant가 자체 `ThreeUI` wordmark를 렌더링하므로, 이를 점수·분석 진행·저장소 신호로 오해하지 않도록 디자인 문서에 제품 의미 경계를 기록했다. 데스크톱 첫 시안에서 animation frame이 긴 제목 위에 겹치는 문제가 보여, 제목 아래 고정 비율 frame으로 조정했다.
-
-검증은 원본 세 파일 해시 재확인, `npm run typecheck`, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20을 통과했다. 브라우저 수동 확인은 새 production build 서버에서 데스크톱 1440px와 모바일 390px 캡처를 만들고, iframe 내부 `body[data-threeui-ready] #stage` 가시성, 제목/animation 비겹침, `scrollWidth <= innerWidth`를 확인했다.
-
 ## 2026-09-19 ThreeUI uplink loader progress
 
 사용자 요청에 따라 저장소 분석 요청 후 서버 응답을 기다리는 동안 ThreeUI `UplinkLoader`를 표시한다. 등록 번들 `https://threeui.com/source-code/uplink-loader.json`을 가져와 세 필수 파일의 SHA-256을 확인하고, `src/shaders/uplink-loader/UplinkLoader.tsx`, `src/shaders/uplink-loader/uplink-loader.html`, `src/shaders/threeui.css`를 해시 일치 상태로 보존했다.
@@ -114,3 +104,11 @@ Next.js가 원본의 `*.html?raw` import를 처리하도록 webpack resource rul
 브라우저 회귀 검사는 API 응답을 지연시켜 loading 상태를 관찰하고, loader iframe과 내부 `#stage`가 보이는지 확인한다. 디자인 시스템과 ThreeUI 적용 기록 문서에는 이 animation이 대기 상태 cue일 뿐이며 최종 repository report의 수집 범위·근거·한계 설명을 대체하지 않는다고 기록했다.
 
 검증은 원본 세 파일 해시 재확인, `npm run typecheck`, `npm test` 288/288, `npm run check:docs` 62파일·상대 링크 366개, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20, `git diff --check`를 통과했다. Production build 서버에서 데스크톱 1440px와 모바일 iPhone 12 로딩 캡처를 확인했고, 모바일 `scrollWidth > innerWidth`는 `false`, loader ready 상태는 `true`였다.
+
+## 2026-09-19 Hero title effect and 100% loading handoff
+
+사용자는 홈 제목 아래에 별도 ThreeUI wordmark가 뜨는 것이 아니라 `공개 저장소에서 AI 협업을 뒷받침하는 신호를 찾습니다.` 문구 자체에 효과가 적용되기를 원한다고 정정했다. 이에 따라 별도 `TextAnimationCollection` frame과 사용하지 않는 intro wordmark source를 제거하고, 실제 H1 텍스트에 크로매틱 조립 효과를 적용했다. H1은 screen reader가 읽는 실제 heading이며, `prefers-reduced-motion: reduce`에서는 정적으로 표시한다.
+
+UplinkLoader는 원본 파일을 유지하되 앱 전환 타이밍을 조정했다. API 응답이 빨리 도착해도 loader 내부 타임라인이 100% 구간에 도달하고 잠깐 보인 뒤 완료 notice와 리포트로 넘어간다. 응답이 한 loop 뒤에 도착한 경우에도 현재 phase를 계산해 다음 100% 구간에 맞춰 handoff한다.
+
+검증은 `npm run typecheck`, `npm test` 288/288, `npm run check:docs` 61파일·상대 링크 365개, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20을 통과했다. H1 줄바꿈 조정 후 홈 집중 Playwright desktop/mobile 2/2와 `git diff --check`를 재확인했다. Production build 서버에서 데스크톱·모바일 캡처를 만들었고, 별도 intro frame은 0개, H1 효과 line은 2개, 가로 넘침은 `false`였다.
