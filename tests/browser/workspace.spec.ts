@@ -47,7 +47,7 @@ async function interceptReport(page: Page, payload = report(), delayMs = 0) {
 
 test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 설명한다', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('AI 협업을 뒷받침하는 신호를 찾습니다.');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('AI를 잘 활용한 흔적이 얼마나 남아 있을까요?');
   await expect(page.locator('.repo-animated-title .repo-title-line')).toHaveCount(2);
   await expect(page.locator('.repo-crt-background .crt-terminal canvas')).toBeVisible();
   const heroCard = page.locator('.landing-world.repo-hero-card');

@@ -6,7 +6,7 @@ test('한국어 홈은 로그인 없는 공개 저장소 흐름과 가상 예시
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
-  await expect(page.getByRole('heading', { level: 1, name: /공개 저장소에서/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /AI를 잘 활용한 흔적이 얼마나 남아 있을까요/ })).toBeVisible();
   await expect(page.getByText('회원가입 불필요', { exact: false })).toBeVisible();
   await expect(page.getByRole('link', { name: '내 저장소 분석하기' })).toHaveAttribute('href', '/evaluate');
   await expect(page.locator('.landing-world.repo-hero-card')).toContainText('AI 협업 신호 레이더');
@@ -26,7 +26,7 @@ test('주요 메뉴는 데스크톱과 모바일에서 한국어로 탐색되고
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   for (const [name, path, heading] of [
-    ['홈', '/', /공개 저장소에서/],
+    ['홈', '/', /AI를 잘 활용한 흔적이 얼마나 남아 있을까요/],
     ['내 리포트', '/profile', '내 리포트'],
     ['해석 가이드', '/insights', '해석 가이드'],
     ['저장소 분석', '/evaluate', '공개 저장소 분석'],
