@@ -310,6 +310,16 @@ function RepositoryAxisRadar({ report }: { report: RepositoryReport }) {
         const point = radarPoint(index, item.value);
         return <circle key={item.axis} cx={point.x} cy={point.y} r="3.5" className="repo-axis-radar-dot" />;
       })}
+      {axes.map((item, index) => {
+        const labelPositions = [
+          { x: 82, y: 12, anchor: "middle" },
+          { x: 152, y: 87, anchor: "end" },
+          { x: 82, y: 158, anchor: "middle" },
+          { x: 12, y: 87, anchor: "start" },
+        ] as const;
+        const position = labelPositions[index] ?? labelPositions[0];
+        return <text key={`${item.axis}-label`} x={position.x} y={position.y} textAnchor={position.anchor} className="repo-axis-radar-label">{item.label}</text>;
+      })}
     </svg>
     <figcaption className="repo-axis-radar-legend">
       {axes.map(item => <span key={item.axis}><b>{item.label}</b><strong>{item.value}/25</strong></span>)}
@@ -356,8 +366,8 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
   return <section className="repo-report" aria-label={copy.report.aria}>
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
     {guideOverview ? <section className="repo-overview-guide repo-hero-card product-panel" aria-label={display.scoreLabel}>
-      <div className="hero-card-logic-ambient" aria-hidden="true"><StructureFlowCollection variant="logic-core" hue={0} saturation={1.00} brightness={1.00} /></div>
       <div className="repo-overview-guide-main">
+        <div className="hero-card-logic-ambient" aria-hidden="true"><StructureFlowCollection variant="logic-core" hue={0} saturation={1.00} brightness={1.00} /></div>
         <span className="sample-chip">{copy.report.styleEyebrow}</span>
         <h2>{display.style.title}</h2>
         <div className="session-hero-number">{report.score.value}<small>/100</small></div>
@@ -371,7 +381,6 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
         {profileDisplay && <div className="repo-overview-profile-summary">
           <span>{profileDisplay.eyebrow}</span>
           <div><strong className="repo-profile-code">{profileDisplay.code}</strong><b>{profileDisplay.title}</b></div>
-          <small>{profileDisplay.confidenceLabel}</small>
           <p>{profileDisplay.description}</p>
         </div>}
       </aside>
@@ -383,9 +392,8 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
     {v2?.diagnostics.provisional && <p className="notice repo-provisional">{v2Display.provisional}</p>}
     {profileDisplay && <section className="product-panel repo-profile-panel" aria-label={profileDisplay.guideTitle}>
       <div className="repo-profile-heading"><div><span className="eyebrow">{profileDisplay.eyebrow}</span><h2>{profileDisplay.guideTitle}</h2></div><p>{profileDisplay.guideIntro}</p></div>
-      {profileDisplay.code && <div className="repo-profile-identity"><div className="repo-profile-identity-code">{profileDisplay.code.split("").map((letter, index) => <span key={index}>{letter}</span>)}</div><div className="repo-profile-identity-text"><strong>{profileDisplay.title}</strong><span>{profileDisplay.confidenceLabel}</span></div></div>}
+      {profileDisplay.code && <div className="repo-profile-identity"><div className="repo-profile-identity-code">{profileDisplay.code.split("").map((letter, index) => <span key={index}>{letter}</span>)}</div><div className="repo-profile-identity-text"><strong>{profileDisplay.title}</strong></div></div>}
       <div className="repo-profile-dimensions">{profileDisplay.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileDisplay.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
-      {profileDisplay.reasons.length > 0 && <ul className="repo-profile-reasons">{profileDisplay.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
     </section>}
     <section className="repo-axis-section" aria-labelledby="axis-heading">
       <div className="repo-section-heading"><div><span className="eyebrow">{copy.report.axesEyebrow}</span><h2 id="axis-heading">{copy.report.axesHeading}</h2></div><p>{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.report.staticOnly}</p></div>
