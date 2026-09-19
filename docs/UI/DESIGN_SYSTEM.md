@@ -33,10 +33,10 @@ Product copy supports Korean and English, with Korean as the default. Keep API r
 
 ## Interaction and accessibility
 
-Use semantic links, buttons, tabs and disclosures with visible keyboard focus. EvidencePreview starts on D; its tabs support Left/Right/Home/End and normal focus navigation. Keep interfaces usable at narrow widths without hiding essential actions. Motion is optional: the preview has only a brief entrance under `prefers-reduced-motion: no-preference`; no autoplay or continuous effects. No WebGL or Canvas rendering is needed for the current product preview.
+Use semantic links, buttons, tabs and disclosures with visible keyboard focus. EvidencePreview starts on D; its tabs support Left/Right/Home/End and normal focus navigation. Keep interfaces usable at narrow widths without hiding essential actions. Motion is optional: the preview has only a brief entrance under `prefers-reduced-motion: no-preference`. The Home hero may include the isolated ThreeUI intro frame as a decorative cue, but core product meaning must remain in real text and static repository evidence surfaces.
 
 ## References and verification
 
-Kage remains the lower landing composition reference with [pinned provenance and MIT attribution](References/THREEUI_KAGE_LANDING_ADAPTATION.md). [ThreeUI browse](https://threeui.com/browse) and [Diagnostics Panel](https://threeui.com/ui-elements/diagnostics-panel) were reviewed. Diagnostics Panel contains three Canvas2D effects (layers, nodes, mesh); none was copied because they do not implement this product workflow. The new review panel is authored for MyAiScore. [Logic Core](References/THREEUI_LOGIC_CORE_ADAPTATION.md) is historical.
+Kage remains the lower landing composition reference with [pinned provenance and MIT attribution](References/THREEUI_KAGE_LANDING_ADAPTATION.md). The Home headline visual cue uses the registered [ThreeUI Intro Text source](References/THREEUI_INTRO_TEXT_ADAPTATION.md). [ThreeUI browse](https://threeui.com/browse) and [Diagnostics Panel](https://threeui.com/ui-elements/diagnostics-panel) were reviewed. Diagnostics Panel contains three Canvas2D effects (layers, nodes, mesh); none was copied because they do not implement this product workflow. The new review panel is authored for MyAiScore. [Logic Core](References/THREEUI_LOGIC_CORE_ADAPTATION.md) is historical.
 
 Implementation and executed checks belong in [Phase 6](../Development/Sessions/Phase-06-English-Landing.md). This design contract is not a claim of completed browser verification, model accuracy or deployment.

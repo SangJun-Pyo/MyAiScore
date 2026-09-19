@@ -45,6 +45,8 @@ async function interceptReport(page: Page, payload = report()) {
 test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 설명한다', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('AI 협업을 뒷받침하는 신호를 찾습니다.');
+  await expect(page.locator('.repo-title-animation iframe[title="ThreeUI chromatic wordmark intro"]')).toBeVisible();
+  await expect(page.frameLocator('.repo-title-animation iframe').locator('body[data-threeui-ready] #stage')).toBeVisible();
   await expect(page.locator('.landing-availability')).toHaveText('회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음');
   await expect(page.locator('.repo-hero-card')).toContainText('검증 체계');
   await expect(page.locator('.repo-hero-card')).toContainText('기록·추적');

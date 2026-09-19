@@ -94,3 +94,13 @@ walkthrough 출처 해시 회귀 검사가 실제로 읽는 `buildMyAiScoreWalkt
 기존 API 응답과 localStorage 결과가 계속 검증되도록 `repository-report-v1`의 고정 한국어 계약은 변경하지 않았다. 화면에서는 기존과 같은 style/evidence/axis ID를 새 한국어 표현으로 변환하며, 영어 화면과 점수 계산 규칙도 그대로 유지한다.
 
 검증은 `npm test` 288/288, `npm run typecheck`, `npm run check:docs` 62파일·상대 링크 372개, `npm run build`를 통과했다. 홈 문구와 가로 넘침, 변경된 리포트·가이드·언어 전환을 포함한 Playwright 집중 검사는 desktop/mobile 20/20을 통과했다.
+
+## 2026-09-19 ThreeUI intro headline cue
+
+사용자 요청에 따라 홈 히어로 제목 영역에 ThreeUI `TextAnimationCollection`의 `threeui-intro` 변형을 추가했다. 등록 번들 `https://threeui.com/source-code/threeui-intro.json`을 가져와 세 필수 파일의 SHA-256을 확인하고, `src/shaders/neuform-isolated/NeuformIsolatedEffects.tsx`, `src/shaders/neuform-isolated/sources/creator-studio-intro.html`, `src/shaders/threeui.css`를 해시 일치 상태로 보존했다.
+
+Next.js가 원본의 `*.html?raw` import를 처리하도록 webpack resource rule을 추가하고, 로컬 `@designcodeio/threeui` alias의 `TextAnimationCollection`이 요청된 `variant="threeui-intro"` props를 원본 `ThreeUIIntro` export로 연결하게 했다. 등록 TSX가 참조하지만 이번 번들에 포함되지 않은 다른 변형 source들은 사용되지 않는 최소 placeholder HTML로 채워 원본 TSX를 수정하지 않았다. ThreeUI CSS가 요구하는 `fonts/fragment-mono.woff2` 경로도 보강했다.
+
+한국어 H1 문구는 실제 텍스트로 유지하고, ThreeUI intro frame은 `aria-hidden` 장식 요소로 제목 아래에 배치했다. 원본 variant가 자체 `ThreeUI` wordmark를 렌더링하므로, 이를 점수·분석 진행·저장소 신호로 오해하지 않도록 디자인 문서에 제품 의미 경계를 기록했다. 데스크톱 첫 시안에서 animation frame이 긴 제목 위에 겹치는 문제가 보여, 제목 아래 고정 비율 frame으로 조정했다.
+
+검증은 원본 세 파일 해시 재확인, `npm run typecheck`, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20을 통과했다. 브라우저 수동 확인은 새 production build 서버에서 데스크톱 1440px와 모바일 390px 캡처를 만들고, iframe 내부 `body[data-threeui-ready] #stage` 가시성, 제목/animation 비겹침, `scrollWidth <= innerWidth`를 확인했다.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-19 — ThreeUI intro headline cue
+
+- 홈 히어로 제목 아래에 ThreeUI `TextAnimationCollection`의 `threeui-intro` 변형을 추가했다. 제목 문구는 실제 H1 텍스트로 유지하고, intro frame은 장식용으로 숨겨 접근성과 제품 의미를 보존한다.
+- 지정된 등록 번들의 TSX·canonical HTML·CSS를 해시 일치 상태로 가져오고, 로컬 `@designcodeio/threeui` alias가 요청된 props를 `ThreeUIIntro` 원본 렌더러로 연결한다.
+- Next raw HTML import와 ThreeUI CSS 자산 경로를 보강했다. 브라우저 검사는 iframe 내부 stage 준비 상태와 데스크톱·모바일 가로 넘침을 확인한다.
+
 ## 2026-09-19 — 한국어 제품 문구 다듬기
 
 - 홈, 예시 리포트, 결과 카드, 해석 가이드와 footer의 한국어를 자연스러운 제품 문구로 정리했다. 주요 축 이름은 `검증 체계`, `기록·추적`으로 통일하고 핵심 설명은 `AI 협업을 뒷받침하는 신호`에 맞췄다.

@@ -62,6 +62,29 @@
   margin: 0 0 28px;
   white-space: nowrap;
 }
+.repo-hero-title-lockup {
+  display: block;
+  margin-bottom: 28px;
+}
+.repo-hero-title-lockup h1 {
+  margin-bottom: 18px;
+}
+.shader-frame {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: #000;
+}
+.repo-title-animation {
+  width: clamp(132px,12vw,190px);
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 20px 60px -34px #000, inset 0 1px #ffffff18;
+}
+.repo-title-animation iframe {
+  display: block;
+}
 .landing-hero h1 span {
   color: #9c9c9c;
 }
@@ -620,6 +643,9 @@
   .landing-hero h1 {
     font-size: clamp(42px,5.6vw,65px);
   }
+  .repo-title-animation {
+    width: clamp(112px,13vw,145px);
+  }
   .landing-hero-copy {
     padding-top: 0;
   }
@@ -688,6 +714,12 @@
     letter-spacing: -.065em;
     white-space: normal;
     font-size: clamp(46px,10.5vw,76px);
+  }
+  .repo-hero-title-lockup {
+    width: 100%;
+  }
+  .repo-title-animation {
+    width: min(228px,58vw);
   }
   .chapter-label {
     letter-spacing: .12em;

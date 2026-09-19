@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { TextAnimationCollection } from "@designcodeio/threeui";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
 import {
@@ -136,7 +137,7 @@ export function RepositoryHomeExperience() {
   const display = repositoryPresentation(DEMO_REPORT, locale, copy);
   return <RepositoryShell><main id="main"><div className="landing-editorial">
     <section className="landing-hero repo-landing-hero" aria-labelledby="landing-title">
-      <div className="landing-hero-copy"><p className="chapter-label"><i /> {copy.home.kicker}</p><h1 id="landing-title">{copy.home.title1}<br /><span>{copy.home.title2}</span></h1><p className="landing-lead">{copy.home.lead1}<br />{copy.home.lead2}</p><div className="landing-actions"><Link className="landing-primary" href="/evaluate">{copy.home.primary}</Link><a className="landing-text-action" href="#demo">{copy.home.example}</a></div><p className="landing-availability">{copy.home.availability}</p></div>
+      <div className="landing-hero-copy"><p className="chapter-label"><i /> {copy.home.kicker}</p><div className="repo-hero-title-lockup"><h1 id="landing-title">{copy.home.title1}<br /><span>{copy.home.title2}</span></h1><div className="shader-frame repo-title-animation" aria-hidden="true"><TextAnimationCollection variant="threeui-intro" mode="dark" hue={0} saturation={1.00} brightness={1.00} /></div></div><p className="landing-lead">{copy.home.lead1}<br />{copy.home.lead2}</p><div className="landing-actions"><Link className="landing-primary" href="/evaluate">{copy.home.primary}</Link><a className="landing-text-action" href="#demo">{copy.home.example}</a></div><p className="landing-availability">{copy.home.availability}</p></div>
       <div className="landing-world repo-hero-card product-panel"><span className="sample-chip">{copy.home.demoTag}</span><h2>{display.style.title}</h2><div className="session-hero-number">{DEMO_REPORT.score.value}<small>/100</small></div><p>{display.scoreLabel}</p><div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{DEMO_REPORT.score.axes[axis].value}/25</strong></div>)}</div><p className="caption">{copy.home.demoCaption}</p></div>
       <div className="landing-chapters">{copy.home.chapters.map((chapter, index) => <a key={chapter.label} href={`#${["flow", "scope", "demo"][index]}`}><span>0{index + 1}</span><div><b>{chapter.label}</b><p>{chapter.text}</p></div></a>)}</div>
     </section>
