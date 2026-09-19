@@ -3,10 +3,11 @@ import {
   REPOSITORY_REPORT_COPY,
   REPOSITORY_V23_EVIDENCE_ORDER,
   deriveRepositoryCollaborationProfile,
+  deriveRepositoryRecommendations,
   deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
   sanitizeRepositoryPath,
-  type RepositoryReport,
+  type RepositoryReportV2_6,
   type RepositoryReportAxis,
   type RepositoryReportEvidenceCard,
   type RepositoryReportEvidenceId,
@@ -52,7 +53,7 @@ function fallbackInventory(snapshot: IngestionSnapshot, paths: string[]): Reposi
 }
 
 /** Build copy only from allowlisted structural signals. Repository content is never interpolated. */
-export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryReport {
+export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryReportV2_6 {
   if (!snapshot.commitSha || !/^[a-f0-9]{40}$/i.test(snapshot.commitSha) || !/^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(snapshot.repo) ||
       (snapshot.ingestionStatus !== "complete" && snapshot.ingestionStatus !== "partial")) throw new Error("A collected public repository snapshot is required.");
 
@@ -106,7 +107,7 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
 
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.5",
+    ruleVersion: "repository-signals-v2.6",
     repo: snapshot.repo,
     commitSha: snapshot.commitSha,
     coverage: {
@@ -137,5 +138,7 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
     signalScores: analysis.assessments,
     diagnostics,
     collaborationProfile: deriveRepositoryCollaborationProfile(analysis.assessments, derived.axes, diagnostics),
-  });
+    recommendations: deriveRepositoryRecommendations(analysis.assessments, evidenceCards),
+    cohort: null,
+  }) as RepositoryReportV2_6;
 }

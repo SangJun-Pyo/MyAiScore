@@ -214,3 +214,11 @@ Base: `36ba40e`. Branch: `codex/github-nav-link`.
 ### 배경 — main의 동시 작업
 
 이 작업 시점에 다른 세션이 같은 체크아웃의 공유 워크트리에서 `codex/repository-profile-v2-2`를 병합하는 중이었고, 그 병합이 `layout.tsx`, `globals.css`, `RepositoryExperience.tsx`를 건드리고 있었다. 충돌을 피하려고 이 작업은 별도 워크트리(`origin/main@36ba40e` 기준)에서 진행했다. 이후 이슈 #53에서 최신 `main@236d7cb` 위로 통합해 동시 변경을 보존했다.
+
+## 2026-09-19 — ROI 개선 조언 v2.6
+
+이슈 #55에서 최저 축 하나만 보여주던 다음 도전을 세부 신호 기반 최대 세 개 조언으로 확장했다. 각 측정 가능한 미충족 신호를 최대점으로 바꾼 뒤 축 상한을 포함한 전체 점수를 다시 계산한다. gain이 실제로 0보다 큰 후보만 고정 effort 대비 효과, gain, 정본 신호 순으로 정렬한다. 화면에는 숫자 계수를 숨기고 난이도 구간, 신호별 고정 행동 문구, 해당 신호의 기존 근거 카드에서 검증된 경로만 표시한다.
+
+새 결과는 `repository-signals-v2.6`을 발급한다. strict parser가 추천 순서·난이도·경로를 재계산하며 traversal 경로나 순서 위조를 거부한다. 기존 v1~v2.5 저장 결과와 `nextChallenge`는 계속 읽는다. 비교 코호트는 고정 SHA 공개 저장소 50개 이상의 versioned manifest가 없으므로 `null`로 고정하고, 화면에서 그 이유를 밝힌다. 근거 없는 순위나 백분위는 표시하지 않는다. 설계 결정은 [ADR-0022](../../Architecture/ADR/0022-deterministic-roi-recommendations.md)에 기록했다.
+
+검증은 `npm run typecheck`, `npm test` 315/315, `npm run check:docs` 71파일·419개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 34/34를 통과했다. 브라우저 검사는 추천 개수, 코호트 대기 문구와 내부 gain/ROI 비노출을 확인한다.

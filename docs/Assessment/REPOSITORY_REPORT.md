@@ -1,12 +1,12 @@
-# Repository report contract — v2.5
+# Repository report contract — v2.6
 
-Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [ADR-0019](../Architecture/ADR/0019-granular-repository-score-signals.md), [ADR-0020](../Architecture/ADR/0020-always-assigned-repository-profile.md), and [ADR-0021](../Architecture/ADR/0021-wider-private-collection-sample.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.5`로 발급한다. strict parser는 브라우저에 저장된 v1, v2.1, v2.2, v2.3, v2.4 기록을 계속 읽는다.
+Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [ADR-0019](../Architecture/ADR/0019-granular-repository-score-signals.md), [ADR-0020](../Architecture/ADR/0020-always-assigned-repository-profile.md), [ADR-0021](../Architecture/ADR/0021-wider-private-collection-sample.md), and [ADR-0022](../Architecture/ADR/0022-deterministic-roi-recommendations.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.6`으로 발급한다. strict parser는 브라우저에 저장된 v1과 v2.1~v2.5 기록을 계속 읽는다.
 
 ## 의미와 경계
 
 RepositoryReport는 공개 GitHub 저장소의 고정 commit에서 제한적으로 읽은 정적 신호를 요약한다. 개인의 실제 AI 대화, 의도, 기여분, 코드 정답, 생산성 또는 일반 능력을 인증하지 않는다. 사용자가 저장한 브라우저 사본은 인증된 증명서가 아니다.
 
-필수 공개 정보는 schema/rule version, 공개 repo slug, commit SHA, coverage, 네 축 점수와 총점, 네 차원 협업 유형 또는 보류 이유, 실제 수집 경로 기반 근거 카드, gap과 다음 도전이다. 서버 토큰, raw API 응답, 파일 원문, 감지된 비밀, 사용자 식별자와 임의 저장소 문장을 포함하지 않는다.
+필수 공개 정보는 schema/rule version, 공개 repo slug, commit SHA, coverage, 네 축 점수와 총점, 네 차원 협업 유형, 실제 수집 경로 기반 근거 카드, gap과 최대 세 개의 개선 조언이다. 서버 토큰, raw API 응답, 파일 원문, 감지된 비밀, 사용자 식별자와 임의 저장소 문장을 포함하지 않는다.
 
 ## 축
 
@@ -39,7 +39,9 @@ v2.4 협업 유형은 점수 높낮이와 분리해 D/R(기록/실행), H/P(직�
 
 웹 해석 가이드는 별도 점수표를 유지하지 않는다. v2.3의 축별 여섯 신호와 최대점을 공유 코드에서 직접 읽는다. 실제 리포트 카드는 획득점·최대점·내용 실질을 함께 표시한다. 한국어·영어 제목은 같은 의미 ID에서 가져온다. 과거 v1/v2.1/v2.2 저장 이력은 당시 계약으로 검증한다.
 
-점수·legacy style·gap·다음 도전·협업 유형은 v2 `signalScores`와 diagnostics에서 결정론적으로 재계산한다. 브라우저도 서버와 같은 strict parser를 사용하므로 품질·점수·진단·유형을 임의로 바꾼 응답이나 저장 이력은 거부한다. 부분 coverage, tree/selection 제한, 지원하지 않는 테스트 형식, 커밋 이력 미측정은 `provisional` 이유로 공개한다.
+점수·legacy style·gap·다음 도전·협업 유형은 v2 `signalScores`와 diagnostics에서 결정론적으로 재계산한다. v2.6 개선 조언은 각 측정 가능한 미충족 신호를 최대점으로 바꾼 뒤 축 상한을 포함한 총점을 다시 계산한다. 실제 gain이 있는 후보만 고정 effort 대비 gain 순으로 최대 세 개 고르며, UI에는 내부 계수 대신 난이도 구간과 고정 행동 문구만 보인다. 근거 경로는 해당 신호의 검증된 카드에서만 가져온다. 브라우저도 서버와 같은 strict parser를 사용하므로 품질·점수·진단·유형·조언을 임의로 바꾼 응답이나 저장 이력은 거부한다. 부분 coverage, tree/selection 제한, 지원하지 않는 테스트 형식, 커밋 이력 미측정은 `provisional` 이유로 공개한다.
+
+v2.6의 `cohort`는 실제 고정 SHA 공개 저장소 참조 manifest가 준비될 때까지 `null`이다. 최소 50개 표본의 rule version, 포함·제외 조건, 수집일, 규모·언어 분포와 coverage를 함께 공개하기 전에는 백분위나 등급을 표시하지 않는다.
 
 ## 근거와 안전
 

@@ -44,6 +44,15 @@ export interface RepositoryReportSignalAssessment {
   maxPoints: number;
 }
 
+export type RepositoryRecommendationEffort = "quick" | "medium" | "large";
+
+export interface RepositoryRecommendation {
+  signalId: RepositoryReportScoreSignalId;
+  axis: RepositoryReportAxis;
+  effort: RepositoryRecommendationEffort;
+  evidencePath: string | null;
+}
+
 export interface RepositoryReportRequest {
   repo_url: string;
 }
@@ -180,7 +189,15 @@ export interface RepositoryReportV2_5 extends RepositoryReportV2Base {
   collaborationProfile: RepositoryCollaborationProfile;
 }
 
-export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3 | RepositoryReportV2_4 | RepositoryReportV2_5;
+export interface RepositoryReportV2_6 extends RepositoryReportV2Base {
+  ruleVersion: "repository-signals-v2.6";
+  collaborationProfile: RepositoryCollaborationProfile;
+  recommendations: RepositoryRecommendation[];
+  /** Reserved until a versioned fixed-SHA public cohort is checked in. */
+  cohort: null;
+}
+
+export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3 | RepositoryReportV2_4 | RepositoryReportV2_5 | RepositoryReportV2_6;
 
 export type RepositoryReport = RepositoryReportV1 | RepositoryReportV2;
 
@@ -381,6 +398,36 @@ const FIXED_EVIDENCE_POINTS: Record<RepositoryReportEvidenceId, number> = {
 export const REPOSITORY_COMMIT_PRACTICE_MAX_POINTS = 5;
 export const REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS = 4;
 
+const REPOSITORY_RECOMMENDATION_EFFORT: Record<RepositoryReportScoreSignalId, { value: number; label: RepositoryRecommendationEffort }> = {
+  "context-readme": { value: 1, label: "quick" },
+  "context-guidance": { value: 2, label: "medium" },
+  "context-docs": { value: 2, label: "medium" },
+  "context-metadata": { value: 1, label: "quick" },
+  "context-contracts": { value: 3, label: "large" },
+  "context-reproducibility": { value: 2, label: "medium" },
+  "verification-tests": { value: 3, label: "large" },
+  "verification-config": { value: 2, label: "medium" },
+  "verification-entrypoint": { value: 1, label: "quick" },
+  "verification-test-substance": { value: 3, label: "large" },
+  "verification-test-breadth": { value: 3, label: "large" },
+  "verification-edge-cases": { value: 2, label: "medium" },
+  "verification-static-analysis": { value: 2, label: "medium" },
+  "verification-coverage": { value: 3, label: "large" },
+  "traceability-changelog": { value: 1, label: "quick" },
+  "traceability-decisions": { value: 2, label: "medium" },
+  "traceability-templates": { value: 1, label: "quick" },
+  "traceability-migrations": { value: 3, label: "large" },
+  "traceability-ownership": { value: 2, label: "medium" },
+  "traceability-commit-practice": { value: 1, label: "quick" },
+  "automation-ci": { value: 3, label: "large" },
+  "automation-ci-tests": { value: 2, label: "medium" },
+  "automation-ci-quality": { value: 2, label: "medium" },
+  "automation-dependencies": { value: 1, label: "quick" },
+  "automation-delivery": { value: 3, label: "large" },
+  "automation-scripts": { value: 2, label: "medium" },
+  "automation-environment": { value: 2, label: "medium" },
+};
+
 const V23_EVIDENCE_POINTS: Record<(typeof REPOSITORY_V23_EVIDENCE_ORDER)[number], number> = {
   "context-readme": 5,
   "context-guidance": 5,
@@ -454,6 +501,39 @@ export function deriveRepositoryReportV2Presentation(
   if (coverage === "partial") gaps.push(REPOSITORY_REPORT_COPY.gaps.partial);
   const challengeAxis = REPOSITORY_AXIS_ORDER.reduce((lowest, axis) => axes[axis] < axes[lowest] ? axis : lowest, REPOSITORY_AXIS_ORDER[0]!);
   return { axes, value, style, gaps, nextChallenge: REPOSITORY_REPORT_COPY.challenges[challengeAxis] };
+}
+
+/**
+ * Rank concrete improvements by simulated score gain per fixed effort unit.
+ * The ranking coefficients stay internal; the public result exposes only the
+ * stable action identity, effort band, and an already-validated evidence path.
+ */
+export function deriveRepositoryRecommendations(
+  assessments: RepositoryReportSignalAssessment[],
+  cards: Array<Pick<RepositoryReportEvidenceCard, "id" | "paths">>,
+): RepositoryRecommendation[] {
+  const current = deriveRepositoryReportV2Presentation(assessments, "complete").value;
+  const cardById = new Map(cards.map(card => [card.id, card]));
+  return assessments
+    .map((assessment, index) => {
+      if (assessment.status !== "measured" || assessment.points >= assessment.maxPoints) return null;
+      if (assessment.id === "traceability-migrations" && assessment.role !== "conditional") return null;
+      const simulated = assessments.map(item => item.id === assessment.id ? { ...item, points: item.maxPoints } : item);
+      const gain = deriveRepositoryReportV2Presentation(simulated, "complete").value - current;
+      if (gain <= 0) return null;
+      const effort = REPOSITORY_RECOMMENDATION_EFFORT[assessment.id];
+      const path = cardById.get(assessment.id as RepositoryReportEvidenceId)?.paths[0] ?? null;
+      return {
+        recommendation: { signalId: assessment.id, axis: assessment.axis, effort: effort.label, evidencePath: path } satisfies RepositoryRecommendation,
+        roi: gain / effort.value,
+        gain,
+        index,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null)
+    .sort((left, right) => right.roi - left.roi || right.gain - left.gain || left.index - right.index)
+    .slice(0, 3)
+    .map(item => item.recommendation);
 }
 
 const PROFILE_LOCAL_SIGNAL_IDS: RepositoryReportScoreSignalId[] = ["verification-entrypoint", "verification-test-substance", "verification-static-analysis", "automation-scripts"];
@@ -652,8 +732,8 @@ function expectedAxis(id: RepositoryReportScoreSignalId): RepositoryReportAxis {
   return REPOSITORY_REPORT_COPY.evidence[id].axis;
 }
 
-function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5"): RepositoryReportSignalAssessment[] {
-  const modern = ["repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5"].includes(ruleVersion);
+function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5" | "repository-signals-v2.6"): RepositoryReportSignalAssessment[] {
+  const modern = ["repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5", "repository-signals-v2.6"].includes(ruleVersion);
   const signalOrder = modern ? REPOSITORY_SCORE_SIGNAL_ORDER : REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER;
   if (!Array.isArray(value.signalScores) || value.signalScores.length !== signalOrder.length) throw new Error("Invalid repository report signal scores.");
   const assessments: RepositoryReportSignalAssessment[] = [];
@@ -687,6 +767,24 @@ function validateSignalScores(value: Record<string, unknown>, databaseLikely: bo
     assessments.push(item as unknown as RepositoryReportSignalAssessment);
   }
   return assessments;
+}
+
+function validateRecommendations(value: unknown, assessments: RepositoryReportSignalAssessment[], cards: RepositoryReportEvidenceCard[]): RepositoryRecommendation[] {
+  if (!Array.isArray(value) || value.length > 3) throw new Error("Invalid repository recommendations.");
+  const parsed: RepositoryRecommendation[] = [];
+  for (const item of value) {
+    if (!object(item) || !exactKeys(item, ["signalId", "axis", "effort", "evidencePath"]) ||
+        !(REPOSITORY_SCORE_SIGNAL_ORDER as readonly string[]).includes(String(item.signalId)) ||
+        !REPOSITORY_AXIS_ORDER.includes(item.axis as RepositoryReportAxis) ||
+        !["quick", "medium", "large"].includes(String(item.effort)) ||
+        !(item.evidencePath === null || sanitizeRepositoryPath(item.evidencePath) === item.evidencePath)) {
+      throw new Error("Invalid repository recommendation.");
+    }
+    parsed.push(item as unknown as RepositoryRecommendation);
+  }
+  const expected = deriveRepositoryRecommendations(assessments, cards);
+  if (JSON.stringify(parsed) !== JSON.stringify(expected)) throw new Error("Repository recommendations do not match their evidence.");
+  return parsed;
 }
 
 function validateDiagnostics(value: unknown, maxSelectedFiles = 40): RepositoryReportV2Diagnostics {
@@ -755,13 +853,14 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   const isV23 = isV2 && value.ruleVersion === "repository-signals-v2.3";
   const isV24 = isV2 && value.ruleVersion === "repository-signals-v2.4";
   const isV25 = isV2 && value.ruleVersion === "repository-signals-v2.5";
-  const isModern = isV23 || isV24 || isV25;
-  const alwaysAssigned = isV24 || isV25;
+  const isV26 = isV2 && value.ruleVersion === "repository-signals-v2.6";
+  const isModern = isV23 || isV24 || isV25 || isV26;
+  const alwaysAssigned = isV24 || isV25 || isV26;
   const keys = isV2
-    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 || isModern ? ["collaborationProfile"] : [])]
+    ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 || isModern ? ["collaborationProfile"] : []), ...(isV26 ? ["recommendations", "cohort"] : [])]
     : ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge"];
-  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
-  const { coverage, status } = validateIdentityAndCoverage(value, isV25 ? 60 : 40);
+  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5", "repository-signals-v2.6"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
+  const { coverage, status } = validateIdentityAndCoverage(value, isV25 || isV26 ? 60 : 40);
   const score = validateScore(value, isV2 ? REPOSITORY_REPORT_COPY.scoreExplanationV2 : REPOSITORY_REPORT_COPY.scoreExplanation);
   const style = validateStyle(value);
   const cards = validateEvidenceCards(value, isModern ? REPOSITORY_V23_EVIDENCE_ORDER : REPOSITORY_LEGACY_EVIDENCE_ORDER);
@@ -772,8 +871,8 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
     return structuredClone(value) as unknown as RepositoryReportV1;
   }
 
-  const diagnostics = validateDiagnostics(value.diagnostics, isV25 ? 60 : 40);
-  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5";
+  const diagnostics = validateDiagnostics(value.diagnostics, isV25 || isV26 ? 60 : 40);
+  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5" | "repository-signals-v2.6";
   const assessments = validateSignalScores(value, diagnostics.profile.databaseLikely, ruleVersion);
   const reasonSet = new Set(diagnostics.reasons);
   const testAssessment = assessments.find(item => item.id === (isModern ? "verification-test-substance" : "verification-tests"))!;
@@ -792,6 +891,11 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
     const profile = validateCollaborationProfile(value.collaborationProfile, alwaysAssigned);
     const expectedProfile = deriveRepositoryCollaborationProfile(assessments, derived.axes, diagnostics, isV22 ? "v22" : isV23 ? "v23" : "v24");
     if (JSON.stringify(profile) !== JSON.stringify(expectedProfile)) throw new Error("Repository collaboration profile does not match its evidence.");
+  }
+
+  if (isV26) {
+    validateRecommendations(value.recommendations, assessments, cards);
+    if (value.cohort !== null) throw new Error("Repository cohort is unavailable until a fixed reference manifest is released.");
   }
 
   return structuredClone(value) as unknown as RepositoryReportV2;

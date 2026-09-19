@@ -12,6 +12,7 @@ import {
   REPOSITORY_SCORE_SIGNAL_ORDER,
   REPOSITORY_V23_COMMIT_PRACTICE_MAX_POINTS,
   deriveRepositoryCollaborationProfile,
+  deriveRepositoryRecommendations,
   deriveRepositoryReportPresentation,
   deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
@@ -90,7 +91,7 @@ test("partial coverage remains explicit while observable signals still receive a
   assert.equal(report.coverage.note, REPOSITORY_REPORT_COPY.coverageNotes.partial);
   assert.ok(report.score.value > 0 && report.score.value <= 100);
   assert.ok(report.gaps.includes(REPOSITORY_REPORT_COPY.gaps.partial));
-  assert.equal(report.ruleVersion, "repository-signals-v2.5");
+  assert.equal(report.ruleVersion, "repository-signals-v2.6");
   assert.equal(report.collaborationProfile.status, "assigned");
   assert.ok(report.collaborationProfile.reasons.includes("incomplete_collection"));
   assert.match(report.collaborationProfile.code ?? "", /^[DR][HP][ST][FE]$/);
@@ -128,7 +129,7 @@ test("substantive content and fixed-SHA commit practice raise transparent v2 sig
   input.commitTraceability = { basis: "fixed_commit_ancestors", sampledCommits: 5, evaluatedCommits: 5, excludedMergeOrAutomated: 0, nonGenericSubjectRatio: 1, distinctSubjectRatio: 1, scopedSubjectRatio: 0.8, rationaleBodyRatio: 0.6, referenceRatio: 0.4 };
   const report = buildRepositoryReport(input);
   assert.equal(report.schemaVersion, "repository-report-v2");
-  assert.equal(report.ruleVersion, "repository-signals-v2.5");
+  assert.equal(report.ruleVersion, "repository-signals-v2.6");
   assert.ok(report.score.value > 35);
   assert.equal(report.diagnostics.profile.databaseLikely, true);
   assert.ok(report.signalScores.find(item => item.id === "traceability-commit-practice")!.points > 0);
@@ -136,6 +137,23 @@ test("substantive content and fixed-SHA commit practice raise transparent v2 sig
   assert.equal(report.collaborationProfile.status, "assigned");
   assert.match(report.collaborationProfile.code ?? "", /^[DR][HP][ST][FE]$/);
   assert.equal(report.collaborationProfile.dimensions.length, 4);
+  assert.equal(report.cohort, null);
+  assert.deepEqual(report.recommendations, deriveRepositoryRecommendations(report.signalScores, report.evidenceCards));
+});
+
+test("ROI recommendations are capped, deterministic, and reject forged ordering or paths", () => {
+  const report = buildRepositoryReport(snapshot(["README.md", "package.json", "tests/a.test.ts"]));
+  assert.ok(report.recommendations.length > 0 && report.recommendations.length <= 3);
+  assert.deepEqual(report.recommendations, deriveRepositoryRecommendations(report.signalScores, report.evidenceCards));
+  assert.ok(report.recommendations.every(item => ["quick", "medium", "large"].includes(item.effort)));
+
+  const forgedOrder = structuredClone(report);
+  forgedOrder.recommendations.reverse();
+  assert.throws(() => parseRepositoryReport(forgedOrder));
+
+  const forgedPath = structuredClone(report);
+  forgedPath.recommendations[0]!.evidencePath = "../secret";
+  assert.throws(() => parseRepositoryReport(forgedPath));
 });
 
 test("collaboration profile assigns sparse evidence with explicit low-confidence reasons", () => {
@@ -246,8 +264,9 @@ test("strict parser keeps stored v2.3 withheld profiles on their historical cont
   assert.equal(current.schemaVersion, "repository-report-v2");
   if (current.schemaVersion !== "repository-report-v2") return;
   const axes = Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, current.score.axes[axis].value])) as Record<RepositoryReportAxis, number>;
+  const { recommendations: _recommendations, cohort: _cohort, ...historical } = current;
   const stored = {
-    ...current,
+    ...historical,
     ruleVersion: "repository-signals-v2.3" as const,
     collaborationProfile: deriveRepositoryCollaborationProfile(current.signalScores, axes, current.diagnostics, "v23"),
   };
@@ -255,13 +274,14 @@ test("strict parser keeps stored v2.3 withheld profiles on their historical cont
   assert.deepEqual(parseRepositoryReport(stored), stored);
 });
 
-test("strict parser keeps v2.4 profiles readable while preserving their 40-file limit", () => {
+test("strict parser keeps v2.4 profiles readable while v2.6 retains the 60-file limit", () => {
   const current = buildRepositoryReport(snapshot([]));
   assert.equal(current.schemaVersion, "repository-report-v2");
   if (current.schemaVersion !== "repository-report-v2") return;
   const expanded = { ...current, coverage: { ...current.coverage, selectedFiles: 60, readFiles: 60, candidateFiles: 60 } };
   assert.deepEqual(parseRepositoryReport(expanded), expanded);
-  const stored = { ...current, ruleVersion: "repository-signals-v2.4" as const };
+  const { recommendations: _recommendations, cohort: _cohort, ...historical } = current;
+  const stored = { ...historical, ruleVersion: "repository-signals-v2.4" as const };
   assert.deepEqual(parseRepositoryReport(stored), stored);
   assert.throws(() => parseRepositoryReport({
     ...stored,

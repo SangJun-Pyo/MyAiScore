@@ -17,11 +17,11 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 | Web | Korean-default bilingual Home/분석/Profile/Insights, persistent locale, transparent score/style guide, progress/errors, opt-in browser history |
 | Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
 | Privacy | No repository code execution, no private repository, no token/raw response exposure |
-| Validation | 314 unit/API tests, docs/type/build, 34 browser checks, independent PASS through v2.4, Railway live smoke complete |
+| Validation | 315 unit/API tests, docs/type/build, 34 browser checks through v2.6; Railway live smoke complete through v2.5/nav |
 
 ## Immediate operation
 
-Repository score v2.3 shipped through issue [#47](https://github.com/SangJun-Pyo/MyAiScore/issues/47) / PR [#48](https://github.com/SangJun-Pyo/MyAiScore/pull/48), and always-assigned v2.4 profiles shipped through issue [#49](https://github.com/SangJun-Pyo/MyAiScore/issues/49) / PR [#50](https://github.com/SangJun-Pyo/MyAiScore/pull/50) at main `75db562`; Railway and live smoke passed. Issue [#51](https://github.com/SangJun-Pyo/MyAiScore/issues/51) adds playful 16-type names, hides raw collection counts, and widens the sample to a measured 60 files. The next implementation order is transparent cohort calibration and ROI-ranked advice.
+Repository score v2.3 shipped through issue [#47](https://github.com/SangJun-Pyo/MyAiScore/issues/47) / PR [#48](https://github.com/SangJun-Pyo/MyAiScore/pull/48), always-assigned v2.4 profiles through [#49](https://github.com/SangJun-Pyo/MyAiScore/issues/49) / [#50](https://github.com/SangJun-Pyo/MyAiScore/pull/50), and playful names plus the 60-file v2.5 sample through [#51](https://github.com/SangJun-Pyo/MyAiScore/issues/51) / [#52](https://github.com/SangJun-Pyo/MyAiScore/pull/52). Header GitHub navigation shipped through [#53](https://github.com/SangJun-Pyo/MyAiScore/issues/53) / [#54](https://github.com/SangJun-Pyo/MyAiScore/pull/54) at main `03103f1`; Railway and live smoke passed. Issue [#55](https://github.com/SangJun-Pyo/MyAiScore/issues/55) implements deterministic ROI-ranked advice and keeps cohort comparison hidden until a fixed-SHA public manifest of at least 50 repositories exists.
 
 Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. Production health, Korean/English pages and a real public MyAiScore report passed. Railway now has a server-only `GITHUB_TOKEN`; two consecutive public-repository reports returned 200 without token or raw file content in the response. The token only raises the public API allowance and private repositories remain rejected.
 
