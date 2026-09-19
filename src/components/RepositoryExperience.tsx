@@ -95,7 +95,7 @@ function buildDemoReport(): RepositoryReport {
   };
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.4",
+    ruleVersion: "repository-signals-v2.5",
     repo: "example/sample-project",
     commitSha: "0123456789abcdef0123456789abcdef01234567",
     coverage: {
@@ -209,7 +209,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
       {profileDisplay.reasons.length > 0 && <ul className="repo-profile-reasons">{profileDisplay.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
     </section>}
     <section className="repo-axis-section" aria-labelledby="axis-heading">
-      <div className="repo-section-heading"><div><span className="eyebrow">{copy.report.axesEyebrow}</span><h2 id="axis-heading">{copy.report.axesHeading}</h2></div><p>{report.coverage.candidateFiles === null ? copy.report.candidateUnknown : copy.report.candidate(report.coverage.candidateFiles)} · {copy.report.selected(report.coverage.selectedFiles)} · {copy.report.read(report.coverage.readFiles)}<br />{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.report.staticOnly}</p></div>
+      <div className="repo-section-heading"><div><span className="eyebrow">{copy.report.axesEyebrow}</span><h2 id="axis-heading">{copy.report.axesHeading}</h2></div><p>{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.report.staticOnly}</p></div>
       <div className="repo-axis-grid">{REPOSITORY_AXIS_ORDER.map(axis => {
         const cards = report.evidenceCards.filter(card => card.axis === axis);
         return <article className="repo-axis-card product-panel" key={axis}>
@@ -330,7 +330,7 @@ export function RepositoryProfileExperience() {
   return <RepositoryShell><main id="main" className="page-width product-page">
     <header className="product-heading"><div><h1>{copy.profile.title}</h1><p>{copy.profile.description}</p></div><Link className="button button-primary" href="/evaluate">{copy.profile.newReport}</Link></header><p className="product-access-note">{copy.profile.privacy}</p>
     {error && <p className="notice notice-error" role="alert">{error === "history" ? copy.profile.historyError : copy.profile.updateError}</p>}
-    {reports.length === 0 ? <section className="product-empty"><h2>{copy.profile.emptyTitle}</h2><p>{copy.profile.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.profile.emptyCta}</Link></section> : <section aria-label={copy.profile.historyAria} className="history-list">{reports.map((report, index) => { const display = repositoryPresentation(report, locale, copy); return <article className="history-entry" key={`${report.repo}@${report.commitSha}`}><div className="history-description"><span className="eyebrow">{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.profile.files(report.coverage.readFiles, report.coverage.selectedFiles)}</span><h2>{repoName(report.repo)}</h2><p>{reportProfileTitle(report, locale, display.style.title)} · <code>{report.commitSha.slice(0, 12)}</code></p></div><div className="history-score"><strong>{report.score.value}</strong><small>/100</small></div><div className="history-actions"><button className="text-button" onClick={() => { currentReport = report; router.push("/insights"); }}>{copy.profile.view}</button><button className="text-button" onClick={() => remove(index)}>{copy.profile.remove}</button></div></article>; })}</section>}
+    {reports.length === 0 ? <section className="product-empty"><h2>{copy.profile.emptyTitle}</h2><p>{copy.profile.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.profile.emptyCta}</Link></section> : <section aria-label={copy.profile.historyAria} className="history-list">{reports.map((report, index) => { const display = repositoryPresentation(report, locale, copy); return <article className="history-entry" key={`${report.repo}@${report.commitSha}`}><div className="history-description"><span className="eyebrow">{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial}</span><h2>{repoName(report.repo)}</h2><p>{reportProfileTitle(report, locale, display.style.title)} · <code>{report.commitSha.slice(0, 12)}</code></p></div><div className="history-score"><strong>{report.score.value}</strong><small>/100</small></div><div className="history-actions"><button className="text-button" onClick={() => { currentReport = report; router.push("/insights"); }}>{copy.profile.view}</button><button className="text-button" onClick={() => remove(index)}>{copy.profile.remove}</button></div></article>; })}</section>}
     {(reports.length > 0 || error) && <button className="button button-secondary repo-clear" onClick={() => remove()}>{copy.profile.clear}</button>}<p className="caption session-footnote">{copy.profile.footnote}</p>
   </main></RepositoryShell>;
 }

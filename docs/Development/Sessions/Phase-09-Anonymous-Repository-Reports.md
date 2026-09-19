@@ -44,6 +44,16 @@ strict parser는 v2.4의 항상 assigned 코드·차원·주의 이유를 다시
 
 독립 검토는 단일 50:50 경계 차원이 카드에는 `경계에 가까움`으로 표시되면서 전체 신뢰도는 높음이 되는 모순을 지적했다. 신뢰도 주의 요소에 경계 차원 수를 포함하고 직접 회귀를 추가했다. 수정 후 재검토는 **PASS, P1/P2 finding 없음**으로 결론 냈다. 검증은 `npm test` 312/312, 집중 회귀 24/24, `npm run typecheck`, `npm run check:docs` 68파일·상대 링크 407개, `npm run build`, Playwright desktop/mobile 34/34, `git diff --check`를 통과했다.
 
+## 2026-09-19 — 재미있는 16유형과 60파일 표본 v2.5 (#51)
+
+네 글자 차원 라벨을 결과 제목에 그대로 나열하지 않고 16개 코드 각각에 고유한 한국어·영어 이름을 붙였다. 예를 들어 RHSE는 `균형 잡힌 빌더`, RHTE는 `검증 루프 항해사`로 보이며, 네 글자 코드와 차원별 선택은 상세 설명에 남아 유형 이름의 근거를 확인할 수 있다.
+
+기본 결과 헤더와 내 리포트 목록에서는 후보·선택·읽기 파일 개수를 숨겼다. coverage 개수는 strict parser와 재현 진단을 위해 API·저장 결과에 유지하며 complete/partial 상태와 근거 경로는 계속 표시한다.
+
+선택 파일 상한은 40개에서 60개로, HTTP 요청은 48회에서 68회로, 시간 상한은 45초에서 60초로 조정했다. 파일당 60KB와 decoded content 800KB는 유지한다. 현재 HEAD의 323개 후보를 같은 선택기로 재생한 비교는 40개 표본에서 소스12·테스트6·문서11·기타11, 60개 표본에서 소스20·테스트10·문서15·기타15였다. 선택 정책 변화로 같은 SHA의 결과가 달라질 수 있어 rule version을 v2.5, selection policy version을 `repository-signal-reservations-v2-60-files`로 올렸다. 결정은 [ADR-0021](../../Architecture/ADR/0021-wider-private-collection-sample.md)에 기록했다.
+
+자체 검토에서는 v2.5의 60파일 허용을 전역 parser 상한으로 바꾸면 과거 v2.4 응답도 60파일을 허용하게 되는 버전 격리 문제를 확인했다. coverage와 구조 진단의 최대 선택 수를 rule version별 v2.4 이전 40, v2.5 60으로 분리하고 회귀 검사를 추가했다. 검증은 `npm test` 314/314, 수집·리포트 집중 회귀 56/56, `npm run typecheck`, `npm run check:docs` 69파일·상대 링크 412개, `npm run build`, Playwright desktop/mobile 34/34, `git diff --check`를 통과했다.
+
 ## 사용자 결정
 
 사용자는 CLI 설치와 명령 실행이 첫 체험에 어렵다고 판단했다. 공개 GitHub 소스로 접근하는 흐름과 공모전용 한국어 화면을 제안했고, Astra의 로그인 없는 공개 URL 분석·선택적 세션 상세 분석 구성을 명시적으로 채택했다.

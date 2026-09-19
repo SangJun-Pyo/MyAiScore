@@ -17,11 +17,11 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 | Web | Korean-default bilingual Home/분석/Profile/Insights, persistent locale, transparent score/style guide, progress/errors, opt-in browser history |
 | Compatibility | CLI session reports remain optional; old assessment APIs/walkthrough stay separate |
 | Privacy | No repository code execution, no private repository, no token/raw response exposure |
-| Validation | 306 unit/API tests, docs/type/build, 34 browser checks, independent PASS, Railway live smoke complete |
+| Validation | 314 unit/API tests, docs/type/build, 34 browser checks, independent PASS through v2.4, Railway live smoke complete |
 
 ## Immediate operation
 
-Repository score v2.3 shipped through issue [#47](https://github.com/SangJun-Pyo/MyAiScore/issues/47) and PR [#48](https://github.com/SangJun-Pyo/MyAiScore/pull/48) at main `7635071`; Railway and live v2.3 smoke passed. Issue [#49](https://github.com/SangJun-Pyo/MyAiScore/issues/49) now implements v2.4 always-assigned profiles with confidence while retaining v2.2/v2.3 history. The next implementation order is hidden collection counts, a measured 60-file collection budget, then transparent cohort calibration and ROI advice.
+Repository score v2.3 shipped through issue [#47](https://github.com/SangJun-Pyo/MyAiScore/issues/47) / PR [#48](https://github.com/SangJun-Pyo/MyAiScore/pull/48), and always-assigned v2.4 profiles shipped through issue [#49](https://github.com/SangJun-Pyo/MyAiScore/issues/49) / PR [#50](https://github.com/SangJun-Pyo/MyAiScore/pull/50) at main `75db562`; Railway and live smoke passed. Issue [#51](https://github.com/SangJun-Pyo/MyAiScore/issues/51) adds playful 16-type names, hides raw collection counts, and widens the sample to a measured 60 files. The next implementation order is transparent cohort calibration and ROI-ranked advice.
 
 Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. Production health, Korean/English pages and a real public MyAiScore report passed. Railway now has a server-only `GITHUB_TOKEN`; two consecutive public-repository reports returned 200 without token or raw file content in the response. The token only raises the public API allowance and private repositories remain rejected.
 

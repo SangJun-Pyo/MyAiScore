@@ -26,6 +26,7 @@
 | [0018](0018-evidence-aware-collaboration-profile.md) | 근거 충분성에 따른 네 차원 협업 유형 | Partially superseded by 0020; v2.2/v2.3 history retained |
 | [0019](0019-granular-repository-score-signals.md) | 저장소 점수 신호 세분화 | Accepted; v2.3 granular signals, prior-rule read compatibility |
 | [0020](0020-always-assigned-repository-profile.md) | 항상 표시하는 저장소 협업 유형과 신뢰도 | Accepted; v2.4 always-assigned profile |
+| [0021](0021-wider-private-collection-sample.md) | 60개 수집 표본과 사용자 화면의 원시 개수 분리 | Accepted; v2.5 collection policy |
 
 0001~0006은 2026-09-14 사용자의 ADR 누락 지적 후 작성한 **사후 기록**이다. 기준은 [PR #6](https://github.com/SangJun-Pyo/MyAiScore/pull/6), merge `db0edd7`, [Phase 4](../../Development/Sessions/Phase-04-Web-MVP.md)다. 작성자는 Astra이며 구현 시점에 ADR이 있었다고 소급하지 않는다. 대안은 당시 요약과 현재 코드를 바탕으로 정리했고, 대안별 실험을 수행했다는 뜻이 아니다.
 

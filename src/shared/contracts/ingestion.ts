@@ -195,11 +195,11 @@ export interface IngestionSnapshot {
 /** Fixed collection limits (GITHUB_INGESTION.md section 4, proposed / calibration_required). */
 export const INGESTION_LIMITS = {
   maxTreeEntries: 2000,
-  plannedSelectedFiles: 40,
+  plannedSelectedFiles: 60,
   maxFileBytes: 60 * 1024,
   maxTotalContentBytes: 800 * 1024,
-  maxHttpRequests: 48,
-  maxDurationMs: 45_000,
+  maxHttpRequests: 68,
+  maxDurationMs: 60_000,
   maxRetriesPerRequest: 1,
 } as const;
 

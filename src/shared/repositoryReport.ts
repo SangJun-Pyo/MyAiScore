@@ -175,7 +175,12 @@ export interface RepositoryReportV2_4 extends RepositoryReportV2Base {
   collaborationProfile: RepositoryCollaborationProfile;
 }
 
-export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3 | RepositoryReportV2_4;
+export interface RepositoryReportV2_5 extends RepositoryReportV2Base {
+  ruleVersion: "repository-signals-v2.5";
+  collaborationProfile: RepositoryCollaborationProfile;
+}
+
+export type RepositoryReportV2 = RepositoryReportV2_1 | RepositoryReportV2_2 | RepositoryReportV2_3 | RepositoryReportV2_4 | RepositoryReportV2_5;
 
 export type RepositoryReport = RepositoryReportV1 | RepositoryReportV2;
 
@@ -568,14 +573,14 @@ export function parseRepositoryReportRequest(value: unknown): RepositoryReportRe
   return { repo_url: repoUrl };
 }
 
-function validateIdentityAndCoverage(value: Record<string, unknown>): { coverage: Record<string, unknown>; status: "complete" | "partial" } {
+function validateIdentityAndCoverage(value: Record<string, unknown>, maxSelectedFiles = 40): { coverage: Record<string, unknown>; status: "complete" | "partial" } {
   const repoParts = object(value) && typeof value.repo === "string" ? value.repo.split("/") : [];
   if (typeof value.repo !== "string" || !/^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(value.repo) || repoParts.length !== 2 || repoParts.some(part => part === "." || part === ".." || part.length > 100) ||
       typeof value.commitSha !== "string" || !/^[a-f0-9]{40}$/i.test(value.commitSha)) throw new Error("Invalid repository report.");
   const coverage = value.coverage;
   if (!object(coverage) || !exactKeys(coverage, ["status", "basis", "selectedFiles", "readFiles", "candidateFiles", "treeTruncated", "selectionLimited", "note"]) ||
       !["complete", "partial"].includes(String(coverage.status)) || coverage.basis !== "selected_files" ||
-      !integer(coverage.selectedFiles, 0, 40) || !integer(coverage.readFiles, 0, 40) || (coverage.readFiles as number) > (coverage.selectedFiles as number) ||
+      !integer(coverage.selectedFiles, 0, maxSelectedFiles) || !integer(coverage.readFiles, 0, maxSelectedFiles) || (coverage.readFiles as number) > (coverage.selectedFiles as number) ||
       !(coverage.candidateFiles === null || integer(coverage.candidateFiles, 0, 2_000)) ||
       typeof coverage.treeTruncated !== "boolean" || typeof coverage.selectionLimited !== "boolean" ||
       coverage.note !== REPOSITORY_REPORT_COPY.coverageNotes[coverage.status as "complete" | "partial"]) throw new Error("Invalid repository report coverage.");
@@ -647,8 +652,8 @@ function expectedAxis(id: RepositoryReportScoreSignalId): RepositoryReportAxis {
   return REPOSITORY_REPORT_COPY.evidence[id].axis;
 }
 
-function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4"): RepositoryReportSignalAssessment[] {
-  const modern = ruleVersion === "repository-signals-v2.3" || ruleVersion === "repository-signals-v2.4";
+function validateSignalScores(value: Record<string, unknown>, databaseLikely: boolean, ruleVersion: "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5"): RepositoryReportSignalAssessment[] {
+  const modern = ["repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5"].includes(ruleVersion);
   const signalOrder = modern ? REPOSITORY_SCORE_SIGNAL_ORDER : REPOSITORY_LEGACY_SCORE_SIGNAL_ORDER;
   if (!Array.isArray(value.signalScores) || value.signalScores.length !== signalOrder.length) throw new Error("Invalid repository report signal scores.");
   const assessments: RepositoryReportSignalAssessment[] = [];
@@ -684,7 +689,7 @@ function validateSignalScores(value: Record<string, unknown>, databaseLikely: bo
   return assessments;
 }
 
-function validateDiagnostics(value: unknown): RepositoryReportV2Diagnostics {
+function validateDiagnostics(value: unknown, maxSelectedFiles = 40): RepositoryReportV2Diagnostics {
   if (!object(value) || !exactKeys(value, ["provisional", "reasons", "profile", "hygiene", "structure", "commit"]) || typeof value.provisional !== "boolean" || !Array.isArray(value.reasons)) throw new Error("Invalid repository report diagnostics.");
   const allowedReasons: RepositoryReportDiagnosticReason[] = ["partial_collection", "tree_truncated", "selection_limited", "unmeasured_test_language", "commit_history_unavailable"];
   if (value.reasons.length > allowedReasons.length || value.reasons.some(reason => !allowedReasons.includes(reason as RepositoryReportDiagnosticReason)) || new Set(value.reasons).size !== value.reasons.length || value.provisional !== (value.reasons.length > 0)) throw new Error("Invalid repository report diagnostic reasons.");
@@ -693,7 +698,7 @@ function validateDiagnostics(value: unknown): RepositoryReportV2Diagnostics {
       !integer(value.hygiene.highConfidenceArtifacts, 0, 2_000) || !integer(value.hygiene.generatedArtifactCandidates, 0, 2_000) || !integer(value.hygiene.secretLikePaths, 0, 2_000)) throw new Error("Invalid repository report hygiene.");
   const structure = value.structure;
   if (!object(structure) || !exactKeys(structure, ["oversizedSourceCandidates", "sourceFilesOver400Lines", "sourceFilesOver800Lines", "topFiveSourceByteShare", "largestSelectedSourceFiles"]) ||
-      !integer(structure.oversizedSourceCandidates, 0, 2_000) || !integer(structure.sourceFilesOver400Lines, 0, 40) || !integer(structure.sourceFilesOver800Lines, 0, 40) ||
+      !integer(structure.oversizedSourceCandidates, 0, 2_000) || !integer(structure.sourceFilesOver400Lines, 0, maxSelectedFiles) || !integer(structure.sourceFilesOver800Lines, 0, maxSelectedFiles) ||
       !(structure.topFiveSourceByteShare === null || ratio(structure.topFiveSourceByteShare)) || !Array.isArray(structure.largestSelectedSourceFiles) || structure.largestSelectedSourceFiles.length > 5) throw new Error("Invalid repository report structure.");
   for (const file of structure.largestSelectedSourceFiles) {
     if (!object(file) || !exactKeys(file, ["path", "lineCount"]) || sanitizeRepositoryPath(file.path) !== file.path || !integer(file.lineCount, 0, 1_000_000)) throw new Error("Invalid repository report structure path.");
@@ -749,12 +754,14 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   const isV22 = isV2 && value.ruleVersion === "repository-signals-v2.2";
   const isV23 = isV2 && value.ruleVersion === "repository-signals-v2.3";
   const isV24 = isV2 && value.ruleVersion === "repository-signals-v2.4";
-  const isModern = isV23 || isV24;
+  const isV25 = isV2 && value.ruleVersion === "repository-signals-v2.5";
+  const isModern = isV23 || isV24 || isV25;
+  const alwaysAssigned = isV24 || isV25;
   const keys = isV2
     ? ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge", "signalScores", "diagnostics", ...(isV22 || isModern ? ["collaborationProfile"] : [])]
     : ["schemaVersion", "ruleVersion", "repo", "commitSha", "coverage", "score", "style", "evidenceCards", "gaps", "nextChallenge"];
-  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3", "repository-signals-v2.4"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
-  const { coverage, status } = validateIdentityAndCoverage(value);
+  if (!exactKeys(value, keys) || (isV2 ? !["repository-signals-v2.1", "repository-signals-v2.2", "repository-signals-v2.3", "repository-signals-v2.4", "repository-signals-v2.5"].includes(String(value.ruleVersion)) : value.schemaVersion !== "repository-report-v1" || value.ruleVersion !== "repository-signals-v1")) throw new Error("Invalid repository report.");
+  const { coverage, status } = validateIdentityAndCoverage(value, isV25 ? 60 : 40);
   const score = validateScore(value, isV2 ? REPOSITORY_REPORT_COPY.scoreExplanationV2 : REPOSITORY_REPORT_COPY.scoreExplanation);
   const style = validateStyle(value);
   const cards = validateEvidenceCards(value, isModern ? REPOSITORY_V23_EVIDENCE_ORDER : REPOSITORY_LEGACY_EVIDENCE_ORDER);
@@ -765,8 +772,8 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
     return structuredClone(value) as unknown as RepositoryReportV1;
   }
 
-  const diagnostics = validateDiagnostics(value.diagnostics);
-  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4";
+  const diagnostics = validateDiagnostics(value.diagnostics, isV25 ? 60 : 40);
+  const ruleVersion = value.ruleVersion as "repository-signals-v2.1" | "repository-signals-v2.2" | "repository-signals-v2.3" | "repository-signals-v2.4" | "repository-signals-v2.5";
   const assessments = validateSignalScores(value, diagnostics.profile.databaseLikely, ruleVersion);
   const reasonSet = new Set(diagnostics.reasons);
   const testAssessment = assessments.find(item => item.id === (isModern ? "verification-test-substance" : "verification-tests"))!;
@@ -782,7 +789,7 @@ export function parseRepositoryReport(value: unknown): RepositoryReport {
   validateGuidance(value, derived);
 
   if (isV22 || isModern) {
-    const profile = validateCollaborationProfile(value.collaborationProfile, isV24);
+    const profile = validateCollaborationProfile(value.collaborationProfile, alwaysAssigned);
     const expectedProfile = deriveRepositoryCollaborationProfile(assessments, derived.axes, diagnostics, isV22 ? "v22" : isV23 ? "v23" : "v24");
     if (JSON.stringify(profile) !== JSON.stringify(expectedProfile)) throw new Error("Repository collaboration profile does not match its evidence.");
   }

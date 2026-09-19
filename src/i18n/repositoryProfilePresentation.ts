@@ -58,6 +58,25 @@ const enReasons: Record<RepositoryCollaborationProfileReason, string> = {
   multiple_near_boundaries: "Two or more profile dimensions are close to their boundary.",
 };
 
+const profileNames: Record<string, { ko: string; en: string }> = {
+  DHSF: { ko: "설계 도면 수집가", en: "Blueprint Collector" },
+  DHSE: { ko: "차분한 설계 기록가", en: "Steady Design Scribe" },
+  DHTF: { ko: "흔적 추적 탐정", en: "Trace Detective" },
+  DHTE: { ko: "맥락 연결 큐레이터", en: "Context Curator" },
+  DPSF: { ko: "자동화 설계 감독", en: "Automation Architect" },
+  DPSE: { ko: "균형 잡힌 시스템 설계자", en: "Balanced Systems Designer" },
+  DPTF: { ko: "파이프라인 연대기 작가", en: "Pipeline Chronicler" },
+  DPTE: { ko: "운영 지도 제작자", en: "Operations Cartographer" },
+  RHSF: { ko: "실험실 프로토타이퍼", en: "Lab Prototyper" },
+  RHSE: { ko: "균형 잡힌 빌더", en: "Balanced Builder" },
+  RHTF: { ko: "버그 추적 사냥꾼", en: "Bug Trail Hunter" },
+  RHTE: { ko: "검증 루프 항해사", en: "Verification Navigator" },
+  RPSF: { ko: "자동화 개척자", en: "Automation Pioneer" },
+  RPSE: { ko: "풀스택 오케스트레이터", en: "Full-stack Orchestrator" },
+  RPTF: { ko: "배포 추적 레인저", en: "Release Trail Ranger" },
+  RPTE: { ko: "자율 운영 조율사", en: "Autonomous Operations Conductor" },
+};
+
 export function repositoryProfilePresentation(profile: RepositoryCollaborationProfile, locale: Locale) {
   const poles = locale === "ko" ? koPoles : enPoles;
   const dimensions = locale === "ko" ? koDimensions : enDimensions;
@@ -71,7 +90,7 @@ export function repositoryProfilePresentation(profile: RepositoryCollaborationPr
   return {
     eyebrow: locale === "ko" ? "저장소에서 보이는 협업 유형" : "COLLABORATION PROFILE VISIBLE IN THIS REPOSITORY",
     title: profile.status === "assigned"
-      ? selected.map(pole => poles[pole]).join(" · ")
+      ? profileNames[profile.code ?? ""]?.[locale] ?? selected.map(pole => poles[pole]).join(" · ")
       : locale === "ko" ? "유형 판단 보류" : "Profile withheld",
     description: profile.status === "assigned"
       ? locale === "ko"
