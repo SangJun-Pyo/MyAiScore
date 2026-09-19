@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-19 — 근거 충분성에 따른 협업 유형 v2.2
+
+- 새 분석은 점수를 바꾸지 않고 `repository-signals-v2.2`의 D/R·H/P·S/T·F/E 네 차원 협업 유형을 추가한다. 각 차원은 신호 묶음의 상대적 배치와 축 spread를 사용하며 사람의 성격·능력 등급으로 표현하지 않는다.
+- partial/tree·selection 제한/미지원 테스트 형식, 관찰 축 3개 미만, substance 신호 4개 미만, 빈 차원 또는 여러 경계 차원에서는 네 글자를 강제하지 않고 `유형 판단 보류`와 고정 이유를 표시한다.
+- strict parser가 유형·강도·경계·보류 이유를 점수 신호에서 다시 계산한다. 기존 `repository-report-v1`과 `repository-signals-v2.1` 저장 이력은 그대로 읽는다. 결정은 [ADR-0018](../Architecture/ADR/0018-evidence-aware-collaboration-profile.md), 실행 이력은 [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md)에 기록한다.
+
 ## 2026-09-19 — ThreeUI CRT background for Home hero
 
 - 홈 히어로 섹션 뒤에만 ThreeUI `CrtBackground` terminal variant를 낮은 opacity와 radial mask로 배치했다. 실제 H1·CTA·예시 리포트 카드가 주 콘텐츠로 유지되며, CRT는 `aria-hidden` 장식 요소다.

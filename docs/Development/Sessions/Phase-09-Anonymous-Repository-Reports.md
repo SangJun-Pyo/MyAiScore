@@ -12,6 +12,18 @@ GitHub client에는 고정 40자리 SHA만 받는 최근 조상 commit summary A
 
 후속 구현에서 production collector가 14개 신호 대표를 예약하고 고정 SHA 조상 커밋 최대 20개를 bounded 요청으로 집계하도록 연결했다. `repository-report-v2`는 redacted content substance와 scanned-tree breadth를 공개 `signalScores`로 내보내고 브라우저 strict parser가 품질·정수 점수·축 합계·진단 이유를 재검증한다. 빈 파일은 존재 바닥만 받고 다언어 테스트 detector가 지원하지 않는 형식은 `unmeasured`로 보류한다. 커밋 설명은 평가 가능한 3개 이상일 때 기록축 보너스가 되며 원문은 snapshot과 응답에 남지 않는다. UI는 신호별 획득/최대점과 substance, 잠정 상태, 위생·큰 소스 진단을 표시한다. 기존 v1 브라우저 기록은 계속 읽는다.
 
+## 2026-09-19 — 근거 충분성 협업 유형 v2.2 (#43)
+
+점수 높낮이와 유형을 분리하기 위해 `repository-signals-v2.2`와 `repository-collaboration-profile-v1`을 추가했다. 새 결과는 D/R(기록/실행), H/P(직접확인/파이프라인), S/T(설계선행/추적중심), F/E(집중/균형)의 네 상대 차원을 신호 점수에서 계산한다. 점수 가중치와 네 축 합계는 v2.1과 같다. DB 적용 대상이거나 실제 파일이 있을 때만 마이그레이션을 유형 분모에 넣고, API 가용성에 따라 유형이 바뀌지 않도록 커밋 집계는 유형 입력에서 제외해 기록 점수 보너스로만 유지한다.
+
+partial collection, tree truncation, selection limit, 테스트 형식 미측정, 관찰 축 3개 미만, substance 0.25 이상 신호 4개 미만, 빈 차원 또는 둘 이상의 경계 차원이 있으면 네 글자 코드를 발급하지 않고 고정된 `withheld` 이유를 제공한다. 한 차원만 경계 근처면 경계 표시와 함께 결정론적인 방향을 사용한다. 사람의 성격·능력이나 인구 백분위로 표현하지 않는다.
+
+strict parser는 v2.2 유형의 강도·선택·경계·보류 이유를 `signalScores`와 diagnostics에서 다시 계산한다. 임의 유형을 넣은 응답은 거부하며, 과거 `repository-report-v1`과 `repository-signals-v2.1` 저장 이력은 계속 읽는다. 결과·프로필 목록·해석 가이드는 한국어와 영어의 같은 의미 ID를 사용한다. 홈의 합성 예시도 v2.2 파생 함수를 거쳐 현재 계약을 보여준다.
+
+결정은 [ADR-0018](../../Architecture/ADR/0018-evidence-aware-collaboration-profile.md)에 기록했다. 최종 로컬 검사는 `npm test` 306/306, `npm run typecheck`, `npm run check:docs` 66파일·398링크 문제 0, `npm run build`, 전체 Playwright desktop/mobile 34/34, `git diff --check` 통과다. 해석 가이드의 desktop/mobile 캡처를 직접 확인해 네 차원 카드의 overflow와 읽기 순서를 확인했다.
+
+구현에 참여하지 않은 독립 검토는 처음에 DB 비적용 migration과 commit API 가용성이 timing 분모를 바꾸는 문제, 홈 hero의 legacy 제목, 경계별 직접 회귀 부족을 지적했다. migration을 적용 대상 또는 실제 존재일 때만 분모에 넣고 commit-practice를 유형 입력에서 제외했으며, hero를 v2.2 프로필 제목으로 바꾸고 sparse·다중 경계·단일 spread-6 경계·commit 가용성·DB 적용성 회귀를 추가했다. 수정 후 재검토는 **PASS, 남은 actionable issue 없음**으로 결론 냈다. PR/CI/Railway 결과는 통합 뒤 이 절에 이어 기록한다.
+
 ## 사용자 결정
 
 사용자는 CLI 설치와 명령 실행이 첫 체험에 어렵다고 판단했다. 공개 GitHub 소스로 접근하는 흐름과 공모전용 한국어 화면을 제안했고, Astra의 로그인 없는 공개 URL 분석·선택적 세션 상세 분석 구성을 명시적으로 채택했다.

@@ -6,12 +6,21 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { CrtBackground, UplinkLoader } from "@designcodeio/threeui";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
+import { repositoryProfilePresentation } from "../i18n/repositoryProfilePresentation";
 import { repositoryV2Presentation } from "../i18n/repositoryV2Presentation";
 import {
   REPOSITORY_AXIS_ORDER,
+  REPOSITORY_COMMIT_PRACTICE_MAX_POINTS,
   REPOSITORY_REPORT_COPY,
+  REPOSITORY_SCORE_SIGNAL_ORDER,
+  deriveRepositoryCollaborationProfile,
+  deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
+  repositoryEvidencePoints,
   type RepositoryReport,
+  type RepositoryReportEvidenceCard,
+  type RepositoryReportSignalAssessment,
+  type RepositoryReportV2Diagnostics,
 } from "../shared/repositoryReport";
 import { LanguageSwitch, useLocale } from "./LocaleProvider";
 
@@ -39,44 +48,84 @@ function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const DEMO_REPORT: RepositoryReport = parseRepositoryReport({
-  schemaVersion: "repository-report-v1",
-  ruleVersion: "repository-signals-v1",
-  repo: "example/sample-project",
-  commitSha: "0123456789abcdef0123456789abcdef01234567",
-  coverage: {
-    status: "complete",
-    basis: "selected_files",
-    selectedFiles: 18,
-    readFiles: 18,
-    candidateFiles: 42,
-    treeTruncated: false,
-    selectionLimited: false,
-    note: REPOSITORY_REPORT_COPY.coverageNotes.complete,
-  },
-  score: {
-    value: 63,
-    label: "저장소 기반 AI 협업 준비도",
-    explanation: REPOSITORY_REPORT_COPY.scoreExplanation,
-    axes: {
-      context: { label: REPOSITORY_REPORT_COPY.axisLabels.context, value: 14 },
-      verification: { label: REPOSITORY_REPORT_COPY.axisLabels.verification, value: 25 },
-      traceability: { label: REPOSITORY_REPORT_COPY.axisLabels.traceability, value: 9 },
-      automation: { label: REPOSITORY_REPORT_COPY.axisLabels.automation, value: 15 },
+const DEMO_EVIDENCE_CARDS: RepositoryReportEvidenceCard[] = [
+  { id: "context-readme", ...REPOSITORY_REPORT_COPY.evidence["context-readme"], paths: ["README.md"] },
+  { id: "context-guidance", ...REPOSITORY_REPORT_COPY.evidence["context-guidance"], paths: ["AGENTS.md"] },
+  { id: "verification-tests", ...REPOSITORY_REPORT_COPY.evidence["verification-tests"], paths: ["tests/browser/experience.spec.ts"] },
+  { id: "verification-config", ...REPOSITORY_REPORT_COPY.evidence["verification-config"], paths: ["tsconfig.json"] },
+  { id: "traceability-decisions", ...REPOSITORY_REPORT_COPY.evidence["traceability-decisions"], paths: ["docs/Architecture/ADR/0015-anonymous-korean-repository-reports.md"] },
+  { id: "automation-ci", ...REPOSITORY_REPORT_COPY.evidence["automation-ci"], paths: [".github/workflows/ci.yml"] },
+];
+
+function buildDemoReport(): RepositoryReport {
+  const presentIds = new Set(DEMO_EVIDENCE_CARDS.map(card => card.id));
+  const signalScores: RepositoryReportSignalAssessment[] = REPOSITORY_SCORE_SIGNAL_ORDER.map(id => {
+    if (id === "traceability-commit-practice") {
+      const substance = 0.5;
+      const quality = Math.round((0.15 + 0.85 * substance) * 1_000) / 1_000;
+      return { id, axis: "traceability", role: "bonus", status: "measured", presence: 1, substance, breadth: 1, quality, points: Math.round(REPOSITORY_COMMIT_PRACTICE_MAX_POINTS * quality), maxPoints: REPOSITORY_COMMIT_PRACTICE_MAX_POINTS };
+    }
+    const presence = presentIds.has(id) ? 1 : 0;
+    const maxPoints = repositoryEvidencePoints(id);
+    return {
+      id,
+      axis: REPOSITORY_REPORT_COPY.evidence[id].axis,
+      role: ["context-readme", "context-metadata", "verification-tests", "verification-config"].includes(id) ? "core" : "bonus",
+      status: "measured",
+      presence,
+      substance: presence,
+      breadth: 1,
+      quality: presence,
+      points: presence ? maxPoints : 0,
+      maxPoints,
+    } as RepositoryReportSignalAssessment;
+  });
+  const derived = deriveRepositoryReportV2Presentation(signalScores, "complete");
+  const diagnostics: RepositoryReportV2Diagnostics = {
+    provisional: false,
+    reasons: [],
+    profile: { databaseLikely: false },
+    hygiene: { highConfidenceArtifacts: 0, generatedArtifactCandidates: 0, secretLikePaths: 0 },
+    structure: { oversizedSourceCandidates: 0, sourceFilesOver400Lines: 0, sourceFilesOver800Lines: 0, topFiveSourceByteShare: null, largestSelectedSourceFiles: [] },
+    commit: { sampledCommits: 4, evaluatedCommits: 4, excludedMergeOrAutomated: 0, nonGenericSubjectRatio: 0.75, distinctSubjectRatio: 1, scopedSubjectRatio: 0.5, rationaleBodyRatio: 0.25, referenceRatio: 0 },
+  };
+  return parseRepositoryReport({
+    schemaVersion: "repository-report-v2",
+    ruleVersion: "repository-signals-v2.2",
+    repo: "example/sample-project",
+    commitSha: "0123456789abcdef0123456789abcdef01234567",
+    coverage: {
+      status: "complete",
+      basis: "selected_files",
+      selectedFiles: 18,
+      readFiles: 18,
+      candidateFiles: 42,
+      treeTruncated: false,
+      selectionLimited: false,
+      note: REPOSITORY_REPORT_COPY.coverageNotes.complete,
     },
-  },
-  style: REPOSITORY_REPORT_COPY.styles.verification,
-  evidenceCards: [
-    { id: "context-readme", ...REPOSITORY_REPORT_COPY.evidence["context-readme"], paths: ["README.md"] },
-    { id: "context-guidance", ...REPOSITORY_REPORT_COPY.evidence["context-guidance"], paths: ["AGENTS.md"] },
-    { id: "verification-tests", ...REPOSITORY_REPORT_COPY.evidence["verification-tests"], paths: ["tests/browser/experience.spec.ts"] },
-    { id: "verification-config", ...REPOSITORY_REPORT_COPY.evidence["verification-config"], paths: ["tsconfig.json"] },
-    { id: "traceability-decisions", ...REPOSITORY_REPORT_COPY.evidence["traceability-decisions"], paths: ["docs/Architecture/ADR/0015-anonymous-korean-repository-reports.md"] },
-    { id: "automation-ci", ...REPOSITORY_REPORT_COPY.evidence["automation-ci"], paths: [".github/workflows/ci.yml"] },
-  ],
-  gaps: [REPOSITORY_REPORT_COPY.gaps.traceability],
-  nextChallenge: REPOSITORY_REPORT_COPY.challenges.traceability,
-});
+    score: {
+      value: derived.value,
+      label: "저장소 기반 AI 협업 준비도",
+      explanation: REPOSITORY_REPORT_COPY.scoreExplanationV2,
+      axes: {
+        context: { label: REPOSITORY_REPORT_COPY.axisLabels.context, value: derived.axes.context },
+        verification: { label: REPOSITORY_REPORT_COPY.axisLabels.verification, value: derived.axes.verification },
+        traceability: { label: REPOSITORY_REPORT_COPY.axisLabels.traceability, value: derived.axes.traceability },
+        automation: { label: REPOSITORY_REPORT_COPY.axisLabels.automation, value: derived.axes.automation },
+      },
+    },
+    style: derived.style,
+    evidenceCards: DEMO_EVIDENCE_CARDS,
+    gaps: derived.gaps,
+    nextChallenge: derived.nextChallenge,
+    signalScores,
+    diagnostics,
+    collaborationProfile: deriveRepositoryCollaborationProfile(signalScores, derived.axes, diagnostics),
+  });
+}
+
+const DEMO_REPORT = buildDemoReport();
 
 let currentReport: RepositoryReport | null = null;
 
@@ -101,6 +150,12 @@ function saveToHistory(report: RepositoryReport) {
 
 function repoName(repo: string) {
   return repo.replace(/^https:\/\/github\.com\//, "").replace(/\/$/, "");
+}
+
+function reportProfileTitle(report: RepositoryReport, locale: "ko" | "en", fallback: string) {
+  return report.schemaVersion === "repository-report-v2" && report.ruleVersion === "repository-signals-v2.2"
+    ? repositoryProfilePresentation(report.collaborationProfile, locale).title
+    : fallback;
 }
 
 export function RepositoryShell({ children }: { children: React.ReactNode }) {
@@ -128,15 +183,22 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(report, locale, copy);
   const v2 = report.schemaVersion === "repository-report-v2" ? report : null;
+  const profile = v2?.ruleVersion === "repository-signals-v2.2" ? v2.collaborationProfile : null;
+  const profileDisplay = profile ? repositoryProfilePresentation(profile, locale) : null;
   const v2Display = repositoryV2Presentation(locale);
   return <section className="repo-report" aria-label={copy.report.aria}>
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
     <section className="repo-overview product-panel">
       <div className="repo-score"><span className="eyebrow">{display.scoreLabel}</span><strong>{report.score.value}</strong><small>/100</small><p>{display.scoreExplanation}</p></div>
-      <div className="repo-style"><span className="eyebrow">{copy.report.styleEyebrow}</span><h2>{display.style.title}</h2><p>{display.style.description}</p><dl><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl></div>
+      <div className="repo-style"><span className="eyebrow">{profileDisplay?.eyebrow ?? copy.report.styleEyebrow}</span><h2>{profileDisplay?.title ?? display.style.title}</h2>{profileDisplay?.code && <strong className="repo-profile-code">{profileDisplay.code}</strong>}<p>{profileDisplay?.description ?? display.style.description}</p><dl><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl></div>
     </section>
     <p className="repo-boundary"><strong>{copy.report.boundaryStrong}</strong> {copy.report.boundaryMore}</p>
     {v2?.diagnostics.provisional && <p className="notice repo-provisional">{v2Display.provisional}</p>}
+    {profileDisplay && <section className="product-panel repo-profile-panel" aria-label={profileDisplay.guideTitle}>
+      <div className="repo-profile-heading"><div><span className="eyebrow">{profileDisplay.eyebrow}</span><h2>{profileDisplay.guideTitle}</h2></div><p>{profileDisplay.guideIntro}</p></div>
+      <div className="repo-profile-dimensions">{profileDisplay.dimensions.map(dimension => <article key={dimension.id}><div><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-poles"><span className={dimension.selectedPole === dimension.leftPole ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={dimension.selectedPole === dimension.rightPole ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><small>{profileDisplay.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>)}</div>
+      {profileDisplay.reasons.length > 0 && <ul className="repo-profile-reasons">{profileDisplay.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
+    </section>}
     <section className="repo-axis-section" aria-labelledby="axis-heading">
       <div className="repo-section-heading"><div><span className="eyebrow">{copy.report.axesEyebrow}</span><h2 id="axis-heading">{copy.report.axesHeading}</h2></div><p>{report.coverage.candidateFiles === null ? copy.report.candidateUnknown : copy.report.candidate(report.coverage.candidateFiles)} · {copy.report.selected(report.coverage.selectedFiles)} · {copy.report.read(report.coverage.readFiles)}<br />{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.report.staticOnly}</p></div>
       <div className="repo-axis-grid">{REPOSITORY_AXIS_ORDER.map(axis => {
@@ -177,7 +239,7 @@ export function RepositoryHomeExperience() {
         />
       </div>
       <div className="landing-hero-copy"><p className="chapter-label"><i /> {copy.home.kicker}</p><div className="repo-hero-title-lockup"><h1 id="landing-title" className="repo-animated-title" aria-label={heroTitle}><span className="repo-title-line" data-text={copy.home.title1}>{copy.home.title1}</span><span className="repo-title-line repo-title-muted" data-text={copy.home.title2}>{copy.home.title2}</span></h1></div><p className="landing-lead">{copy.home.lead1}<br />{copy.home.lead2}</p><div className="landing-actions"><Link className="landing-primary" href="/evaluate">{copy.home.primary}</Link><a className="landing-text-action" href="#demo">{copy.home.example}</a></div><p className="landing-availability">{copy.home.availability}</p></div>
-      <div className="landing-world repo-hero-card product-panel"><span className="sample-chip">{copy.home.demoTag}</span><h2>{display.style.title}</h2><div className="session-hero-number">{DEMO_REPORT.score.value}<small>/100</small></div><p>{display.scoreLabel}</p><div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{DEMO_REPORT.score.axes[axis].value}/25</strong></div>)}</div><p className="caption">{copy.home.demoCaption}</p></div>
+      <div className="landing-world repo-hero-card product-panel"><span className="sample-chip">{copy.home.demoTag}</span><h2>{reportProfileTitle(DEMO_REPORT, locale, display.style.title)}</h2><div className="session-hero-number">{DEMO_REPORT.score.value}<small>/100</small></div><p>{display.scoreLabel}</p><div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{DEMO_REPORT.score.axes[axis].value}/25</strong></div>)}</div><p className="caption">{copy.home.demoCaption}</p></div>
       <div className="landing-chapters">{copy.home.chapters.map((chapter, index) => <a key={chapter.label} href={`#${["flow", "scope", "demo"][index]}`}><span>0{index + 1}</span><div><b>{chapter.label}</b><p>{chapter.text}</p></div></a>)}</div>
     </section>
     <section id="flow" className="landing-section landing-process"><div className="chapter-heading"><span>{copy.home.flowLabel}</span><span>{copy.home.flowSide}</span></div><div className="landing-section-intro"><h2 className="landing-title">{copy.home.flowTitle1}<br /><em>{copy.home.flowTitle2}</em></h2><p>{copy.home.flowIntro}</p></div><div className="landing-process-grid">{copy.home.steps.map((item, index) => <article key={item.title}><div className="process-card-copy"><span>0{index + 1}</span><h3>{item.title}</h3><p>{item.text}</p></div></article>)}</div></section>
@@ -259,14 +321,21 @@ export function RepositoryProfileExperience() {
   return <RepositoryShell><main id="main" className="page-width product-page">
     <header className="product-heading"><div><h1>{copy.profile.title}</h1><p>{copy.profile.description}</p></div><Link className="button button-primary" href="/evaluate">{copy.profile.newReport}</Link></header><p className="product-access-note">{copy.profile.privacy}</p>
     {error && <p className="notice notice-error" role="alert">{error === "history" ? copy.profile.historyError : copy.profile.updateError}</p>}
-    {reports.length === 0 ? <section className="product-empty"><h2>{copy.profile.emptyTitle}</h2><p>{copy.profile.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.profile.emptyCta}</Link></section> : <section aria-label={copy.profile.historyAria} className="history-list">{reports.map((report, index) => { const display = repositoryPresentation(report, locale, copy); return <article className="history-entry" key={`${report.repo}@${report.commitSha}`}><div className="history-description"><span className="eyebrow">{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.profile.files(report.coverage.readFiles, report.coverage.selectedFiles)}</span><h2>{repoName(report.repo)}</h2><p>{display.style.title} · <code>{report.commitSha.slice(0, 12)}</code></p></div><div className="history-score"><strong>{report.score.value}</strong><small>/100</small></div><div className="history-actions"><button className="text-button" onClick={() => { currentReport = report; router.push("/insights"); }}>{copy.profile.view}</button><button className="text-button" onClick={() => remove(index)}>{copy.profile.remove}</button></div></article>; })}</section>}
+    {reports.length === 0 ? <section className="product-empty"><h2>{copy.profile.emptyTitle}</h2><p>{copy.profile.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.profile.emptyCta}</Link></section> : <section aria-label={copy.profile.historyAria} className="history-list">{reports.map((report, index) => { const display = repositoryPresentation(report, locale, copy); return <article className="history-entry" key={`${report.repo}@${report.commitSha}`}><div className="history-description"><span className="eyebrow">{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.profile.files(report.coverage.readFiles, report.coverage.selectedFiles)}</span><h2>{repoName(report.repo)}</h2><p>{reportProfileTitle(report, locale, display.style.title)} · <code>{report.commitSha.slice(0, 12)}</code></p></div><div className="history-score"><strong>{report.score.value}</strong><small>/100</small></div><div className="history-actions"><button className="text-button" onClick={() => { currentReport = report; router.push("/insights"); }}>{copy.profile.view}</button><button className="text-button" onClick={() => remove(index)}>{copy.profile.remove}</button></div></article>; })}</section>}
     {(reports.length > 0 || error) && <button className="button button-secondary repo-clear" onClick={() => remove()}>{copy.profile.clear}</button>}<p className="caption session-footnote">{copy.profile.footnote}</p>
   </main></RepositoryShell>;
 }
 
 function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | null }) {
   const { locale, copy } = useLocale();
-  const guide = buildRepositoryGuide(locale, copy, report?.style.id);
+  const hasCollaborationProfile = report?.schemaVersion === "repository-report-v2" && report.ruleVersion === "repository-signals-v2.2";
+  const referenceProfile = hasCollaborationProfile
+    ? report.collaborationProfile
+    : !report && DEMO_REPORT.schemaVersion === "repository-report-v2" && DEMO_REPORT.ruleVersion === "repository-signals-v2.2"
+      ? DEMO_REPORT.collaborationProfile
+      : null;
+  const profileGuide = referenceProfile ? repositoryProfilePresentation(referenceProfile, locale) : null;
+  const guide = buildRepositoryGuide(locale, copy, hasCollaborationProfile ? undefined : report?.style.id);
   return <div className="repo-interpretation-guide">
     <section className="repo-guide product-panel" aria-labelledby="score-matrix-heading">
       <span className="eyebrow">{copy.insights.matrixEyebrow}</span><h2 id="score-matrix-heading">{copy.insights.matrixTitle}</h2><p>{copy.insights.matrixIntro}</p>
@@ -274,12 +343,16 @@ function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | 
         {guide.axes.map(axis => <tbody key={axis.id}>{axis.signals.map((signal, index) => <tr key={signal.id}>{index === 0 && <th scope="rowgroup" rowSpan={axis.signals.length + 1}>{axis.label}</th>}<th scope="row">{signal.title}</th><td>{copy.insights.points(signal.points)}</td></tr>)}<tr className="repo-axis-total"><th scope="row">{copy.insights.axisTotal}</th><td>{copy.insights.points(axis.total)}</td></tr></tbody>)}
       </table></div><p className="repo-guide-limit">{copy.insights.guideText}</p>
     </section>
-    <section className="repo-style-guide" aria-labelledby="style-guide-heading">
+    {profileGuide && <section className="repo-style-guide" aria-labelledby="profile-guide-heading">
+      <div className="repo-style-guide-heading"><div><span className="eyebrow">{profileGuide.eyebrow}</span><h2 id="profile-guide-heading">{profileGuide.guideTitle}</h2></div><p>{profileGuide.guideIntro}</p></div>
+      <div className="repo-profile-dimensions">{profileGuide.dimensions.map(dimension => <article key={dimension.id}><h3>{dimension.title}</h3><p>{dimension.description}</p><div className="repo-profile-poles"><span>{dimension.leftPole} · {dimension.leftLabel}</span><span>{dimension.rightPole} · {dimension.rightLabel}</span></div></article>)}</div>
+    </section>}
+    {!profileGuide && <section className="repo-style-guide" aria-labelledby="style-guide-heading">
       <div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.stylesEyebrow}</span><h2 id="style-guide-heading">{copy.insights.stylesTitle}</h2></div><p>{copy.insights.stylesIntro}</p></div>
       <ol className="repo-style-rules">{guide.styles.map(style => <li key={style.id} className={style.active ? "is-active" : undefined} aria-current={style.active ? "true" : undefined}><div className="repo-style-rule-label"><span>{copy.insights.ruleStep(style.step)}</span>{style.active && <strong>{copy.insights.activeStyle}</strong>}</div><h3>{style.title}</h3><p>{style.rule}</p><small>{style.description}</small></li>)}</ol>
       <p className="repo-tie-priority">{guide.tiePriority}</p>
       {report && <p className="repo-current-style-note"><strong>{copy.insights.activeStyle}: {guide.styles.find(style => style.active)?.title}</strong><span>{copy.insights.distributionNote}</span></p>}
-    </section>
+    </section>}
   </div>;
 }
 

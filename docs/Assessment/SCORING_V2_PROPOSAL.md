@@ -1,7 +1,7 @@
-# 저장소 점수 v2.1 설계 제안
+# 저장소 점수 v2.1·협업 유형 v2.2 설계
 
-> 상태: 핵심 v2.1 구현 완료 / 유형·코호트 교정 후속
-> 대상 규칙: `repository-signals-v1` → `repository-signals-v2.1`
+> 상태: 핵심 v2.1과 유형 v2.2 구현 / 코호트 교정 후속
+> 대상 규칙: `repository-signals-v1` → `repository-signals-v2.1` → `repository-signals-v2.2`
 > 기준 문서: [`AI_SCORE_EVALUATION_BASIS.md`](AI_SCORE_EVALUATION_BASIS.md)  
 > 구현 결정: [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), v1 기록 읽기 호환 유지
 
@@ -250,6 +250,8 @@ generated, migration, fixture, snapshot, vendored, minified, declaration·schema
 
 유형은 점수 다음에 구현하지만 후순위 장식으로 취급하지 않는다. 해커톤 공유성과 제품 인상을 위한 핵심 결과다.
 
+v2.2 구현은 네 차원을 `D/R · H/P · S/T · F/E` 코드로 고정했다. 방향 묶음은 최대점 대비 획득점을 비교하고 차이 0.12 이하를 dead band로 표시한다. shape는 네 축 spread 6에서 양쪽 강도가 같아진다. 초기값은 [ADR-0018](../Architecture/ADR/0018-evidence-aware-collaboration-profile.md)에 기록하며 참조 코호트 없이 인구 분포를 대표한다고 표현하지 않는다.
+
 ### 10.1 원칙과 후보 비트
 
 - 유형은 점수 높낮이와 분리한다.
@@ -362,9 +364,9 @@ roi(action)  = gain(action) / effort(action)
 
 ```text
 schemaVersion    = repository-report-v2
-ruleVersion      = repository-signals-v2.1
+ruleVersion      = repository-signals-v2.1 | repository-signals-v2.2
 inventoryVersion = repository-inventory-v1
-profileVersion   = repository-profile-v1
+profileVersion   = repository-collaboration-profile-v1
 detectorVersion  = repository-substance-v1
 cohortVersion    = null | repository-cohort-v1
 ```
@@ -381,7 +383,7 @@ cohortVersion    = null | repository-cohort-v1
 | 5 | inventory 기반 breadth | 선택 표본 구성과 무관한 비율 계산 |
 | 6 | 핵심·조건부·보너스 | 순환 적용성 제거, 축 상한 25 유지 |
 | 7 | v2 strict parser와 UI | 재계산, coverage·N/A·unmeasured 노출 |
-| 8 | 유형 | 보류, dead band, 초기 임계값과 카피 |
+| 8 | 유형 | 완료 — 보류, dead band, 초기 임계값과 고정 카피 (`repository-signals-v2.2`) |
 | 9 | sanity check·파일럿 코호트 | 블라인드 20개와 투명한 50~100개 코호트 |
 | 10 | ROI 조언 | 실제 재계산 gain, 고정 카피, 안전한 경로 삽입 |
 
@@ -397,13 +399,13 @@ cohortVersion    = null | repository-cohort-v1
 
 ## 18. 구현 착수 체크리스트
 
-- [ ] 평가 계약 변경 ADR 작성
-- [ ] v2 schema와 v1 호환 정책 확정
-- [ ] inventory와 matcher의 단일 정본 위치 확정
-- [ ] 신호별 읽기 슬롯 상한 확정
-- [ ] 지원 언어·형식 목록 확정
-- [ ] 핵심·보너스 초기 가중치 fixture 작성
-- [ ] provisional/withheld UI 계약 확정
-- [ ] 유형 후보 비트와 보류 fixture 작성
-- [ ] 공격 회귀 fixture 추가
-- [ ] Phase 9·ROADMAP·CHANGELOG 동기화
+- [x] 평가 계약 변경 ADR 작성
+- [x] v2 schema와 v1 호환 정책 확정
+- [x] inventory와 matcher의 단일 정본 위치 확정
+- [x] 신호별 읽기 슬롯 상한 확정
+- [x] 지원 언어·형식 목록 확정
+- [x] 핵심·보너스 초기 가중치 fixture 작성
+- [x] provisional/withheld UI 계약 확정
+- [x] 유형 후보 비트와 보류 fixture 작성
+- [x] 공격 회귀 fixture 추가
+- [x] Phase 9·ROADMAP·CHANGELOG 동기화

@@ -1,12 +1,12 @@
-# Repository report contract — v2.1
+# Repository report contract — v2.2
 
-Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md) and [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.1`로 발급한다. strict parser는 브라우저에 저장된 `repository-report-v1` 기록을 계속 읽지만 새 분석에 v1 점수를 발급하지 않는다.
+Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), and [ADR-0018](../Architecture/ADR/0018-evidence-aware-collaboration-profile.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.2`로 발급한다. strict parser는 브라우저에 저장된 `repository-report-v1`과 `repository-signals-v2.1` 기록을 계속 읽는다.
 
 ## 의미와 경계
 
 RepositoryReport는 공개 GitHub 저장소의 고정 commit에서 제한적으로 읽은 정적 신호를 요약한다. 개인의 실제 AI 대화, 의도, 기여분, 코드 정답, 생산성 또는 일반 능력을 인증하지 않는다. 사용자가 저장한 브라우저 사본은 인증된 증명서가 아니다.
 
-필수 공개 정보는 schema/rule version, 공개 repo slug, commit SHA, coverage, 네 축 점수와 총점, 고정 한국어 스타일, 실제 수집 경로 기반 근거 카드, gap과 다음 도전이다. 서버 토큰, raw API 응답, 파일 원문, 감지된 비밀, 사용자 식별자와 임의 저장소 문장을 포함하지 않는다.
+필수 공개 정보는 schema/rule version, 공개 repo slug, commit SHA, coverage, 네 축 점수와 총점, 네 차원 협업 유형 또는 보류 이유, 실제 수집 경로 기반 근거 카드, gap과 다음 도전이다. 서버 토큰, raw API 응답, 파일 원문, 감지된 비밀, 사용자 식별자와 임의 저장소 문장을 포함하지 않는다.
 
 ## 축
 
@@ -35,11 +35,11 @@ points  = round(maxPoints × quality)
 
 고정 SHA의 최근 조상 커밋 최대 20개에서 자동·merge·revert를 제외하고 제목의 구체성·고유성·범위, 본문의 이유, issue/PR/ADR/RFC 참조 비율을 집계한다. 평가 가능한 커밋이 3개 이상이면 기록축에 최대 5점 보너스를 주되 축 상한은 25점이다. 원문 커밋 메시지는 snapshot이나 공개 응답에 넣지 않는다.
 
-스타일은 총점 20 미만이면 `첫 신호 탐험가`, 네 축 최저점이 10 이상이고 최고·최저 차가 6 이하이면 `균형 잡힌 빌더`다. 그 외에는 가장 높은 축의 고정 스타일을 사용하며 동점은 맥락→검증 기반→기록→자동화 순서로 결정한다. 10점 미만 축은 gap으로 표시하고, 가장 낮은 축에서 다음 도전을 고른다. 부분 coverage이면 별도 gap을 추가한다.
+v2.2 협업 유형은 점수 높낮이와 분리해 D/R(기록/실행), H/P(직접확인/파이프라인), S/T(설계선행/추적중심), F/E(집중/균형)의 네 상대 차원으로 표시한다. 수집이 불완전하거나 관찰 축·실질 신호·차원 근거가 부족하거나 둘 이상의 차원이 경계에 가까우면 네 글자 코드를 발급하지 않고 `withheld`와 고정 이유를 공개한다. 상세 계산과 초기 임계값은 [ADR-0018](../Architecture/ADR/0018-evidence-aware-collaboration-profile.md)을 따른다.
 
-웹 해석 가이드는 별도 점수표를 유지하지 않는다. 이 문서의 14개 근거 ID 순서, 신호별 최대점, 스타일 임계값과 축 우선순위를 공유 코드에서 직접 읽어 네 축 표와 여섯 스타일을 표시한다. 실제 v2 리포트 카드는 획득점·최대점·내용 실질을 함께 표시한다. 리포트를 선택하면 해당 스타일을 강조하되 총점 구간으로 설명하지 않고 네 축 분포의 결과라고 밝힌다. 한국어·영어 제목은 같은 근거·스타일 ID에서 가져온다.
+웹 해석 가이드는 별도 점수표를 유지하지 않는다. 이 문서의 14개 근거 ID 순서와 신호별 최대점을 공유 코드에서 직접 읽는다. 실제 v2 리포트 카드는 획득점·최대점·내용 실질을 함께 표시하고, v2.2 결과는 네 차원의 양쪽 강도·선택·경계 상태 또는 보류 이유를 함께 표시한다. 한국어·영어 제목은 같은 의미 ID에서 가져온다. 과거 v1/v2.1 저장 이력은 기존 여섯 스타일 규칙으로 표시한다.
 
-점수·스타일·gap·다음 도전은 v2 `signalScores`에서 결정론적으로 재계산한다. 브라우저도 서버와 같은 strict parser를 사용하므로 품질·점수·진단을 임의로 바꾼 응답이나 저장 이력은 거부한다. 부분 coverage, tree/selection 제한, 지원하지 않는 테스트 형식, 커밋 이력 미측정은 `provisional` 이유로 공개한다.
+점수·legacy style·gap·다음 도전·협업 유형은 v2 `signalScores`와 diagnostics에서 결정론적으로 재계산한다. 브라우저도 서버와 같은 strict parser를 사용하므로 품질·점수·진단·유형을 임의로 바꾼 응답이나 저장 이력은 거부한다. 부분 coverage, tree/selection 제한, 지원하지 않는 테스트 형식, 커밋 이력 미측정은 `provisional` 이유로 공개한다.
 
 ## 근거와 안전
 
@@ -47,4 +47,4 @@ points  = round(maxPoints × quality)
 
 수집은 공개 저장소 metadata에서 `private === false`를 확인하고, 기본 branch·40자리 commit SHA·tree 구조를 검증한 뒤에만 blob을 읽는다. 14개 파일 신호별 대표를 40개 예산 안에 예약하고 같은 고정 SHA의 조상 커밋만 집계한다. 실제 코드를 실행하지 않는다. 현재 서버 제한은 토큰이 있으면 5분당 분석 시작 5회, 없으면 서버 프로세스당 시간당 1회, 동시 2회다. 이 제한은 단일 프로세스 메모리 기준이며 여러 Railway 인스턴스에 공유되는 분산 제한은 아니다.
 
-`.DS_Store`·swap·temp 같은 고신뢰 임시 파일, 생성물 후보, 비밀정보 가능 경로와 400/800줄 초과 선택 소스·큰 소스 후보는 진단에 표시하되 v2.1 점수에서 일괄 감점하지 않는다. 필요한 배포 산출물이나 응집된 모듈을 잘못 벌점화하고 의미 없는 파일 분할을 유도하지 않기 위해서다.
+`.DS_Store`·swap·temp 같은 고신뢰 임시 파일, 생성물 후보, 비밀정보 가능 경로와 400/800줄 초과 선택 소스·큰 소스 후보는 진단에 표시하되 v2.2 점수에서 일괄 감점하지 않는다. 필요한 배포 산출물이나 응집된 모듈을 잘못 벌점화하고 의미 없는 파일 분할을 유도하지 않기 위해서다.
