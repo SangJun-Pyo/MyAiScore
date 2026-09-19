@@ -58,7 +58,7 @@ const enReasons: Record<RepositoryCollaborationProfileReason, string> = {
   multiple_near_boundaries: "Two or more profile dimensions are close to their boundary.",
 };
 
-const profileNames: Record<string, { ko: string; en: string }> = {
+export const repositoryProfileNames = {
   DHSF: { ko: "설계 도면 수집가", en: "Blueprint Collector" },
   DHSE: { ko: "차분한 설계 기록가", en: "Steady Design Scribe" },
   DHTF: { ko: "흔적 추적 탐정", en: "Trace Detective" },
@@ -75,7 +75,13 @@ const profileNames: Record<string, { ko: string; en: string }> = {
   RPSE: { ko: "풀스택 오케스트레이터", en: "Full-stack Orchestrator" },
   RPTF: { ko: "배포 추적 레인저", en: "Release Trail Ranger" },
   RPTE: { ko: "자율 운영 조율사", en: "Autonomous Operations Conductor" },
-};
+} as const;
+
+const profileNames: Record<string, { ko: string; en: string }> = repositoryProfileNames;
+
+export function repositoryProfileNameCatalog(locale: Locale) {
+  return Object.entries(repositoryProfileNames).map(([code, names]) => ({ code, name: names[locale] }));
+}
 
 export function repositoryProfilePresentation(profile: RepositoryCollaborationProfile, locale: Locale) {
   const poles = locale === "ko" ? koPoles : enPoles;

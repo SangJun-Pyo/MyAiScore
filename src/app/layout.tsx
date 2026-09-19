@@ -19,6 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: copy.meta.title,
     description: copy.meta.description,
+    icons: {
+      icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+      shortcut: "/icon.svg",
+      apple: "/icon.svg",
+    },
     robots: { index: false, follow: false },
   };
 }

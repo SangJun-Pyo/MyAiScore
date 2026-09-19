@@ -6,7 +6,7 @@ import { FormEvent, ReactElement, useEffect, useRef, useState } from "react";
 import { CrtBackground, StructureFlowCollection, UplinkLoader } from "@designcodeio/threeui";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
-import { repositoryProfilePresentation } from "../i18n/repositoryProfilePresentation";
+import { repositoryProfileNameCatalog, repositoryProfilePresentation } from "../i18n/repositoryProfilePresentation";
 import { repositoryV2Presentation } from "../i18n/repositoryV2Presentation";
 import { deriveRepositoryCohortComparison } from "../shared/repositoryCohort";
 import {
@@ -158,13 +158,6 @@ function reportCollaborationProfile(report: RepositoryReport | null) {
   return report?.schemaVersion === "repository-report-v2" && "collaborationProfile" in report ? report.collaborationProfile : null;
 }
 
-function reportProfileTitle(report: RepositoryReport, locale: "ko" | "en", fallback: string) {
-  const profile = reportCollaborationProfile(report);
-  return profile
-    ? repositoryProfilePresentation(profile, locale).title
-    : fallback;
-}
-
 function fitCanvasText(context: CanvasRenderingContext2D, value: string, maxWidth: number) {
   if (context.measureText(value).width <= maxWidth) return value;
   let text = value;
@@ -278,7 +271,53 @@ const AXIS_ICONS: Record<(typeof REPOSITORY_AXIS_ORDER)[number], ReactElement> =
   automation: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.5L20 9" /><path d="M20 4v5h-5" /><path d="M20 12a8 8 0 0 1-13.5 5.5L4 15" /><path d="M4 20v-5h5" /></svg>,
 };
 
-function RepositoryReportView({ report, demo = false, actions = true, overviewVariant = "default" }: { report: RepositoryReport; demo?: boolean; actions?: boolean; overviewVariant?: "default" | "guide" }) {
+function radarPoint(index: number, value: number, radius = 58) {
+  const angle = (([-90, 0, 90, 180][index] ?? -90) * Math.PI) / 180;
+  const ratio = Math.max(0, Math.min(1, value / 25));
+  const center = 82;
+  return {
+    x: center + Math.cos(angle) * radius * ratio,
+    y: center + Math.sin(angle) * radius * ratio,
+  };
+}
+
+function RepositoryAxisRadar({ report }: { report: RepositoryReport }) {
+  const { copy } = useLocale();
+  const axes = REPOSITORY_AXIS_ORDER.map(axis => ({
+    axis,
+    label: copy.presentation.axes[axis].label,
+    value: report.score.axes[axis].value,
+  }));
+  const polygon = axes.map((item, index) => {
+    const point = radarPoint(index, item.value);
+    return `${point.x},${point.y}`;
+  }).join(" ");
+  return <figure className="repo-axis-radar" aria-label={copy.report.axesEyebrow}>
+    <svg viewBox="0 0 164 164" role="img" aria-label={axes.map(item => `${item.label} ${item.value}/25`).join(", ")}>
+      {[1, 0.75, 0.5, 0.25].map(level => {
+        const points = axes.map((_, index) => {
+          const point = radarPoint(index, 25 * level);
+          return `${point.x},${point.y}`;
+        }).join(" ");
+        return <polygon key={level} points={points} className="repo-axis-radar-grid" />;
+      })}
+      {axes.map((_, index) => {
+        const end = radarPoint(index, 25);
+        return <line key={index} x1="82" y1="82" x2={end.x} y2={end.y} className="repo-axis-radar-spoke" />;
+      })}
+      <polygon points={polygon} className="repo-axis-radar-shape" />
+      {axes.map((item, index) => {
+        const point = radarPoint(index, item.value);
+        return <circle key={item.axis} cx={point.x} cy={point.y} r="3.5" className="repo-axis-radar-dot" />;
+      })}
+    </svg>
+    <figcaption className="repo-axis-radar-legend">
+      {axes.map(item => <span key={item.axis}><b>{item.label}</b><strong>{item.value}/25</strong></span>)}
+    </figcaption>
+  </figure>;
+}
+
+function RepositoryReportView({ report, demo = false, actions = true, overviewVariant = "guide" }: { report: RepositoryReport; demo?: boolean; actions?: boolean; overviewVariant?: "default" | "guide" }) {
   const [notice, setNotice] = useState<"saved" | "error" | "cardSaved" | "cardShared" | "shareFallback" | "cardError" | "">("");
   const [cardBusy, setCardBusy] = useState(false);
   const { locale, copy } = useLocale();
@@ -293,11 +332,11 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
     if (cardBusy) return;
     setCardBusy(true);
     try {
-      const card = await createRepositoryShareCard(report, locale, Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, copy.presentation.axes[axis].label])) as Record<(typeof REPOSITORY_AXIS_ORDER)[number], string>, profileDisplay?.title ?? display.style.title);
+      const card = await createRepositoryShareCard(report, locale, Object.fromEntries(REPOSITORY_AXIS_ORDER.map(axis => [axis, copy.presentation.axes[axis].label])) as Record<(typeof REPOSITORY_AXIS_ORDER)[number], string>, display.style.title);
       if (mode === "share") {
         const file = new File([card.blob], card.fileName, { type: "image/png" });
         if (navigator.share && navigator.canShare?.({ files: [file] })) {
-          await navigator.share({ files: [file], title: `MyAiScore · ${repoName(report.repo)}`, text: profileDisplay?.title ?? display.style.title });
+          await navigator.share({ files: [file], title: `MyAiScore · ${repoName(report.repo)}`, text: display.style.title });
           setNotice("cardShared");
         } else {
           downloadShareCard(card.blob, card.fileName);
@@ -318,17 +357,27 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
     {guideOverview ? <section className="repo-overview-guide repo-hero-card product-panel" aria-label={display.scoreLabel}>
       <div className="hero-card-logic-ambient" aria-hidden="true"><StructureFlowCollection variant="logic-core" hue={0} saturation={1.00} brightness={1.00} /></div>
-      <span className="sample-chip">{profileDisplay?.eyebrow ?? copy.report.styleEyebrow}</span>
-      <h2>{profileDisplay?.title ?? display.style.title}</h2>
-      {profileDisplay?.code && <div className="repo-overview-guide-profile"><strong className="repo-profile-code">{profileDisplay.code}</strong><small>{profileDisplay.confidenceLabel}</small></div>}
-      <div className="session-hero-number">{report.score.value}<small>/100</small></div>
-      <p>{display.scoreLabel}</p>
-      <div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{report.score.axes[axis].value}/25</strong></div>)}</div>
-      <dl className="repo-overview-guide-meta"><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl>
-      <p className="caption">{profileDisplay?.description ?? display.style.description}</p>
+      <div className="repo-overview-guide-main">
+        <span className="sample-chip">{copy.report.styleEyebrow}</span>
+        <h2>{display.style.title}</h2>
+        <div className="session-hero-number">{report.score.value}<small>/100</small></div>
+        <p>{display.scoreLabel}</p>
+        <div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{report.score.axes[axis].value}/25</strong></div>)}</div>
+        <dl className="repo-overview-guide-meta"><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl>
+        <p className="caption">{display.style.description}</p>
+      </div>
+      <aside className="repo-overview-guide-side">
+        <RepositoryAxisRadar report={report} />
+        {profileDisplay && <div className="repo-overview-profile-summary">
+          <span>{profileDisplay.eyebrow}</span>
+          <div><strong className="repo-profile-code">{profileDisplay.code}</strong><b>{profileDisplay.title}</b></div>
+          <small>{profileDisplay.confidenceLabel}</small>
+          <p>{profileDisplay.description}</p>
+        </div>}
+      </aside>
     </section> : <section className="repo-overview product-panel">
       <div className="repo-score"><span className="eyebrow">{display.scoreLabel}</span><strong>{report.score.value}</strong><small>/100</small><p>{display.scoreExplanation}</p></div>
-      <div className="repo-style"><span className="eyebrow">{profileDisplay?.eyebrow ?? copy.report.styleEyebrow}</span><h2>{profileDisplay?.title ?? display.style.title}</h2>{profileDisplay?.code && <><strong className="repo-profile-code">{profileDisplay.code}</strong><small>{profileDisplay.confidenceLabel}</small></>}<p>{profileDisplay?.description ?? display.style.description}</p><dl><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl></div>
+      <div className="repo-style"><span className="eyebrow">{copy.report.styleEyebrow}</span><h2>{display.style.title}</h2><p>{display.style.description}</p><dl><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl></div>
     </section>}
     <p className="repo-boundary"><strong>{copy.report.boundaryStrong}</strong> {copy.report.boundaryMore}</p>
     {v2?.diagnostics.provisional && <p className="notice repo-provisional">{v2Display.provisional}</p>}
@@ -378,7 +427,7 @@ export function RepositoryHomeExperience() {
         />
       </div>
       <div className="landing-hero-copy"><p className="chapter-label"><i /> {copy.home.kicker}</p><div className="repo-hero-title-lockup"><h1 id="landing-title" className="repo-animated-title" aria-label={heroTitle}><span className="repo-title-line" data-text={copy.home.title1}>{copy.home.title1}</span><span className="repo-title-line repo-title-muted" data-text={copy.home.title2}>{copy.home.title2}</span></h1></div><p className="landing-lead">{copy.home.lead1}<br />{copy.home.lead2}</p><div className="landing-actions"><Link className="landing-primary" href="/evaluate">{copy.home.primary}</Link><a className="landing-text-action" href="#demo">{copy.home.example}</a></div><p className="landing-availability">{copy.home.availability}</p></div>
-      <div className="landing-world repo-hero-card product-panel"><div className="hero-card-logic-ambient" aria-hidden="true"><StructureFlowCollection variant="logic-core" hue={0} saturation={1.00} brightness={1.00} /></div><span className="sample-chip">{copy.home.demoTag}</span><h2>{reportProfileTitle(DEMO_REPORT, locale, display.style.title)}</h2><div className="session-hero-number">{DEMO_REPORT.score.value}<small>/100</small></div><p>{display.scoreLabel}</p><div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{DEMO_REPORT.score.axes[axis].value}/25</strong></div>)}</div><p className="caption">{copy.home.demoCaption}</p></div>
+      <div className="landing-world repo-hero-card product-panel"><div className="hero-card-logic-ambient" aria-hidden="true"><StructureFlowCollection variant="logic-core" hue={0} saturation={1.00} brightness={1.00} /></div><span className="sample-chip">{copy.home.demoTag}</span><h2>{display.style.title}</h2><div className="session-hero-number">{DEMO_REPORT.score.value}<small>/100</small></div><p>{display.scoreLabel}</p><div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{DEMO_REPORT.score.axes[axis].value}/25</strong></div>)}</div><p className="caption">{copy.home.demoCaption}</p></div>
       <div className="landing-chapters">{copy.home.chapters.map((chapter, index) => <a key={chapter.label} href={`#${["flow", "scope", "demo"][index]}`}><span>0{index + 1}</span><div><b>{chapter.label}</b><p>{chapter.text}</p></div></a>)}</div>
     </section>
     <section id="flow" className="landing-section landing-process"><div className="chapter-heading"><span>{copy.home.flowLabel}</span><span>{copy.home.flowSide}</span></div><div className="landing-section-intro"><h2 className="landing-title">{copy.home.flowTitle1}<br /><em>{copy.home.flowTitle2}</em></h2><p>{copy.home.flowIntro}</p></div><div className="landing-process-grid">{copy.home.steps.map((item, index) => <article key={item.title}><div className="process-card-copy"><span>0{index + 1}</span><h3>{item.title}</h3><p>{item.text}</p></div></article>)}</div></section>
@@ -460,7 +509,7 @@ export function RepositoryProfileExperience() {
   return <RepositoryShell><main id="main" className="page-width product-page">
     <header className="product-heading"><div><h1>{copy.profile.title}</h1><p>{copy.profile.description}</p></div><Link className="button button-primary" href="/evaluate">{copy.profile.newReport}</Link></header><p className="product-access-note">{copy.profile.privacy}</p>
     {error && <p className="notice notice-error" role="alert">{error === "history" ? copy.profile.historyError : copy.profile.updateError}</p>}
-    {reports.length === 0 ? <section className="product-empty"><h2>{copy.profile.emptyTitle}</h2><p>{copy.profile.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.profile.emptyCta}</Link></section> : <section aria-label={copy.profile.historyAria} className="history-list">{reports.map((report, index) => { const display = repositoryPresentation(report, locale, copy); return <article className="history-entry" key={`${report.repo}@${report.commitSha}`}><div className="history-description"><span className="eyebrow">{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial}</span><h2>{repoName(report.repo)}</h2><p>{reportProfileTitle(report, locale, display.style.title)} · <code>{report.commitSha.slice(0, 12)}</code></p></div><div className="history-score"><strong>{report.score.value}</strong><small>/100</small></div><div className="history-actions"><button className="text-button" onClick={() => { currentReport = report; router.push("/insights"); }}>{copy.profile.view}</button><button className="text-button" onClick={() => remove(index)}>{copy.profile.remove}</button></div></article>; })}</section>}
+    {reports.length === 0 ? <section className="product-empty"><h2>{copy.profile.emptyTitle}</h2><p>{copy.profile.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.profile.emptyCta}</Link></section> : <section aria-label={copy.profile.historyAria} className="history-list">{reports.map((report, index) => { const display = repositoryPresentation(report, locale, copy); return <article className="history-entry" key={`${report.repo}@${report.commitSha}`}><div className="history-description"><span className="eyebrow">{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial}</span><h2>{repoName(report.repo)}</h2><p>{display.style.title} · <code>{report.commitSha.slice(0, 12)}</code></p></div><div className="history-score"><strong>{report.score.value}</strong><small>/100</small></div><div className="history-actions"><button className="text-button" onClick={() => { currentReport = report; router.push("/insights"); }}>{copy.profile.view}</button><button className="text-button" onClick={() => remove(index)}>{copy.profile.remove}</button></div></article>; })}</section>}
     {(reports.length > 0 || error) && <button className="button button-secondary repo-clear" onClick={() => remove()}>{copy.profile.clear}</button>}<p className="caption session-footnote">{copy.profile.footnote}</p>
   </main></RepositoryShell>;
 }
@@ -471,23 +520,31 @@ function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | 
   const hasCollaborationProfile = reportProfile !== null;
   const referenceProfile = reportProfile ?? (!report ? reportCollaborationProfile(DEMO_REPORT) : null);
   const profileGuide = referenceProfile ? repositoryProfilePresentation(referenceProfile, locale) : null;
+  const profileNames = repositoryProfileNameCatalog(locale);
   const guide = buildRepositoryGuide(locale, copy, hasCollaborationProfile ? undefined : report?.style.id);
   return <div className="repo-interpretation-guide">
-    <section className="repo-guide product-panel" aria-labelledby="score-matrix-heading">
-      <span className="eyebrow">{copy.insights.matrixEyebrow}</span><h2 id="score-matrix-heading">{copy.insights.matrixTitle}</h2><p>{copy.insights.matrixIntro}</p>
-      <div className="repo-score-table-wrap" role="region" aria-label={copy.insights.matrixScrollLabel} tabIndex={0}><table className="repo-score-table"><caption>{copy.insights.matrixCaption}</caption><thead><tr><th scope="col">{copy.insights.axisHeader}</th><th scope="col">{copy.insights.signalHeader}</th><th scope="col">{copy.insights.pointsHeader}</th></tr></thead>
-        {guide.axes.map(axis => <tbody key={axis.id}>{axis.signals.map((signal, index) => <tr key={signal.id}>{index === 0 && <th scope="rowgroup" rowSpan={axis.signals.length + 1}>{axis.label}</th>}<th scope="row">{signal.title}</th><td>{copy.insights.points(signal.points)}</td></tr>)}<tr className="repo-axis-total"><th scope="row">{copy.insights.axisTotal}</th><td>{copy.insights.points(axis.total)}</td></tr></tbody>)}
-      </table></div><p className="repo-guide-limit">{copy.insights.guideText}</p>
-    </section>
+    <details className="repo-guide repo-guide-disclosure product-panel" aria-labelledby="score-matrix-heading" open>
+      <summary className="repo-guide-summary" aria-label={copy.insights.matrixToggle}>
+        <span className="repo-guide-summary-copy"><span className="eyebrow">{copy.insights.matrixEyebrow}</span><h2 id="score-matrix-heading" className="repo-guide-title">{copy.insights.matrixTitle}</h2><span>{copy.insights.matrixIntro}</span></span>
+        <span className="repo-guide-toggle" aria-hidden="true" />
+      </summary>
+      <div className="repo-guide-body">
+        <div className="repo-score-table-wrap" role="region" aria-label={copy.insights.matrixScrollLabel} tabIndex={0}><table className="repo-score-table"><caption>{copy.insights.matrixCaption}</caption><thead><tr><th scope="col">{copy.insights.axisHeader}</th><th scope="col">{copy.insights.signalHeader}</th><th scope="col">{copy.insights.pointsHeader}</th></tr></thead>
+          {guide.axes.map(axis => <tbody key={axis.id}>{axis.signals.map((signal, index) => <tr key={signal.id}>{index === 0 && <th scope="rowgroup" rowSpan={axis.signals.length + 1}>{axis.label}</th>}<th scope="row">{signal.title}</th><td>{copy.insights.points(signal.points)}</td></tr>)}<tr className="repo-axis-total"><th scope="row">{copy.insights.axisTotal}</th><td>{copy.insights.points(axis.total)}</td></tr></tbody>)}
+        </table></div><p className="repo-guide-limit">{copy.insights.guideText}</p>
+      </div>
+    </details>
     {profileGuide && <section className="repo-style-guide" aria-labelledby="profile-guide-heading">
       <div className="repo-style-guide-heading"><div><span className="eyebrow">{profileGuide.eyebrow}</span><h2 id="profile-guide-heading">{profileGuide.guideTitle}</h2></div><p>{profileGuide.guideIntro}</p></div>
       <div className="repo-profile-dimensions">{profileGuide.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileGuide.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
+      <section className="repo-profile-name-guide" aria-labelledby="profile-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="profile-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code}><strong>{item.code}</strong><span>{item.name}</span></div>)}</div></section>
     </section>}
     {!profileGuide && <section className="repo-style-guide" aria-labelledby="style-guide-heading">
       <div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.stylesEyebrow}</span><h2 id="style-guide-heading">{copy.insights.stylesTitle}</h2></div><p>{copy.insights.stylesIntro}</p></div>
       <ol className="repo-style-rules">{guide.styles.map(style => <li key={style.id} className={style.active ? "is-active" : undefined} aria-current={style.active ? "true" : undefined}><div className="repo-style-rule-label"><span>{copy.insights.ruleStep(style.step)}</span>{style.active && <strong>{copy.insights.activeStyle}</strong>}</div><h3>{style.title}</h3><p>{style.rule}</p><small>{style.description}</small></li>)}</ol>
       <p className="repo-tie-priority">{guide.tiePriority}</p>
       {report && <p className="repo-current-style-note"><strong>{copy.insights.activeStyle}: {guide.styles.find(style => style.active)?.title}</strong><span>{copy.insights.distributionNote}</span></p>}
+      <section className="repo-profile-name-guide" aria-labelledby="style-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="style-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code}><strong>{item.code}</strong><span>{item.name}</span></div>)}</div></section>
     </section>}
   </div>;
 }

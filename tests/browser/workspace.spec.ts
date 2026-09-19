@@ -50,14 +50,16 @@ test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 
   await expect(page.getByRole('heading', { level: 1 })).toContainText('AI 협업을 뒷받침하는 신호를 찾습니다.');
   await expect(page.locator('.repo-animated-title .repo-title-line')).toHaveCount(2);
   await expect(page.locator('.repo-crt-background .crt-terminal canvas')).toBeVisible();
-  await expect(page.locator('.repo-hero-card .hero-card-logic-ambient iframe[title="Logic Core isometric field"]')).toBeVisible();
-  await expect(page.frameLocator('.repo-hero-card .hero-card-logic-ambient iframe').locator('#three-canvas-container')).toBeAttached();
+  const heroCard = page.locator('.landing-world.repo-hero-card');
+  await expect(heroCard.locator('.hero-card-logic-ambient iframe[title="Logic Core isometric field"]')).toBeVisible();
+  await expect(heroCard.frameLocator('.hero-card-logic-ambient iframe').locator('#three-canvas-container')).toBeAttached();
   await expect(page.locator('.repo-title-animation')).toHaveCount(0);
   await expect(page.locator('.landing-availability')).toHaveText('회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음');
-  await expect(page.locator('.repo-hero-card')).toContainText('검증 기반');
-  await expect(page.locator('.repo-hero-card')).toContainText('기록');
+  await expect(heroCard).toContainText('검증 기반');
+  await expect(heroCard).toContainText('기록');
   await expect(page.locator('.site-footer')).toContainText('개인의 AI 활용 능력을 인증하는 서비스가 아닙니다.');
   await expect(page.getByRole('navigation').getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/SangJun-Pyo/MyAiScore');
+  await expect(page.locator('head link[rel="icon"][href="/icon.svg"]')).toHaveAttribute('type', 'image/svg+xml');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
@@ -77,10 +79,17 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await expect(page.locator('.repo-score-table')).toContainText('변경 책임 경로4점');
   await expect(page.locator('.repo-score-table')).toContainText('품질 검사 자동 실행5점');
   await expect(page.locator('.repo-axis-total')).toHaveText(['축 합계25점', '축 합계25점', '축 합계25점', '축 합계25점']);
+  await page.locator('.repo-guide-summary').click();
+  await expect(page.locator('.repo-score-table')).toBeHidden();
+  await page.locator('.repo-guide-summary').click();
+  await expect(page.locator('.repo-score-table')).toBeVisible();
   await expect(page.getByRole('heading', { name: '네 가지 상대적 성향으로 유형을 만듭니다.' })).toBeVisible();
   await expect(page.locator('.repo-style-guide .repo-profile-dimensions article')).toHaveCount(4);
   await expect(page.locator('.repo-style-guide')).toContainText('D · 기록형');
   await expect(page.locator('.repo-style-guide')).toContainText('P · 파이프라인형');
+  await expect(page.locator('.repo-profile-name-grid > div')).toHaveCount(16);
+  await expect(page.locator('.repo-profile-name-grid')).toContainText('DHSF설계 도면 수집가');
+  await expect(page.locator('.repo-profile-name-grid')).toContainText('RPTE자율 운영 조율사');
   await page.screenshot({ path: testInfo.outputPath('repository-guide.png'), fullPage: true });
   expect(requests).toEqual([]);
 });
@@ -104,8 +113,9 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await expect(page.locator('.repo-progress')).toContainText('저장소의 협업 신호를 찾고 있습니다.');
   await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#num')).toHaveText('100', { timeout: 18000 });
   await expect(page.locator('.notice[role="status"]')).toContainText(/분석이 완료되었습니다/, { timeout: 6000 });
-  await expect(page.locator('.repo-score > strong')).toHaveText('63');
-  await expect(page.locator('.repo-style')).toContainText('AI 협업 신호 레이더');
+  await expect(page.locator('.repo-overview-guide .session-hero-number')).toContainText('63');
+  await expect(page.locator('.repo-overview-guide')).toContainText('AI 협업 신호 레이더');
+  await expect(page.locator('.repo-axis-radar')).toContainText('검증 기반25/25');
   await expect(page.locator('.repo-axis-card')).toHaveCount(4);
   await page.locator('.repo-axis-card').filter({ hasText: '프로젝트 안내' }).getByText('근거 파일 1개').first().click();
   await expect(page.locator('.repo-axis-card').filter({ hasText: '프로젝트 안내' })).toContainText('AGENTS.md');
@@ -139,7 +149,7 @@ test('분석 응답이 첫 100% 이후 도착해도 다음 로더 반복을 기�
   await page.getByRole('button', { name: '저장소 분석하기' }).click();
   await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#num')).toHaveText('100', { timeout: 18_000 });
   await expect(page.locator('.notice[role="status"]')).toContainText('분석이 완료되었습니다.', { timeout: 5_000 });
-  await expect(page.locator('.repo-score > strong')).toHaveText('63');
+  await expect(page.locator('.repo-overview-guide .session-hero-number')).toContainText('63');
 });
 
 test('API 오류와 계약에 맞지 않는 응답을 점수 없이 명확히 표시한다', async ({ page }) => {
@@ -229,11 +239,14 @@ test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 
   await expect(page.getByRole('heading', { name: 'Four relative dimensions form the profile.' })).toBeVisible();
   await expect(page.locator('.repo-style-guide .repo-profile-dimensions article')).toHaveCount(4);
   await expect(page.locator('.repo-style-guide')).toContainText('D · Documenter');
+  await expect(page.locator('.repo-profile-name-grid > div')).toHaveCount(16);
+  await expect(page.locator('.repo-profile-name-grid')).toContainText('DHSFBlueprint Collector');
+  await expect(page.locator('.repo-profile-name-grid')).toContainText('RPTEAutonomous Operations Conductor');
   await page.getByRole('navigation').getByRole('link', { name: 'Analyze', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Analyze a public repository' })).toBeVisible();
   await page.getByLabel('Public GitHub repository URL').fill('https://github.com/example/public-repo');
   await page.getByRole('button', { name: 'Analyze repository' }).click();
-  await expect(page.locator('.repo-style')).toContainText('Verification radar', { timeout: 22000 });
+  await expect(page.locator('.repo-overview-guide')).toContainText('Verification radar', { timeout: 22000 });
   await expect(page.locator('.repo-report')).toContainText('Decision records');
   await expect(page.locator('.repo-report')).toContainText('Connect one decision');
   await expect(page.locator('.repo-boundary')).toContainText('does not certify personal AI ability');
