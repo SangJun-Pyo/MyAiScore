@@ -10,6 +10,8 @@ test('한국어 홈은 로그인 없는 공개 저장소 흐름과 가상 예시
   await expect(page.getByText('회원가입 불필요', { exact: false })).toBeVisible();
   await expect(page.getByRole('link', { name: '내 저장소 분석하기' })).toHaveAttribute('href', '/evaluate');
   await expect(page.locator('.landing-world.repo-hero-card')).toContainText('검증 수호자');
+  await expect(page.locator('.landing-world.repo-hero-card')).toContainText('AI 개발 체계 점수');
+  await expect(page.locator('.landing-world.repo-hero-card')).toContainText('개인 역량이 아닌, 저장소에 남은 AI 활용 신호를 반영한 예시입니다.');
   await expect(page.locator('#flow')).toContainText('복잡한 설정 없이,');
   await expect(page.locator('#flow')).toContainText('저장소 링크 하나면 충분해요.');
   await expect(page.locator('#flow')).toContainText('GitHub 로그인이나 별도 설치 없이 공개 저장소 주소만 입력하면 돼요.');

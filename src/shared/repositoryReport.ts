@@ -84,7 +84,7 @@ interface RepositoryReportBase {
   coverage: RepositoryReportCoverage;
   score: {
     value: number;
-    label: "저장소 기반 AI 협업 준비도";
+    label: "AI 개발 체계 점수" | "저장소 기반 AI 협업 준비도";
     explanation: string;
     axes: Record<RepositoryReportAxis, { label: string; value: number }>;
   };
@@ -292,6 +292,7 @@ export const REPOSITORY_COLLABORATION_PROFILE_THRESHOLDS = {
 } as const;
 
 export const REPOSITORY_REPORT_COPY = {
+  scoreLabel: "AI 개발 체계 점수",
   scoreExplanation: "선택된 공개 저장소 파일에서 확인한 협업 준비 신호를 더한 재미용 점수예요. 개인의 AI 활용 능력, 코드 품질, 실행 성공을 평가하지 않아요.",
   scoreExplanationV2: "공개 저장소의 파일 존재뿐 아니라 제한적으로 읽은 내용의 실질과 저장소 규모 대비 범위를 함께 계산한 점수예요. 개인의 AI 활용 능력, 코드 정답이나 실행 성공을 평가하지 않아요.",
   axisLabels: {
@@ -679,7 +680,7 @@ function validateIdentityAndCoverage(value: Record<string, unknown>, maxSelected
 function validateScore(value: Record<string, unknown>, explanation: string) {
   const score = value.score;
   if (!object(score) || !exactKeys(score, ["value", "label", "explanation", "axes"]) || !integer(score.value, 0, 100) ||
-      score.label !== "저장소 기반 AI 협업 준비도" || score.explanation !== explanation || !object(score.axes) ||
+      ![REPOSITORY_REPORT_COPY.scoreLabel, "저장소 기반 AI 협업 준비도"].includes(String(score.label)) || score.explanation !== explanation || !object(score.axes) ||
       !exactKeys(score.axes, REPOSITORY_AXIS_ORDER)) throw new Error("Invalid repository report score.");
   let total = 0;
   for (const axis of REPOSITORY_AXIS_ORDER) {
