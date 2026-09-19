@@ -46,8 +46,8 @@
   position: relative;
   padding: 72px var(--lp-pad) 0;
   display: grid;
-  grid-template-columns: minmax(0,1fr) minmax(340px,420px);
-  gap: 0 clamp(34px,4vw,72px);
+  grid-template-columns: minmax(0,1fr) minmax(320px,420px);
+  gap: 0 clamp(28px,3.6vw,64px);
   align-items: center;
 }
 .repo-landing-hero {
@@ -86,11 +86,11 @@
   position: relative;
   z-index: 2;
   min-width: 0;
-  max-width: 980px;
+  max-width: 880px;
   padding-top: 8px;
 }
 .landing-hero h1 {
-  font-size: clamp(42px,4.2vw,68px);
+  font-size: clamp(38px,3.5vw,60px);
   line-height: 1.04;
   letter-spacing: -.055em;
   margin: 0 0 28px;
@@ -105,15 +105,17 @@
 .repo-animated-title {
   position: relative;
   isolation: isolate;
-  width: max-content;
-  max-width: calc(100vw - var(--lp-pad) * 2);
+  width: auto;
+  max-width: 100%;
 }
 .repo-title-line {
   position: relative;
   display: block;
-  width: fit-content;
+  width: auto;
   max-width: 100%;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: keep-all;
+  text-wrap: balance;
   color: #f4f4f0;
   filter: drop-shadow(0 0 20px #ffffff0d);
   animation: repoTitleAssemble 1.2s cubic-bezier(.2,.84,.24,1) both;
@@ -724,7 +726,7 @@
     gap: 0 32px;
   }
   .landing-hero h1 {
-    font-size: clamp(40px,5vw,58px);
+    font-size: clamp(36px,4.6vw,52px);
   }
   .landing-hero-copy {
     padding-top: 0;
@@ -800,7 +802,7 @@
   .landing-hero h1 {
     letter-spacing: -.065em;
     white-space: normal;
-    font-size: clamp(42px,9.2vw,62px);
+    font-size: clamp(38px,8.6vw,56px);
   }
   .repo-hero-title-lockup {
     width: 100%;

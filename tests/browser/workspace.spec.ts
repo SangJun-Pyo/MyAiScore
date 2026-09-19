@@ -69,6 +69,7 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await expect(page.getByRole('heading', { name: '아직 고른 리포트가 없어요.' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '어떤 신호에 몇 점인지 전부 적어 뒀어요.' })).toBeVisible();
   await expect(page.locator('.repo-score-table tbody')).toHaveCount(4);
+  await expect(page.locator('.repo-overview-guide')).toHaveCount(0);
   await expect(page.getByRole('region', { name: '네 축의 신호별 배점표' })).toHaveAttribute('tabindex', '0');
   await expect(page.locator('.repo-score-table')).toContainText('인터페이스 계약4점');
   await expect(page.locator('.repo-score-table')).toContainText('테스트 내용5점');
@@ -112,6 +113,16 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await page.screenshot({ path: testInfo.outputPath('repository-report.png'), fullPage: true });
 });
 
+test('분석 응답이 첫 100% 이후 도착해도 두 번째 100%를 기다리지 않는다', async ({ page }) => {
+  await interceptReport(page, report(), 10300);
+  await page.goto('/evaluate');
+  await page.getByLabel('공개 GitHub 저장소 URL').fill('https://github.com/example/public-repo');
+  await page.getByRole('button', { name: '저장소 분석하기' }).click();
+  await expect(page.frameLocator('.repo-uplink-frame iframe').locator('#num')).toHaveText('100', { timeout: 18000 });
+  await expect(page.locator('.notice[role="status"]')).toContainText(/분석이 완료되었습니다/, { timeout: 5000 });
+  await expect(page.locator('.repo-score > strong')).toHaveText('63');
+});
+
 test('API 오류와 계약에 맞지 않는 응답을 점수 없이 명확히 표시한다', async ({ page }) => {
   await page.route('**/api/repository-report', async route => route.fulfill({ status: 404, json: { error: { code: 'repo_not_found_or_private', message: 'PRIVATE SERVER DETAIL' } } }));
   await page.goto('/evaluate');
@@ -144,6 +155,10 @@ test('저장은 명시적이며 같은 저장소와 커밋을 중복 없이 보�
   await expect(page.locator('.history-entry')).toContainText('example/public-repo');
   await page.getByRole('button', { name: '리포트 보기' }).click();
   await expect(page.locator('.repo-report')).toContainText('AI 협업 신호 레이더');
+  await expect(page.locator('.repo-overview-guide')).toContainText('AI 협업 신호 레이더');
+  await expect(page.locator('.repo-overview-guide .session-hero-number')).toContainText('63');
+  await expect(page.locator('.repo-overview-guide .hero-card-logic-ambient iframe[title="Logic Core isometric field"]')).toBeVisible();
+  await expect(page.locator('.repo-overview-guide')).toContainText('검증 기반');
   await expect(page.locator('.repo-style-rules > li.is-active')).toHaveCount(1);
   await expect(page.locator('.repo-style-rules > li.is-active')).toContainText('AI 협업 신호 레이더');
   await expect(page.locator('.repo-current-style-note')).toContainText('총점이 아니라 네 축의 분포');

@@ -30,19 +30,13 @@ const HISTORY_KEY = "myaiscore_repository_reports_v1";
 const MAX_HISTORY = 20;
 const MAX_HISTORY_BYTES = 512_000;
 const UPLINK_RUN_MS = 8600;
-const UPLINK_HOLD_MS = 1600;
-const UPLINK_BLANK_MS = 420;
 const UPLINK_SETTLE_MS = 900;
 
 function waitForUplinkCompletion(startedAt: number) {
-  const loop = UPLINK_RUN_MS + UPLINK_HOLD_MS + UPLINK_BLANK_MS;
   const elapsed = performance.now() - startedAt;
-  const phase = ((elapsed % loop) + loop) % loop;
-  const waitMs = phase < UPLINK_RUN_MS
-    ? UPLINK_RUN_MS - phase + UPLINK_SETTLE_MS
-    : phase < UPLINK_RUN_MS + UPLINK_HOLD_MS
-      ? UPLINK_SETTLE_MS
-      : loop - phase + UPLINK_RUN_MS + UPLINK_SETTLE_MS;
+  const waitMs = elapsed < UPLINK_RUN_MS
+    ? UPLINK_RUN_MS - elapsed + UPLINK_SETTLE_MS
+    : UPLINK_SETTLE_MS;
   return new Promise(resolve => setTimeout(resolve, waitMs));
 }
 
@@ -198,7 +192,7 @@ const AXIS_ICONS: Record<(typeof REPOSITORY_AXIS_ORDER)[number], ReactElement> =
   automation: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.5L20 9" /><path d="M20 4v5h-5" /><path d="M20 12a8 8 0 0 1-13.5 5.5L4 15" /><path d="M4 20v-5h5" /></svg>,
 };
 
-function RepositoryReportView({ report, demo = false, actions = true }: { report: RepositoryReport; demo?: boolean; actions?: boolean }) {
+function RepositoryReportView({ report, demo = false, actions = true, overviewVariant = "default" }: { report: RepositoryReport; demo?: boolean; actions?: boolean; overviewVariant?: "default" | "guide" }) {
   const [notice, setNotice] = useState<"saved" | "error" | "">("");
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(report, locale, copy);
@@ -207,12 +201,23 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
   const profile = reportCollaborationProfile(report);
   const profileDisplay = profile ? repositoryProfilePresentation(profile, locale) : null;
   const v2Display = repositoryV2Presentation(locale);
+  const guideOverview = overviewVariant === "guide";
   return <section className="repo-report" aria-label={copy.report.aria}>
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
-    <section className="repo-overview product-panel">
+    {guideOverview ? <section className="repo-overview-guide repo-hero-card product-panel" aria-label={display.scoreLabel}>
+      <div className="hero-card-logic-ambient" aria-hidden="true"><StructureFlowCollection variant="logic-core" hue={0} saturation={1.00} brightness={1.00} /></div>
+      <span className="sample-chip">{profileDisplay?.eyebrow ?? copy.report.styleEyebrow}</span>
+      <h2>{profileDisplay?.title ?? display.style.title}</h2>
+      {profileDisplay?.code && <div className="repo-overview-guide-profile"><strong className="repo-profile-code">{profileDisplay.code}</strong><small>{profileDisplay.confidenceLabel}</small></div>}
+      <div className="session-hero-number">{report.score.value}<small>/100</small></div>
+      <p>{display.scoreLabel}</p>
+      <div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{report.score.axes[axis].value}/25</strong></div>)}</div>
+      <dl className="repo-overview-guide-meta"><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl>
+      <p className="caption">{profileDisplay?.description ?? display.style.description}</p>
+    </section> : <section className="repo-overview product-panel">
       <div className="repo-score"><span className="eyebrow">{display.scoreLabel}</span><strong>{report.score.value}</strong><small>/100</small><p>{display.scoreExplanation}</p></div>
       <div className="repo-style"><span className="eyebrow">{profileDisplay?.eyebrow ?? copy.report.styleEyebrow}</span><h2>{profileDisplay?.title ?? display.style.title}</h2>{profileDisplay?.code && <><strong className="repo-profile-code">{profileDisplay.code}</strong><small>{profileDisplay.confidenceLabel}</small></>}<p>{profileDisplay?.description ?? display.style.description}</p><dl><div><dt>{copy.report.repository}</dt><dd>{repoName(report.repo)}</dd></div><div><dt>{copy.report.commit}</dt><dd><code>{report.commitSha.slice(0, 12)}</code></dd></div></dl></div>
-    </section>
+    </section>}
     <p className="repo-boundary"><strong>{copy.report.boundaryStrong}</strong> {copy.report.boundaryMore}</p>
     {v2?.diagnostics.provisional && <p className="notice repo-provisional">{v2Display.provisional}</p>}
     {profileDisplay && <section className="product-panel repo-profile-panel" aria-label={profileDisplay.guideTitle}>
@@ -384,7 +389,7 @@ export function RepositoryInsightsExperience() {
   return <RepositoryShell><main id="main" className="page-width product-page">
     <header className="product-heading"><div><h1>{copy.insights.title}</h1><p>{copy.insights.description}</p></div></header>
     {reports.length > 0 && <div className="product-toolbar"><label className="repo-select">{copy.insights.savedReport}<select value={selectedIndex} onChange={event => { setSelectedIndex(event.target.value); const selected = reports[Number(event.target.value)]; if (selected) { currentReport = selected; setReport(selected); } }}><option value="" disabled>{copy.insights.choose}</option>{reports.map((item, index) => <option key={`${item.repo}@${item.commitSha}`} value={index}>{repoName(item.repo)} · {copy.profile.points(item.score.value)}</option>)}</select></label></div>}
-    {report ? <RepositoryReportView report={report} actions={false} /> : <section className="product-empty"><h2>{copy.insights.emptyTitle}</h2><p>{copy.insights.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.insights.emptyCta}</Link></section>}
+    {report ? <RepositoryReportView report={report} actions={false} overviewVariant="guide" /> : <section className="product-empty"><h2>{copy.insights.emptyTitle}</h2><p>{copy.insights.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.insights.emptyCta}</Link></section>}
     <RepositoryInterpretationGuide report={report} />
   </main></RepositoryShell>;
 }
