@@ -57,7 +57,7 @@ test('홈은 자연스러운 한국어로 분석 범위와 네 가지 신호를 
   await expect(page.locator('.landing-availability')).toHaveText('회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음');
   await expect(heroCard).toContainText('검증 기반');
   await expect(heroCard).toContainText('기록');
-  await expect(page.locator('.site-footer')).toContainText('개인의 AI 활용 능력을 인증하는 서비스가 아닙니다.');
+  await expect(page.locator('.site-footer')).toContainText('개인의 역량이나 프로젝트 전체의 품질을 평가하지 않아요.');
   await expect(page.getByRole('navigation').getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/SangJun-Pyo/MyAiScore');
   await expect(page.locator('head link[rel="icon"][href="/icon.svg"]')).toHaveAttribute('type', 'image/svg+xml');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
