@@ -451,14 +451,27 @@
   display:block;
   min-width:0;
 }
-.repo-guide-summary-copy > span:last-child {
-  display:block;
-  max-width:850px;
-  color:var(--muted);
-  line-height:1.65;
-}
 .repo-guide-title {
   margin:0 0 10px;
+}
+.repo-guide-principles {
+  display:grid;
+  gap:7px;
+  max-width:900px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.repo-guide-principles li {
+  display:grid;
+  grid-template-columns:82px minmax(0,1fr);
+  gap:10px;
+  color:var(--muted);
+  line-height:1.55;
+}
+.repo-guide-principles strong {
+  color:var(--ink);
+  font-weight:600;
 }
 .repo-guide-toggle {
   position:relative;
@@ -589,6 +602,7 @@
   .repo-landing-hero .landing-chapters { grid-template-columns:1fr 1fr; }
   .repo-guide:not(.repo-guide-disclosure) { padding:22px 18px; }
   .repo-guide-summary { padding:22px 18px; }
+  .repo-guide-principles li { grid-template-columns:1fr; gap:2px; }
   .repo-guide-body { padding:0 18px 22px; }
   .repo-score-table-wrap { margin-inline:-4px; }
   .repo-style-guide-heading { display:block; }
