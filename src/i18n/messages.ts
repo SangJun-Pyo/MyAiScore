@@ -23,7 +23,7 @@ const ko = {
     save: "이 브라우저에 저장", downloadCard: "결과 카드 저장", shareCard: "결과 카드 공유", cardIntro: "결과 카드는 저장소명·커밋·점수·유형만 담으며 원문은 포함하지 않아요.", insightsLink: "점수 해석 보기 →", saved: "이 브라우저의 ‘내 리포트’에 저장했어요.", saveError: "브라우저 저장 공간에 리포트를 저장하지 못했어요.", cardSaved: "PNG 결과 카드를 저장했어요.", cardShared: "결과 카드를 공유했어요.", cardShareFallback: "이 브라우저는 이미지 공유를 지원하지 않아 PNG로 저장했어요.", cardError: "결과 카드를 만들지 못했어요. 잠시 뒤 다시 시도해 주세요.",
   },
   home: {
-    kicker: "로그인 없이 바로 시작", title1: "내 저장소에는", title2: "AI를 잘 활용한 흔적이 얼마나 남아 있을까요?", lead1: "GitHub 공개 저장소 주소 하나만 입력하면", lead2: "맥락·검증·기록·자동화와 관련된 신호를 확인할 수 있습니다.",
+    kicker: "로그인 없이 바로 시작", title1: "AI로 코딩하고 있는데,", title2: "제대로 활용하고 있을까요?", lead1: "GitHub 공개 저장소 주소 하나만 입력하면", lead2: "맥락·검증·기록·자동화와 관련된 신호를 확인할 수 있습니다.",
     primary: "내 저장소 분석하기 ↗", example: "예시 리포트 보기 ↘", availability: "회원가입 불필요 · 공개 저장소만 분석 · AI 모델 호출 없음",
     demoTag: "예시 화면", demoCaption: "실제 개인 평가가 아닌, 저장소에서 확인할 수 있는 신호를 보여주는 예시입니다.",
     chapters: [{ label: "분석 방법", text: "주소 하나로 바로 확인합니다." }, { label: "확인 범위", text: "저장소에 남은 신호만 분석합니다." }, { label: "리포트 예시", text: "점수와 근거를 함께 보여드립니다." }],
