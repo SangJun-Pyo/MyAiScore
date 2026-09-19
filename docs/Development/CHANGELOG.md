@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-19 — 협업 유형·축별 신호 카드 다크모드 리디자인
+
+- 해석 가이드 페이지에서 "협업 유형" 4개 차원 카드에 좌우 스펙트럼 바(막대+마커)를 추가하고, 유형 코드(4글자)와 신뢰도 라벨을 패널 상단 배지로 끌어올렸다. 데이터는 기존 `repositoryProfilePresentation`이 이미 계산하던 leftStrength/rightStrength/code/confidenceLabel을 그대로 사용한다.
+- "축별 저장소 신호" 카드에 축별 도넛형 진행률 링과 아이콘을 추가하고, 신호별 근거 카드(`repo-evidence-card`)를 제목·설명·근거 파일·점수 배지가 분리된 그리드 레이아웃으로 재구성했다. 기존에 `.repo-evidence-card`는 전용 CSS가 전혀 없어 브라우저 기본 스타일로만 렌더링되고 있었다.
+- 복사한 텍스트, `<details>/<summary>` 파일 목록 상호작용, 데이터 구조는 전혀 바꾸지 않았다 — CSS 클래스 재구성과 신규 시각 요소(링, 스펙트럼 바, 코드 배지) 추가만 있다.
+
 ## 2026-09-19 — 고정 SHA 참조 코호트 v2.7
 
 - TypeScript·Python·Go·Rust·Java 각 10개, 다섯 별점 구간별 2개씩 총 50개 공개 저장소를 고정 SHA에서 v2.6 규칙으로 수집했다. seed, 선택식, 점수·축·coverage manifest와 SHA-256 digest를 공개하며 원문은 저장하지 않는다.

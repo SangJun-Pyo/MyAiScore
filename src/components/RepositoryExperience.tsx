@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, ReactElement, useEffect, useRef, useState } from "react";
 import { CrtBackground, StructureFlowCollection, UplinkLoader } from "@designcodeio/threeui";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
@@ -191,6 +191,13 @@ export function RepositoryShell({ children }: { children: React.ReactNode }) {
   </>;
 }
 
+const AXIS_ICONS: Record<(typeof REPOSITORY_AXIS_ORDER)[number], ReactElement> = {
+  context: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" /><path d="M14 3v4h4" /><path d="M9 12h6M9 15.5h6M9 8.5h3" /></svg>,
+  verification: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z" /><path d="M9 12.5l2 2 4-4.5" /></svg>,
+  traceability: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9a8 8 0 1 1 1.5 6.5" /><path d="M4 4v5h5" /><path d="M12 8v4l3 2" /></svg>,
+  automation: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.5L20 9" /><path d="M20 4v5h-5" /><path d="M20 12a8 8 0 0 1-13.5 5.5L4 15" /><path d="M4 20v-5h5" /></svg>,
+};
+
 function RepositoryReportView({ report, demo = false, actions = true }: { report: RepositoryReport; demo?: boolean; actions?: boolean }) {
   const [notice, setNotice] = useState<"saved" | "error" | "">("");
   const { locale, copy } = useLocale();
@@ -210,7 +217,8 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
     {v2?.diagnostics.provisional && <p className="notice repo-provisional">{v2Display.provisional}</p>}
     {profileDisplay && <section className="product-panel repo-profile-panel" aria-label={profileDisplay.guideTitle}>
       <div className="repo-profile-heading"><div><span className="eyebrow">{profileDisplay.eyebrow}</span><h2>{profileDisplay.guideTitle}</h2></div><p>{profileDisplay.guideIntro}</p></div>
-      <div className="repo-profile-dimensions">{profileDisplay.dimensions.map(dimension => <article key={dimension.id}><div><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-poles"><span className={dimension.selectedPole === dimension.leftPole ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={dimension.selectedPole === dimension.rightPole ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><small>{profileDisplay.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>)}</div>
+      {profileDisplay.code && <div className="repo-profile-identity"><div className="repo-profile-identity-code">{profileDisplay.code.split("").map((letter, index) => <span key={index}>{letter}</span>)}</div><div className="repo-profile-identity-text"><strong>{profileDisplay.title}</strong><span>{profileDisplay.confidenceLabel}</span></div></div>}
+      <div className="repo-profile-dimensions">{profileDisplay.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileDisplay.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
       {profileDisplay.reasons.length > 0 && <ul className="repo-profile-reasons">{profileDisplay.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>}
     </section>}
     <section className="repo-axis-section" aria-labelledby="axis-heading">
@@ -218,7 +226,7 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
       <div className="repo-axis-grid">{REPOSITORY_AXIS_ORDER.map(axis => {
         const cards = report.evidenceCards.filter(card => card.axis === axis);
         return <article className="repo-axis-card product-panel" key={axis}>
-          <div className="repo-axis-top"><span>{copy.presentation.axes[axis].label}</span><strong>{report.score.axes[axis].value}<small>/25</small></strong></div>
+          <div className="repo-axis-top"><div className="repo-axis-identity"><span className="repo-axis-ring" style={{ background: `conic-gradient(var(--accent) ${(report.score.axes[axis].value / 25) * 360}deg, var(--line-strong) 0deg)` }}><span className="repo-axis-ring-inner">{AXIS_ICONS[axis]}</span></span><span>{copy.presentation.axes[axis].label}</span></div><strong>{report.score.axes[axis].value}<small>/25</small></strong></div>
           {cards.length ? cards.map(card => { const cardCopy = display.evidence[card.id]; const assessment = v2?.signalScores.find(item => item.id === card.id); return <div key={card.id} className="repo-evidence-card"><h3>{cardCopy.title}</h3>{assessment && <strong className="repo-signal-score">{assessment.substance === null ? v2Display.unmeasuredQuality(assessment.points, assessment.maxPoints) : v2Display.measuredQuality(assessment.points, assessment.maxPoints, Math.round(assessment.substance * 100))}</strong>}<p>{cardCopy.description}</p><details><summary>{copy.report.evidenceFiles(card.paths.length)}</summary><ul>{card.paths.map(path => <li key={path}><code>{path}</code></li>)}</ul></details></div>; }) : <p>{copy.report.noSignal}</p>}
           {axis === "traceability" && v2 && (() => { const assessment = v2.signalScores.find(item => item.id === "traceability-commit-practice"); return assessment?.presence ? <div className="repo-evidence-card"><h3>{v2Display.commitPractice}</h3><strong className="repo-signal-score">{v2Display.measuredQuality(assessment.points, assessment.maxPoints, Math.round((assessment.substance ?? 0) * 100))}</strong><p>{v2Display.commitPracticeDescription}</p></div> : null; })()}
           <p className="caption">{copy.presentation.axes[axis].question}</p>
@@ -356,7 +364,7 @@ function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | 
     </section>
     {profileGuide && <section className="repo-style-guide" aria-labelledby="profile-guide-heading">
       <div className="repo-style-guide-heading"><div><span className="eyebrow">{profileGuide.eyebrow}</span><h2 id="profile-guide-heading">{profileGuide.guideTitle}</h2></div><p>{profileGuide.guideIntro}</p></div>
-      <div className="repo-profile-dimensions">{profileGuide.dimensions.map(dimension => <article key={dimension.id}><h3>{dimension.title}</h3><p>{dimension.description}</p><div className="repo-profile-poles"><span>{dimension.leftPole} · {dimension.leftLabel}</span><span>{dimension.rightPole} · {dimension.rightLabel}</span></div></article>)}</div>
+      <div className="repo-profile-dimensions">{profileGuide.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileGuide.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
     </section>}
     {!profileGuide && <section className="repo-style-guide" aria-labelledby="style-guide-heading">
       <div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.stylesEyebrow}</span><h2 id="style-guide-heading">{copy.insights.stylesTitle}</h2></div><p>{copy.insights.stylesIntro}</p></div>
