@@ -315,8 +315,6 @@ textarea { resize: vertical; }
 .site-footer .brand { font-size: 17px; }
 .site-footer .brand > span { color: var(--accent); }
 .site-footer p { margin: 0; color: var(--muted); font-size: 11px; }
-.footer-source { margin-left: auto; color: var(--muted); font-size: 10px; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--line-strong); white-space: nowrap; }
-.footer-source:hover { color: var(--accent); text-decoration-color: var(--accent); }
 .site-footer > span { font-size: 10px; color: var(--subtle); }
 @media(max-width:1000px) {
   .insight-tabs strong { font-size: 11px; }
@@ -330,7 +328,7 @@ textarea { resize: vertical; }
   .header-inner { display: block; padding: 17px 22px 9px; }
   .header-actions { display: block; margin-top: 13px; }
   .brand { font-size: 20px; }
-  .site-header nav { justify-content: space-between; gap: 8px; margin-top: 0; }
+  .site-header nav { justify-content: space-between; flex-wrap: wrap; row-gap: 4px; gap: 8px; margin-top: 0; }
   .site-header nav > a { font-size: 11px; padding-block: 9px; }
   .site-header nav > a.nav-evaluate { padding: 9px 10px; font-size: 10px; }
   .language-switch { margin-top: 8px; }
@@ -403,7 +401,6 @@ textarea { resize: vertical; }
   .share-actions { margin-top: 20px; }
   .share-preview > span { gap: 12px; }
   .site-footer { margin-inline: 22px; padding: 24px 0; flex-wrap: wrap; gap: 12px 20px; }
-  .footer-source { margin-left: 0; }
   .site-footer > span { margin-left: 0; width: 100%; }
 }
 @media(prefers-reduced-motion:reduce) {

@@ -188,3 +188,29 @@ UplinkLoader는 원본 파일을 유지하되 앱 전환 타이밍을 조정했�
 처음에는 “분석 방법” 섹션의 보조 비주얼로 배치했지만, 사용자가 기존 화면과 잘 어우러지지 않는다고 판단했다. 최종 배치는 히어로의 “예시 화면” 카드 내부 우상단 ambient layer다. Logic Core는 `aria-hidden` 장식 요소이며, 실제 저장소 그래프, 스캔 진행, 의존성 분석, 점수 근거로 표현하지 않는다.
 
 등록 component는 ThreeUI 갤러리 전체용 파일이라 이번 번들에 포함되지 않은 다른 HTML 소스도 import한다. 해시 안정성과 앱 타입체크를 유지하기 위해 원본은 보존 경로에 두고, 로컬 `@designcodeio/threeui` alias의 `StructureFlowCollection` export는 요청된 `logic-core` variant만 `platform-core.html` iframe으로 격리해 연결한다.
+## 2026-09-19 — 헤더 GitHub 링크
+
+Base: `36ba40e`. Branch: `codex/github-nav-link`.
+
+사용자가 참고 이미지(tokenscale.ai)를 보여주며 푸터의 GitHub 바로가기를 헤더 상단 nav로 옮기고 싶다고 했다. 두 가지를 먼저 물었다.
+
+1. 배치 방식 — 기존 메뉴와 같은 스타일의 텍스트 링크로 넣을지, 오른쪽에 강조된 아이콘 버튼으로 뺄지, 둘 다 할지. 사용자는 **기존 메뉴에 텍스트 링크로 추가**를 선택했다.
+2. 스타 개수 표시 — 참고 이미지는 "5,484 stars"를 실시간으로 보여준다. 사용자는 **링크만, 스타 개수는 넣지 않음**을 선택했다. 로그인 없는 stateless 분석 도구가 GitHub API를 호출하기 시작하면 기존 원칙(외부 API 없음)과 어긋나므로 이 선택이 원칙과도 맞다.
+
+### 구현
+
+`RepositoryShell`(메인 4개 페이지가 쓰는 실제 헤더)의 nav에 `links.map(...)` 뒤로 일반 `<a>` 태그를 하나 추가했다. `.site-header nav > a` CSS 선택자가 `nav`의 직계 자식 `a`를 그대로 스타일링하므로 새 CSS 클래스 없이 기존 메뉴와 같은 모양이 된다. 레거시 CLI 리포트 화면이 쓰는 `experience.tsx`의 별도 Shell에도 같은 항목을 넣어 두 화면의 헤더가 갈라지지 않게 했다.
+
+푸터의 `footer-source` 링크와 그 CSS 규칙(`globals.css`)은 제거했다 — 같은 링크를 두 곳에 두면 정보가 중복된다. `footerSource` i18n 키도 함께 지웠다.
+
+모바일 nav(`max-width:760px`)는 4개 항목 기준으로 `justify-content: space-between`만 걸려 있었다. 5번째 항목이 들어가면 좁은 화면에서 넘칠 수 있어 `flex-wrap: wrap`을 추가했다.
+
+### 검사
+
+`tests/browser/workspace.spec.ts`에서 footer의 GitHub 링크를 단언하던 2줄(`contentinfo` 영역, 한국어/영어 각각)을 헤더 `navigation` 영역의 `GitHub` 링크 단언으로 옮겼다. 다른 nav 관련 테스트는 전부 `name: X, exact: true`로 개별 항목을 찾으므로 5번째 항목 추가로 깨지지 않는다.
+
+원래 작업 환경(Cowork Linux VM)에서는 `@esbuild/darwin-arm64`만 설치돼 있어 단위·브라우저 검사를 실행하지 못했다. 최신 `main@236d7cb` 위로 통합한 macOS 환경에서 `npm run typecheck`, `npm test` 314/314, `npm run check:docs` 70파일·413개 로컬 링크, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20, `git diff --check`를 모두 통과했다.
+
+### 배경 — main의 동시 작업
+
+이 작업 시점에 다른 세션이 같은 체크아웃의 공유 워크트리에서 `codex/repository-profile-v2-2`를 병합하는 중이었고, 그 병합이 `layout.tsx`, `globals.css`, `RepositoryExperience.tsx`를 건드리고 있었다. 충돌을 피하려고 이 작업은 별도 워크트리(`origin/main@36ba40e` 기준)에서 진행했다. 이후 이슈 #53에서 최신 `main@236d7cb` 위로 통합해 동시 변경을 보존했다.
