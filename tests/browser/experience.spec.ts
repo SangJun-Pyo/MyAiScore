@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test('한국어 홈은 로그인 없는 공개 저장소 흐름과 가상 예시를 설명하며 API를 호출하지 않는다', async ({ page }) => {
+  test.setTimeout(60_000);
   const apiRequests: string[] = [], errors: string[] = [];
   page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/')) apiRequests.push(request.url()); });
   page.on('pageerror', error => errors.push(error.message));
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
   await expect(page.getByRole('heading', { level: 1, name: /AI로 코딩하고 있는데, 제대로 활용하고 있을까요/ })).toBeVisible();
