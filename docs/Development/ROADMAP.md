@@ -1,6 +1,6 @@
 # Roadmap — current task and handoff
 
-Updated: 2026-09-18. Shared entrypoint: C:/Users/sangj/MyAiScore/AGENTS.md → this file → [master](../00_MASTER_PLAN.md) → [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md). CLAUDE.md imports the same files.
+Updated: 2026-09-19. Shared entrypoint: C:/Users/sangj/MyAiScore/AGENTS.md → this file → [master](../00_MASTER_PLAN.md) → [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md). CLAUDE.md imports the same files.
 
 ## Current direction
 
@@ -20,6 +20,8 @@ Repository-report decision: [ADR-0015](../Architecture/ADR/0015-anonymous-korean
 | Validation | 288 unit/API tests, docs/type/build, 30 browser checks, independent PASS, Railway live smoke complete |
 
 ## Immediate operation
+
+Repository score v2.1 is implemented on `codex/repository-score-v2`. New reports use content substance, scanned-tree breadth, signal reservations, manifest-based DB applicability and a bounded fixed-SHA commit-practice bonus under `repository-report-v2`; historical v1 browser records remain readable. Hygiene and source concentration are visible diagnostics, not penalties. The next gate is production build/browser verification and PR integration; 16-type redesign and reference cohort calibration remain deferred until detector distributions exist.
 
 Issue [#28](https://github.com/SangJun-Pyo/MyAiScore/issues/28) shipped through PR [#29](https://github.com/SangJun-Pyo/MyAiScore/pull/29) at main `07389c2`. Production health, Korean/English pages and a real public MyAiScore report passed. Railway now has a server-only `GITHUB_TOKEN`; two consecutive public-repository reports returned 200 without token or raw file content in the response. The token only raises the public API allowance and private repositories remain rejected.
 

@@ -4,20 +4,21 @@ import type { HttpClient } from "../../src/server/ingestion/httpClient.js";
 import { OfflineHttpClient } from "../../src/server/ingestion/offlineHttpClient.js";
 import { buildRepositoryReport } from "../../src/server/repositoryReport/report.js";
 import { createSafeGithubHttpClient, generateRepositoryReport, RepositoryReportAdmission, RepositoryReportError } from "../../src/server/repositoryReport/service.js";
-import { parseRepositoryReport, parseRepositoryReportRequest, REPOSITORY_REPORT_COPY } from "../../src/shared/repositoryReport.js";
+import { parseRepositoryReport, parseRepositoryReportRequest, REPOSITORY_EVIDENCE_ORDER, REPOSITORY_REPORT_COPY, type RepositoryReportEvidenceId } from "../../src/shared/repositoryReport.js";
 import type { IngestionSnapshot, IngestedFile } from "../../src/shared/contracts/ingestion.js";
+import { repositoryPathMatchesEvidence } from "../../src/shared/repositorySignals.js";
 import { buildStandardFixtures, commitUrl, repoUrl, treeUrl } from "../ingestion/githubFixtures.js";
 
 const SHA = "a".repeat(40);
 
-function file(path: string): IngestedFile {
-  return { path, blobSha: "b".repeat(40), byteSize: 1, contentSha256: "c".repeat(64), lineCount: 1, redactedContent: "x", secretPatternMasked: false };
+function file(path: string, content = "x"): IngestedFile {
+  return { path, blobSha: "b".repeat(40), byteSize: Buffer.byteLength(content), contentSha256: "c".repeat(64), lineCount: content ? content.split("\n").length : 0, redactedContent: content, secretPatternMasked: false };
 }
 
 function snapshot(paths: string[], status: "complete" | "partial" = "complete"): IngestionSnapshot {
   return {
     schemaVersion: "ingestion-snapshot-v0.3.1", repo: "acme/reporter", commitSha: SHA, collectorVersion: "test", selectionDigest: "test",
-    ingestionStatus: status, supportStatus: "other", collectedAt: "2026-09-18T00:00:00Z", files: paths.map(file),
+    ingestionStatus: status, supportStatus: "other", collectedAt: "2026-09-18T00:00:00Z", files: paths.map(path => file(path)),
     staticSignals: { basis: "selected_files", languageFileCounts: {}, dependencies: [], testPaths: [], ciPaths: [], aiConfigPaths: [] },
     evidenceCandidates: [], coverage: { treeTruncated: status === "partial", candidateFiles: paths.length, selectedFiles: paths.length, readFiles: paths.length, selectionLimited: false },
     skippedFiles: [], warnings: [], failure: null, metrics: { durationMs: 0, httpRequests: 0, fetchedBytes: 0, contentBytes: paths.length, cacheHits: 0 },
@@ -52,17 +53,42 @@ test("partial coverage remains explicit while observable signals still receive a
   assert.ok(report.gaps.includes(REPOSITORY_REPORT_COPY.gaps.partial));
 });
 
-test("the complete fixed signal set can reach 25 points on every axis and 100 overall", () => {
+test("empty placeholder signal files cannot manufacture a high score", () => {
   const report = buildRepositoryReport(snapshot([
     "README.md", "AGENTS.md", "docs/guide.md", "package.json",
     "tests/a.test.ts", "tsconfig.json",
     "CHANGELOG.md", "docs/decisions/0001.md", ".github/issue_template/bug.md", "migrations/001.sql",
     ".github/workflows/ci.yml", ".github/dependabot.yml", "Dockerfile", "scripts/check.ts",
   ]));
-  assert.equal(report.score.value, 100);
-  assert.deepEqual(Object.fromEntries(Object.entries(report.score.axes).map(([axis, value]) => [axis, value.value])), {
-    context: 25, verification: 25, traceability: 25, automation: 25,
-  });
+  assert.equal(report.schemaVersion, "repository-report-v2");
+  assert.ok(report.score.value <= 20);
+  assert.ok(Object.values(report.score.axes).every(axis => axis.value <= 6));
+});
+
+test("substantive content and fixed-SHA commit practice raise transparent v2 signal scores", () => {
+  const input = snapshot([]);
+  input.files = [
+    file("README.md", "# Cart service\nA checkout service for reliable orders.\n## Install\n`npm install`\n## Usage\n`npm start`\n## Test\n`npm test`\nSee [architecture](docs/adr/0001.md)."),
+    file("package.json", JSON.stringify({ name: "cart", description: "checkout", scripts: { test: "node --test", lint: "eslint .", build: "tsc", start: "node dist.js" }, dependencies: { pg: "1" } })),
+    file("tests/cart.test.ts", "describe('cart', () => { test('adds', () => expect(add(1, 2)).toBe(3)); test('rejects negatives', () => expect(() => add(-1, 2)).toThrow()); });"),
+    file("tsconfig.json", JSON.stringify({ compilerOptions: { strict: true, target: "ES2022", module: "NodeNext" }, include: ["src"] })),
+    file("docs/adr/0001.md", "# Checkout storage\n## Status\nAccepted\n## Context\nOrders need durable storage.\n## Decision\nUse PostgreSQL.\n## Alternatives\nSQLite.\n## Consequences\nOperate migrations."),
+    file(".github/workflows/ci.yml", "on: [push]\njobs:\n  verify:\n    steps:\n      - uses: actions/checkout@v4\n      - run: npm test\n      - run: npm run lint\n      - run: npm run build"),
+  ];
+  input.coverage = { treeTruncated: false, candidateFiles: 24, selectedFiles: input.files.length, readFiles: input.files.length, selectionLimited: false };
+  input.repositoryInventory = {
+    basis: "scanned_tree", scannedEntries: 24, treeTruncated: false, selectionLimited: false, sourceFiles: 8, testFiles: 2, documentationFiles: 3,
+    sourceFilesWithKnownSize: 8, sourceBytes: 12_000, oversizedSourceCandidates: 0, largestSourceFiles: [],
+    signalCandidateCounts: Object.fromEntries(REPOSITORY_EVIDENCE_ORDER.map(id => [id, input.files.filter(item => repositoryPathMatchesEvidence(id, item.path)).length])) as Record<RepositoryReportEvidenceId, number>,
+    hygiene: { highConfidenceArtifacts: 0, generatedArtifactCandidates: 0, secretLikePaths: 0 },
+  };
+  input.commitTraceability = { basis: "fixed_commit_ancestors", sampledCommits: 5, evaluatedCommits: 5, excludedMergeOrAutomated: 0, nonGenericSubjectRatio: 1, distinctSubjectRatio: 1, scopedSubjectRatio: 0.8, rationaleBodyRatio: 0.6, referenceRatio: 0.4 };
+  const report = buildRepositoryReport(input);
+  assert.equal(report.schemaVersion, "repository-report-v2");
+  assert.ok(report.score.value > 35);
+  assert.equal(report.diagnostics.profile.databaseLikely, true);
+  assert.ok(report.signalScores.find(item => item.id === "traceability-commit-practice")!.points > 0);
+  assert.equal(report.diagnostics.commit?.sampledCommits, 5);
 });
 
 test("strict parsers reject extra request fields, forged scores and unsafe evidence paths", () => {
@@ -82,6 +108,12 @@ test("strict parsers reject extra request fields, forged scores and unsafe evide
   const evidenceCards = structuredClone(report.evidenceCards);
   evidenceCards[0]!.paths = ["../secret"];
   assert.throws(() => parseRepositoryReport({ ...report, evidenceCards }));
+  if (report.schemaVersion === "repository-report-v2") {
+    const signalScores = structuredClone(report.signalScores);
+    signalScores[0]!.quality = 1;
+    assert.throws(() => parseRepositoryReport({ ...report, signalScores }));
+    assert.throws(() => parseRepositoryReport({ ...report, diagnostics: { ...report.diagnostics, provisional: !report.diagnostics.provisional } }));
+  }
 });
 
 test("server token is sent only as an API header and repository text cannot enter report copy", async () => {

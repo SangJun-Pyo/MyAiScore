@@ -3,7 +3,7 @@ import type { HttpClient } from "./httpClient.js";
 import { GithubApiClient } from "./githubApi.js";
 import { IngestionBudget } from "./budget.js";
 import { normalizeAndValidateRepoUrl, validateCommitRef } from "./urlValidation.js";
-import { selectFiles, isProbablyBinaryContent, SELECTION_POLICY_VERSION } from "./fileSelection.js";
+import { selectFiles, isProbablyBinaryContent, REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION } from "./fileSelection.js";
 import { redactSecrets } from "./redact.js";
 import type {
   IngestionSnapshot,
@@ -14,8 +14,10 @@ import type {
   SupportStatus,
 } from "../../shared/contracts/ingestion.js";
 import { INGESTION_LIMITS } from "../../shared/contracts/ingestion.js";
+import { buildRepositoryStructureDiagnostics } from "../repositoryReport/structureDiagnostics.js";
+import { analyzeCommitTraceability } from "../repositoryReport/commitSignals.js";
 
-export const COLLECTOR_VERSION = "ingestion-0.3.0";
+export const COLLECTOR_VERSION = "ingestion-0.4.0";
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -194,7 +196,10 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     return failureSnapshot(input, `github_api_${treeResult.error.kind}`, "The file tree could not be retrieved.", treeResult.error.kind !== "budget_exceeded", ctx);
   }
 
-  const selection = selectFiles(treeResult.value.entries, input.relevantPaths ?? []);
+  const selection = selectFiles(treeResult.value.entries, input.relevantPaths ?? [], {
+    reserveRepositorySignals: true,
+    treeTruncated: treeResult.value.truncated,
+  });
   progress(`Selected ${selection.selected.length} of ${selection.candidates.length} candidate files`);
 
   const files: IngestedFile[] = [];
@@ -202,7 +207,7 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
   const warnings: string[] = [];
   let ingestionStatus: "complete" | "partial" = "complete";
   if (selection.selected.length < selection.candidates.length) {
-    warnings.push(`Selected sample: ${selection.selected.length}/${selection.candidates.length} files (${SELECTION_POLICY_VERSION}). This does not verify the entire repository or personal AI skills.`);
+    warnings.push(`Selected sample: ${selection.selected.length}/${selection.candidates.length} files (${REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION}). This does not verify the entire repository or personal AI skills.`);
   }
 
   if (treeResult.value.truncated || selection.selectionLimited) {
@@ -284,11 +289,14 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
   }
 
   const { signals, hasPackageJsonWithNext } = buildStaticSignals(files);
+  const commitResult = await api.getCommitSummaries(owner, repo, commitSha, 20);
+  const commitTraceability = commitResult.ok ? analyzeCommitTraceability(commitResult.value) : undefined;
+  if (!commitResult.ok) warnings.push("Commit-message practice was not measured within the fixed-SHA collection budget.");
   const supportStatus = detectSupportStatus(files.map((f) => f.path), hasPackageJsonWithNext);
   const evidenceCandidates = buildEvidenceCandidates(files, repoSlug, commitSha);
 
   const selectionDigest = createHash("sha256")
-    .update(JSON.stringify({ collectorVersion: COLLECTOR_VERSION, selectionPolicyVersion: SELECTION_POLICY_VERSION, selectedPaths: selection.selected.map((f) => f.entry.path).sort() }))
+    .update(JSON.stringify({ collectorVersion: COLLECTOR_VERSION, selectionPolicyVersion: REPOSITORY_SCORE_V2_SELECTION_POLICY_VERSION, selectedPaths: selection.selected.map((f) => f.entry.path).sort() }))
     .digest("hex");
 
   if (files.length === 0 && ingestionStatus === "complete") {
@@ -306,6 +314,9 @@ export async function ingestRepository(input: IngestionInput, options: IngestOpt
     collectedAt: nowIso(),
     files,
     staticSignals: signals,
+    repositoryInventory: selection.inventory,
+    repositoryStructure: buildRepositoryStructureDiagnostics(files, selection.inventory),
+    commitTraceability,
     evidenceCandidates,
     coverage: {
       treeTruncated: treeResult.value.truncated,

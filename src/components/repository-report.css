@@ -18,6 +18,11 @@
 .repo-score > strong { font-size:78px; line-height:1; letter-spacing:-.06em; font-weight:400; font-variant-numeric:tabular-nums; }
 .repo-score > small { margin-left:8px; color:var(--muted); font-size:17px; }
 .repo-score p,.repo-style > p { margin:18px 0 0; color:var(--muted); font-size:13px; }
+.repo-provisional { margin:18px 0; }
+.repo-signal-score { display:block; margin:8px 0; color:var(--accent); font-size:11px; font-weight:600; }
+.repo-diagnostics { margin-top:18px; padding:24px; }
+.repo-diagnostics p { margin:10px 0 0; color:var(--muted); font-size:12px; }
+.repo-diagnostics ul { margin:14px 0 0; padding-left:18px; }
 .repo-style h2 { margin:0; font-size:30px; }
 .repo-style dl { display:grid; grid-template-columns:1fr 1fr; gap:12px 24px; margin:24px 0 0; padding-top:18px; border-top:1px solid var(--line); }
 .repo-style dl > div { min-width:0; }

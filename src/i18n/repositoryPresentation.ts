@@ -63,7 +63,10 @@ export function repositoryPresentation(report: RepositoryReport, locale: "ko" | 
   const gaps = REPOSITORY_AXIS_ORDER.filter(axis => report.score.axes[axis].value < 10).map(axis => englishGaps[axis]);
   if (report.coverage.status === "partial") gaps.push(englishGaps.partial);
   return {
-    scoreLabel: copy.presentation.scoreLabel, scoreExplanation: copy.presentation.scoreExplanation,
+    scoreLabel: copy.presentation.scoreLabel,
+    scoreExplanation: report.schemaVersion === "repository-report-v2"
+      ? "A deterministic score that combines signal presence, bounded content substance, and scanned-tree breadth. It does not evaluate personal AI ability, code correctness, or successful execution."
+      : copy.presentation.scoreExplanation,
     style: repositoryStylePresentation(report.style.id as RepositoryReportStyleId, locale),
     evidence: englishEvidence,
     gaps,

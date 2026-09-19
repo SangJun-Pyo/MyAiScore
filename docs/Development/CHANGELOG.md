@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-19 — 저장소 점수 v2.1 기반 구현 시작
+
+- `repository-signals-v1`은 유지하면서 cap 이전 후보 경로를 집계하는 `scanned_tree` inventory와 공용 14개 신호 matcher를 추가했다. 소스·테스트·문서·신호 후보 수, source byte와 큰 소스 후보, 임시·생성물·비밀 가능 경로를 후속 v2 분석용으로 보존한다.
+- 명시적 v2 선택 모드에서는 14개 점수 신호별 대표 파일을 일반 40개 표본보다 먼저 예약한다. 기본 v1 선택 정책과 공개 점수에는 아직 적용하지 않는다.
+- 고정 SHA의 최근 조상 commit summary를 읽는 bounded API와 원문을 내보내지 않는 설명 습관 집계 분석기를 추가했다. 선택된 소스의 400/800줄 후보와 scanned-tree 상위 파일 byte 집중도도 조언용 진단으로 계산한다. 커밋·위생·큰 파일 진단은 아직 감점하지 않는다.
+- 설계와 호환 경계는 [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [v2.1 제안](../Assessment/SCORING_V2_PROPOSAL.md), [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md)에 기록했다.
+
+## 2026-09-19 — 내용 기반 저장소 점수 v2.1 연결
+
+- 새 분석은 `repository-report-v2` / `repository-signals-v2.1`로 발급한다. 14개 신호의 실제 redacted content를 네 요소 이하로 측정하고 `presence × (0.15 + 0.60·substance + 0.25·substance·breadth)`를 적용한다. 과거 v1 브라우저 기록은 계속 검증한다.
+- JavaScript/TypeScript·Python·Go·Rust·Java/Kotlin 테스트 선언과 assertion을 지원하고, 미지원 테스트 형식은 `unmeasured`와 잠정 결과로 표시한다. 빈 신호 파일 14개 회귀 fixture는 고득점을 만들 수 없다.
+- manifest 의존성으로 DB 적용성을 판정하고, 고정 SHA 최근 조상 커밋의 원문 미보존 집계를 기록축 최대 5점 보너스로 연결했다. 위생과 400/800줄·큰 소스 집중도는 화면 진단으로 제공하되 감점하지 않는다.
+
 ## 2026-09-18 — 공개 README와 저장소 정리 (#39)
 
 - README를 실제 배포 주소, 로그인 없는 공개 저장소 분석, 네 축·여섯 스타일, 브라우저 저장 범위, 신뢰 경계와 Railway 설정 기준으로 다시 작성했다. `.env.example`은 기본 흐름의 선택적 `GITHUB_TOKEN`과 레거시 평가 설정을 구분한다.
