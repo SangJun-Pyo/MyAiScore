@@ -7,13 +7,13 @@ test('한국어 홈은 로그인 없는 공개 저장소 흐름과 가상 예시
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
   await expect(page.getByRole('heading', { level: 1, name: /공개 저장소에서/ })).toBeVisible();
-  await expect(page.getByText('회원가입 없음', { exact: false })).toBeVisible();
+  await expect(page.getByText('회원가입 불필요', { exact: false })).toBeVisible();
   await expect(page.getByRole('link', { name: '내 저장소 분석하기' })).toHaveAttribute('href', '/evaluate');
   await expect(page.locator('.repo-hero-card')).toContainText('실행형 · 직접확인형 · 설계선행형 · 집중형');
   await page.getByRole('link', { name: '예시 리포트 보기' }).click();
   await expect(page.locator('#demo')).toContainText('가상 예시');
   await expect(page.locator('#demo .repo-profile-code')).toHaveText('RHSF');
-  await expect(page.locator('#demo')).toContainText('저장소에 남은 신호이며 개인 AI 실력 인증이 아닙니다.');
+  await expect(page.locator('#demo')).toContainText('저장소에 남아 있는 신호를 바탕으로 한 분석이며, 개인의 AI 활용 능력을 인증하지 않습니다.');
   await expect(page.locator('#demo code')).toContainText(['README.md', 'AGENTS.md']);
   expect(await page.evaluate(() => ({ local: Object.keys(localStorage), session: Object.keys(sessionStorage) }))).toEqual({ local: [], session: [] });
   expect(apiRequests).toEqual([]);

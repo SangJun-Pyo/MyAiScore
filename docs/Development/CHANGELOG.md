@@ -6,6 +6,32 @@
 - partial/tree·selection 제한/미지원 테스트 형식, 관찰 축 3개 미만, substance 신호 4개 미만, 빈 차원 또는 여러 경계 차원에서는 네 글자를 강제하지 않고 `유형 판단 보류`와 고정 이유를 표시한다.
 - strict parser가 유형·강도·경계·보류 이유를 점수 신호에서 다시 계산한다. 기존 `repository-report-v1`과 `repository-signals-v2.1` 저장 이력은 그대로 읽는다. 결정은 [ADR-0018](../Architecture/ADR/0018-evidence-aware-collaboration-profile.md), 실행 이력은 [Phase 9](Sessions/Phase-09-Anonymous-Repository-Reports.md)에 기록한다.
 
+## 2026-09-19 — ThreeUI CRT background for Home hero
+
+- 홈 히어로 섹션 뒤에만 ThreeUI `CrtBackground` terminal variant를 낮은 opacity와 radial mask로 배치했다. 실제 H1·CTA·예시 리포트 카드가 주 콘텐츠로 유지되며, CRT는 `aria-hidden` 장식 요소다.
+- 등록 번들의 component, renderer, shader, variant renderer, shared CSS 파일을 SHA-256 일치 상태로 가져오고 로컬 `@designcodeio/threeui` alias에 `CrtBackground` export를 추가했다.
+
+## 2026-09-19 — GitHub repository footer link
+
+- footer에 `GitHub 저장소 보기 ↗` 링크를 추가해 MyAiScore 공개 소스 저장소로 이동할 수 있게 했다. 영어 화면에서는 `View GitHub repository ↗`로 표시한다.
+
+## 2026-09-19 — Hero title effect and 100% loading handoff
+
+- 홈 히어로의 별도 ThreeUI wordmark frame을 제거하고, 실제 H1 문구 `공개 저장소에서 AI 협업을 뒷받침하는 신호를 찾습니다.` 자체에 크로매틱 조립 효과를 적용했다. 텍스트는 실제 heading으로 유지하고 reduced motion에서는 정적으로 표시한다.
+- 저장소 분석 API 응답을 받은 뒤에도 UplinkLoader가 100% 구간에 도달할 때까지 loading 상태를 유지한 다음 완료 리포트로 전환한다.
+- 사용하지 않게 된 `TextAnimationCollection` alias와 intro wordmark 원본 파일을 제거했다.
+
+## 2026-09-19 — ThreeUI uplink loader for analysis progress
+
+- 저장소 분석 요청 후 대기 상태에 ThreeUI `UplinkLoader`를 추가했다. 실제 진행 문구는 화면 텍스트로 유지하고, loader iframe은 장식 요소로 숨겨 보안 스캔·인증처럼 오해되지 않게 했다.
+- 지정된 등록 번들의 TSX·canonical HTML·CSS를 해시 일치 상태로 가져오고, 로컬 `@designcodeio/threeui` alias가 요청된 `<UplinkLoader />` 사용을 원본 렌더러로 연결한다.
+- 브라우저 검사는 지연된 API 응답 중 loader iframe과 내부 stage가 보이는지 확인한다.
+
+## 2026-09-19 — 한국어 제품 문구 다듬기
+
+- 홈, 예시 리포트, 결과 카드, 해석 가이드와 footer의 한국어를 자연스러운 제품 문구로 정리했다. 주요 축 이름은 `검증 체계`, `기록·추적`으로 통일하고 핵심 설명은 `AI 협업을 뒷받침하는 신호`에 맞췄다.
+- API와 브라우저 저장 이력의 `repository-report-v1` 정본은 변경하지 않고, 안정된 style/evidence/axis ID를 한국어 화면 문구로 변환해 기존 저장 결과와의 호환성을 유지한다.
+
 ## 2026-09-19 — 저장소 점수 v2.1 기반 구현 시작
 
 - `repository-signals-v1`은 유지하면서 cap 이전 후보 경로를 집계하는 `scanned_tree` inventory와 공용 14개 신호 matcher를 추가했다. 소스·테스트·문서·신호 후보 수, source byte와 큰 소스 후보, 임시·생성물·비밀 가능 경로를 후속 v2 분석용으로 보존한다.

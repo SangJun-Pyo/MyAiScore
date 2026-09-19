@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { CrtBackground, UplinkLoader } from "@designcodeio/threeui";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
 import { repositoryProfilePresentation } from "../i18n/repositoryProfilePresentation";
@@ -26,6 +27,26 @@ import { LanguageSwitch, useLocale } from "./LocaleProvider";
 const HISTORY_KEY = "myaiscore_repository_reports_v1";
 const MAX_HISTORY = 20;
 const MAX_HISTORY_BYTES = 512_000;
+const UPLINK_RUN_MS = 8600;
+const UPLINK_HOLD_MS = 1600;
+const UPLINK_BLANK_MS = 420;
+const UPLINK_SETTLE_MS = 900;
+
+function waitForUplinkCompletion(startedAt: number) {
+  const loop = UPLINK_RUN_MS + UPLINK_HOLD_MS + UPLINK_BLANK_MS;
+  const elapsed = performance.now() - startedAt;
+  const phase = ((elapsed % loop) + loop) % loop;
+  const waitMs = phase < UPLINK_RUN_MS
+    ? UPLINK_RUN_MS - phase + UPLINK_SETTLE_MS
+    : phase < UPLINK_RUN_MS + UPLINK_HOLD_MS
+      ? UPLINK_SETTLE_MS
+      : loop - phase + UPLINK_RUN_MS + UPLINK_SETTLE_MS;
+  return new Promise(resolve => setTimeout(resolve, waitMs));
+}
+
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 const DEMO_EVIDENCE_CARDS: RepositoryReportEvidenceCard[] = [
   { id: "context-readme", ...REPOSITORY_REPORT_COPY.evidence["context-readme"], paths: ["README.md"] },
@@ -153,7 +174,7 @@ export function RepositoryShell({ children }: { children: React.ReactNode }) {
       <div className="header-actions"><nav aria-label={copy.shell.navLabel}>{links.map(item => <Link key={item.href} href={item.href} className={item.href === "/evaluate" ? "nav-evaluate" : undefined} aria-current={pathname === item.href ? "page" : undefined}>{item.name}</Link>)}</nav><LanguageSwitch /></div>
     </div></header>
     {children}
-    <footer className="site-footer"><Link href="/" className="brand">MyAiScore</Link><p>{copy.shell.footerLead}</p><span>{copy.shell.footerLimit}</span></footer>
+    <footer className="site-footer"><Link href="/" className="brand">MyAiScore</Link><p>{copy.shell.footerLead}</p><a className="footer-source" href="https://github.com/SangJun-Pyo/MyAiScore" target="_blank" rel="noreferrer">{copy.shell.footerSource}</a><span>{copy.shell.footerLimit}</span></footer>
   </>;
 }
 
@@ -202,9 +223,22 @@ function RepositoryReportView({ report, demo = false, actions = true }: { report
 export function RepositoryHomeExperience() {
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(DEMO_REPORT, locale, copy);
+  const heroTitle = `${copy.home.title1} ${copy.home.title2}`;
   return <RepositoryShell><main id="main"><div className="landing-editorial">
     <section className="landing-hero repo-landing-hero" aria-labelledby="landing-title">
-      <div className="landing-hero-copy"><p className="chapter-label"><i /> {copy.home.kicker}</p><h1 id="landing-title">{copy.home.title1}<br /><span>{copy.home.title2}</span></h1><p className="landing-lead">{copy.home.lead1}<br />{copy.home.lead2}</p><div className="landing-actions"><Link className="landing-primary" href="/evaluate">{copy.home.primary}</Link><a className="landing-text-action" href="#demo">{copy.home.example}</a></div><p className="landing-availability">{copy.home.availability}</p></div>
+      <div className="shader-frame repo-crt-background" aria-hidden="true">
+        <CrtBackground
+          variant="terminal"
+          speed={1.00}
+          typeSpeed={1.00}
+          motion={1.00}
+          hue={0}
+          saturation={1.00}
+          brightness={1.00}
+          opacity={1.00}
+        />
+      </div>
+      <div className="landing-hero-copy"><p className="chapter-label"><i /> {copy.home.kicker}</p><div className="repo-hero-title-lockup"><h1 id="landing-title" className="repo-animated-title" aria-label={heroTitle}><span className="repo-title-line" data-text={copy.home.title1}>{copy.home.title1}</span><span className="repo-title-line repo-title-muted" data-text={copy.home.title2}>{copy.home.title2}</span></h1></div><p className="landing-lead">{copy.home.lead1}<br />{copy.home.lead2}</p><div className="landing-actions"><Link className="landing-primary" href="/evaluate">{copy.home.primary}</Link><a className="landing-text-action" href="#demo">{copy.home.example}</a></div><p className="landing-availability">{copy.home.availability}</p></div>
       <div className="landing-world repo-hero-card product-panel"><span className="sample-chip">{copy.home.demoTag}</span><h2>{reportProfileTitle(DEMO_REPORT, locale, display.style.title)}</h2><div className="session-hero-number">{DEMO_REPORT.score.value}<small>/100</small></div><p>{display.scoreLabel}</p><div className="session-breakdown">{REPOSITORY_AXIS_ORDER.map(axis => <div key={axis}><span>{copy.presentation.axes[axis].label}</span><strong>{DEMO_REPORT.score.axes[axis].value}/25</strong></div>)}</div><p className="caption">{copy.home.demoCaption}</p></div>
       <div className="landing-chapters">{copy.home.chapters.map((chapter, index) => <a key={chapter.label} href={`#${["flow", "scope", "demo"][index]}`}><span>0{index + 1}</span><div><b>{chapter.label}</b><p>{chapter.text}</p></div></a>)}</div>
     </section>
@@ -222,18 +256,46 @@ export function RepositoryEvaluateExperience() {
   const [report, setReport] = useState<RepositoryReport | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "done">("idle");
   const [errorCode, setErrorCode] = useState("");
+  const requestId = useRef(0);
+  const progressRef = useRef<HTMLDivElement | null>(null);
+  const uplinkReadyAtRef = useRef<number | null>(null);
   useEffect(() => setReady(true), []);
+  useEffect(() => {
+    if (status !== "loading") return;
+    const root = progressRef.current;
+    if (!root) return;
+    const markReady = () => {
+      if (!uplinkReadyAtRef.current && root.querySelector(".uplink-loader[data-state=\"ready\"]")) {
+        uplinkReadyAtRef.current = performance.now();
+      }
+    };
+    markReady();
+    const observer = new MutationObserver(markReady);
+    observer.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-state"] });
+    return () => observer.disconnect();
+  }, [status]);
+  async function waitForUplinkReady(startedAt: number) {
+    const deadline = Math.max(startedAt + 2500, performance.now() + 6000);
+    while (!uplinkReadyAtRef.current && performance.now() < deadline) await delay(50);
+    return uplinkReadyAtRef.current ?? startedAt;
+  }
+  async function waitForVisibleUplinkCompletion(startedAt: number) {
+    const uplinkStartedAt = await waitForUplinkReady(startedAt);
+    await waitForUplinkCompletion(uplinkStartedAt);
+  }
   async function submit(event: FormEvent) {
-    event.preventDefault(); setStatus("loading"); setErrorCode(""); setReport(null);
+    event.preventDefault(); const loadingStartedAt = performance.now(); const runId = requestId.current + 1; requestId.current = runId; uplinkReadyAtRef.current = null; setStatus("loading"); setErrorCode(""); setReport(null);
     try {
       const response = await fetch("/api/repository-report", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ repo_url: repo.trim() }) });
       const data: unknown = await response.json().catch(() => null);
       if (!response.ok) {
+        if (runId !== requestId.current) return;
         const code = isRecord(data) && isRecord(data.error) && typeof data.error.code === "string" ? data.error.code : "";
         setStatus("error"); setErrorCode(code); return;
       }
-      const parsed = parseRepositoryReport(data); currentReport = parsed; setReport(parsed); setStatus("done");
+      const parsed = parseRepositoryReport(data); await waitForVisibleUplinkCompletion(loadingStartedAt); if (runId !== requestId.current) return; currentReport = parsed; setReport(parsed); setStatus("done");
     } catch {
+      if (runId !== requestId.current) return;
       setStatus("error"); setErrorCode("");
     }
   }
@@ -241,7 +303,7 @@ export function RepositoryEvaluateExperience() {
   return <RepositoryShell><main id="main" className="page-width product-page repo-evaluate">
     <header className="product-heading"><div><h1>{copy.evaluate.title}</h1><p>{copy.evaluate.description}</p></div></header>
     <form className="repo-form product-panel" onSubmit={submit} aria-busy={status === "loading"}><label htmlFor="repo-url">{copy.evaluate.label}</label><div className="repo-form-row"><input id="repo-url" name="repo_url" type="url" required autoComplete="url" inputMode="url" value={repo} onChange={event => setRepo(event.target.value)} placeholder={copy.evaluate.placeholder} disabled={!ready || status === "loading"} /><button className="button button-primary" type="submit" disabled={!ready || status === "loading"}>{status === "loading" ? copy.evaluate.submitting : copy.evaluate.submit}</button></div><p className="field-help">{copy.evaluate.help}</p></form>
-    {status === "loading" && <div className="repo-progress" role="status"><span className="spinner" aria-hidden="true" /><div><strong>{copy.evaluate.progressTitle}</strong><p>{copy.evaluate.progressText}</p></div></div>}
+    {status === "loading" && <div ref={progressRef} className="repo-progress repo-progress-uplink" role="status" aria-label={copy.evaluate.progressTitle}><div className="shader-frame repo-uplink-frame" aria-hidden="true"><UplinkLoader /></div><div className="repo-progress-copy"><strong>{copy.evaluate.progressTitle}</strong><p>{copy.evaluate.progressText}</p></div></div>}
     {status === "error" && <p className="notice notice-error" role="alert">{errorMessage}</p>}{status === "done" && <p className="notice" role="status">{copy.evaluate.complete}</p>}{report && <RepositoryReportView report={report} />}
     <details className="repo-cli-secondary"><summary>{copy.evaluate.cliSummary}</summary><p>{copy.evaluate.cliText}</p><pre className="session-command"><code>npm run session:report -- --project "C:/path/to/project" --out session-report.json</code></pre><p className="caption">{copy.evaluate.cliCaption}</p></details>
   </main></RepositoryShell>;

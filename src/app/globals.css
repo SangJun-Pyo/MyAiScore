@@ -315,7 +315,9 @@ textarea { resize: vertical; }
 .site-footer .brand { font-size: 17px; }
 .site-footer .brand > span { color: var(--accent); }
 .site-footer p { margin: 0; color: var(--muted); font-size: 11px; }
-.site-footer > span { font-size: 10px; color: var(--subtle); margin-left: auto; }
+.footer-source { margin-left: auto; color: var(--muted); font-size: 10px; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--line-strong); white-space: nowrap; }
+.footer-source:hover { color: var(--accent); text-decoration-color: var(--accent); }
+.site-footer > span { font-size: 10px; color: var(--subtle); }
 @media(max-width:1000px) {
   .insight-tabs strong { font-size: 11px; }
   .insight-tabs > button { gap: 7px; }
@@ -401,6 +403,7 @@ textarea { resize: vertical; }
   .share-actions { margin-top: 20px; }
   .share-preview > span { gap: 12px; }
   .site-footer { margin-inline: 22px; padding: 24px 0; flex-wrap: wrap; gap: 12px 20px; }
+  .footer-source { margin-left: 0; }
   .site-footer > span { margin-left: 0; width: 100%; }
 }
 @media(prefers-reduced-motion:reduce) {

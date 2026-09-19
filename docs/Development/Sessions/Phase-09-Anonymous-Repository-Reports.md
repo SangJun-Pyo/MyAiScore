@@ -20,7 +20,7 @@ partial collection, tree truncation, selection limit, 테스트 형식 미측정
 
 strict parser는 v2.2 유형의 강도·선택·경계·보류 이유를 `signalScores`와 diagnostics에서 다시 계산한다. 임의 유형을 넣은 응답은 거부하며, 과거 `repository-report-v1`과 `repository-signals-v2.1` 저장 이력은 계속 읽는다. 결과·프로필 목록·해석 가이드는 한국어와 영어의 같은 의미 ID를 사용한다. 홈의 합성 예시도 v2.2 파생 함수를 거쳐 현재 계약을 보여준다.
 
-결정은 [ADR-0018](../../Architecture/ADR/0018-evidence-aware-collaboration-profile.md)에 기록했다. 최종 로컬 검사는 `npm test` 306/306, `npm run typecheck`, `npm run check:docs` 64파일·396링크 문제 0, `npm run build`, 전체 Playwright desktop/mobile 32/32, `git diff --check` 통과다. 해석 가이드의 desktop/mobile 캡처를 직접 확인해 네 차원 카드의 overflow와 읽기 순서를 확인했다.
+결정은 [ADR-0018](../../Architecture/ADR/0018-evidence-aware-collaboration-profile.md)에 기록했다. 최종 로컬 검사는 `npm test` 306/306, `npm run typecheck`, `npm run check:docs` 66파일·398링크 문제 0, `npm run build`, 전체 Playwright desktop/mobile 34/34, `git diff --check` 통과다. 해석 가이드의 desktop/mobile 캡처를 직접 확인해 네 차원 카드의 overflow와 읽기 순서를 확인했다.
 
 구현에 참여하지 않은 독립 검토는 처음에 DB 비적용 migration과 commit API 가용성이 timing 분모를 바꾸는 문제, 홈 hero의 legacy 제목, 경계별 직접 회귀 부족을 지적했다. migration을 적용 대상 또는 실제 존재일 때만 분모에 넣고 commit-practice를 유형 입력에서 제외했으며, hero를 v2.2 프로필 제목으로 바꾸고 sparse·다중 경계·단일 spread-6 경계·commit 가용성·DB 적용성 회귀를 추가했다. 수정 후 재검토는 **PASS, 남은 actionable issue 없음**으로 결론 냈다. PR/CI/Railway 결과는 통합 뒤 이 절에 이어 기록한다.
 
@@ -108,3 +108,45 @@ walkthrough 출처 해시 회귀 검사가 실제로 읽는 `buildMyAiScoreWalkt
 정리 전후 generator fixture의 Git blob 해시는 모두 `61523fcff9b652bfec0e99d144b1ce7d44cd251e`로 일치했다. `npm run check:docs`는 60개 Markdown·364개 로컬 링크 문제 0건, `npm run typecheck`, `npm test` 288/288, `npm run build`, `npm run test:e2e` desktop/mobile 30/30을 통과했다. 첫 build는 실행 중이던 로컬 3104 서버가 `.next/standalone`을 잠가 `EBUSY`로 중단됐고 해당 서버만 종료한 뒤 같은 명령이 통과했다. 정리 결과 현재 Git index는 301개 파일이며 로컬 archive에는 기존 무시 파일을 포함한 91개 파일 약 17.4MB가 남아 있다.
 
 구현에 참여하지 않은 서브에이전트의 독립 검토는 **PASS, 차단 사항 없음**으로 판정했다. 삭제 71개 각각의 로컬 archive 사본, 역사 링크가 가리키는 27개 고유 Git object, 제거 코드의 활성 참조 부재와 `_archive` ignore를 확인했다. reviewer가 별도로 실행한 walkthrough/session 집중 검사 19/19와 tracked 문서 검사도 통과했다.
+
+## 2026-09-19 한국어 제품 문구 정리
+
+홈과 예시·실제 리포트, 해석 가이드, footer의 한국어를 더 자연스러운 제품 문구로 정리했다. `AI 협업의 흔적`은 제품이 실제로 확인하는 범위에 맞춰 `AI 협업을 뒷받침하는 신호`로 바꾸고, 한국어 화면의 네 축은 `맥락·검증 체계·기록·추적·자동화`로 표시한다. 근거 카드, 미확인 항목, 다음 단계와 한계 설명도 같은 문체로 맞췄다.
+
+기존 API 응답과 localStorage 결과가 계속 검증되도록 `repository-report-v1`의 고정 한국어 계약은 변경하지 않았다. 화면에서는 기존과 같은 style/evidence/axis ID를 새 한국어 표현으로 변환하며, 영어 화면과 점수 계산 규칙도 그대로 유지한다.
+
+검증은 `npm test` 288/288, `npm run typecheck`, `npm run check:docs` 62파일·상대 링크 372개, `npm run build`를 통과했다. 홈 문구와 가로 넘침, 변경된 리포트·가이드·언어 전환을 포함한 Playwright 집중 검사는 desktop/mobile 20/20을 통과했다.
+
+## 2026-09-19 ThreeUI uplink loader progress
+
+사용자 요청에 따라 저장소 분석 요청 후 서버 응답을 기다리는 동안 ThreeUI `UplinkLoader`를 표시한다. 등록 번들 `https://threeui.com/source-code/uplink-loader.json`을 가져와 세 필수 파일의 SHA-256을 확인하고, `src/shaders/uplink-loader/UplinkLoader.tsx`, `src/shaders/uplink-loader/uplink-loader.html`, `src/shaders/threeui.css`를 해시 일치 상태로 보존했다.
+
+로컬 `@designcodeio/threeui` alias가 요청된 `<UplinkLoader />` 사용을 원본 component로 연결한다. `/evaluate`의 loading 상태는 원본 iframe을 포함한 별도 progress panel로 바뀌며, 실제 상태 문구는 한국어·영어 copy로 계속 표시한다. Uplink frame은 `aria-hidden` 장식 요소로 두고, 보안 스캔·실제 네트워크 uplink·분석 성공 인증처럼 표현하지 않는다.
+
+브라우저 회귀 검사는 API 응답을 지연시켜 loading 상태를 관찰하고, loader iframe과 내부 `#stage`가 보이는지 확인한다. 디자인 시스템과 ThreeUI 적용 기록 문서에는 이 animation이 대기 상태 cue일 뿐이며 최종 repository report의 수집 범위·근거·한계 설명을 대체하지 않는다고 기록했다.
+
+검증은 원본 세 파일 해시 재확인, `npm run typecheck`, `npm test` 288/288, `npm run check:docs` 62파일·상대 링크 366개, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20, `git diff --check`를 통과했다. Production build 서버에서 데스크톱 1440px와 모바일 iPhone 12 로딩 캡처를 확인했고, 모바일 `scrollWidth > innerWidth`는 `false`, loader ready 상태는 `true`였다.
+
+## 2026-09-19 Hero title effect and 100% loading handoff
+
+사용자는 홈 제목 아래에 별도 ThreeUI wordmark가 뜨는 것이 아니라 `공개 저장소에서 AI 협업을 뒷받침하는 신호를 찾습니다.` 문구 자체에 효과가 적용되기를 원한다고 정정했다. 이에 따라 별도 `TextAnimationCollection` frame과 사용하지 않는 intro wordmark source를 제거하고, 실제 H1 텍스트에 크로매틱 조립 효과를 적용했다. H1은 screen reader가 읽는 실제 heading이며, `prefers-reduced-motion: reduce`에서는 정적으로 표시한다.
+
+UplinkLoader는 원본 파일을 유지하되 앱 전환 타이밍을 조정했다. API 응답이 빨리 도착해도 loader 내부 타임라인이 100% 구간에 도달하고 잠깐 보인 뒤 완료 notice와 리포트로 넘어간다. 응답이 한 loop 뒤에 도착한 경우에도 현재 phase를 계산해 다음 100% 구간에 맞춰 handoff한다.
+
+검증은 `npm run typecheck`, `npm test` 288/288, `npm run check:docs` 61파일·상대 링크 365개, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20을 통과했다. H1 줄바꿈 조정 후 홈 집중 Playwright desktop/mobile 2/2와 `git diff --check`를 재확인했다. Production build 서버에서 데스크톱·모바일 캡처를 만들었고, 별도 intro frame은 0개, H1 효과 line은 2개, 가로 넘침은 `false`였다.
+
+## 2026-09-19 GitHub repository footer link
+
+사용자가 MyAiScore 공개 저장소 `https://github.com/SangJun-Pyo/MyAiScore` 접근 링크를 추가하고 싶다고 요청했다. 주요 CTA와 혼동되지 않도록 footer의 보조 링크로 배치하고, 한국어는 `GitHub 저장소 보기 ↗`, 영어는 `View GitHub repository ↗`로 표시한다.
+
+검증은 `npm run typecheck`, `npm run check:docs`, `npm run build`, footer 링크를 포함한 Playwright 집중 검사 desktop/mobile 4/4를 통과했다.
+
+## 2026-09-19 ThreeUI CRT background for Home hero
+
+사용자가 ThreeUI `CrtBackground` terminal variant를 홈 섹션 배경으로 쓰는 방향을 제안했다. 원본 등록 번들 `https://threeui.com/source-code/crt.json`을 가져와 component, renderer, shader, variant screen painter, shared CSS의 SHA-256을 모두 확인하고 `src/shaders/crt/` 아래에 보존했다.
+
+로컬 `@designcodeio/threeui` alias에 `CrtBackground` export를 추가하고, 요청된 props 그대로 Home hero의 첫 번째 decorative layer에 배치했다. 제품 화면에서는 wrapper opacity와 radial mask만 낮춰 제목·설명·CTA·예시 점수 카드가 계속 우선 보이게 했다. 이 CRT boot log는 분위기용 배경이며 실제 저장소 스캔 로그, 보안 연결 증명, AI 대화 기록, 점수 근거로 표현하지 않는다.
+
+브라우저 회귀 검사는 Home에 `.repo-crt-background .crt-terminal canvas`가 보이는지 확인한다. 디자인 시스템과 별도 ThreeUI 적용 기록 문서에도 Home hero 전용 decorative background라는 범위를 기록했다.
+
+검증은 CRT 원본 다섯 파일의 SHA-256 재확인, `npm run typecheck`, `npm run check:docs`, `npm test` 288/288, `npm run build`, `npx playwright test tests/browser/workspace.spec.ts` desktop/mobile 20/20, 최종 농도 조정 후 Home 집중 검사 desktop/mobile 2/2, `git diff --check`를 통과했다. Production build 서버 `http://127.0.0.1:3100/`에서 데스크톱 캡처를 확인했고 CRT canvas 1개, 가로 overflow 없음이었다.

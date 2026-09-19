@@ -5,6 +5,7 @@ import { LOCALE_COOKIE, parseLocale } from "../i18n/locale";
 import { messagesFor } from "../i18n/messages";
 import "./globals.css";
 import "./landing.css";
+import "@designcodeio/threeui/style.css";
 import "../components/evidence-preview.css";
 import "../components/session-report.css";
 import "../components/repository-report.css";
