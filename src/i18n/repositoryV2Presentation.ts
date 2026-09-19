@@ -1,5 +1,9 @@
 import type { Locale } from "./locale";
 import type { RepositoryRecommendationEffort, RepositoryReportScoreSignalId } from "../shared/repositoryReport";
+import type { RepositoryCohortComparison, RepositoryCohortSizeBand } from "../shared/repositoryCohort";
+
+const koSizeBands: Record<RepositoryCohortSizeBand, string> = { small: "소형", medium: "중형", large: "대형" };
+const enSizeBands: Record<RepositoryCohortSizeBand, string> = { small: "small", medium: "medium", large: "large" };
 
 const koActions: Record<RepositoryReportScoreSignalId, { title: string; description: string }> = {
   "context-readme": { title: "README의 출발점 선명하게 하기", description: "목적, 설치, 사용법, 확인 방법을 짧은 섹션으로 연결해 보세요." },
@@ -54,6 +58,11 @@ const ko = {
   recommendation: (signalId: RepositoryReportScoreSignalId) => koActions[signalId],
   recommendationPath: (path: string) => `연결된 근거: ${path}`,
   cohortPending: "고정 SHA 공개 저장소 코호트가 준비되기 전에는 순위나 백분위를 표시하지 않습니다.",
+  cohortHeading: "v1 참조 코호트",
+  cohortPosition: (cohort: RepositoryCohortComparison) => cohort.topPercentFrom === 0
+    ? `상위 ${cohort.topPercentTo}% 이내`
+    : `상위 ${cohort.topPercentFrom}~${cohort.topPercentTo}% 구간`,
+  cohortDetails: (cohort: RepositoryCohortComparison) => `${koSizeBands[cohort.sizeBand]}·${cohort.coverageStatus === "complete" ? "수집 완료" : "일부 수집"} 공개 저장소 ${cohort.comparisonSampleSize}개와 비교한 참고 위치입니다. 전체 코호트는 고정 SHA 50개이며 GitHub 전체 순위가 아닙니다.`,
   noRecommendations: "현재 측정 가능한 신호에서는 총점을 높이는 추가 작업을 찾지 못했습니다.",
 };
 
@@ -70,6 +79,11 @@ const en: typeof ko = {
   recommendation: signalId => enActions[signalId],
   recommendationPath: path => `Connected evidence: ${path}`,
   cohortPending: "Ranks and percentiles stay hidden until a fixed-SHA public repository cohort is available.",
+  cohortHeading: "v1 reference cohort",
+  cohortPosition: cohort => cohort.topPercentFrom === 0
+    ? `Within the top ${cohort.topPercentTo}%`
+    : `Top ${cohort.topPercentFrom}–${cohort.topPercentTo}% band`,
+  cohortDetails: cohort => `A reference position among ${cohort.comparisonSampleSize} ${enSizeBands[cohort.sizeBand]}, ${cohort.coverageStatus} public repositories. The full cohort contains 50 fixed-SHA repositories and is not a GitHub-wide ranking.`,
   noRecommendations: "No additional action would raise the score among the currently measurable signals.",
 };
 

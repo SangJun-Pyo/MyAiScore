@@ -1,6 +1,6 @@
-# Repository report contract — v2.6
+# Repository report contract — v2.7
 
-Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [ADR-0019](../Architecture/ADR/0019-granular-repository-score-signals.md), [ADR-0020](../Architecture/ADR/0020-always-assigned-repository-profile.md), [ADR-0021](../Architecture/ADR/0021-wider-private-collection-sample.md), and [ADR-0022](../Architecture/ADR/0022-deterministic-roi-recommendations.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.6`으로 발급한다. strict parser는 브라우저에 저장된 v1과 v2.1~v2.5 기록을 계속 읽는다.
+Current product contract under [ADR-0015](../Architecture/ADR/0015-anonymous-korean-repository-reports.md), [ADR-0017](../Architecture/ADR/0017-content-aware-repository-scoring.md), [ADR-0019](../Architecture/ADR/0019-granular-repository-score-signals.md), [ADR-0020](../Architecture/ADR/0020-always-assigned-repository-profile.md), [ADR-0021](../Architecture/ADR/0021-wider-private-collection-sample.md), [ADR-0022](../Architecture/ADR/0022-deterministic-roi-recommendations.md), and [ADR-0023](../Architecture/ADR/0023-fixed-sha-reference-cohort.md). 구현 정본은 `src/shared/repositoryReport.ts`이며 새 결과는 `repository-report-v2` / `repository-signals-v2.7`로 발급한다. strict parser는 브라우저에 저장된 v1과 v2.1~v2.6 기록을 계속 읽는다.
 
 ## 의미와 경계
 
@@ -41,7 +41,7 @@ v2.4 협업 유형은 점수 높낮이와 분리해 D/R(기록/실행), H/P(직�
 
 점수·legacy style·gap·다음 도전·협업 유형은 v2 `signalScores`와 diagnostics에서 결정론적으로 재계산한다. v2.6 개선 조언은 각 측정 가능한 미충족 신호를 최대점으로 바꾼 뒤 축 상한을 포함한 총점을 다시 계산한다. 실제 gain이 있는 후보만 고정 effort 대비 gain 순으로 최대 세 개 고르며, UI에는 내부 계수 대신 난이도 구간과 고정 행동 문구만 보인다. 근거 경로는 해당 신호의 검증된 카드에서만 가져온다. 브라우저도 서버와 같은 strict parser를 사용하므로 품질·점수·진단·유형·조언을 임의로 바꾼 응답이나 저장 이력은 거부한다. 부분 coverage, tree/selection 제한, 지원하지 않는 테스트 형식, 커밋 이력 미측정은 `provisional` 이유로 공개한다.
 
-v2.6의 `cohort`는 실제 고정 SHA 공개 저장소 참조 manifest가 준비될 때까지 `null`이다. 최소 50개 표본의 rule version, 포함·제외 조건, 수집일, 규모·언어 분포와 coverage를 함께 공개하기 전에는 백분위나 등급을 표시하지 않는다.
+v2.7은 [repository-cohort-v1](Cohorts/README.md)의 고정 SHA 공개 저장소 50개를 제한적 참고 기준으로 사용한다. candidate 규모를 small `<100`, medium `100..499`, large `>=500` 또는 개수 미확정으로 나누고 같은 coverage 상태인 그룹이 5개 이상일 때만 비교한다. 동점을 포함한 위치를 10% 단위 구간으로 표시하며 전체 표본 수, 실제 비교 그룹 수와 GitHub 전체 순위가 아니라는 한계를 함께 노출한다. parser는 score와 coverage에서 비교 객체를 재계산한다. 조건을 충족하지 않으면 `cohort`는 `null`이다.
 
 ## 근거와 안전
 

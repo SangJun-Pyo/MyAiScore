@@ -4,7 +4,7 @@
 - 기록일: 2026-09-19
 - 결정 주체와 근거: 우선순위가 분명한 세부 개선 조언과 투명한 비교 기준에 대한 사용자 요청, [Issue #55](https://github.com/SangJun-Pyo/MyAiScore/issues/55)
 - 기록 성격: 구현과 함께 기록
-- 대체 관계: [ADR-0017](0017-content-aware-repository-scoring.md)의 단일 최저축 도전을 v2.6에서 확장한다.
+- 대체 관계: [ADR-0017](0017-content-aware-repository-scoring.md)의 단일 최저축 도전을 v2.6에서 확장한다. 코호트 보류 조건은 [ADR-0023](0023-fixed-sha-reference-cohort.md)에서 충족했다.
 
 ## 배경
 

@@ -7,11 +7,12 @@ import {
   deriveRepositoryReportV2Presentation,
   parseRepositoryReport,
   sanitizeRepositoryPath,
-  type RepositoryReportV2_6,
+  type RepositoryReportV2_7,
   type RepositoryReportAxis,
   type RepositoryReportEvidenceCard,
   type RepositoryReportEvidenceId,
 } from "../../shared/repositoryReport.js";
+import { deriveRepositoryCohortComparison } from "../../shared/repositoryCohort.js";
 import type { IngestionSnapshot, RepositoryInventory } from "../../shared/contracts/ingestion.js";
 import { collectRepositorySignalPaths, isRepositoryDocumentationPath, isRepositorySourcePath, isRepositoryTestPath, repositoryPathMatchesEvidence } from "../../shared/repositorySignals.js";
 import { analyzeRepositorySignals } from "./substance.js";
@@ -53,7 +54,7 @@ function fallbackInventory(snapshot: IngestionSnapshot, paths: string[]): Reposi
 }
 
 /** Build copy only from allowlisted structural signals. Repository content is never interpolated. */
-export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryReportV2_6 {
+export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryReportV2_7 {
   if (!snapshot.commitSha || !/^[a-f0-9]{40}$/i.test(snapshot.commitSha) || !/^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(snapshot.repo) ||
       (snapshot.ingestionStatus !== "complete" && snapshot.ingestionStatus !== "partial")) throw new Error("A collected public repository snapshot is required.");
 
@@ -107,7 +108,7 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
 
   return parseRepositoryReport({
     schemaVersion: "repository-report-v2",
-    ruleVersion: "repository-signals-v2.6",
+    ruleVersion: "repository-signals-v2.7",
     repo: snapshot.repo,
     commitSha: snapshot.commitSha,
     coverage: {
@@ -139,6 +140,9 @@ export function buildRepositoryReport(snapshot: IngestionSnapshot): RepositoryRe
     diagnostics,
     collaborationProfile: deriveRepositoryCollaborationProfile(analysis.assessments, derived.axes, diagnostics),
     recommendations: deriveRepositoryRecommendations(analysis.assessments, evidenceCards),
-    cohort: null,
-  }) as RepositoryReportV2_6;
+    cohort: deriveRepositoryCohortComparison(derived.value, {
+      candidateFiles: snapshot.coverage.candidateFiles,
+      status: coverageStatus,
+    }),
+  }) as RepositoryReportV2_7;
 }

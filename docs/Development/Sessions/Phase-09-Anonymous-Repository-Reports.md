@@ -222,3 +222,13 @@ Base: `36ba40e`. Branch: `codex/github-nav-link`.
 새 결과는 `repository-signals-v2.6`을 발급한다. strict parser가 추천 순서·난이도·경로를 재계산하며 traversal 경로나 순서 위조를 거부한다. 기존 v1~v2.5 저장 결과와 `nextChallenge`는 계속 읽는다. 비교 코호트는 고정 SHA 공개 저장소 50개 이상의 versioned manifest가 없으므로 `null`로 고정하고, 화면에서 그 이유를 밝힌다. 근거 없는 순위나 백분위는 표시하지 않는다. 설계 결정은 [ADR-0022](../../Architecture/ADR/0022-deterministic-roi-recommendations.md)에 기록했다.
 
 검증은 `npm run typecheck`, `npm test` 315/315, `npm run check:docs` 71파일·419개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 34/34를 통과했다. 브라우저 검사는 추천 개수, 코호트 대기 문구와 내부 gain/ROI 비노출을 확인한다.
+
+## 2026-09-19 — 고정 SHA 참조 코호트 v2.7
+
+이슈 #57에서 GitHub repository search 결과를 TypeScript·Python·Go·Rust·Java와 다섯 별점 구간으로 층화해 각 셀의 상위 두 결과, 총 50개를 선택했다. 검색식, 원래 seed와 선택일을 공개하고 각 저장소를 당시 기본 branch의 40자리 SHA에 고정해 v2.6의 60파일 규칙으로 수집했다. 결과 manifest에는 원문 없이 repo·SHA·층·점수·네 축·후보 규모·coverage·provisional 이유만 저장하고 내용 SHA-256을 기록했다.
+
+첫 수집 중 두 worker가 같은 임시 manifest 이름을 rename하는 결함을 발견했다. 수집 결과는 보존됐고 임시 파일명을 process/sequence별로 분리했다. 재개 모드가 성공한 SHA 46개를 다시 읽지 않도록 보강한 뒤 실패 4개만 재수집했다. 이 중 3개는 실제 오류가 아니라 후보가 탐색 상한을 넘어 `candidateFiles: null`이 된 경우여서, 정확한 수를 꾸미지 않고 `large`로 분류했다. 최종 manifest는 50/50, 실패 0, 언어별 10개, small 18·medium 14·large 18, complete 37·partial 13, 점수 4~71이다.
+
+v2.7은 같은 규모와 같은 coverage 상태의 참조 그룹이 5개 이상일 때만 동점 포함 위치를 10% 구간으로 표시한다. 전체 50개와 실제 비교 그룹 수, GitHub 전체 순위가 아니라는 문구를 함께 보여준다. strict parser는 score와 coverage에서 cohort 객체를 다시 계산한다. 설계와 편향 한계는 [ADR-0023](../../Architecture/ADR/0023-fixed-sha-reference-cohort.md), 데이터 설명은 [Cohorts README](../../Assessment/Cohorts/README.md)에 기록했다.
+
+검증은 `npm run typecheck`, `npm test` 318/318, `npm run check:docs` 73파일·431개 로컬 링크, `npm run build`, `npm run test:e2e` desktop/mobile 34/34를 통과했다. 최초 브라우저 검사에서 Node ESM의 JSON import attribute 누락을 발견해 명시적인 `with { type: "json" }`로 고쳤고 전체 검사를 다시 통과했다.
