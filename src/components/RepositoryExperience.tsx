@@ -518,11 +518,10 @@ export function RepositoryProfileExperience() {
 function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | null }) {
   const { locale, copy } = useLocale();
   const reportProfile = reportCollaborationProfile(report);
-  const hasCollaborationProfile = reportProfile !== null;
   const referenceProfile = reportProfile ?? (!report ? reportCollaborationProfile(DEMO_REPORT) : null);
   const profileGuide = referenceProfile ? repositoryProfilePresentation(referenceProfile, locale) : null;
   const profileNames = repositoryProfileNameCatalog(locale);
-  const guide = buildRepositoryGuide(locale, copy, hasCollaborationProfile ? undefined : report?.style.id);
+  const guide = buildRepositoryGuide(locale, copy, report?.style.id);
   return <div className="repo-interpretation-guide">
     <details className="repo-guide repo-guide-disclosure product-panel" aria-labelledby="score-matrix-heading">
       <summary className="repo-guide-summary" aria-label={copy.insights.matrixToggle}>
@@ -535,16 +534,18 @@ function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | 
         </table></div><p className="repo-guide-limit">{copy.insights.guideText}</p>
       </div>
     </details>
+    <section className="repo-style-guide" aria-labelledby="style-guide-heading">
+      <div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.stylesEyebrow}</span><h2 id="style-guide-heading">{copy.insights.stylesTitle}</h2></div><p>{copy.insights.stylesIntro}</p></div>
+      <ol className="repo-style-rules">{guide.styles.map(style => <li key={style.id} className={style.active ? "is-active" : undefined} aria-current={style.active ? "true" : undefined}><div className="repo-style-rule-label"><span>{copy.insights.ruleStep(style.step)}</span>{style.active && <strong>{copy.insights.activeStyle}</strong>}</div><h3>{style.title}</h3><p>{style.rule}</p><small>{style.description}</small></li>)}</ol>
+      <p className="repo-tie-priority">{guide.tiePriority}</p>
+      {report && <p className="repo-current-style-note"><strong>{copy.insights.activeStyle}: {guide.styles.find(style => style.active)?.title}</strong><span>{copy.insights.distributionNote}</span></p>}
+    </section>
     {profileGuide && <section className="repo-style-guide" aria-labelledby="profile-guide-heading">
       <div className="repo-style-guide-heading"><div><span className="eyebrow">{profileGuide.eyebrow}</span><h2 id="profile-guide-heading">{profileGuide.guideTitle}</h2></div><p>{profileGuide.guideIntro}</p></div>
       <div className="repo-profile-dimensions">{profileGuide.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileGuide.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
       <section className="repo-profile-name-guide" aria-labelledby="profile-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="profile-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code}><strong>{item.code}</strong><span>{item.name}</span></div>)}</div></section>
     </section>}
-    {!profileGuide && <section className="repo-style-guide" aria-labelledby="style-guide-heading">
-      <div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.stylesEyebrow}</span><h2 id="style-guide-heading">{copy.insights.stylesTitle}</h2></div><p>{copy.insights.stylesIntro}</p></div>
-      <ol className="repo-style-rules">{guide.styles.map(style => <li key={style.id} className={style.active ? "is-active" : undefined} aria-current={style.active ? "true" : undefined}><div className="repo-style-rule-label"><span>{copy.insights.ruleStep(style.step)}</span>{style.active && <strong>{copy.insights.activeStyle}</strong>}</div><h3>{style.title}</h3><p>{style.rule}</p><small>{style.description}</small></li>)}</ol>
-      <p className="repo-tie-priority">{guide.tiePriority}</p>
-      {report && <p className="repo-current-style-note"><strong>{copy.insights.activeStyle}: {guide.styles.find(style => style.active)?.title}</strong><span>{copy.insights.distributionNote}</span></p>}
+    {!profileGuide && <section className="repo-style-guide" aria-labelledby="style-name-guide-heading">
       <section className="repo-profile-name-guide" aria-labelledby="style-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="style-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code}><strong>{item.code}</strong><span>{item.name}</span></div>)}</div></section>
     </section>}
   </div>;

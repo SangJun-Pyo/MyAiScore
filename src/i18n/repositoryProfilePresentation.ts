@@ -91,10 +91,10 @@ export function repositoryProfilePresentation(profile: RepositoryCollaborationPr
   const confidenceCaveats = profile.reasons.length + profile.dimensions.filter(item => item.nearBoundary).length;
   const confidence = confidenceCaveats === 0 ? "high" : confidenceCaveats === 1 ? "medium" : "low";
   const confidenceLabel = locale === "ko"
-    ? `유형 신뢰도 · ${confidence === "high" ? "높음" : confidence === "medium" ? "보통" : "낮음"}`
-    : `Profile confidence · ${confidence}`;
+    ? `SJTI 신뢰도 · ${confidence === "high" ? "높음" : confidence === "medium" ? "보통" : "낮음"}`
+    : `SJTI confidence · ${confidence}`;
   return {
-    eyebrow: locale === "ko" ? "저장소에서 보이는 협업 유형" : "COLLABORATION PROFILE VISIBLE IN THIS REPOSITORY",
+    eyebrow: locale === "ko" ? "SJTI · Sang-Jun Type Indicator" : "SJTI · SANG-JUN TYPE INDICATOR",
     title: profile.status === "assigned"
       ? profileNames[profile.code ?? ""]?.[locale] ?? selected.map(pole => poles[pole]).join(" · ")
       : locale === "ko" ? "유형 판단 보류" : "Profile withheld",
@@ -121,10 +121,10 @@ export function repositoryProfilePresentation(profile: RepositoryCollaborationPr
       boundaryLabel: item.nearBoundary ? locale === "ko" ? "경계에 가까움" : "Near boundary" : null,
     })),
     reasons: profile.reasons.map(reason => reasons[reason]),
-    guideTitle: locale === "ko" ? "네 가지 상대적 성향으로 유형을 만듭니다." : "Four relative dimensions form the profile.",
+    guideTitle: locale === "ko" ? "SJTI는 네 가지 상대적 성향으로 유형을 만듭니다." : "SJTI uses four relative dimensions.",
     guideIntro: locale === "ko"
-      ? "각 차원은 저장소에서 관찰된 신호의 상대적 배치입니다. 점수 등급이나 사람의 성격을 뜻하지 않습니다."
-      : "Each dimension describes the relative placement of observed repository signals. It is neither a score grade nor a personality assessment.",
+      ? "SJTI(Sang-Jun Type Indicator)는 저장소에서 관찰된 신호의 상대적 배치를 네 글자로 요약합니다. 점수 등급이나 사람의 성격을 뜻하지 않습니다."
+      : "SJTI (Sang-Jun Type Indicator) summarizes the relative placement of observed repository signals in four letters. It is neither a score grade nor a personality assessment.",
     strength: (left: number, right: number) => locale === "ko"
       ? `왼쪽 ${Math.round(left * 100)}% · 오른쪽 ${Math.round(right * 100)}%`
       : `Left ${Math.round(left * 100)}% · right ${Math.round(right * 100)}%`,
