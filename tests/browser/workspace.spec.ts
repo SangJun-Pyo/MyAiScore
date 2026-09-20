@@ -96,15 +96,27 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
   await expect(sjtiGuide).toContainText('D · 기록형');
   await expect(sjtiGuide).toContainText('P · 파이프라인형');
   await expect(sjtiGuide).toContainText('SJTI(Sang-Jun Type Indicator)는 저장소에서 관찰된 신호의 상대적 배치를 네 글자로 요약합니다.');
+  const dimensionStrengths = await sjtiGuide.locator('.repo-profile-dimensions article > small').allTextContents();
+  for (const strength of dimensionStrengths) {
+    const percentages = strength.match(/왼쪽 (\d+)% · 오른쪽 (\d+)%/);
+    expect(percentages, strength).not.toBeNull();
+    expect(Number(percentages?.[1]) + Number(percentages?.[2])).toBe(100);
+  }
   const profileCards = page.locator('.repo-profile-name-grid > div');
   await expect(profileCards).toHaveCount(16);
   await expect(page.locator('.repo-profile-name-guide')).toContainText('SJTI(Sang-Jun Type Indicator)');
   await expect(page.locator('.repo-profile-name-grid')).toContainText('DHSF설계 도면 수집가');
   await expect(page.locator('.repo-profile-name-grid')).toContainText('RPTE자율 운영 조율사');
   const firstProfile = profileCards.first().locator('details');
+  const lastProfile = profileCards.last().locator('details');
   await expect(firstProfile.locator('p')).toBeHidden();
+  await expect(lastProfile.locator('p')).toBeHidden();
   await firstProfile.locator('summary').click();
   await expect(firstProfile.locator('p')).toContainText('설계 도면 수집가는');
+  await expect(lastProfile.locator('p')).toContainText('자율 운영 조율사는');
+  await lastProfile.locator('summary').click();
+  await expect(firstProfile.locator('p')).toBeHidden();
+  await expect(lastProfile.locator('p')).toBeHidden();
   const mixedProfileTone = profileCards.nth(7).locator('.repo-profile-name-tone > b');
   await expect(mixedProfileTone).toHaveCount(4);
   await expect(mixedProfileTone.nth(0)).toHaveClass(/repo-pole-gold/);
