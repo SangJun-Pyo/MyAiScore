@@ -6,7 +6,7 @@ import { FormEvent, ReactElement, useEffect, useRef, useState } from "react";
 import { CrtBackground, StructureFlowCollection, UplinkLoader } from "@designcodeio/threeui";
 import { buildRepositoryGuide } from "../i18n/repositoryGuide";
 import { repositoryPresentation } from "../i18n/repositoryPresentation";
-import { repositoryProfileNameCatalog, repositoryProfilePresentation } from "../i18n/repositoryProfilePresentation";
+import { REPOSITORY_PROFILE_POLE_TONE, repositoryProfileNameCatalog, repositoryProfilePresentation } from "../i18n/repositoryProfilePresentation";
 import { repositoryV2Presentation } from "../i18n/repositoryV2Presentation";
 import { deriveRepositoryCohortComparison } from "../shared/repositoryCohort";
 import {
@@ -152,6 +152,17 @@ function saveToHistory(report: RepositoryReport) {
 
 function repoName(repo: string) {
   return repo.replace(/^https:\/\/github\.com\//, "").replace(/\/$/, "");
+}
+
+function poleToneClass(letter: string) {
+  return `repo-pole-${REPOSITORY_PROFILE_POLE_TONE[letter as keyof typeof REPOSITORY_PROFILE_POLE_TONE]}`;
+}
+
+function typeCardToneClass(code: string) {
+  const counts = { gold: 0, violet: 0 };
+  for (const letter of code) counts[REPOSITORY_PROFILE_POLE_TONE[letter as keyof typeof REPOSITORY_PROFILE_POLE_TONE]] += 1;
+  if (counts.gold === counts.violet) return "";
+  return counts.gold > counts.violet ? "repo-type-gold" : "repo-type-violet";
 }
 
 function reportCollaborationProfile(report: RepositoryReport | null) {
@@ -371,7 +382,7 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
       <aside className="repo-overview-guide-side">
         {profileDisplay && <div className="repo-overview-profile-summary">
           <span>{profileDisplay.eyebrow}</span>
-          <div><strong className="repo-profile-code">{profileDisplay.code}</strong><b>{profileDisplay.title}</b></div>
+          <div><strong className="repo-profile-code">{profileDisplay.code.split("").map((letter, index) => <span key={index} className={poleToneClass(letter)}>{letter}</span>)}</strong><b>{profileDisplay.title}</b></div>
           <p>{profileDisplay.description}</p>
         </div>}
         <RepositoryAxisRadar report={report} />
@@ -384,8 +395,8 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
     {v2?.diagnostics.provisional && <p className="notice repo-provisional">{v2Display.provisional}</p>}
     {profileDisplay && <section className="product-panel repo-profile-panel" aria-label={profileDisplay.guideTitle}>
       <div className="repo-profile-heading"><div><span className="eyebrow">{profileDisplay.eyebrow}</span><h2>{profileDisplay.guideTitle}</h2></div><p>{profileDisplay.guideIntro}</p></div>
-      {profileDisplay.code && <div className="repo-profile-identity"><div className="repo-profile-identity-code">{profileDisplay.code.split("").map((letter, index) => <span key={index}>{letter}</span>)}</div><div className="repo-profile-identity-text"><strong>{profileDisplay.title}</strong></div></div>}
-      <div className="repo-profile-dimensions">{profileDisplay.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileDisplay.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
+      {profileDisplay.code && <div className="repo-profile-identity"><div className="repo-profile-identity-code">{profileDisplay.code.split("").map((letter, index) => <span key={index} className={poleToneClass(letter)}>{letter}</span>)}</div><div className="repo-profile-identity-text"><strong>{profileDisplay.title}</strong></div></div>}
+      <div className="repo-profile-dimensions">{profileDisplay.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong className={leftSelected ? "is-left" : rightSelected ? "is-right" : undefined}>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileDisplay.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
     </section>}
     <section className="repo-axis-section" aria-labelledby="axis-heading">
       <div className="repo-section-heading"><div><span className="eyebrow">{copy.report.axesEyebrow}</span><h2 id="axis-heading">{copy.report.axesHeading}</h2></div><p>{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial} · {copy.report.staticOnly}</p></div>
@@ -541,11 +552,11 @@ function RepositoryInterpretationGuide({ report }: { report: RepositoryReport | 
     </section>
     {profileGuide && <section className="repo-style-guide" aria-labelledby="profile-guide-heading">
       <div className="repo-style-guide-heading"><div><span className="eyebrow">{profileGuide.eyebrow}</span><h2 id="profile-guide-heading">{profileGuide.guideTitle}</h2></div><p>{profileGuide.guideIntro}</p></div>
-      <div className="repo-profile-dimensions">{profileGuide.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileGuide.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
-      <section className="repo-profile-name-guide" aria-labelledby="profile-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="profile-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code}><strong>{item.code}</strong><span>{item.name}</span></div>)}</div></section>
+      <div className="repo-profile-dimensions">{profileGuide.dimensions.map(dimension => { const leftSelected = dimension.selectedPole === dimension.leftPole; const rightSelected = dimension.selectedPole === dimension.rightPole; const leftPct = Math.round(dimension.leftStrength * 100); return <article key={dimension.id}><div className="repo-profile-dim-top"><h3>{dimension.title}</h3><strong className={leftSelected ? "is-left" : rightSelected ? "is-right" : undefined}>{dimension.selectedLabel}</strong></div><p>{dimension.description}</p><div className="repo-profile-spectrum"><div className="repo-profile-spectrum-labels"><span className={leftSelected ? "is-selected" : undefined}>{dimension.leftPole} · {dimension.leftLabel}</span><span className={rightSelected ? "is-selected" : undefined}>{dimension.rightPole} · {dimension.rightLabel}</span></div><div className="repo-profile-spectrum-track">{leftSelected && <div className="repo-profile-spectrum-fill is-left" style={{ width: `${leftPct}%` }} />}{rightSelected && <div className="repo-profile-spectrum-fill is-right" style={{ width: `${100 - leftPct}%` }} />}<div className="repo-profile-spectrum-marker" style={{ left: `${leftPct}%` }} /></div></div><small>{profileGuide.strength(dimension.leftStrength, dimension.rightStrength)}{dimension.boundaryLabel ? ` · ${dimension.boundaryLabel}` : ""}</small></article>; })}</div>
+      <section className="repo-profile-name-guide" aria-labelledby="profile-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="profile-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code} className={typeCardToneClass(item.code)}><details><summary><strong>{item.code.split("").map((letter, index) => <span key={index} className={poleToneClass(letter)}>{letter}</span>)}</strong><span>{item.name}</span></summary><p>{item.description}</p></details></div>)}</div></section>
     </section>}
     {!profileGuide && <section className="repo-style-guide" aria-labelledby="style-name-guide-heading">
-      <section className="repo-profile-name-guide" aria-labelledby="style-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="style-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code}><strong>{item.code}</strong><span>{item.name}</span></div>)}</div></section>
+      <section className="repo-profile-name-guide" aria-labelledby="style-name-guide-heading"><div className="repo-style-guide-heading"><div><span className="eyebrow">{copy.insights.profileNamesEyebrow}</span><h2 id="style-name-guide-heading">{copy.insights.profileNamesTitle}</h2></div><p>{copy.insights.profileNamesIntro}</p></div><div className="repo-profile-name-grid">{profileNames.map(item => <div key={item.code} className={typeCardToneClass(item.code)}><details><summary><strong>{item.code.split("").map((letter, index) => <span key={index} className={poleToneClass(letter)}>{letter}</span>)}</strong><span>{item.name}</span></summary><p>{item.description}</p></details></div>)}</div></section>
     </section>}
     <p className="repo-interpretation-limit">{copy.insights.profileLimit}</p>
   </div>;

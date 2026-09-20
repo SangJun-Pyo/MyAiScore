@@ -28,6 +28,26 @@ const enPoles: Record<RepositoryCollaborationProfilePole, string> = {
   E: "Even",
 };
 
+/**
+ * Purely visual grouping of the eight poles into two neutral accent colors.
+ * "gold" = poles where a person plans, checks, or records by hand ahead of time
+ * (D, H, S, F). "violet" = poles where the system's own execution/automation
+ * output carries the signal (R, P, T, E). Deliberately NOT the site's
+ * accent/mint tokens, which already mean "needs attention" / "perfect score"
+ * elsewhere — reusing them here would make one SJTI type read as "the correct
+ * answer," which these types are not.
+ */
+export const REPOSITORY_PROFILE_POLE_TONE: Record<RepositoryCollaborationProfilePole, "gold" | "violet"> = {
+  D: "gold",
+  H: "gold",
+  S: "gold",
+  F: "gold",
+  R: "violet",
+  P: "violet",
+  T: "violet",
+  E: "violet",
+};
+
 const koDimensions: Record<RepositoryCollaborationProfileDimensionId, { title: string; description: string }> = {
   orientation: { title: "기록 ↔ 실행", description: "맥락·기록 신호와 검증·자동화 신호의 상대적 비중입니다." },
   workflow: { title: "직접 확인 ↔ 파이프라인", description: "테스트·로컬 도구와 CI·배포 자동화의 상대적 비중입니다." },
@@ -147,7 +167,11 @@ const profileDescriptions: Record<string, { ko: string; en: string }> = {
 };
 
 export function repositoryProfileNameCatalog(locale: Locale) {
-  return Object.entries(repositoryProfileNames).map(([code, names]) => ({ code, name: names[locale] }));
+  return Object.entries(repositoryProfileNames).map(([code, names]) => ({
+    code,
+    name: names[locale],
+    description: profileDescriptions[code]?.[locale] ?? "",
+  }));
 }
 
 export function repositoryProfilePresentation(profile: RepositoryCollaborationProfile, locale: Locale) {
