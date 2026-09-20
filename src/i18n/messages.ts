@@ -6,7 +6,7 @@ const ko = {
   language: { label: "언어 선택", ko: "한국어", en: "EN" },
   shell: {
     skip: "본문으로 건너뛰기", brandHome: "MyAiScore 홈", beta: "데모", navLabel: "주요 메뉴",
-    home: "홈", profile: "내 리포트", insights: "해석 가이드", evaluate: "저장소 분석", github: "GitHub",
+    home: "홈", profile: "내 리포트", insights: "해석 가이드", evaluate: "저장소 분석", github: "GitHub", githubRepository: "GitHub 저장소", sponsorSite: "MyAiScore 후원하기", footerLinksLabel: "저장소·후원 링크",
     footerLead: "공개 저장소에 남은 자료로 AI 활용 습관을 살펴봅니다.", footerLimit: "개인의 역량이나 프로젝트 전체의 품질을 평가하지 않아요.",
   },
   report: {
@@ -65,7 +65,7 @@ export type Messages = DeepWiden<typeof ko>;
 const en: Messages = {
   meta: { title: "MyAiScore — AI collaboration signals in public repositories", description: "Explore context, verification, traceability, and automation signals in a public GitHub repository without signing in." },
   language: { label: "Choose language", ko: "한국어", en: "EN" },
-  shell: { skip: "Skip to content", brandHome: "MyAiScore home", beta: "DEMO", navLabel: "Main navigation", home: "Home", profile: "Reports", insights: "Guide", evaluate: "Analyze", github: "GitHub", footerLead: "Explore traces of AI collaboration in a public repository.", footerLimit: "Not a certification of personal AI ability." },
+  shell: { skip: "Skip to content", brandHome: "MyAiScore home", beta: "DEMO", navLabel: "Main navigation", home: "Home", profile: "Reports", insights: "Guide", evaluate: "Analyze", github: "GitHub", githubRepository: "GitHub repository", sponsorSite: "Sponsor MyAiScore", footerLinksLabel: "Repository and sponsor links", footerLead: "Explore traces of AI collaboration in a public repository.", footerLimit: "Not a certification of personal AI ability." },
   report: {
     aria: "Repository analysis report", demoTag: "SYNTHETIC EXAMPLE", demoDescription: "Invented data that demonstrates the report layout. This is not a real repository result.", styleEyebrow: "Collaboration style visible in this repository", repository: "Repository", commit: "Commit",
     boundaryStrong: "This result describes signals left in a repository; it does not certify personal AI ability.", boundaryMore: "It cannot establish the decisions made in real conversations or the quality of the whole project.",

@@ -7,6 +7,14 @@
 - 자세한 내용: [Phase-09 세션 로그 2026-09-20](Sessions/Phase-09-Anonymous-Repository-Reports.md#2026-09-20--sjti-유형-목록-동시-펼침과-상대-비율-표시-수정-72)
 - 검증: `npm run typecheck`, `npm test` 321/321, `npm run check:docs` 74파일·442개 링크, `npm run build`, 집중 E2E desktop/mobile 2/2, 전체 브라우저 E2E 42/42와 `git diff --check`를 통과했다.
 
+## 2026-09-20 — GitHub Sponsors 링크 추가 (#74)
+
+- `.github/FUNDING.yml`에 `github: [SangJun-Pyo]`를 추가해 깃허브 저장소 페이지의 공식 Sponsor 버튼이 뜨도록 했다.
+- 사이트 푸터에 GitHub 저장소와 MyAiScore 후원하기 링크를 추가했다. 브랜드는 왼쪽 고정, 링크는 브랜드 폭과 무관하게 화면 가운데에 오도록 3열 그리드로 배치했다.
+- 아직 GitHub Sponsors 신청(신원확인·Stripe Connect)이 완료되지 않아, 후원 링크는 승인 전까지 404를 반환한다. 승인 후 추가 코드 변경 없이 바로 작동한다.
+- 자세한 내용: [Phase-09 세션 로그 2026-09-20](Sessions/Phase-09-Anonymous-Repository-Reports.md#2026-09-20-github-sponsors-링크-추가)
+- 검증: 최신 main의 SJTI 동시 펼침과 상대 비율 정규화 변경을 유지한 채 후원 링크만 재적용했다. 정리 브랜치에서 `npm run typecheck`, `npm test`, `npm run check:docs`, `npm run build`, `git diff --check`를 다시 실행한다.
+
 ## 2026-09-20 — SJTI 유형 코드 골드·바이올렛 색 구분
 
 - SJTI 4글자 코드와 스펙트럼에서 각 차원의 왼쪽 극(D/H/S/F)은 골드, 오른쪽 극(R/P/T/E)은 바이올렛으로 구분했다. 이 색은 방향을 구별할 뿐 우열이나 사람·자동화 여부를 뜻하지 않는다.

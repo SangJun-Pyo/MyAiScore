@@ -368,3 +368,13 @@ SJTI 차원의 `leftStrength`와 `rightStrength`는 양쪽 신호군의 독립 �
 회귀 검사는 독립 강도 0.9/0.8이 53%/47%로 표시되는지, 네 차원의 표시 합계가 모두 100%인지, 첫 카드와 마지막 카드가 함께 열리고 닫히는지를 확인한다. 이 변경은 표시와 상호작용 버그 수정이며 평가 계약이나 점수 규칙을 바꾸지 않으므로 별도 ADR은 추가하지 않았다.
 
 최종 검증은 `npm run typecheck`, `npm test` 321/321, `npm run check:docs` 74파일·442개 링크, `npm run build`, 해석 가이드 집중 E2E desktop/mobile 2/2, 전체 Playwright desktop/mobile 42/42와 `git diff --check`를 통과했다. 집중 E2E의 첫 실행은 새 production build 전에 기존 `.next`를 사용해 과거 133% 표시를 재현하며 실패했고, `npm run build` 뒤 같은 검사를 다시 실행해 수정된 100% 합계와 동시 펼침 동작을 확인했다.
+
+## 2026-09-20 — GitHub Sponsors 링크 추가 (#74)
+
+저장소와 사이트에 GitHub Sponsors로 연결되는 링크를 추가했다. `.github/FUNDING.yml`에 `github: [SangJun-Pyo]`를 추가해 GitHub 저장소 페이지의 공식 "Sponsor" 버튼이 뜨도록 했다. 사이트 헤더에 두는 안도 검토했으나, 사용자가 상시 노출되는 상단 내비게이션 대신 페이지 하단 푸터에 두는 쪽을 선택했다.
+
+푸터를 `site-footer-top`(브랜드 + 링크 그리드)과 기존 안내 문단으로 나누고, 두 개 링크(GitHub 저장소, MyAiScore 후원하기)를 `footer-links` nav로 추가했다. 브랜드(MyAiScore)는 왼쪽 고정, 링크 묶음은 브랜드 폭과 무관하게 항상 화면 중앙에 오도록 `grid-template-columns: 1fr auto 1fr` 3열 그리드로 배치했다(플렉스 `justify-content:center`는 브랜드 폭에 따라 중앙이 밀리는 문제가 있어 그리드로 교체).
+
+사용자가 아직 github.com/sponsors 신청(신원 확인·Stripe Connect)을 완료하지 않아, 지금은 두 링크 모두 존재는 하되 GitHub Sponsors 프로필 승인 전까지는 대상 페이지가 404를 반환한다. 이는 예상된 상태이며, 승인 후 별도 코드 변경 없이 바로 정상 작동한다.
+
+2026-09-21에 최신 main(`5f5f3b0`) 위로 정리하면서 #72/#73의 SJTI 유형 동시 펼침과 좌우 상대 비율 정규화 로직을 기준선으로 유지했다. 후원 링크 변경은 `.github/FUNDING.yml`, footer 링크, 관련 ko/en 문구와 footer CSS에 한정했고, 결과 카드·해석 가이드의 표시 계산은 변경하지 않았다. 검증은 정리 브랜치에서 다시 수행한다.
