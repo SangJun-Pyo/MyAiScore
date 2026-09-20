@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-20 — GitHub Sponsors 링크 추가
+
+- `.github/FUNDING.yml`에 `github: [SangJun-Pyo]`를 추가해 깃허브 저장소 페이지의 공식 Sponsor 버튼이 뜨도록 했다.
+- 사이트 푸터에 GitHub 저장소와 MyAiScore 후원하기 링크를 추가했다. 브랜드는 왼쪽 고정, 링크는 브랜드 폭과 무관하게 화면 가운데에 오도록 3열 그리드로 배치했다.
+- 아직 GitHub Sponsors 신청(신원확인·Stripe Connect)이 완료되지 않아, 후원 링크는 승인 전까지 404를 반환한다. 승인 후 추가 코드 변경 없이 바로 작동한다.
+- 자세한 내용: [Phase-09 세션 로그 2026-09-20](Sessions/Phase-09-Anonymous-Repository-Reports.md#2026-09-20-github-sponsors-링크-추가)
+- 검증: 이 환경에서는 npm run typecheck/npm test/npm run build를 실행하지 못했다(미실행, Windows 전용 node_modules). 실제 실행은 로컬 환경에서 필요하다.
+
 ## 2026-09-20 — SJTI 유형 코드 골드·바이올렛 색 구분
 
 - SJTI 4글자 코드(D/R, H/P, S/T, F/E)와 하단 16유형 목록에 전용 색 토큰 `--gold`/`--violet`을 추가했다. 기존 accent(살구색)/mint는 이미 "보통/만점" 가치 판단에 쓰이고 있어 유형 코드에는 재사용하지 않았다.

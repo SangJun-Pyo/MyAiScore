@@ -346,3 +346,15 @@ README hero를 같은 production 화면으로 다시 캡처했다. `npm run type
 ### 검증 상태 (미실행 명시)
 
 이 환경은 Windows용으로 설치된 `node_modules`(esbuild, @next/swc 등 win32 바이너리)를 가진 리포지토리에 Linux 컨테이너로 연결되어 있어 `npm run dev`/`npm test`/`npm run build`/`npm run typecheck`를 실행할 수 없었다. 실패가 아니라 미실행이며, 실제 검증(타입체크·테스트·빌드·수동 화면 확인)은 사용자가 자신의 Windows 환경에서 브랜치를 받은 뒤 직접 실행해야 한다.
+
+## 2026-09-20 — GitHub Sponsors 링크 추가
+
+저장소와 사이트에 GitHub Sponsors로 연결되는 링크를 추가했다. `.github/FUNDING.yml`에 `github: [SangJun-Pyo]`를 추가해 GitHub 저장소 페이지의 공식 "Sponsor" 버튼이 뜨도록 했다. 사이트 헤더에 두는 안도 검토했으나, 사용자가 상시 노출되는 상단 내비게이션 대신 페이지 하단 푸터에 두는 쪽을 선택했다.
+
+푸터를 `site-footer-top`(브랜드 + 링크 그리드)과 기존 안내 문단으로 나누고, 두 개 링크(GitHub 저장소, MyAiScore 후원하기)를 `footer-links` nav로 추가했다. 브랜드(MyAiScore)는 왼쪽 고정, 링크 묶음은 브랜드 폭과 무관하게 항상 화면 중앙에 오도록 `grid-template-columns: 1fr auto 1fr` 3열 그리드로 배치했다(플렉스 `justify-content:center`는 브랜드 폭에 따라 중앙이 밀리는 문제가 있어 그리드로 교체).
+
+사용자가 아직 github.com/sponsors 신청(신원 확인·Stripe Connect)을 완료하지 않아, 지금은 두 링크 모두 존재는 하되 GitHub Sponsors 프로필 승인 전까지는 대상 페이지가 404를 반환한다. 이는 예상된 상태이며, 승인 후 별도 코드 변경 없이 바로 정상 작동한다.
+
+### 검증 상태 (미실행 명시)
+
+이 브랜치도 `codex/sjti-pole-colors` 브랜치 위에서 이어 작업했다(같은 세션에서 아직 push되지 않은 두 개의 독립 변경). 이 환경은 Windows용 `node_modules`를 가진 리포지토리에 Linux 컨테이너로 연결되어 있어 `npm run dev`/`npm test`/`npm run build`/`npm run typecheck`를 실행하지 못했다(실패가 아니라 미실행). 실제 검증은 사용자가 로컬에서 두 브랜치를 순서대로 받아 실행해야 한다.

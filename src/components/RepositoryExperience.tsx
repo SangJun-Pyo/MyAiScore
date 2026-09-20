@@ -270,7 +270,7 @@ export function RepositoryShell({ children }: { children: React.ReactNode }) {
       <div className="header-actions"><nav aria-label={copy.shell.navLabel}>{links.map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>{item.name}</Link>)}<a href="https://github.com/SangJun-Pyo/MyAiScore" target="_blank" rel="noreferrer">{copy.shell.github}</a><Link href="/evaluate" className="nav-evaluate" aria-current={pathname === "/evaluate" ? "page" : undefined}>{copy.shell.evaluate}</Link></nav><LanguageSwitch /></div>
     </div></header>
     {children}
-    <footer className="site-footer"><Link href="/" className="brand">MyAiScore</Link><p>{copy.shell.footerLead}</p><span>{copy.shell.footerLimit}</span></footer>
+    <footer className="site-footer"><div className="site-footer-top"><Link href="/" className="brand">MyAiScore</Link><nav className="footer-links" aria-label={copy.shell.footerLinksLabel}><a href="https://github.com/SangJun-Pyo/MyAiScore" target="_blank" rel="noreferrer">{copy.shell.github}</a><a href="https://github.com/sponsors/SangJun-Pyo" target="_blank" rel="noreferrer">{copy.shell.sponsorSite}</a></nav></div><p>{copy.shell.footerLead}</p><span>{copy.shell.footerLimit}</span></footer>
   </>;
 }
 
