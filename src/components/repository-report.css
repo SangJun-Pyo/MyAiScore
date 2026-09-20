@@ -28,7 +28,9 @@
 .repo-diagnostics p { margin:10px 0 0; color:var(--muted); font-size:12px; }
 .repo-diagnostics ul { margin:14px 0 0; padding-left:18px; }
 .repo-style h2 { margin:0; font-size:30px; }
-.repo-profile-code { display:inline-block; margin-top:12px; padding:6px 9px; border:1px solid var(--accent); border-radius:4px; color:var(--accent); font-size:13px; letter-spacing:.16em; }
+.repo-profile-code { display:inline-flex; gap:2px; margin-top:12px; padding:6px 9px; border:1px solid var(--line-strong); border-radius:4px; font-size:13px; letter-spacing:.16em; }
+.repo-pole-gold { color:var(--gold); }
+.repo-pole-violet { color:var(--violet); }
 .repo-style dl { display:grid; grid-template-columns:1fr 1fr; gap:12px 24px; margin:24px 0 0; padding-top:18px; border-top:1px solid var(--line); }
 .repo-style dl > div { min-width:0; }
 .repo-style dt { color:var(--muted); font-size:10px; }
@@ -41,7 +43,9 @@
 .repo-profile-heading > p { max-width:520px; margin:0; color:var(--muted); font-size:12px; }
 .repo-profile-identity { display:flex; align-items:center; gap:20px; margin-top:20px; padding:20px 22px; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface-raised); flex-wrap:wrap; }
 .repo-profile-identity-code { display:flex; gap:6px; flex-shrink:0; }
-.repo-profile-identity-code > span { width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:var(--accent-soft); border:1px solid #e58c7540; color:var(--accent); font-size:15px; font-weight:600; }
+.repo-profile-identity-code > span { width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:8px; font-size:15px; font-weight:600; }
+.repo-profile-identity-code > span.repo-pole-gold { background:var(--gold-soft); border:1px solid var(--gold-line); color:var(--gold); }
+.repo-profile-identity-code > span.repo-pole-violet { background:var(--violet-soft); border:1px solid var(--violet-line); color:var(--violet); }
 .repo-profile-identity-text { display:flex; flex-direction:column; gap:3px; min-width:0; }
 .repo-profile-identity-text strong { font-size:16px; font-weight:500; color:var(--ink); }
 .repo-profile-identity-text span { color:var(--muted); font-size:11px; }
@@ -49,15 +53,18 @@
 .repo-profile-dimensions article { min-width:0; padding:20px; border:1px solid var(--line); border-radius:var(--radius); }
 .repo-profile-dim-top { display:flex; align-items:start; justify-content:space-between; gap:16px; margin-bottom:9px; }
 .repo-profile-dimensions h3 { margin:0; font-size:18px; }
-.repo-profile-dim-top strong { flex-shrink:0; background:var(--accent-soft); color:var(--accent); font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px; }
+.repo-profile-dim-top strong { flex-shrink:0; font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px; }
+.repo-profile-dim-top strong.is-left { background:var(--gold-soft); color:var(--gold); }
+.repo-profile-dim-top strong.is-right { background:var(--violet-soft); color:var(--violet); }
 .repo-profile-dimensions p,.repo-profile-dimensions small { color:var(--muted); font-size:11px; line-height:1.65; }
 .repo-profile-spectrum { display:flex; flex-direction:column; gap:9px; margin-block:14px; padding-block:14px; border-block:1px solid var(--line); }
 .repo-profile-spectrum-labels { display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:11px; }
-.repo-profile-spectrum-labels .is-selected { color:var(--ink); font-weight:600; }
+.repo-profile-spectrum-labels span:first-child.is-selected { color:var(--gold); font-weight:600; }
+.repo-profile-spectrum-labels span:last-child.is-selected { color:var(--violet); font-weight:600; }
 .repo-profile-spectrum-track { position:relative; height:7px; border-radius:999px; background:var(--line-strong); overflow:hidden; }
-.repo-profile-spectrum-fill { position:absolute; top:0; bottom:0; background:var(--accent); }
-.repo-profile-spectrum-fill.is-left { left:0; border-radius:999px 0 0 999px; }
-.repo-profile-spectrum-fill.is-right { right:0; border-radius:0 999px 999px 0; }
+.repo-profile-spectrum-fill { position:absolute; top:0; bottom:0; }
+.repo-profile-spectrum-fill.is-left { left:0; border-radius:999px 0 0 999px; background:var(--gold); }
+.repo-profile-spectrum-fill.is-right { right:0; border-radius:0 999px 999px 0; background:var(--violet); }
 .repo-profile-spectrum-marker { position:absolute; top:50%; width:2px; height:13px; background:var(--ink); border-radius:1px; transform:translate(-50%,-50%); }
 .repo-profile-reasons { margin:20px 0 0; padding:16px 16px 16px 34px; border-left:2px solid var(--accent); background:var(--accent-soft); color:var(--muted); font-size:12px; }
 .repo-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:30px; margin-bottom:18px; }
@@ -376,11 +383,11 @@
   margin-top:12px;
 }
 .repo-overview-profile-summary strong {
-  display:inline-block;
+  display:inline-flex;
+  gap:2px;
   padding:6px 9px;
-  border:1px solid var(--accent);
+  border:1px solid var(--line-strong);
   border-radius:5px;
-  color:var(--accent);
   font-size:13px;
   letter-spacing:.16em;
 }
@@ -557,22 +564,56 @@
   gap:10px;
 }
 .repo-profile-name-grid > div {
+  position:relative;
+  overflow:hidden;
   min-width:0;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:13px 14px;
+  padding:13px 14px 13px 17px;
   border:1px solid var(--line);
   border-radius:var(--radius);
   background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.008));
 }
-.repo-profile-name-grid strong {
+.repo-profile-name-tone { position:absolute; inset:0 auto 0 0; width:3px; display:grid; grid-template-rows:repeat(4,1fr); }
+.repo-profile-name-tone > b { display:block; min-height:0; }
+.repo-profile-name-tone > .repo-pole-gold { background:var(--gold); }
+.repo-profile-name-tone > .repo-pole-violet { background:var(--violet); }
+.repo-profile-name-grid details summary {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+  list-style:none;
+}
+.repo-profile-name-grid details summary::-webkit-details-marker { display:none; }
+.repo-profile-name-grid details summary::after {
+  content:"";
+  width:7px;
+  height:7px;
+  margin-left:auto;
+  border-right:1px solid var(--muted);
+  border-bottom:1px solid var(--muted);
+  transform:rotate(45deg);
+  transition:transform .16s ease;
   flex:0 0 auto;
-  color:var(--accent);
+}
+.repo-profile-name-grid details[open] summary::after { transform:rotate(225deg); }
+.repo-profile-name-grid details[open] summary { margin-bottom:8px; }
+.repo-profile-name-grid details p {
+  margin:0;
+  padding-top:8px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.6;
+  white-space:pre-line;
+}
+.repo-profile-name-code {
+  flex:0 0 auto;
+  display:inline-flex;
+  gap:1px;
   font-size:12px;
   letter-spacing:.13em;
 }
-.repo-profile-name-grid span {
+.repo-profile-name-grid summary > span {
   min-width:0;
   color:var(--ink);
   font-size:12px;
