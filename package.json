@@ -1,6 +1,7 @@
 {
   "name": "myaiscore",
   "version": "0.1.0",
+  "license": "MIT",
   "private": true,
   "description": "Evidence-based AI collaboration assessment",
   "type": "module",
