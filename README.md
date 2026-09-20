@@ -31,6 +31,7 @@
 - [검사](#검사)
 - [선택 기능: Claude Code 세션 리포트](#선택-기능-claude-code-세션-리포트)
 - [설계와 신뢰 경계](#설계와-신뢰-경계)
+- [라이선스](#라이선스)
 
 ## 무엇을 보여주나요?
 
@@ -144,3 +145,11 @@ npm run session:report -- --project "C:/path/to/project" --out session-report.js
 - [개인정보·보안 원칙](docs/Security/PRIVACY_SECURITY.md)
 
 기여 에이전트는 [AGENTS](AGENTS.md) → [ROADMAP](docs/Development/ROADMAP.md) 순서로 현재 상태를 확인합니다.
+
+## 라이선스
+
+MyAiScore에서 직접 작성한 소스 코드는 [MIT License](LICENSE)에 따라 사용할 수 있습니다. 저작권 및 라이선스 고지를 유지하는 조건으로 복사, 수정, 배포와 상업적 이용이 허용됩니다.
+
+저장소에 포함된 제3자 소프트웨어와 디자인 자료에는 각각의 라이선스가 적용됩니다. ThreeUI 관련 저작권과 사용 조건은 [ThreeUI Community 고지](public/third-party/threeui/NOTICE.md)와 [원문 라이선스](public/third-party/threeui/LICENSE.txt)를 확인해 주세요.
+
+`MyAiScore` 이름과 로고 등 프로젝트 식별 표지는 MIT License의 사용 허락 대상에 포함되지 않습니다. 프로젝트를 포크하거나 별도로 배포할 때 원 프로젝트로 오인되지 않도록 다른 이름과 표지를 사용해 주세요.
