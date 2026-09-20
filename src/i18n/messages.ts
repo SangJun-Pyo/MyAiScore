@@ -2,7 +2,7 @@ import type { RepositoryReportAxis } from "../shared/repositoryReport";
 import type { Locale } from "./locale";
 
 const ko = {
-  meta: { title: "MyAiScore — 공개 저장소의 AI 협업 신호", description: "로그인 없이 공개 GitHub 저장소의 맥락, 검증 체계, 기록·추적, 자동화 신호를 확인해 보세요." },
+  meta: { title: "MyAiScore - GitHub 저장소로 확인하는 AI 개발 체계 점수", description: "로그인 없이 공개 GitHub 저장소의 맥락, 검증 체계, 기록·추적, 자동화 신호를 확인해 보세요." },
   language: { label: "언어 선택", ko: "한국어", en: "EN" },
   shell: {
     skip: "본문으로 건너뛰기", brandHome: "MyAiScore 홈", beta: "데모", navLabel: "주요 메뉴",

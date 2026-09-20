@@ -277,7 +277,7 @@ test('언어 쿠키를 첫 응답에 반영하고 영어 화면에서도 원본 
   await expect(page.getByRole('heading', { name: '공개 저장소 분석' })).toBeVisible();
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
-  await expect(page).toHaveTitle('MyAiScore — 공개 저장소의 AI 협업 신호');
+  await expect(page).toHaveTitle('MyAiScore - GitHub 저장소로 확인하는 AI 개발 체계 점수');
 });
 
 test('영어 화면은 안정된 API 오류 코드를 번역한다', async ({ context, page }) => {
