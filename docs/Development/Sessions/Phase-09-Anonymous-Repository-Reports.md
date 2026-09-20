@@ -332,3 +332,17 @@ README hero를 같은 production 화면으로 다시 캡처했다. `npm run type
 우측 영역은 협업 유형 요약 카드를 먼저, 레이더를 그 아래에 배치했다. 레이더 축 이름은 SVG 내부 텍스트가 아니라 `repo-axis-radar-plot` 주변의 absolute compass 라벨로 분리해 맥락·검증 기반·기록·자동화가 그래프 선/점과 겹치지 않게 했다.
 
 해석 가이드의 점수 규칙 패널은 길이가 길어 기본 펼침 상태에서 페이지 흐름을 많이 차지하므로 기본 접힘으로 바꿨다. 브라우저 테스트도 초기 숨김, summary 클릭 후 표시, 다시 클릭 후 숨김 흐름으로 갱신했다.
+
+## 2026-09-20 — 결과 화면 상태 기반 강조 색상
+
+Base: main `91e9e70` (origin과 fast-forward 동기화 후). Branch: `codex/report-color-signals`.
+
+`/evaluate` 결과 화면에서 "미확인 신호"·"추천 개선 과제" 두 카드의 톤이 어긋난다는 사용자 피드백을 받았다. 처음에는 "미확인 신호" 카드가 아무 색도 없어 붕 떠 보인다고 판단해 민트 포인트를 추가했으나, 사용자가 실제로 지적한 쪽은 "추천 개선 과제"의 살구색(--accent) 풀블록 배경이 다른 다크 패널과 어울리지 않는다는 점이었다. `.repo-next`/`.repo-recommendations`/`.repo-cohort`의 배경을 다크 패널로 바꾸고 살구색은 좌측 강조 바·배지·제목 등 포인트로만 남겼다.
+
+"미확인 신호" 카드에는 정의만 되어 있고 실제로 쓰이지 않던 `--mint` 토큰을 실제 색상(`#6fb8a6`, 다크 배경 대비 약 7.6:1)으로 채워 두 번째 accent로 재사용했다. 색이 상태와 무관하게 항상 붙어 있으면 "빈칸 있음"과 "빈칸 없음"을 구분하지 못한다는 지적에 따라 `repo-gaps-clear` 수식자 클래스를 추가해, 실제로 놓친 신호가 없을 때만 민트 강조가 나오도록 좁혔다. `noGaps` 문구도 "이번 규칙에서 따로 표시된 빈칸은 없어요."에서 "이번 규칙으로 확인한 범위에서는 놓친 신호가 없었어요."로 다듬었다(영문도 동일하게 수정).
+
+같은 "만점일 때만 강조" 원칙을 4축 신호 카드(맥락/검증 기반/기록/자동화)와 축 내부 근거 항목 배지에도 적용했다. 개별 근거 항목은 해당 항목이 만점(`points >= maxPoints`)일 때만 배지가 민트로 바뀌고, 축 전체가 25/25 만점일 때만 카드 전체(테두리·배경 틴트·좌측 바·링·점수 숫자)가 민트로 강조된다. 만점이 아니면 기존 살구색 accent 그대로다. 아이콘(`AXIS_ICONS[axis]`)은 변경하지 않았다 — 사용자가 미리보기 mock에서 임시 자리표시자(◆)를 실제 아이콘 변경으로 오해해 확인을 요청했고, 실제 코드에는 손대지 않았음을 재확인했다.
+
+변경 파일은 `src/app/globals.css`(`--mint`/`--mint-soft`/`--mint-line` 추가), `src/components/repository-report.css`, `src/components/RepositoryExperience.tsx`, `src/i18n/messages.ts`(ko/en `noGaps`)다. 점수 계산 로직, 데이터 계약, API 응답 형태는 건드리지 않았다. [ADR 작성 규칙](../../Architecture/ADR/README.md)의 "단순 문구/CSS 수치... 버그 수정은 세션 기록으로 충분하다" 기준에 따라 별도 ADR은 만들지 않았다.
+
+**검증 상태 (미실행 명시):** 이번 세션은 사용자의 연결된 Windows 컴퓨터가 아니라 Cowork 데스크톱 앱의 격리된 Linux VM 셸에서 작업했다. 이 환경의 `node_modules`는 Windows 바이너리(`esbuild`의 `@esbuild/win32-x64`, `@next/swc` 등)로 설치돼 있고 npm 레지스트리 접근도 막혀 있어(`getaddrinfo EAI_AGAIN registry.npmjs.org`) 같은 환경에서 `npm test`(42/42 즉시 실패, esbuild `TransformError`), `npm run typecheck`, `npm run dev`, `npm run build`를 전혀 실행할 수 없었다. 대신 실제 `globals.css`/`repository-report.css` 파일을 그대로 불러온 정적 Playwright 렌더링으로 배지·카드·아이콘 색 분기를 시각 확인했다. git push 자격 증명도 이 환경에는 없어(`could not read Username for 'https://github.com'`) 브랜치 생성과 commit까지만 이 세션에서 처리했다. **`npm test`/`typecheck`/`build`/`test:e2e` 실행, `git push`, PR 생성·병합은 사용자 컴퓨터에서 별도로 필요하다.**
