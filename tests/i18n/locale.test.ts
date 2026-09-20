@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { parseLocale } from "../../src/i18n/locale.js";
 import { messagesFor } from "../../src/i18n/messages.js";
+import { REPOSITORY_PROFILE_POLE_TONE, repositoryProfileNameCatalog } from "../../src/i18n/repositoryProfilePresentation.js";
 
 test("locale parsing defaults invalid or missing cookie values to Korean", () => {
   assert.equal(parseLocale(undefined), "ko");
@@ -19,4 +20,14 @@ test("both locale catalogs expose stable API-error and repository-axis keys", ()
   assert.equal(en.presentation.axes.verification.label, "Verification basis");
   assert.equal(ko.presentation.axes.verification.label, "검증 기반");
   assert.equal(ko.presentation.axes.traceability.label, "기록");
+});
+
+test("SJTI presentation keeps complete descriptions and neutral left-right tones", () => {
+  const profiles = repositoryProfileNameCatalog("ko");
+  assert.equal(profiles.length, 16);
+  assert.equal(profiles.every(profile => profile.description.length > 0), true);
+  assert.deepEqual(REPOSITORY_PROFILE_POLE_TONE, {
+    D: "gold", H: "gold", S: "gold", F: "gold",
+    R: "violet", P: "violet", T: "violet", E: "violet",
+  });
 });

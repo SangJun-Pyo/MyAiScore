@@ -346,3 +346,15 @@ Base: main `91e9e70` (origin과 fast-forward 동기화 후). Branch: `codex/repo
 변경 파일은 `src/app/globals.css`(`--mint`/`--mint-soft`/`--mint-line` 추가), `src/components/repository-report.css`, `src/components/RepositoryExperience.tsx`, `src/i18n/messages.ts`(ko/en `noGaps`)다. 점수 계산 로직, 데이터 계약, API 응답 형태는 건드리지 않았다. [ADR 작성 규칙](../../Architecture/ADR/README.md)의 "단순 문구/CSS 수치... 버그 수정은 세션 기록으로 충분하다" 기준에 따라 별도 ADR은 만들지 않았다.
 
 **검증 상태 (미실행 명시):** 이번 세션은 사용자의 연결된 Windows 컴퓨터가 아니라 Cowork 데스크톱 앱의 격리된 Linux VM 셸에서 작업했다. 이 환경의 `node_modules`는 Windows 바이너리(`esbuild`의 `@esbuild/win32-x64`, `@next/swc` 등)로 설치돼 있고 npm 레지스트리 접근도 막혀 있어(`getaddrinfo EAI_AGAIN registry.npmjs.org`) 같은 환경에서 `npm test`(42/42 즉시 실패, esbuild `TransformError`), `npm run typecheck`, `npm run dev`, `npm run build`를 전혀 실행할 수 없었다. 대신 실제 `globals.css`/`repository-report.css` 파일을 그대로 불러온 정적 Playwright 렌더링으로 배지·카드·아이콘 색 분기를 시각 확인했다. git push 자격 증명도 이 환경에는 없어(`could not read Username for 'https://github.com'`) 브랜치 생성과 commit까지만 이 세션에서 처리했다. **`npm test`/`typecheck`/`build`/`test:e2e` 실행, `git push`, PR 생성·병합은 사용자 컴퓨터에서 별도로 필요하다.**
+
+## 2026-09-20 — SJTI 4글자 코드에 골드·바이올렛 방향 구분 추가
+
+해석 가이드와 결과 화면의 SJTI 4글자 코드(D/R, H/P, S/T, F/E)에 전용 색 토큰 `--gold`와 `--violet`을 추가했다. 기존 살구색은 일반 강조, 민트는 만점·미확인 신호 없음 상태에 사용되므로 SJTI에는 재사용하지 않았다.
+
+골드는 네 차원의 왼쪽 극(D/H/S/F), 바이올렛은 오른쪽 극(R/P/T/E)을 나타낸다. 이 색은 스펙트럼의 방향을 빠르게 구별하기 위한 시각 표기일 뿐, 유형의 우열이나 사람 중심·자동화 중심이라는 공통 의미를 부여하지 않는다. 상단 요약 코드, 코드 박스, 스펙트럼 바와 선택된 극 pill에 같은 규칙을 적용했다.
+
+하단 16유형 카드는 다수 색 하나를 고르는 대신 코드의 네 글자를 순서대로 반영한 4분할 세로 띠를 사용한다. 각 카드는 `<details>/<summary>`로 펼쳐 유형 설명을 확인할 수 있으며, 펼침 화살표와 기존 전역 `:focus-visible` 표시를 유지해 마우스·터치·키보드에서 동작을 알 수 있게 한다.
+
+표시 함수는 `null`일 수 있는 유형 코드를 확인한 뒤 글자 단위 스타일을 적용한다. 데이터 계약과 점수 계산은 변경하지 않았고, 이 변경은 표시 로직과 문구에 한정되므로 별도 ADR 없이 세션 기록으로 남긴다.
+
+최초 바이올렛 `#8778d6`은 실제 합성 배경에서 4.32:1로 WCAG AA 최소 대비 4.5:1에 미치지 못했다. 색조를 유지하면서 `#8f80de`로 밝힌 뒤 데스크톱·모바일 접근성 검사를 다시 통과했다. 최종 검증은 `npm run typecheck`, `npm test` 320/320, `npm run check:docs` 74파일·441개 링크, `npm run build`, 해석 가이드와 언어 전환 집중 E2E 4/4, 공개 화면 WCAG·키보드·320px E2E 6/6, 전체 브라우저 E2E 42/42다.

@@ -28,6 +28,24 @@ const enPoles: Record<RepositoryCollaborationProfilePole, string> = {
   E: "Even",
 };
 
+/**
+ * Neutral visual grouping by position within each SJTI dimension: gold marks
+ * the left pole and violet marks the right pole. The colors do not imply a
+ * shared human/automation meaning or a better/worse result. They deliberately
+ * avoid the product accent and mint tokens, which already communicate action
+ * and complete states elsewhere.
+ */
+export const REPOSITORY_PROFILE_POLE_TONE: Record<RepositoryCollaborationProfilePole, "gold" | "violet"> = {
+  D: "gold",
+  H: "gold",
+  S: "gold",
+  F: "gold",
+  R: "violet",
+  P: "violet",
+  T: "violet",
+  E: "violet",
+};
+
 const koDimensions: Record<RepositoryCollaborationProfileDimensionId, { title: string; description: string }> = {
   orientation: { title: "기록 ↔ 실행", description: "맥락·기록 신호와 검증·자동화 신호의 상대적 비중입니다." },
   workflow: { title: "직접 확인 ↔ 파이프라인", description: "테스트·로컬 도구와 CI·배포 자동화의 상대적 비중입니다." },
@@ -147,7 +165,11 @@ const profileDescriptions: Record<string, { ko: string; en: string }> = {
 };
 
 export function repositoryProfileNameCatalog(locale: Locale) {
-  return Object.entries(repositoryProfileNames).map(([code, names]) => ({ code, name: names[locale] }));
+  return Object.entries(repositoryProfileNames).map(([code, names]) => ({
+    code,
+    name: names[locale],
+    description: profileDescriptions[code]?.[locale] ?? "",
+  }));
 }
 
 export function repositoryProfilePresentation(profile: RepositoryCollaborationProfile, locale: Locale) {
