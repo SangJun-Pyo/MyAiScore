@@ -204,6 +204,25 @@ test("all 16 assigned codes have unique playful bilingual profile names", () => 
   assert.doesNotMatch(rht.en.description, /\b(personality|ability)\b/);
 });
 
+test("profile presentation normalizes independent dimension strengths to 100 percent", () => {
+  const profile: RepositoryCollaborationProfile = {
+    version: "repository-collaboration-profile-v1",
+    status: "assigned",
+    code: "DHSF",
+    reasons: [],
+    dimensions: REPOSITORY_COLLABORATION_PROFILE_DIMENSION_ORDER.map(id => {
+      const [leftPole, rightPole] = REPOSITORY_COLLABORATION_PROFILE_POLES[id];
+      return { id, leftPole, rightPole, leftStrength: 0.9, rightStrength: 0.8, selectedPole: leftPole, nearBoundary: true };
+    }),
+  };
+  const presentation = repositoryProfilePresentation(profile, "ko");
+  assert.deepEqual(
+    presentation.dimensions.map(item => [item.leftPercent, item.rightPercent]),
+    [[53, 47], [53, 47], [53, 47], [53, 47]],
+  );
+  assert.equal(presentation.strength(53, 47), "왼쪽 53% · 오른쪽 47%");
+});
+
 test("collaboration profile assigns multiple near-boundary dimensions with caveats", () => {
   const assessments = profileAssessments({
     "verification-entrypoint": fullSignal(4), "verification-test-substance": fullSignal(5), "verification-static-analysis": fullSignal(4), "automation-scripts": fullSignal(4),

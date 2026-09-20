@@ -197,21 +197,27 @@ export function repositoryProfilePresentation(profile: RepositoryCollaborationPr
     code: profile.code,
     confidence,
     confidenceLabel,
-    dimensions: profile.dimensions.map(item => ({
-      ...item,
-      ...dimensions[item.id],
-      leftLabel: poles[item.leftPole],
-      rightLabel: poles[item.rightPole],
-      selectedLabel: item.selectedPole ? poles[item.selectedPole] : locale === "ko" ? "판단 보류" : "Withheld",
-      boundaryLabel: item.nearBoundary ? locale === "ko" ? "경계에 가까움" : "Near boundary" : null,
-    })),
+    dimensions: profile.dimensions.map(item => {
+      const totalStrength = item.leftStrength + item.rightStrength;
+      const leftPercent = totalStrength > 0 ? Math.round((item.leftStrength / totalStrength) * 100) : 50;
+      return {
+        ...item,
+        ...dimensions[item.id],
+        leftLabel: poles[item.leftPole],
+        rightLabel: poles[item.rightPole],
+        leftPercent,
+        rightPercent: 100 - leftPercent,
+        selectedLabel: item.selectedPole ? poles[item.selectedPole] : locale === "ko" ? "판단 보류" : "Withheld",
+        boundaryLabel: item.nearBoundary ? locale === "ko" ? "경계에 가까움" : "Near boundary" : null,
+      };
+    }),
     reasons: profile.reasons.map(reason => reasons[reason]),
     guideTitle: locale === "ko" ? "SJTI는 네 가지 상대적 성향으로 유형을 만듭니다." : "SJTI uses four relative dimensions.",
     guideIntro: locale === "ko"
       ? "SJTI(Sang-Jun Type Indicator)는 저장소에서 관찰된 신호의 상대적 배치를 네 글자로 요약합니다."
       : "SJTI (Sang-Jun Type Indicator) summarizes the relative placement of observed repository signals in four letters.",
-    strength: (left: number, right: number) => locale === "ko"
-      ? `왼쪽 ${Math.round(left * 100)}% · 오른쪽 ${Math.round(right * 100)}%`
-      : `Left ${Math.round(left * 100)}% · right ${Math.round(right * 100)}%`,
+    strength: (leftPercent: number, rightPercent: number) => locale === "ko"
+      ? `왼쪽 ${leftPercent}% · 오른쪽 ${rightPercent}%`
+      : `Left ${leftPercent}% · right ${rightPercent}%`,
   };
 }
