@@ -30,6 +30,15 @@ async function request(handle: ReturnType<typeof createApi>, method: string, bod
   return { status: response.status, body: await response.json() };
 }
 
+async function leaderboardRequest(handle: ReturnType<typeof createApi>, method: string, body?: unknown, url = "http://localhost/api/leaderboard") {
+  const response = await handle(new Request(url, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  }), ["leaderboard"]);
+  return { status: response.status, body: await response.json() };
+}
+
 test("POST repository-report is stateless, login-free and never exposes the configured token", async () => {
   const token = "github-server-token";
   let calls = 0;
@@ -160,4 +169,108 @@ test("anonymous repository-report admission is shared, concurrency-bounded and e
   assert.equal((await request(second, "POST", { repo_url: "https://github.com/acme/api" })).body.error.code, "repository_report_rate_limited");
   time = 1_001;
   assert.equal((await request(second, "POST", { repo_url: "https://github.com/acme/api" })).status, 200);
+});
+
+test("leaderboard is unavailable unless storage is configured", async () => {
+  let listed = 0;
+  const handle = createApi({
+    store: forbiddenStore,
+    leaderboard: {
+      configured: () => false,
+      list: async () => { listed += 1; return []; },
+      recentlySubmitted: async () => false,
+      upsert: async () => {},
+    },
+  });
+  const result = await leaderboardRequest(handle, "GET");
+  assert.equal(result.status, 503);
+  assert.equal(result.body.error.code, "leaderboard_not_configured");
+  assert.equal(listed, 0);
+});
+
+test("leaderboard GET returns snake-case public entries with a bounded limit", async () => {
+  let requestedLimit: number | undefined;
+  const handle = createApi({
+    store: forbiddenStore,
+    leaderboard: {
+      configured: () => true,
+      list: async limit => {
+        requestedLimit = limit;
+        return [{ owner: "acme", repo: "api", repoUrl: "https://github.com/acme/api", commitSha: "a".repeat(40), score: 71, profileCode: "RHTE", submittedAt: "2026-09-21T00:00:00.000Z" }];
+      },
+      recentlySubmitted: async () => false,
+      upsert: async () => {},
+    },
+  });
+  const result = await leaderboardRequest(handle, "GET", undefined, "http://localhost/api/leaderboard?limit=5000");
+  assert.equal(result.status, 200);
+  assert.equal(requestedLimit, 50);
+  assert.deepEqual(result.body.entries[0], {
+    owner: "acme",
+    repo: "api",
+    repo_url: "https://github.com/acme/api",
+    commit_sha: "a".repeat(40),
+    score: 71,
+    profile_code: "RHTE",
+    submitted_at: "2026-09-21T00:00:00.000Z",
+  });
+});
+
+test("leaderboard POST re-verifies server-side and stores only the generated report", async () => {
+  let reportCalls = 0;
+  let upserted = false;
+  const handle = createApi({
+    store: forbiddenStore,
+    githubToken: "configured-token",
+    repositoryReportAdmission: new RepositoryReportAdmission({ anonymousMaxStarts: 10, tokenMaxStarts: 10, anonymousWindowMs: 1_000, tokenWindowMs: 1_000 }),
+    repositoryReport: async (input, options) => {
+      reportCalls += 1;
+      assert.deepEqual(input, { repoUrl: "https://github.com/Acme/api" });
+      assert.equal(options?.authToken, "configured-token");
+      return report;
+    },
+    leaderboard: {
+      configured: () => true,
+      list: async () => [],
+      recentlySubmitted: async (owner, repo) => {
+        assert.equal(owner, "Acme");
+        assert.equal(repo, "api");
+        return false;
+      },
+      upsert: async storedReport => {
+        upserted = true;
+        assert.deepEqual(storedReport, report);
+      },
+    },
+  });
+  const result = await leaderboardRequest(handle, "POST", { repo_url: "https://github.com/Acme/api", score: 999 });
+  assert.equal(result.status, 400);
+  assert.equal(result.body.error.code, "invalid_input");
+  assert.equal(reportCalls, 0);
+  assert.equal(upserted, false);
+
+  const valid = await leaderboardRequest(handle, "POST", { repo_url: "https://github.com/Acme/api" });
+  assert.equal(valid.status, 200);
+  assert.deepEqual(valid.body, report);
+  assert.equal(reportCalls, 1);
+  assert.equal(upserted, true);
+});
+
+test("leaderboard POST cooldown blocks before re-running repository collection", async () => {
+  let reportCalls = 0;
+  const handle = createApi({
+    store: forbiddenStore,
+    repositoryReportAdmission: new RepositoryReportAdmission({ anonymousMaxStarts: 10, tokenMaxStarts: 10, anonymousWindowMs: 1_000, tokenWindowMs: 1_000 }),
+    repositoryReport: async () => { reportCalls += 1; return report; },
+    leaderboard: {
+      configured: () => true,
+      list: async () => [],
+      recentlySubmitted: async () => true,
+      upsert: async () => { throw new Error("cooldown should block before upsert"); },
+    },
+  });
+  const result = await leaderboardRequest(handle, "POST", { repo_url: "https://github.com/acme/api" });
+  assert.equal(result.status, 429);
+  assert.equal(result.body.error.code, "leaderboard_cooldown");
+  assert.equal(reportCalls, 0);
 });

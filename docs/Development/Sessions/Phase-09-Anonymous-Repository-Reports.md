@@ -368,3 +368,17 @@ SJTI 차원의 `leftStrength`와 `rightStrength`는 양쪽 신호군의 독립 �
 회귀 검사는 독립 강도 0.9/0.8이 53%/47%로 표시되는지, 네 차원의 표시 합계가 모두 100%인지, 첫 카드와 마지막 카드가 함께 열리고 닫히는지를 확인한다. 이 변경은 표시와 상호작용 버그 수정이며 평가 계약이나 점수 규칙을 바꾸지 않으므로 별도 ADR은 추가하지 않았다.
 
 최종 검증은 `npm run typecheck`, `npm test` 321/321, `npm run check:docs` 74파일·442개 링크, `npm run build`, 해석 가이드 집중 E2E desktop/mobile 2/2, 전체 Playwright desktop/mobile 42/42와 `git diff --check`를 통과했다. 집중 E2E의 첫 실행은 새 production build 전에 기존 `.next`를 사용해 과거 133% 표시를 재현하며 실패했고, `npm run build` 뒤 같은 검사를 다시 실행해 수정된 100% 합계와 동시 펼침 동작을 확인했다.
+
+## 2026-09-21 — 회원가입 없는 서버 재검증 기반 공개 리더보드 (#76)
+
+지금까지 `/evaluate`는 서버에 아무것도 남기지 않고 결과를 브라우저 `localStorage`에만 저장했다. 사용자가 회원가입 없이 여러 저장소의 점수를 비교할 수 있는 공개 리더보드를 요청해, Railway Postgres를 별도로 붙이는 영구 저장 계층을 처음으로 추가했다(ADR-0024).
+
+두 가지를 사용자와 먼저 확정했다. (1) 공개 방식은 자동이 아니라 선택 — 분석 자체는 지금처럼 서버에 아무것도 남기지 않고, 결과 화면에서 "리더보드에 공개"를 눌러야만 올라간다. (2) 위조 방지는 클라이언트 점수를 신뢰하지 않고 서버가 재검증 — `POST /api/leaderboard`는 `repo_url` 문자열 하나만 받고, 이미 있는 `normalizeAndValidateRepoUrl` → `repositoryReportAdmission` → `generateRepositoryReport` 파이프라인을 그대로 다시 실행해 그 결과만 저장한다. 클라이언트가 점수·프로필 값을 보낼 방법 자체가 없다.
+
+저장은 레거시 평가 기능이 쓰는 Supabase `myaiscore_state`와 분리된, `DATABASE_URL`로 접근하는 새 Postgres 인스턴스에 둔다(`src/server/leaderboard/store.ts`, `pg` 패키지, 마이그레이션 `migrations/railway/202609210001_leaderboard.sql`). 같은 저장소를 다시 제출하면 이전 점수를 지우고 최신 재검증 결과로 덮어쓴다 — "한 번 딴 최고점 보존"이 아니라 "지금 저장소에 남은 신호"라는 제품 전제와 맞추기 위해서다. `DATABASE_URL`이 없는 배포에서는 `leaderboard_not_configured`(503)로만 실패하고 나머지 기능(분석, 저장, 공유 카드 등)은 그대로 동작한다.
+
+화면은 두 곳을 추가했다. `/evaluate` 결과 카드 하단에 옵트인 버튼과 안내 문구, 재검증 진행 상태를 넣었고(`RepositoryExperience.tsx`), 새 `/leaderboard` 페이지(`src/app/leaderboard/page.tsx`, `RepositoryLeaderboardExperience`)는 `GET /api/leaderboard`만 읽는 읽기 전용 목록이다. 헤더 내비게이션에도 링크를 추가했다. 한국어·영어 문구를 모두 추가했고(`messages.ts`), `package.json`에 `pg`/`@types/pg`, `.env.example`에 `DATABASE_URL` 문서를 추가했다.
+
+이 변경은 새 영구 저장소와 새로운 공개 데이터 노출 경로가 걸린 아키텍처 결정이라 ADR-0024로 별도 기록했다.
+
+2026-09-21에 최신 main(`5f5f3b0`) 위로 leaderboard 기능 커밋만 다시 얹으면서 sponsor 변경과 분리했다. #72/#73의 SJTI 유형 동시 펼침과 좌우 상대 비율 정규화 로직은 기준선으로 유지했고, 충돌은 `messages.ts`, CHANGELOG, 이 세션 로그에서 해소했다. 검증은 정리 브랜치에서 다시 수행한다. Railway Postgres 인스턴스 생성, `DATABASE_URL` 환경 변수 설정, 마이그레이션 SQL 실행은 운영 환경에서 별도로 해야 한다.

@@ -268,6 +268,7 @@ export function RepositoryShell({ children }: { children: React.ReactNode }) {
     { href: "/", name: copy.shell.home },
     { href: "/profile", name: copy.shell.profile },
     { href: "/insights", name: copy.shell.insights },
+    { href: "/leaderboard", name: copy.shell.leaderboard },
   ];
   return <>
     <a className="skip-link" href="#main" onClick={() => requestAnimationFrame(() => { const target = document.getElementById("main"); target?.setAttribute("tabindex", "-1"); target?.focus(); })}>{copy.shell.skip}</a>
@@ -339,6 +340,7 @@ function RepositoryAxisRadar({ report }: { report: RepositoryReport }) {
 function RepositoryReportView({ report, demo = false, actions = true, overviewVariant = "guide" }: { report: RepositoryReport; demo?: boolean; actions?: boolean; overviewVariant?: "default" | "guide" }) {
   const [notice, setNotice] = useState<"saved" | "error" | "cardSaved" | "cardShared" | "shareFallback" | "cardError" | "">("");
   const [cardBusy, setCardBusy] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(report, locale, copy);
   const v2 = report.schemaVersion === "repository-report-v2" ? report : null;
@@ -372,6 +374,17 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
     }
   }
   const noticeCopy = notice === "saved" ? copy.report.saved : notice === "error" ? copy.report.saveError : notice === "cardSaved" ? copy.report.cardSaved : notice === "cardShared" ? copy.report.cardShared : notice === "shareFallback" ? copy.report.cardShareFallback : copy.report.cardError;
+  async function publishToLeaderboard() {
+    if (publishStatus === "loading") return;
+    setPublishStatus("loading");
+    try {
+      const response = await fetch("/api/leaderboard", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ repo_url: report.repo }) });
+      if (!response.ok) { setPublishStatus("error"); return; }
+      setPublishStatus("done");
+    } catch {
+      setPublishStatus("error");
+    }
+  }
   return <section className="repo-report" aria-label={copy.report.aria}>
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
     {guideOverview ? <section className="repo-overview-guide repo-hero-card product-panel" aria-label={display.scoreLabel}>
@@ -423,7 +436,9 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
       {actionable ? <section className="repo-next repo-recommendations"><span className="eyebrow">{copy.report.recommendations}</span><p>{copy.report.recommendationsIntro}</p>{actionable.recommendations.length > 0 ? <ol>{actionable.recommendations.map(item => { const action = v2Display.recommendation(item.signalId); return <li key={item.signalId}><span>{v2Display.recommendationEffort[item.effort]}</span><h2>{action.title}</h2><p>{action.description}</p>{item.evidencePath && <small>{v2Display.recommendationPath(item.evidencePath)}</small>}</li>; })}</ol> : <p>{v2Display.noRecommendations}</p>}{actionable.ruleVersion === "repository-signals-v2.7" && actionable.cohort ? <aside className="repo-cohort"><span>{v2Display.cohortHeading}</span><strong>{v2Display.cohortPosition(actionable.cohort)}</strong><p>{v2Display.cohortDetails(actionable.cohort)}</p></aside> : <small className="repo-cohort-pending">{v2Display.cohortPending}</small>}</section> : <section className="repo-next"><span className="eyebrow">{copy.report.nextChallenge}</span><h2>{display.nextChallenge.title}</h2><p>{display.nextChallenge.description}</p></section>}
     </div>
     {v2 && <section className="product-panel repo-diagnostics"><span className="eyebrow">{v2Display.diagnosticsHeading}</span><p>{v2Display.hygieneSummary(v2.diagnostics.hygiene.highConfidenceArtifacts, v2.diagnostics.hygiene.generatedArtifactCandidates, v2.diagnostics.hygiene.secretLikePaths)}</p><p>{v2Display.structureSummary(v2.diagnostics.structure.oversizedSourceCandidates, v2.diagnostics.structure.sourceFilesOver400Lines, v2.diagnostics.structure.sourceFilesOver800Lines)}</p>{v2.diagnostics.structure.largestSelectedSourceFiles.length > 0 && <ul>{v2.diagnostics.structure.largestSelectedSourceFiles.map(file => <li key={file.path}><code>{file.path}</code> · {file.lineCount} lines</li>)}</ul>}</section>}
-    {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button type="button" className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("download")}>{copy.report.downloadCard}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("share")}>{copy.report.shareCard}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div><p className="repo-card-intro caption">{copy.report.cardIntro}</p>{notice && <p role="status" className="caption">{noticeCopy}</p>}</section>}
+    {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button type="button" className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("download")}>{copy.report.downloadCard}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("share")}>{copy.report.shareCard}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div><p className="repo-card-intro caption">{copy.report.cardIntro}</p>{notice && <p role="status" className="caption">{noticeCopy}</p>}
+      {!demo && <div className="repo-leaderboard-optin"><p className="caption">{copy.report.leaderboardIntro}</p><div className="button-row"><button type="button" className="button button-secondary" disabled={publishStatus === "loading" || publishStatus === "done"} onClick={() => void publishToLeaderboard()}>{publishStatus === "done" ? copy.report.leaderboardPublished : publishStatus === "loading" ? copy.report.leaderboardPublishing : copy.report.leaderboardPublish}</button><Link href="/leaderboard" className="text-button">{copy.report.leaderboardLink}</Link></div>{publishStatus === "error" && <p role="alert" className="notice notice-error caption">{copy.report.leaderboardError}</p>}{publishStatus === "done" && <p role="status" className="caption">{copy.report.leaderboardDone}</p>}</div>}
+    </section>}
   </section>;
 }
 
@@ -530,6 +545,51 @@ export function RepositoryProfileExperience() {
     {error && <p className="notice notice-error" role="alert">{error === "history" ? copy.profile.historyError : copy.profile.updateError}</p>}
     {reports.length === 0 ? <section className="product-empty"><h2>{copy.profile.emptyTitle}</h2><p>{copy.profile.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.profile.emptyCta}</Link></section> : <section aria-label={copy.profile.historyAria} className="history-list">{reports.map((report, index) => { const display = repositoryPresentation(report, locale, copy); return <article className="history-entry" key={`${report.repo}@${report.commitSha}`}><div className="history-description"><span className="eyebrow">{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial}</span><h2>{repoName(report.repo)}</h2><p>{display.style.title} · <code>{report.commitSha.slice(0, 12)}</code></p></div><div className="history-score"><strong>{report.score.value}</strong><small>/100</small></div><div className="history-actions"><button className="text-button" onClick={() => { currentReport = report; router.push("/insights"); }}>{copy.profile.view}</button><button className="text-button" onClick={() => remove(index)}>{copy.profile.remove}</button></div></article>; })}</section>}
     {(reports.length > 0 || error) && <button className="button button-secondary repo-clear" onClick={() => remove()}>{copy.profile.clear}</button>}<p className="caption session-footnote">{copy.profile.footnote}</p>
+  </main></RepositoryShell>;
+}
+
+interface LeaderboardEntry {
+  owner: string;
+  repo: string;
+  repo_url: string;
+  commit_sha: string;
+  score: number;
+  profile_code: string | null;
+}
+
+export function RepositoryLeaderboardExperience() {
+  const { copy } = useLocale();
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [status, setStatus] = useState<"loading" | "done" | "error" | "unavailable">("loading");
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch("/api/leaderboard");
+        if (response.status === 503) { if (!cancelled) setStatus("unavailable"); return; }
+        if (!response.ok) { if (!cancelled) setStatus("error"); return; }
+        const data: unknown = await response.json().catch(() => null);
+        const list = isRecord(data) && Array.isArray(data.entries) ? data.entries as LeaderboardEntry[] : [];
+        if (!cancelled) { setEntries(list); setStatus("done"); }
+      } catch {
+        if (!cancelled) setStatus("error");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+  return <RepositoryShell><main id="main" className="page-width product-page">
+    <header className="product-heading"><div><h1>{copy.leaderboard.title}</h1><p>{copy.leaderboard.description}</p></div><Link className="button button-primary" href="/evaluate">{copy.leaderboard.cta}</Link></header>
+    {status === "loading" && <p className="notice" role="status">{copy.leaderboard.loading}</p>}
+    {status === "unavailable" && <p className="notice" role="status">{copy.leaderboard.unavailable}</p>}
+    {status === "error" && <p className="notice notice-error" role="alert">{copy.leaderboard.error}</p>}
+    {status === "done" && (entries.length === 0 ? <section className="product-empty"><h2>{copy.leaderboard.emptyTitle}</h2><p>{copy.leaderboard.emptyText}</p></section> : <section aria-label={copy.leaderboard.title} className="history-list">
+      {entries.map((entry, index) => <article className="history-entry" key={`${entry.owner}/${entry.repo}`}>
+        <div className="history-description"><span className="eyebrow">{copy.leaderboard.rank(index + 1)}</span><h2>{entry.owner}/{entry.repo}</h2><p>{entry.profile_code ?? "—"} · <code>{entry.commit_sha.slice(0, 12)}</code></p></div>
+        <div className="history-score"><strong>{entry.score}</strong><small>/100</small></div>
+        <div className="history-actions"><a className="text-button" href={entry.repo_url} target="_blank" rel="noreferrer">{copy.leaderboard.viewRepo}</a></div>
+      </article>)}
+    </section>)}
+    <p className="caption session-footnote">{copy.leaderboard.footnote}</p>
   </main></RepositoryShell>;
 }
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-21 — 회원가입 없는 공개 리포지토리 리더보드 (#76)
+
+- Railway Postgres(`DATABASE_URL`)에 `leaderboard_entries` 테이블을 추가하고(`migrations/railway/202609210001_leaderboard.sql`), 레거시 평가 기능의 Supabase 저장소와는 분리된 새 저장 계층(`src/server/leaderboard/store.ts`, `pg`)을 만들었다.
+- `POST /api/leaderboard`는 `repo_url`만 받아 서버가 기존 익명 분석 파이프라인(`normalizeAndValidateRepoUrl` → `repositoryReportAdmission` → `generateRepositoryReport`)을 다시 실행해 재검증한 결과만 저장한다. 클라이언트가 점수를 직접 보낼 방법은 없다. `GET /api/leaderboard`는 점수 내림차순 목록을 반환한다.
+- 공개는 항상 선택이다: `/evaluate` 결과 화면에 "리더보드에 공개" 버튼을 추가했고, 분석 자체는 이 버튼을 누르기 전까지 서버에 아무것도 남기지 않는다. 새 `/leaderboard` 페이지는 목록만 보여주는 읽기 전용 화면이다.
+- 같은 저장소를 다시 제출하면 이전 점수를 지우고 최신 재검증 결과로 덮어쓴다("현재 저장소 신호" 원칙 유지). 저장 키는 GitHub의 대소문자 비구분 저장소 식별에 맞춰 소문자로 정규화한다.
+- 새 영구 저장소와 새 공개 데이터 노출 경로가 걸린 결정이라 [ADR-0024](../Architecture/ADR/0024-opt-in-public-repository-leaderboard.md)로 기록했다.
+- 자세한 내용: [Phase-09 세션 로그 2026-09-21](Sessions/Phase-09-Anonymous-Repository-Reports.md#2026-09-21--회원가입-없는-서버-재검증-기반-공개-리더보드-76)
+- 검증: 정리 브랜치에서 최신 main 위로 충돌을 해소하고 `npm run typecheck`, `npm test`, `npm run check:docs`, `npm run build`, `git diff --check`를 다시 실행한다. Railway Postgres 생성, `DATABASE_URL` 설정, 마이그레이션 SQL 실행은 운영 환경에서 별도로 수행해야 한다.
+
 ## 2026-09-20 — SJTI 유형 목록 동시 펼침과 상대 비율 정규화
 
 - 해석 가이드의 16개 SJTI 유형 카드는 하나를 펼치거나 접으면 전체 카드가 같은 상태로 전환되도록 바꿔, 같은 행에서 설명이 없는 빈 카드만 늘어나던 문제를 없앴다.
