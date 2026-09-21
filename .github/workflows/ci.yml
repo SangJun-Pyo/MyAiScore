@@ -23,11 +23,38 @@ jobs:
       - run: npm test
       - run: npm run check:docs
       - run: npm run build
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: desktop
+            port: 3100
+          - project: mobile
+            port: 3101
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      MYAISCORE_ENABLE_LIVE: 'false'
+      PLAYWRIGHT_PORT: ${{ matrix.port }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npm ci
+      - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: browser-test-results
+          name: browser-test-results-${{ matrix.project }}
           path: test-results/
           retention-days: 7

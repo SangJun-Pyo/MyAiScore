@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-21 — CI E2E 병렬화
+
+- GitHub Actions의 `Verify` 워크플로에서 정적 검증(`typecheck`, unit test, docs, build)과 브라우저 E2E를 분리했다.
+- E2E는 `desktop`/`mobile` Playwright 프로젝트를 matrix job으로 나눠 병렬 실행한다. 기존에는 두 프로젝트가 한 job에서 순차 실행되어 main 머지 후 확인 시간이 길었다.
+- Playwright 브라우저 캐시(`~/.cache/ms-playwright`)를 추가해 반복 실행 시 Chromium 설치 시간을 줄인다.
+
 ## 2026-09-21 — 회원가입 없는 공개 리포지토리 리더보드 (#76)
 
 - Railway Postgres(`DATABASE_URL`)에 `leaderboard_entries` 테이블을 추가하고(`migrations/railway/202609210001_leaderboard.sql`), 레거시 평가 기능의 Supabase 저장소와는 분리된 새 저장 계층(`src/server/leaderboard/store.ts`, `pg`)을 만들었다.
