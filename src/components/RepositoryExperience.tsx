@@ -268,6 +268,7 @@ export function RepositoryShell({ children }: { children: React.ReactNode }) {
     { href: "/", name: copy.shell.home },
     { href: "/profile", name: copy.shell.profile },
     { href: "/insights", name: copy.shell.insights },
+    { href: "/leaderboard", name: copy.shell.leaderboard },
   ];
   return <>
     <a className="skip-link" href="#main" onClick={() => requestAnimationFrame(() => { const target = document.getElementById("main"); target?.setAttribute("tabindex", "-1"); target?.focus(); })}>{copy.shell.skip}</a>
@@ -339,6 +340,7 @@ function RepositoryAxisRadar({ report }: { report: RepositoryReport }) {
 function RepositoryReportView({ report, demo = false, actions = true, overviewVariant = "guide" }: { report: RepositoryReport; demo?: boolean; actions?: boolean; overviewVariant?: "default" | "guide" }) {
   const [notice, setNotice] = useState<"saved" | "error" | "cardSaved" | "cardShared" | "shareFallback" | "cardError" | "">("");
   const [cardBusy, setCardBusy] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const { locale, copy } = useLocale();
   const display = repositoryPresentation(report, locale, copy);
   const v2 = report.schemaVersion === "repository-report-v2" ? report : null;
@@ -372,6 +374,17 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
     }
   }
   const noticeCopy = notice === "saved" ? copy.report.saved : notice === "error" ? copy.report.saveError : notice === "cardSaved" ? copy.report.cardSaved : notice === "cardShared" ? copy.report.cardShared : notice === "shareFallback" ? copy.report.cardShareFallback : copy.report.cardError;
+  async function publishToLeaderboard() {
+    if (publishStatus === "loading") return;
+    setPublishStatus("loading");
+    try {
+      const response = await fetch("/api/leaderboard", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ repo_url: report.repo }) });
+      if (!response.ok) { setPublishStatus("error"); return; }
+      setPublishStatus("done");
+    } catch {
+      setPublishStatus("error");
+    }
+  }
   return <section className="repo-report" aria-label={copy.report.aria}>
     {demo && <div className="repo-demo-banner"><span className="sample-chip">{copy.report.demoTag}</span><p>{copy.report.demoDescription}</p></div>}
     {guideOverview ? <section className="repo-overview-guide repo-hero-card product-panel" aria-label={display.scoreLabel}>
@@ -423,7 +436,9 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
       {actionable ? <section className="repo-next repo-recommendations"><span className="eyebrow">{copy.report.recommendations}</span><p>{copy.report.recommendationsIntro}</p>{actionable.recommendations.length > 0 ? <ol>{actionable.recommendations.map(item => { const action = v2Display.recommendation(item.signalId); return <li key={item.signalId}><span>{v2Display.recommendationEffort[item.effort]}</span><h2>{action.title}</h2><p>{action.description}</p>{item.evidencePath && <small>{v2Display.recommendationPath(item.evidencePath)}</small>}</li>; })}</ol> : <p>{v2Display.noRecommendations}</p>}{actionable.ruleVersion === "repository-signals-v2.7" && actionable.cohort ? <aside className="repo-cohort"><span>{v2Display.cohortHeading}</span><strong>{v2Display.cohortPosition(actionable.cohort)}</strong><p>{v2Display.cohortDetails(actionable.cohort)}</p></aside> : <small className="repo-cohort-pending">{v2Display.cohortPending}</small>}</section> : <section className="repo-next"><span className="eyebrow">{copy.report.nextChallenge}</span><h2>{display.nextChallenge.title}</h2><p>{display.nextChallenge.description}</p></section>}
     </div>
     {v2 && <section className="product-panel repo-diagnostics"><span className="eyebrow">{v2Display.diagnosticsHeading}</span><p>{v2Display.hygieneSummary(v2.diagnostics.hygiene.highConfidenceArtifacts, v2.diagnostics.hygiene.generatedArtifactCandidates, v2.diagnostics.hygiene.secretLikePaths)}</p><p>{v2Display.structureSummary(v2.diagnostics.structure.oversizedSourceCandidates, v2.diagnostics.structure.sourceFilesOver400Lines, v2.diagnostics.structure.sourceFilesOver800Lines)}</p>{v2.diagnostics.structure.largestSelectedSourceFiles.length > 0 && <ul>{v2.diagnostics.structure.largestSelectedSourceFiles.map(file => <li key={file.path}><code>{file.path}</code> · {file.lineCount} lines</li>)}</ul>}</section>}
-    {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button type="button" className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("download")}>{copy.report.downloadCard}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("share")}>{copy.report.shareCard}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div><p className="repo-card-intro caption">{copy.report.cardIntro}</p>{notice && <p role="status" className="caption">{noticeCopy}</p>}</section>}
+    {actions && <section className="repo-actions"><p className="caption">{copy.report.saveIntro}</p><div className="button-row"><button type="button" className="button button-primary" onClick={() => { try { saveToHistory(report); setNotice("saved"); } catch { setNotice("error"); } }}>{copy.report.save}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("download")}>{copy.report.downloadCard}</button><button type="button" className="button button-secondary" disabled={cardBusy} onClick={() => void makeCard("share")}>{copy.report.shareCard}</button><Link href="/insights" className="text-button" onClick={() => { currentReport = report; }}>{copy.report.insightsLink}</Link></div><p className="repo-card-intro caption">{copy.report.cardIntro}</p>{notice && <p role="status" className="caption">{noticeCopy}</p>}
+      {!demo && <div className="repo-leaderboard-optin"><p className="caption">{copy.report.leaderboardIntro}</p><div className="button-row"><button type="button" className="button button-secondary" disabled={publishStatus === "loading" || publishStatus === "done"} onClick={() => void publishToLeaderboard()}>{publishStatus === "done" ? copy.report.leaderboardPublished : publishStatus === "loading" ? copy.report.leaderboardPublishing : copy.report.leaderboardPublish}</button><Link href="/leaderboard" className="text-button">{copy.report.leaderboardLink}</Link></div>{publishStatus === "error" && <p role="alert" className="notice notice-error caption">{copy.report.leaderboardError}</p>}{publishStatus === "done" && <p role="status" className="caption">{copy.report.leaderboardDone}</p>}</div>}
+    </section>}
   </section>;
 }
 
@@ -530,6 +545,101 @@ export function RepositoryProfileExperience() {
     {error && <p className="notice notice-error" role="alert">{error === "history" ? copy.profile.historyError : copy.profile.updateError}</p>}
     {reports.length === 0 ? <section className="product-empty"><h2>{copy.profile.emptyTitle}</h2><p>{copy.profile.emptyText}</p><Link className="button button-primary" href="/evaluate">{copy.profile.emptyCta}</Link></section> : <section aria-label={copy.profile.historyAria} className="history-list">{reports.map((report, index) => { const display = repositoryPresentation(report, locale, copy); return <article className="history-entry" key={`${report.repo}@${report.commitSha}`}><div className="history-description"><span className="eyebrow">{report.coverage.status === "complete" ? copy.report.complete : copy.report.partial}</span><h2>{repoName(report.repo)}</h2><p>{display.style.title} · <code>{report.commitSha.slice(0, 12)}</code></p></div><div className="history-score"><strong>{report.score.value}</strong><small>/100</small></div><div className="history-actions"><button className="text-button" onClick={() => { currentReport = report; router.push("/insights"); }}>{copy.profile.view}</button><button className="text-button" onClick={() => remove(index)}>{copy.profile.remove}</button></div></article>; })}</section>}
     {(reports.length > 0 || error) && <button className="button button-secondary repo-clear" onClick={() => remove()}>{copy.profile.clear}</button>}<p className="caption session-footnote">{copy.profile.footnote}</p>
+  </main></RepositoryShell>;
+}
+
+interface LeaderboardEntry {
+  owner: string;
+  repo: string;
+  repo_url: string;
+  commit_sha: string;
+  score: number;
+  profile_code: string | null;
+  submitted_at?: string;
+}
+
+export function RepositoryLeaderboardExperience() {
+  const { locale, copy } = useLocale();
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [status, setStatus] = useState<"loading" | "done" | "error" | "unavailable">("loading");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<"score" | "recent">("score");
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if ((window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && new URLSearchParams(window.location.search).get("sample") === "1") {
+          if (!cancelled) {
+            setEntries([
+              { owner: "SangJun-Pyo", repo: "MyAiScore", repo_url: "https://github.com/SangJun-Pyo/MyAiScore", commit_sha: "f23c7a3ad064b90ce6e4f1a9a9d0b221b89a6c42", score: 77, profile_code: "RHTE", submitted_at: "2026-09-21T06:40:00.000Z" },
+              { owner: "vercel", repo: "next.js", repo_url: "https://github.com/vercel/next.js", commit_sha: "8a1d42d7b1026f4a3297e3a74ec80971c053af90", score: 74, profile_code: "RPTF", submitted_at: "2026-09-21T05:10:00.000Z" },
+              { owner: "openai", repo: "openai-node", repo_url: "https://github.com/openai/openai-node", commit_sha: "2c948cc93cf87377fa8ef424902c6d188562a9e1", score: 68, profile_code: "DHTE", submitted_at: "2026-09-20T17:20:00.000Z" },
+              { owner: "example", repo: "starter-app", repo_url: "https://github.com/example/starter-app", commit_sha: "98607d8b358f77b884324e1b5fc14a6f9ee02145", score: 42, profile_code: "DHSF", submitted_at: "2026-09-19T09:30:00.000Z" },
+            ]);
+            setStatus("done");
+          }
+          return;
+        }
+        const response = await fetch("/api/leaderboard");
+        if (response.status === 503) { if (!cancelled) setStatus("unavailable"); return; }
+        if (!response.ok) { if (!cancelled) setStatus("error"); return; }
+        const data: unknown = await response.json().catch(() => null);
+        const list = isRecord(data) && Array.isArray(data.entries) ? data.entries as LeaderboardEntry[] : [];
+        if (!cancelled) { setEntries(list); setStatus("done"); }
+      } catch {
+        if (!cancelled) setStatus("error");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const sortedEntries = [...entries].sort((a, b) => sort === "recent"
+    ? Date.parse(b.submitted_at ?? "") - Date.parse(a.submitted_at ?? "")
+    : b.score - a.score || a.owner.localeCompare(b.owner) || a.repo.localeCompare(b.repo));
+  const filteredEntries = sortedEntries.filter(entry => `${entry.owner}/${entry.repo} ${entry.profile_code ?? ""}`.toLowerCase().includes(query.trim().toLowerCase()));
+  const topEntry = [...entries].sort((a, b) => b.score - a.score)[0];
+  const averageScore = entries.length ? Math.round(entries.reduce((sum, entry) => sum + entry.score, 0) / entries.length) : 0;
+  const topScore = topEntry?.score ?? 0;
+  const dateFormatter = new Intl.DateTimeFormat(locale === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
+
+  return <RepositoryShell><main id="main" className="page-width product-page leaderboard-page">
+    <header className="product-heading leaderboard-heading"><div><span className="eyebrow">{copy.leaderboard.eyebrow}</span><h1>{copy.leaderboard.title}</h1><p>{copy.leaderboard.description}</p></div><Link className="button button-primary" href="/evaluate">{copy.leaderboard.cta}</Link></header>
+    {status === "loading" && <p className="notice" role="status">{copy.leaderboard.loading}</p>}
+    {status === "unavailable" && <p className="notice" role="status">{copy.leaderboard.unavailable}</p>}
+    {status === "error" && <p className="notice notice-error" role="alert">{copy.leaderboard.error}</p>}
+    {status === "done" && (entries.length === 0 ? <section className="product-empty"><h2>{copy.leaderboard.emptyTitle}</h2><p>{copy.leaderboard.emptyText}</p></section> : <>
+      <section className="leaderboard-aggregate" aria-label={copy.leaderboard.aggregateLabel}>
+        <div><span>{copy.leaderboard.totalEntries}</span><strong>{entries.length.toLocaleString(locale === "ko" ? "ko-KR" : "en-US")}</strong></div>
+        <div><span>{copy.leaderboard.averageScore}</span><strong>{averageScore}<small>/100</small></strong></div>
+        <div><span>{copy.leaderboard.topScore}</span><strong>{topScore}<small>/100</small></strong></div>
+      </section>
+      {topEntry && <section className="leaderboard-featured" aria-label={copy.leaderboard.featuredLabel}>
+        <div className="leaderboard-rank-medal">{copy.leaderboard.rank(1)}</div>
+        <div className="leaderboard-featured-copy">
+          <span className="eyebrow">{copy.leaderboard.featuredEyebrow}</span>
+          <h2>{topEntry.owner}/{topEntry.repo}</h2>
+          <p>{topEntry.profile_code ?? copy.leaderboard.codeFallback} · <code>{topEntry.commit_sha.slice(0, 12)}</code></p>
+        </div>
+        <div className="leaderboard-featured-score"><span>{copy.leaderboard.scoreColumn}</span><strong>{topEntry.score}</strong><small>/100</small></div>
+        <a className="text-button" href={topEntry.repo_url} target="_blank" rel="noreferrer">{copy.leaderboard.viewRepo}</a>
+      </section>}
+      <section className="leaderboard-controls" aria-label={copy.leaderboard.controlsLabel}>
+        <div className="leaderboard-tabs" role="group" aria-label={copy.leaderboard.periodLabel}><button type="button" aria-pressed="true">{copy.leaderboard.allTime}</button><button type="button" disabled>{copy.leaderboard.thisMonth}</button><button type="button" disabled>{copy.leaderboard.thisWeek}</button></div>
+        <label className="leaderboard-search"><span>{copy.leaderboard.searchLabel}</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.leaderboard.searchPlaceholder} /></label>
+        <div className="leaderboard-sort" role="group" aria-label={copy.leaderboard.sortLabel}><span>{copy.leaderboard.sortLabel}</span><button type="button" aria-pressed={sort === "score"} onClick={() => setSort("score")}>{copy.leaderboard.sortScore}</button><button type="button" aria-pressed={sort === "recent"} onClick={() => setSort("recent")}>{copy.leaderboard.sortRecent}</button></div>
+      </section>
+      {filteredEntries.length === 0 ? <section className="product-empty leaderboard-empty-filter"><h2>{copy.leaderboard.emptySearchTitle}</h2><p>{copy.leaderboard.emptySearchText}</p></section> : <section aria-label={copy.leaderboard.title} className="leaderboard-table">
+        <div className="leaderboard-table-head" aria-hidden="true"><span>{copy.leaderboard.rankColumn}</span><span>{copy.leaderboard.repositoryColumn}</span><span>{copy.leaderboard.profileColumn}</span><span>{copy.leaderboard.commitColumn}</span><span>{copy.leaderboard.scoreColumn}</span></div>
+        {filteredEntries.map((entry, index) => <article className="leaderboard-row" key={`${entry.owner}/${entry.repo}`}>
+          <div className="leaderboard-rank">{copy.leaderboard.rank(index + 1)}</div>
+          <div className="leaderboard-repo"><h2>{entry.owner}/{entry.repo}</h2><p>{entry.submitted_at ? copy.leaderboard.submitted(dateFormatter.format(new Date(entry.submitted_at))) : copy.leaderboard.latest}</p></div>
+          <div className="leaderboard-code">{entry.profile_code ?? copy.leaderboard.codeFallback}</div>
+          <code className="leaderboard-commit">{entry.commit_sha.slice(0, 12)}</code>
+          <div className="leaderboard-score"><strong>{entry.score}</strong><small>/100</small><a className="text-button" href={entry.repo_url} target="_blank" rel="noreferrer">{copy.leaderboard.viewRepo}</a></div>
+        </article>)}
+      </section>}
+    </>)}
+    <p className="caption session-footnote">{copy.leaderboard.footnote}</p>
   </main></RepositoryShell>;
 }
 

@@ -6,7 +6,7 @@ const ko = {
   language: { label: "언어 선택", ko: "한국어", en: "EN" },
   shell: {
     skip: "본문으로 건너뛰기", brandHome: "MyAiScore 홈", beta: "데모", navLabel: "주요 메뉴",
-    home: "홈", profile: "내 리포트", insights: "해석 가이드", evaluate: "저장소 분석", github: "GitHub", githubRepository: "GitHub 저장소", sponsorSite: "MyAiScore 후원하기", footerLinksLabel: "저장소·후원 링크",
+    home: "홈", profile: "내 리포트", insights: "해석 가이드", leaderboard: "리더보드", evaluate: "저장소 분석", github: "GitHub", githubRepository: "GitHub 저장소", sponsorSite: "MyAiScore 후원하기", footerLinksLabel: "저장소·후원 링크",
     footerLead: "공개 저장소에 남은 자료로 AI 활용 습관을 살펴봅니다.", footerLimit: "개인의 역량이나 프로젝트 전체의 품질을 평가하지 않아요.",
   },
   report: {
@@ -21,6 +21,8 @@ const ko = {
     coverageDetails: "분석 범위와 기준 보기", treeTruncated: "GitHub가 파일 트리를 일부만 반환했어요.", selectionLimited: "후보 파일이 많아서 정해진 한도만큼만 골라 읽었어요.",
     nextChallenge: "다음 단계", recommendations: "추천 개선 과제", recommendationsIntro: "예상 작업량과 점수 개선 폭을 함께 보고, 효과가 큰 작업부터 추천해요.", saveIntro: "저장은 선택이에요. 원문이나 GitHub 계정 정보 없이 이 요약만 지금 쓰는 브라우저에 저장돼요.",
     save: "이 브라우저에 저장", downloadCard: "결과 카드 저장", shareCard: "결과 카드 공유", cardIntro: "결과 카드는 저장소명·커밋·점수·유형만 담으며 원문은 포함하지 않아요.", insightsLink: "점수 해석 보기 →", saved: "이 브라우저의 ‘내 리포트’에 저장했어요.", saveError: "브라우저 저장 공간에 리포트를 저장하지 못했어요.", cardSaved: "PNG 결과 카드를 저장했어요.", cardShared: "결과 카드를 공유했어요.", cardShareFallback: "이 브라우저는 이미지 공유를 지원하지 않아 PNG로 저장했어요.", cardError: "결과 카드를 만들지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+    leaderboardIntro: "선택하면 서버가 이 저장소를 다시 분석해 검증한 뒤, 저장소 이름·커밋·점수만 공개 리더보드에 올려요. 원문이나 GitHub 계정 정보는 올라가지 않아요.",
+    leaderboardPublish: "리더보드에 공개", leaderboardPublishing: "재검증 중…", leaderboardPublished: "리더보드에 공개됨", leaderboardDone: "리더보드에 올렸어요. 같은 저장소를 다시 올리면 최신 상태로 갱신돼요.", leaderboardError: "리더보드에 올리지 못했어요. 잠시 뒤 다시 시도해 주세요.", leaderboardLink: "리더보드 보기 →",
   },
   home: {
     kicker: "로그인 없이 바로 시작", title1: "AI로 코딩하고 있는데,", title2: "제대로 활용하고 있을까요?", lead1: "GitHub 공개 저장소 주소 하나만 입력하면", lead2: "맥락·검증·기록·자동화와 관련된 신호를 확인할 수 있습니다.",
@@ -57,6 +59,18 @@ const ko = {
     scoreLabel: "AI 개발 체계 점수", scoreExplanation: "선택된 공개 저장소에서 확인한 맥락·검증·기록·자동화 신호를 종합한 참고용 점수입니다. 개인의 AI 활용 능력이나 코드 품질, 실제 실행 결과를 평가하는 점수는 아닙니다.",
     axes: { context: { label: "맥락", question: "AI가 프로젝트의 목표와 규칙을 파악할 단서가 있나요?" }, verification: { label: "검증 기반", question: "결과를 확인할 테스트와 점검 장치가 있나요?" }, traceability: { label: "기록", question: "나중에 결정과 변경 이유를 따라갈 수 있나요?" }, automation: { label: "자동화", question: "반복 점검을 자동으로 돌릴 구조가 있나요?" } } satisfies Record<RepositoryReportAxis, { label: string; question: string }>,
   },
+  leaderboard: {
+    eyebrow: "PUBLIC REPOSITORY RANKING", title: "리더보드", description: "사용자가 공개하기로 선택한 결과만 모아, 서버가 재검증한 점수 순으로 보여줘요.", cta: "내 저장소 분석하기 →",
+    loading: "리더보드를 불러오는 중…", unavailable: "리더보드가 아직 설정되지 않았어요.", error: "리더보드를 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+    emptyTitle: "아직 공개된 결과가 없어요.", emptyText: "저장소를 분석한 뒤 결과 화면에서 ‘리더보드에 공개’를 선택하면 여기에 표시돼요.",
+    aggregateLabel: "리더보드 요약", totalEntries: "공개 결과", averageScore: "평균 점수", topScore: "최고 점수",
+    featuredLabel: "현재 1위 저장소", featuredEyebrow: "CURRENT LEADER", controlsLabel: "리더보드 필터와 정렬", periodLabel: "기간", allTime: "전체 기간", thisMonth: "이번 달", thisWeek: "이번 주",
+    searchLabel: "저장소 검색", searchPlaceholder: "저장소 또는 SJTI 코드 검색", sortLabel: "정렬", sortScore: "점수", sortRecent: "최근 공개",
+    rankColumn: "순위", repositoryColumn: "저장소", profileColumn: "SJTI", commitColumn: "커밋", scoreColumn: "점수",
+    emptySearchTitle: "검색 결과가 없어요.", emptySearchText: "다른 저장소 이름이나 SJTI 코드를 입력해 보세요.",
+    rank: (value: number) => `${value}위`, viewRepo: "GitHub에서 보기 ↗", codeFallback: "—", latest: "최근 재검증", submitted: (value: string) => `${value} 재검증`,
+    footnote: "재제출하면 이전 순위 대신 가장 최근에 재검증된 상태로 갱신돼요. 개인의 AI 실력 인증이 아니라 저장소에 남은 신호를 비교하는 참고 자료예요.",
+  },
 } as const;
 
 type DeepWiden<T> = T extends (...args: infer A) => string ? (...args: A) => string : T extends string ? string : T extends readonly (infer U)[] ? readonly DeepWiden<U>[] : T extends object ? { [K in keyof T]: DeepWiden<T[K]> } : T;
@@ -65,12 +79,14 @@ export type Messages = DeepWiden<typeof ko>;
 const en: Messages = {
   meta: { title: "MyAiScore — AI collaboration signals in public repositories", description: "Explore context, verification, traceability, and automation signals in a public GitHub repository without signing in." },
   language: { label: "Choose language", ko: "한국어", en: "EN" },
-  shell: { skip: "Skip to content", brandHome: "MyAiScore home", beta: "DEMO", navLabel: "Main navigation", home: "Home", profile: "Reports", insights: "Guide", evaluate: "Analyze", github: "GitHub", githubRepository: "GitHub repository", sponsorSite: "Sponsor MyAiScore", footerLinksLabel: "Repository and sponsor links", footerLead: "Explore traces of AI collaboration in a public repository.", footerLimit: "Not a certification of personal AI ability." },
+  shell: { skip: "Skip to content", brandHome: "MyAiScore home", beta: "DEMO", navLabel: "Main navigation", home: "Home", profile: "Reports", insights: "Guide", leaderboard: "Leaderboard", evaluate: "Analyze", github: "GitHub", githubRepository: "GitHub repository", sponsorSite: "Sponsor MyAiScore", footerLinksLabel: "Repository and sponsor links", footerLead: "Explore traces of AI collaboration in a public repository.", footerLimit: "Not a certification of personal AI ability." },
   report: {
     aria: "Repository analysis report", demoTag: "SYNTHETIC EXAMPLE", demoDescription: "Invented data that demonstrates the report layout. This is not a real repository result.", styleEyebrow: "Collaboration style visible in this repository", repository: "Repository", commit: "Commit",
     boundaryStrong: "This result describes signals left in a repository; it does not certify personal AI ability.", boundaryMore: "It cannot establish the decisions made in real conversations or the quality of the whole project.",
     axesEyebrow: "Four repository signals", axesHeading: "Which traces contributed to the score?", candidateUnknown: "Candidate count unavailable", candidate: count => `${count} candidates`, selected: count => `${count} selected`, read: count => `${count} read`, complete: "Collection complete", partial: "Partial collection", staticOnly: "Based only on static file signals",
     evidenceFiles: count => `${count} evidence ${count === 1 ? "file" : "files"}`, noSignal: "No signal for this axis was found in the selected sample.", gapsEyebrow: "What could not be established", gapsHeading: "Unknowns belong in the result.", noGaps: "No gap was found within what this rule checked.", coverageDetails: "Collection scope", treeTruncated: "GitHub returned only part of the repository tree.", selectionLimited: "The repository had more candidates than the bounded sample could read.", nextChallenge: "Next challenge", recommendations: "Highest-impact next steps", recommendationsIntro: "Priorities combine simulated score gain with fixed effort bands. Internal ranking coefficients are not shown.", saveIntro: "Saving is optional. Only this summary is stored in this browser, without source content or GitHub account data.", save: "Save in this browser", downloadCard: "Download result card", shareCard: "Share result card", cardIntro: "The card includes only the repository name, commit, score, and profile—never source content.", insightsLink: "Read the score guide →", saved: "Saved to My reports in this browser.", saveError: "The report could not be saved in browser storage.", cardSaved: "Downloaded the PNG result card.", cardShared: "Shared the result card.", cardShareFallback: "Image sharing is unavailable in this browser, so the PNG was downloaded instead.", cardError: "The result card could not be created. Please try again.",
+    leaderboardIntro: "Opting in re-verifies this repository on the server, then publishes only its name, commit, and score to the public leaderboard. Source content and GitHub account data are never published.",
+    leaderboardPublish: "Publish to leaderboard", leaderboardPublishing: "Re-verifying…", leaderboardPublished: "Published to leaderboard", leaderboardDone: "Published to the leaderboard. Resubmitting later refreshes it to the latest re-verified state.", leaderboardError: "Could not publish to the leaderboard. Please try again shortly.", leaderboardLink: "View the leaderboard →",
   },
   home: {
     kicker: "Start without signing in", title1: "Find AI collaboration traces", title2: "in a public repository.", lead1: "Paste one public GitHub repository URL", lead2: "to inspect context, verification, records, and automation signals.", primary: "Analyze my repository ↗", example: "View an example report ↘", availability: "No account · Public repositories only · No AI model call", demoTag: "SYNTHETIC PREVIEW", demoCaption: "An example of repository signals, not a personal evaluation.",
@@ -92,6 +108,18 @@ const en: Messages = {
     stylesEyebrow: "AXIS-BASED RESULT STYLES", stylesTitle: "Result names come from the four-axis distribution.", stylesIntro: "These are the names shown on result cards, such as Quality Guardian. The first matching rule below determines the style.", ruleStep: value => `Rule ${value}`, firstSignalsRule: threshold => `Use this style when the total is below ${threshold}.`, balancedRule: (minimum, spread) => `Otherwise, use this style when every axis is at least ${minimum} and the highest-to-lowest spread is ${spread} or less.`, dominantRule: axis => `If neither earlier rule matches, use this style when ${axis} is the highest axis.`, tiePriority: axes => `Highest-axis tie priority: ${axes}.`, activeStyle: "CURRENT REPORT STYLE", distributionNote: "The current style also comes from the four-axis distribution, not a total-score band.",
   },
   presentation: { scoreLabel: "Repository AI collaboration readiness", scoreExplanation: "A playful sum of collaboration-readiness signals found in selected public repository files. It does not evaluate personal AI ability, code quality, or successful execution.", axes: { context: { label: "Context", question: "Are there clues that help AI understand the project's goals and rules?" }, verification: { label: "Verification basis", question: "Are there tests or checks intended to examine the result?" }, traceability: { label: "Traceability", question: "Can later readers follow decisions and changes?" }, automation: { label: "Automation", question: "Is there a foundation for running repeated checks automatically?" } } },
+  leaderboard: {
+    eyebrow: "PUBLIC REPOSITORY RANKING", title: "Leaderboard", description: "Only results users chose to publish, ranked by server-re-verified score.", cta: "Analyze my repository →",
+    loading: "Loading the leaderboard…", unavailable: "The leaderboard is not configured yet.", error: "The leaderboard could not be loaded. Please try again shortly.",
+    emptyTitle: "No published results yet.", emptyText: "Analyze a repository, then choose Publish to leaderboard on the result screen to see it here.",
+    aggregateLabel: "Leaderboard summary", totalEntries: "Published results", averageScore: "Average score", topScore: "Top score",
+    featuredLabel: "Current leading repository", featuredEyebrow: "CURRENT LEADER", controlsLabel: "Leaderboard filters and sorting", periodLabel: "Period", allTime: "All time", thisMonth: "This month", thisWeek: "This week",
+    searchLabel: "Search repositories", searchPlaceholder: "Search repository or SJTI code", sortLabel: "Sort", sortScore: "Score", sortRecent: "Recently published",
+    rankColumn: "Rank", repositoryColumn: "Repository", profileColumn: "SJTI", commitColumn: "Commit", scoreColumn: "Score",
+    emptySearchTitle: "No matching results.", emptySearchText: "Try another repository name or SJTI code.",
+    rank: (value: number) => `#${value}`, viewRepo: "View on GitHub ↗", codeFallback: "—", latest: "Recently re-verified", submitted: value => `Re-verified ${value}`,
+    footnote: "A resubmission replaces the previous entry with its latest re-verified state. This is a reference for comparing repository signals, not a certification of personal AI ability.",
+  },
 };
 
 const messages: Record<Locale, Messages> = { ko, en };

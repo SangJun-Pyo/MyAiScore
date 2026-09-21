@@ -378,3 +378,19 @@ SJTI 차원의 `leftStrength`와 `rightStrength`는 양쪽 신호군의 독립 �
 사용자가 아직 github.com/sponsors 신청(신원 확인·Stripe Connect)을 완료하지 않아, 지금은 두 링크 모두 존재는 하되 GitHub Sponsors 프로필 승인 전까지는 대상 페이지가 404를 반환한다. 이는 예상된 상태이며, 승인 후 별도 코드 변경 없이 바로 정상 작동한다.
 
 2026-09-21에 최신 main(`5f5f3b0`) 위로 정리하면서 #72/#73의 SJTI 유형 동시 펼침과 좌우 상대 비율 정규화 로직을 기준선으로 유지했다. 후원 링크 변경은 `.github/FUNDING.yml`, footer 링크, 관련 ko/en 문구와 footer CSS에 한정했고, 결과 카드·해석 가이드의 표시 계산은 변경하지 않았다. 검증은 정리 브랜치에서 다시 수행한다.
+
+## 2026-09-21 — 회원가입 없는 서버 재검증 기반 공개 리더보드 (#76)
+
+지금까지 `/evaluate`는 서버에 아무것도 남기지 않고 결과를 브라우저 `localStorage`에만 저장했다. 사용자가 회원가입 없이 여러 저장소의 점수를 비교할 수 있는 공개 리더보드를 요청해, Railway Postgres를 별도로 붙이는 영구 저장 계층을 처음으로 추가했다(ADR-0024).
+
+두 가지를 사용자와 먼저 확정했다. (1) 공개 방식은 자동이 아니라 선택 — 분석 자체는 지금처럼 서버에 아무것도 남기지 않고, 결과 화면에서 "리더보드에 공개"를 눌러야만 올라간다. (2) 위조 방지는 클라이언트 점수를 신뢰하지 않고 서버가 재검증 — `POST /api/leaderboard`는 `repo_url` 문자열 하나만 받고, 이미 있는 `normalizeAndValidateRepoUrl` → `repositoryReportAdmission` → `generateRepositoryReport` 파이프라인을 그대로 다시 실행해 그 결과만 저장한다. 클라이언트가 점수·프로필 값을 보낼 방법 자체가 없다.
+
+저장은 레거시 평가 기능이 쓰는 Supabase `myaiscore_state`와 분리된, `DATABASE_URL`로 접근하는 새 Postgres 인스턴스에 둔다(`src/server/leaderboard/store.ts`, `pg` 패키지, 마이그레이션 `migrations/railway/202609210001_leaderboard.sql`). 같은 저장소를 다시 제출하면 이전 점수를 지우고 최신 재검증 결과로 덮어쓴다 — "한 번 딴 최고점 보존"이 아니라 "지금 저장소에 남은 신호"라는 제품 전제와 맞추기 위해서다. `DATABASE_URL`이 없는 배포에서는 `leaderboard_not_configured`(503)로만 실패하고 나머지 기능(분석, 저장, 공유 카드 등)은 그대로 동작한다.
+
+화면은 두 곳을 추가했다. `/evaluate` 결과 카드 하단에 옵트인 버튼과 안내 문구, 재검증 진행 상태를 넣었고(`RepositoryExperience.tsx`), 새 `/leaderboard` 페이지(`src/app/leaderboard/page.tsx`, `RepositoryLeaderboardExperience`)는 `GET /api/leaderboard`만 읽는 읽기 전용 목록이다. 헤더 내비게이션에도 링크를 추가했다. 한국어·영어 문구를 모두 추가했고(`messages.ts`), `package.json`에 `pg`/`@types/pg`, `.env.example`에 `DATABASE_URL` 문서를 추가했다.
+
+초기 목록 화면이 다른 공개 페이지보다 밋밋하다는 피드백을 받아 `/leaderboard`를 다시 정리했다. 공개 결과 수·평균 점수·최고 점수 요약, 현재 1위 강조 카드, 검색·정렬 컨트롤, 표 형태의 랭킹 행을 추가했고, 실제 DB가 없는 로컬 개발 환경에서는 `?sample=1`로 샘플 데이터가 채워진 화면을 확인할 수 있게 했다. 샘플 분기는 `localhost`/`127.0.0.1`에서만 동작한다.
+
+이 변경은 새 영구 저장소와 새로운 공개 데이터 노출 경로가 걸린 아키텍처 결정이라 ADR-0024로 별도 기록했다.
+
+2026-09-21에 최신 main(`5f5f3b0`) 위로 leaderboard 기능 커밋만 다시 얹으면서 sponsor 변경과 분리했다. #72/#73의 SJTI 유형 동시 펼침과 좌우 상대 비율 정규화 로직은 기준선으로 유지했고, 충돌은 `messages.ts`, CHANGELOG, 이 세션 로그에서 해소했다. 검증은 정리 브랜치에서 다시 수행한다. Railway Postgres 인스턴스 생성, `DATABASE_URL` 환경 변수 설정, 마이그레이션 SQL 실행은 운영 환경에서 별도로 해야 한다.
