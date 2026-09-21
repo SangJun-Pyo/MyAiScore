@@ -40,6 +40,14 @@ function axisValue(report: RepositoryReport, axis: "context" | "verification" | 
   return report.score.axes[axis].value;
 }
 
+export function leaderboardRepoIdentity(value: string): { ownerRaw: string; repoRaw: string; owner: string; repo: string; repoUrl: string } {
+  const match = /^(?:https:\/\/github\.com\/)?([^/]+)\/([^/]+)$/.exec(value);
+  if (!match) throw new Error("invalid_repo_for_leaderboard");
+  const ownerRaw = match[1]!;
+  const repoRaw = match[2]!;
+  return { ownerRaw, repoRaw, owner: normalizedRepoKey(ownerRaw), repo: normalizedRepoKey(repoRaw), repoUrl: `https://github.com/${ownerRaw}/${repoRaw}` };
+}
+
 function profileCodeOf(report: RepositoryReport): string | null {
   return "collaborationProfile" in report && report.collaborationProfile.status === "assigned"
     ? report.collaborationProfile.dimensions.map(dimension => dimension.selectedPole).join("")
@@ -56,12 +64,7 @@ function profileCodeOf(report: RepositoryReport): string | null {
  * repository," not a one-time certificate.
  */
 export async function upsertLeaderboardEntry(report: RepositoryReport): Promise<void> {
-  const match = /^https:\/\/github\.com\/([^/]+)\/([^/]+)$/.exec(report.repo);
-  if (!match) throw new Error("invalid_repo_for_leaderboard");
-  const ownerRaw = match[1]!;
-  const repoRaw = match[2]!;
-  const owner = normalizedRepoKey(ownerRaw);
-  const repo = normalizedRepoKey(repoRaw);
+  const identity = leaderboardRepoIdentity(report.repo);
   await getPool().query(
     `insert into leaderboard_entries
        (owner, repo, repo_url, commit_sha, score, axis_context, axis_verification, axis_traceability, axis_automation, profile_code, schema_version, rule_version, submitted_at)
@@ -72,7 +75,7 @@ export async function upsertLeaderboardEntry(report: RepositoryReport): Promise<
        axis_traceability = excluded.axis_traceability, axis_automation = excluded.axis_automation,
        profile_code = excluded.profile_code, schema_version = excluded.schema_version,
        rule_version = excluded.rule_version, submitted_at = now()`,
-    [owner, repo, report.repo, report.commitSha, report.score.value,
+    [identity.owner, identity.repo, identity.repoUrl, report.commitSha, report.score.value,
       axisValue(report, "context"), axisValue(report, "verification"), axisValue(report, "traceability"), axisValue(report, "automation"),
       profileCodeOf(report), report.schemaVersion, report.ruleVersion],
   );

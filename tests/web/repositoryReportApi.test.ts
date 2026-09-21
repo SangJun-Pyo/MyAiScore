@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createApi } from "../../src/server/web/api.js";
 import { buildRepositoryReport } from "../../src/server/repositoryReport/report.js";
 import { RepositoryReportAdmission, RepositoryReportError } from "../../src/server/repositoryReport/service.js";
+import { leaderboardRepoIdentity } from "../../src/server/leaderboard/store.js";
 import type { IngestionSnapshot } from "../../src/shared/contracts/ingestion.js";
 import type { Store } from "../../src/server/web/store.js";
 
@@ -254,6 +255,24 @@ test("leaderboard POST re-verifies server-side and stores only the generated rep
   assert.deepEqual(valid.body, report);
   assert.equal(reportCalls, 1);
   assert.equal(upserted, true);
+});
+
+test("leaderboard storage accepts canonical report repository slugs", () => {
+  assert.deepEqual(leaderboardRepoIdentity("Acme/api"), {
+    ownerRaw: "Acme",
+    repoRaw: "api",
+    owner: "acme",
+    repo: "api",
+    repoUrl: "https://github.com/Acme/api",
+  });
+  assert.deepEqual(leaderboardRepoIdentity("https://github.com/Acme/api"), {
+    ownerRaw: "Acme",
+    repoRaw: "api",
+    owner: "acme",
+    repo: "api",
+    repoUrl: "https://github.com/Acme/api",
+  });
+  assert.throws(() => leaderboardRepoIdentity("not-a-repo"), /invalid_repo_for_leaderboard/);
 });
 
 test("leaderboard POST cooldown blocks before re-running repository collection", async () => {

@@ -154,6 +154,10 @@ function repoName(repo: string) {
   return repo.replace(/^https:\/\/github\.com\//, "").replace(/\/$/, "");
 }
 
+function repoUrl(repo: string) {
+  return repo.startsWith("https://github.com/") ? repo.replace(/\/$/, "") : `https://github.com/${repoName(repo)}`;
+}
+
 function poleToneClass(letter: string) {
   const tone = REPOSITORY_PROFILE_POLE_TONE[letter as keyof typeof REPOSITORY_PROFILE_POLE_TONE];
   return tone ? `repo-pole-${tone}` : undefined;
@@ -378,7 +382,7 @@ function RepositoryReportView({ report, demo = false, actions = true, overviewVa
     if (publishStatus === "loading") return;
     setPublishStatus("loading");
     try {
-      const response = await fetch("/api/leaderboard", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ repo_url: report.repo }) });
+      const response = await fetch("/api/leaderboard", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ repo_url: repoUrl(report.repo) }) });
       if (!response.ok) { setPublishStatus("error"); return; }
       setPublishStatus("done");
     } catch {

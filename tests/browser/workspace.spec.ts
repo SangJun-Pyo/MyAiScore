@@ -130,6 +130,11 @@ test('빈 내 리포트와 해석 가이드는 API를 호출하거나 결과를 
 
 test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는 리포트를 표시한다', async ({ page }, testInfo) => {
   const bodies = await interceptReport(page, report(), 250);
+  const leaderboardBodies: unknown[] = [];
+  await page.route('**/api/leaderboard', async route => {
+    leaderboardBodies.push(route.request().postDataJSON());
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(report()) });
+  });
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'canShare', { configurable: true, value: (data: ShareData) => Boolean(data.files?.length) });
     Object.defineProperty(navigator, 'share', { configurable: true, value: async (data: ShareData) => {
@@ -170,6 +175,9 @@ test('공개 저장소 URL 하나를 보내고 진행 상태와 근거가 있는
   await page.getByRole('button', { name: '결과 카드 공유' }).click();
   await expect(page.locator('.repo-actions [role="status"]')).toContainText('결과 카드를 공유했어요.');
   expect(await page.evaluate(() => (window as typeof window & { __sharedCard?: unknown }).__sharedCard)).toMatchObject({ name: `myaiscore-example-public-repo-${'a'.repeat(12)}.png`, type: 'image/png', title: 'MyAiScore · example/public-repo' });
+  await page.getByRole('button', { name: '리더보드에 공개' }).click();
+  await expect(page.getByRole('button', { name: '리더보드에 공개됨' })).toBeDisabled();
+  expect(leaderboardBodies).toEqual([{ repo_url: 'https://github.com/example/public-repo' }]);
   expect(bodies).toEqual([{ repo_url: 'https://github.com/example/public-repo' }]);
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
