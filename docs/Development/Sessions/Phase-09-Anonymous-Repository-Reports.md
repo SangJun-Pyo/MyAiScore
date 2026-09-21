@@ -358,3 +358,19 @@ README hero를 같은 production 화면으로 다시 캡처했다. `npm run type
 ### 검증 상태 (미실행 명시)
 
 이 브랜치도 `codex/sjti-pole-colors` 브랜치 위에서 이어 작업했다(같은 세션에서 아직 push되지 않은 두 개의 독립 변경). 이 환경은 Windows용 `node_modules`를 가진 리포지토리에 Linux 컨테이너로 연결되어 있어 `npm run dev`/`npm test`/`npm run build`/`npm run typecheck`를 실행하지 못했다(실패가 아니라 미실행). 실제 검증은 사용자가 로컬에서 두 브랜치를 순서대로 받아 실행해야 한다.
+
+## 2026-09-21 — 회원가입 없는 서버 재검증 기반 공개 리더보드
+
+지금까지 `/evaluate`는 서버에 아무것도 남기지 않고 결과를 브라우저 `localStorage`에만 저장했다. 사용자가 회원가입 없이 여러 저장소의 점수를 비교할 수 있는 공개 리더보드를 요청해, Railway Postgres를 별도로 붙이는 영구 저장 계층을 처음으로 추가했다(ADR-0024).
+
+두 가지를 사용자와 먼저 확정했다. (1) 공개 방식은 자동이 아니라 선택 — 분석 자체는 지금처럼 서버에 아무것도 남기지 않고, 결과 화면에서 "리더보드에 공개"를 눌러야만 올라간다. (2) 위조 방지는 클라이언트 점수를 신뢰하지 않고 서버가 재검증 — `POST /api/leaderboard`는 `repo_url` 문자열 하나만 받고, 이미 있는 `normalizeAndValidateRepoUrl` → `repositoryReportAdmission` → `generateRepositoryReport` 파이프라인을 그대로 다시 실행해 그 결과만 저장한다. 클라이언트가 점수·프로필 값을 보낼 방법 자체가 없다.
+
+저장은 레거시 평가 기능이 쓰는 Supabase `myaiscore_state`와 분리된, `DATABASE_URL`로 접근하는 새 Postgres 인스턴스에 둔다(`src/server/leaderboard/store.ts`, `pg` 패키지, 마이그레이션 `migrations/railway/202609210001_leaderboard.sql`). 같은 저장소를 다시 제출하면 이전 점수를 지우고 최신 재검증 결과로 덮어쓴다 — "한 번 딴 최고점 보존"이 아니라 "지금 저장소에 남은 신호"라는 제품 전제와 맞추기 위해서다. `DATABASE_URL`이 없는 배포에서는 `leaderboard_not_configured`(503)로만 실패하고 나머지 기능(분석, 저장, 공유 카드 등)은 그대로 동작한다.
+
+화면은 두 곳을 추가했다. `/evaluate` 결과 카드 하단에 옵트인 버튼과 안내 문구, 재검증 진행 상태를 넣었고(`RepositoryExperience.tsx`), 새 `/leaderboard` 페이지(`src/app/leaderboard/page.tsx`, `RepositoryLeaderboardExperience`)는 `GET /api/leaderboard`만 읽는 읽기 전용 목록이다. 헤더 내비게이션에도 링크를 추가했다. 한국어·영어 문구를 모두 추가했고(`messages.ts`), `package.json`에 `pg`/`@types/pg`, `.env.example`에 `DATABASE_URL` 문서를 추가했다.
+
+이 변경은 새 영구 저장소와 새로운 공개 데이터 노출 경로가 걸린 아키텍처 결정이라 ADR-0024로 별도 기록했다.
+
+### 검증 상태 (미실행 명시)
+
+이 브랜치는 아직 push되지 않은 `codex/github-sponsors-links` 위에서 이어 작업했다(순서: `codex/sjti-pole-colors` → `codex/github-sponsors-links` → `codex/repository-leaderboard`). 이 환경은 Windows용 `node_modules`를 가진 리포지토리에 Linux 컨테이너로 연결되어 있어 `npm run dev`/`npm test`/`npm run build`/`npm run typecheck`를 실행하지 못했다(실패가 아니라 미실행). Railway Postgres 인스턴스 생성, `DATABASE_URL` 환경 변수 설정, 마이그레이션 SQL 실행도 이 세션에서 수행하지 않았다 — 사용자가 자신의 Railway 프로젝트에서 직접 해야 한다. 실제 빌드·타입체크·테스트·수동 화면 확인은 사용자가 로컬에서 브랜치를 순서대로 받은 뒤 진행해야 한다.

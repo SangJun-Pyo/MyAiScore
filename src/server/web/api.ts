@@ -9,6 +9,7 @@ import { compareAssessments } from '../service/comparison.js';
 import { parseRepositoryReportRequest, type RepositoryReport } from '../../shared/repositoryReport.js';
 import { generateRepositoryReport, repositoryReportAdmission, RepositoryReportAdmission, RepositoryReportError, type RepositoryReportServiceOptions } from '../repositoryReport/service.js';
 import { normalizeAndValidateRepoUrl } from '../ingestion/urlValidation.js';
+import { leaderboardConfigured, listLeaderboard, recentlySubmitted, upsertLeaderboardEntry } from '../leaderboard/store.js';
 import repositoryWalkthrough from '../../../fixtures/walkthroughs/myaiscore-recollected.json';
 
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -125,6 +126,39 @@ export function createApi(deps: Dependencies = {}) {
           if (error instanceof RepositoryReportError) throw new HttpError(error.status, error.code, error.message, error.retryable);
           throw error;
         } finally { release?.(); }
+      }
+      if (resource === 'leaderboard') {
+        if (method === 'GET') {
+          if (id || action) throw new HttpError(404, 'not_found', 'Route not found.');
+          if (!leaderboardConfigured()) throw new HttpError(503, 'leaderboard_not_configured', 'Leaderboard storage is not configured yet.');
+          const limitParam = new URL(request.url).searchParams.get('limit') ?? undefined;
+          const entries = await listLeaderboard(positiveLimit(limitParam, 50));
+          return reply({ entries: entries.map(entry => snakeCase(entry as unknown as Record<string, unknown>)) });
+        }
+        if (method === 'POST') {
+          if (id || action) throw new HttpError(404, 'not_found', 'Route not found.');
+          if (!leaderboardConfigured()) throw new HttpError(503, 'leaderboard_not_configured', 'Leaderboard storage is not configured yet.');
+          const rawInput = await bodyOf(request);
+          let input;
+          try { input = parseRepositoryReportRequest(rawInput); }
+          catch { throw new HttpError(400, 'invalid_input', 'repo_url 하나만 JSON 문자열로 보내 주세요.'); }
+          const normalized = normalizeAndValidateRepoUrl(input.repo_url);
+          if (!normalized.ok) throw new HttpError(400, normalized.code, 'https://github.com/소유자/저장소 형식의 공개 저장소 주소를 입력해 주세요.');
+          if (await recentlySubmitted(normalized.ref.owner, normalized.ref.repo)) throw new HttpError(429, 'leaderboard_cooldown', '이 저장소는 방금 제출됐어요. 잠시 뒤 다시 시도해 주세요.', true);
+          const repoUrl = `https://github.com/${normalized.ref.owner}/${normalized.ref.repo}`;
+          const configuredToken = deps.githubToken === undefined ? process.env.GITHUB_TOKEN?.trim() : deps.githubToken?.trim();
+          let release: (() => void) | undefined;
+          try {
+            release = (deps.repositoryReportAdmission ?? repositoryReportAdmission).acquire(Boolean(configuredToken));
+            const report = await (deps.repositoryReport ?? generateRepositoryReport)({ repoUrl }, { authToken: configuredToken || undefined });
+            await upsertLeaderboardEntry(report);
+            return reply(report);
+          } catch (error) {
+            if (error instanceof RepositoryReportError) throw new HttpError(error.status, error.code, error.message, error.retryable);
+            throw error;
+          } finally { release?.(); }
+        }
+        throw new HttpError(405, 'invalid_input', 'This resource supports GET and POST only.');
       }
       if (method === 'GET' && resource === 'config' && !id) return reply({
         live_enabled: deps.liveEnabled ?? liveConfiguration(), provider_configured: !!process.env.ANTHROPIC_API_KEY && !!process.env.ANTHROPIC_MODEL,
