@@ -5,6 +5,7 @@
 - Railway Postgres(`DATABASE_URL`)에 `leaderboard_entries` 테이블을 추가하고(`migrations/railway/202609210001_leaderboard.sql`), 레거시 평가 기능의 Supabase 저장소와는 분리된 새 저장 계층(`src/server/leaderboard/store.ts`, `pg`)을 만들었다.
 - `POST /api/leaderboard`는 `repo_url`만 받아 서버가 기존 익명 분석 파이프라인(`normalizeAndValidateRepoUrl` → `repositoryReportAdmission` → `generateRepositoryReport`)을 다시 실행해 재검증한 결과만 저장한다. 클라이언트가 점수를 직접 보낼 방법은 없다. `GET /api/leaderboard`는 점수 내림차순 목록을 반환한다.
 - 공개는 항상 선택이다: `/evaluate` 결과 화면에 "리더보드에 공개" 버튼을 추가했고, 분석 자체는 이 버튼을 누르기 전까지 서버에 아무것도 남기지 않는다. 새 `/leaderboard` 페이지는 목록만 보여주는 읽기 전용 화면이다.
+- `/leaderboard`는 공개 결과 수·평균 점수·최고 점수 요약, 현재 1위 강조 카드, 검색·정렬 컨트롤, 테이블형 랭킹 행으로 정리했다. 로컬 개발에서는 `?sample=1`로 데이터가 채워진 화면을 미리 볼 수 있다.
 - 같은 저장소를 다시 제출하면 이전 점수를 지우고 최신 재검증 결과로 덮어쓴다("현재 저장소 신호" 원칙 유지). 저장 키는 GitHub의 대소문자 비구분 저장소 식별에 맞춰 소문자로 정규화한다.
 - 새 영구 저장소와 새 공개 데이터 노출 경로가 걸린 결정이라 [ADR-0024](../Architecture/ADR/0024-opt-in-public-repository-leaderboard.md)로 기록했다.
 - 자세한 내용: [Phase-09 세션 로그 2026-09-21](Sessions/Phase-09-Anonymous-Repository-Reports.md#2026-09-21--회원가입-없는-서버-재검증-기반-공개-리더보드-76)

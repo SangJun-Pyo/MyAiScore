@@ -555,16 +555,31 @@ interface LeaderboardEntry {
   commit_sha: string;
   score: number;
   profile_code: string | null;
+  submitted_at?: string;
 }
 
 export function RepositoryLeaderboardExperience() {
-  const { copy } = useLocale();
+  const { locale, copy } = useLocale();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [status, setStatus] = useState<"loading" | "done" | "error" | "unavailable">("loading");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<"score" | "recent">("score");
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
+        if ((window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") && new URLSearchParams(window.location.search).get("sample") === "1") {
+          if (!cancelled) {
+            setEntries([
+              { owner: "SangJun-Pyo", repo: "MyAiScore", repo_url: "https://github.com/SangJun-Pyo/MyAiScore", commit_sha: "f23c7a3ad064b90ce6e4f1a9a9d0b221b89a6c42", score: 77, profile_code: "RHTE", submitted_at: "2026-09-21T06:40:00.000Z" },
+              { owner: "vercel", repo: "next.js", repo_url: "https://github.com/vercel/next.js", commit_sha: "8a1d42d7b1026f4a3297e3a74ec80971c053af90", score: 74, profile_code: "RPTF", submitted_at: "2026-09-21T05:10:00.000Z" },
+              { owner: "openai", repo: "openai-node", repo_url: "https://github.com/openai/openai-node", commit_sha: "2c948cc93cf87377fa8ef424902c6d188562a9e1", score: 68, profile_code: "DHTE", submitted_at: "2026-09-20T17:20:00.000Z" },
+              { owner: "example", repo: "starter-app", repo_url: "https://github.com/example/starter-app", commit_sha: "98607d8b358f77b884324e1b5fc14a6f9ee02145", score: 42, profile_code: "DHSF", submitted_at: "2026-09-19T09:30:00.000Z" },
+            ]);
+            setStatus("done");
+          }
+          return;
+        }
         const response = await fetch("/api/leaderboard");
         if (response.status === 503) { if (!cancelled) setStatus("unavailable"); return; }
         if (!response.ok) { if (!cancelled) setStatus("error"); return; }
@@ -577,18 +592,53 @@ export function RepositoryLeaderboardExperience() {
     })();
     return () => { cancelled = true; };
   }, []);
-  return <RepositoryShell><main id="main" className="page-width product-page">
-    <header className="product-heading"><div><h1>{copy.leaderboard.title}</h1><p>{copy.leaderboard.description}</p></div><Link className="button button-primary" href="/evaluate">{copy.leaderboard.cta}</Link></header>
+
+  const sortedEntries = [...entries].sort((a, b) => sort === "recent"
+    ? Date.parse(b.submitted_at ?? "") - Date.parse(a.submitted_at ?? "")
+    : b.score - a.score || a.owner.localeCompare(b.owner) || a.repo.localeCompare(b.repo));
+  const filteredEntries = sortedEntries.filter(entry => `${entry.owner}/${entry.repo} ${entry.profile_code ?? ""}`.toLowerCase().includes(query.trim().toLowerCase()));
+  const topEntry = [...entries].sort((a, b) => b.score - a.score)[0];
+  const averageScore = entries.length ? Math.round(entries.reduce((sum, entry) => sum + entry.score, 0) / entries.length) : 0;
+  const topScore = topEntry?.score ?? 0;
+  const dateFormatter = new Intl.DateTimeFormat(locale === "ko" ? "ko-KR" : "en-US", { month: "short", day: "numeric" });
+
+  return <RepositoryShell><main id="main" className="page-width product-page leaderboard-page">
+    <header className="product-heading leaderboard-heading"><div><span className="eyebrow">{copy.leaderboard.eyebrow}</span><h1>{copy.leaderboard.title}</h1><p>{copy.leaderboard.description}</p></div><Link className="button button-primary" href="/evaluate">{copy.leaderboard.cta}</Link></header>
     {status === "loading" && <p className="notice" role="status">{copy.leaderboard.loading}</p>}
     {status === "unavailable" && <p className="notice" role="status">{copy.leaderboard.unavailable}</p>}
     {status === "error" && <p className="notice notice-error" role="alert">{copy.leaderboard.error}</p>}
-    {status === "done" && (entries.length === 0 ? <section className="product-empty"><h2>{copy.leaderboard.emptyTitle}</h2><p>{copy.leaderboard.emptyText}</p></section> : <section aria-label={copy.leaderboard.title} className="history-list">
-      {entries.map((entry, index) => <article className="history-entry" key={`${entry.owner}/${entry.repo}`}>
-        <div className="history-description"><span className="eyebrow">{copy.leaderboard.rank(index + 1)}</span><h2>{entry.owner}/{entry.repo}</h2><p>{entry.profile_code ?? "—"} · <code>{entry.commit_sha.slice(0, 12)}</code></p></div>
-        <div className="history-score"><strong>{entry.score}</strong><small>/100</small></div>
-        <div className="history-actions"><a className="text-button" href={entry.repo_url} target="_blank" rel="noreferrer">{copy.leaderboard.viewRepo}</a></div>
-      </article>)}
-    </section>)}
+    {status === "done" && (entries.length === 0 ? <section className="product-empty"><h2>{copy.leaderboard.emptyTitle}</h2><p>{copy.leaderboard.emptyText}</p></section> : <>
+      <section className="leaderboard-aggregate" aria-label={copy.leaderboard.aggregateLabel}>
+        <div><span>{copy.leaderboard.totalEntries}</span><strong>{entries.length.toLocaleString(locale === "ko" ? "ko-KR" : "en-US")}</strong></div>
+        <div><span>{copy.leaderboard.averageScore}</span><strong>{averageScore}<small>/100</small></strong></div>
+        <div><span>{copy.leaderboard.topScore}</span><strong>{topScore}<small>/100</small></strong></div>
+      </section>
+      {topEntry && <section className="leaderboard-featured" aria-label={copy.leaderboard.featuredLabel}>
+        <div className="leaderboard-rank-medal">{copy.leaderboard.rank(1)}</div>
+        <div className="leaderboard-featured-copy">
+          <span className="eyebrow">{copy.leaderboard.featuredEyebrow}</span>
+          <h2>{topEntry.owner}/{topEntry.repo}</h2>
+          <p>{topEntry.profile_code ?? copy.leaderboard.codeFallback} · <code>{topEntry.commit_sha.slice(0, 12)}</code></p>
+        </div>
+        <div className="leaderboard-featured-score"><span>{copy.leaderboard.scoreColumn}</span><strong>{topEntry.score}</strong><small>/100</small></div>
+        <a className="text-button" href={topEntry.repo_url} target="_blank" rel="noreferrer">{copy.leaderboard.viewRepo}</a>
+      </section>}
+      <section className="leaderboard-controls" aria-label={copy.leaderboard.controlsLabel}>
+        <div className="leaderboard-tabs" role="group" aria-label={copy.leaderboard.periodLabel}><button type="button" aria-pressed="true">{copy.leaderboard.allTime}</button><button type="button" disabled>{copy.leaderboard.thisMonth}</button><button type="button" disabled>{copy.leaderboard.thisWeek}</button></div>
+        <label className="leaderboard-search"><span>{copy.leaderboard.searchLabel}</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.leaderboard.searchPlaceholder} /></label>
+        <div className="leaderboard-sort" role="group" aria-label={copy.leaderboard.sortLabel}><span>{copy.leaderboard.sortLabel}</span><button type="button" aria-pressed={sort === "score"} onClick={() => setSort("score")}>{copy.leaderboard.sortScore}</button><button type="button" aria-pressed={sort === "recent"} onClick={() => setSort("recent")}>{copy.leaderboard.sortRecent}</button></div>
+      </section>
+      {filteredEntries.length === 0 ? <section className="product-empty leaderboard-empty-filter"><h2>{copy.leaderboard.emptySearchTitle}</h2><p>{copy.leaderboard.emptySearchText}</p></section> : <section aria-label={copy.leaderboard.title} className="leaderboard-table">
+        <div className="leaderboard-table-head" aria-hidden="true"><span>{copy.leaderboard.rankColumn}</span><span>{copy.leaderboard.repositoryColumn}</span><span>{copy.leaderboard.profileColumn}</span><span>{copy.leaderboard.commitColumn}</span><span>{copy.leaderboard.scoreColumn}</span></div>
+        {filteredEntries.map((entry, index) => <article className="leaderboard-row" key={`${entry.owner}/${entry.repo}`}>
+          <div className="leaderboard-rank">{copy.leaderboard.rank(index + 1)}</div>
+          <div className="leaderboard-repo"><h2>{entry.owner}/{entry.repo}</h2><p>{entry.submitted_at ? copy.leaderboard.submitted(dateFormatter.format(new Date(entry.submitted_at))) : copy.leaderboard.latest}</p></div>
+          <div className="leaderboard-code">{entry.profile_code ?? copy.leaderboard.codeFallback}</div>
+          <code className="leaderboard-commit">{entry.commit_sha.slice(0, 12)}</code>
+          <div className="leaderboard-score"><strong>{entry.score}</strong><small>/100</small><a className="text-button" href={entry.repo_url} target="_blank" rel="noreferrer">{copy.leaderboard.viewRepo}</a></div>
+        </article>)}
+      </section>}
+    </>)}
     <p className="caption session-footnote">{copy.leaderboard.footnote}</p>
   </main></RepositoryShell>;
 }

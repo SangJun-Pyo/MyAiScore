@@ -379,6 +379,8 @@ SJTI 차원의 `leftStrength`와 `rightStrength`는 양쪽 신호군의 독립 �
 
 화면은 두 곳을 추가했다. `/evaluate` 결과 카드 하단에 옵트인 버튼과 안내 문구, 재검증 진행 상태를 넣었고(`RepositoryExperience.tsx`), 새 `/leaderboard` 페이지(`src/app/leaderboard/page.tsx`, `RepositoryLeaderboardExperience`)는 `GET /api/leaderboard`만 읽는 읽기 전용 목록이다. 헤더 내비게이션에도 링크를 추가했다. 한국어·영어 문구를 모두 추가했고(`messages.ts`), `package.json`에 `pg`/`@types/pg`, `.env.example`에 `DATABASE_URL` 문서를 추가했다.
 
+초기 목록 화면이 다른 공개 페이지보다 밋밋하다는 피드백을 받아 `/leaderboard`를 다시 정리했다. 공개 결과 수·평균 점수·최고 점수 요약, 현재 1위 강조 카드, 검색·정렬 컨트롤, 표 형태의 랭킹 행을 추가했고, 실제 DB가 없는 로컬 개발 환경에서는 `?sample=1`로 샘플 데이터가 채워진 화면을 확인할 수 있게 했다. 샘플 분기는 `localhost`/`127.0.0.1`에서만 동작한다.
+
 이 변경은 새 영구 저장소와 새로운 공개 데이터 노출 경로가 걸린 아키텍처 결정이라 ADR-0024로 별도 기록했다.
 
 2026-09-21에 최신 main(`5f5f3b0`) 위로 leaderboard 기능 커밋만 다시 얹으면서 sponsor 변경과 분리했다. #72/#73의 SJTI 유형 동시 펼침과 좌우 상대 비율 정규화 로직은 기준선으로 유지했고, 충돌은 `messages.ts`, CHANGELOG, 이 세션 로그에서 해소했다. 검증은 정리 브랜치에서 다시 수행한다. Railway Postgres 인스턴스 생성, `DATABASE_URL` 환경 변수 설정, 마이그레이션 SQL 실행은 운영 환경에서 별도로 해야 한다.
